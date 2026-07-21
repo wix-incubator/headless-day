@@ -1,0 +1,162 @@
+@import '@fontsource/fredoka/400.css';
+@import '@fontsource/fredoka/500.css';
+@import '@fontsource/fredoka/600.css';
+
+:root {
+  --lagoon: #2FA8BC; --sky: #9ADBE8; --coral: #FF7E6B; --coral-deep: #E85F4C;
+  --sun: #FFD166; --sand: #F2D8A7; --leaf: #8ED081; --ink: #14353E; --card: #FFFDF7;
+  --ocean: #157A96; --reef: #58D3C7; --horizon: #FFE3C2; --sky-top: #9ADBE8;
+  --ease-spring: cubic-bezier(.34,1.56,.64,1); --ease-out: cubic-bezier(.33,1,.68,1);
+  --font: 'Fredoka', ui-rounded, sans-serif;
+}
+
+html, body { margin: 0; height: 100%; overflow: hidden; font-family: var(--font); color: var(--ink); }
+
+/* Typography discipline (brief §6): 600 headings / 500 buttons-labels / 400 body. */
+.bb-btn, .bb-navtab, .bb-slot, .bb-day { font-weight: 500; }
+h2, .bb-info h2, .bb-modal h2 { font-weight: 600; }
+
+.bb-card {
+  background: var(--card); border: 3px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 5px 0 rgba(20, 53, 62, 0.28); padding: 16px 18px;
+}
+.bb-btn {
+  font-family: var(--font); font-size: 16px; padding: 10px 18px; border-radius: 999px;
+  background: var(--coral); color: #fff; border: 3px solid var(--ink); cursor: pointer;
+  box-shadow: 0 3px 0 rgba(20, 53, 62, 0.3);
+  transition: transform 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out);
+}
+.bb-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 rgba(20, 53, 62, 0.3); }
+.bb-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(20, 53, 62, 0.3); }
+.bb-btn--sun { background: var(--sun); color: var(--ink); }
+.bb-btn:focus-visible, .bb-navtab:focus-visible, .bb-link:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.bb-btn:disabled { opacity: 0.55; cursor: default; }
+
+/* Quiet text-link style (skip-intro et al.) — deliberately lower-key than .bb-btn/.bb-btn--sun,
+   no pill/border/shadow, so it reads as a secondary escape hatch, not a competing CTA. */
+.bb-link {
+  font-family: var(--font); font-size: 13px; font-weight: 500; color: var(--ink);
+  background: none; border: none; margin-left: 8px; padding: 6px 4px; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px; opacity: 0.65;
+  transition: opacity 0.12s var(--ease-out);
+}
+.bb-link:hover { opacity: 1; }
+
+.bb-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+.bb-overlay > * { pointer-events: auto; }
+
+/* Springy entrances (brief: quick, never ceremonial — all <=300ms). */
+@keyframes bb-slide-in { from { opacity: 0; transform: translateX(24px); } }
+@keyframes bb-pop { from { opacity: 0; transform: translate(-50%, -50%) scale(.95); } }
+@keyframes bb-rise { from { opacity: 0; transform: translate(-50%, 8px); } }
+.bb-info { animation: bb-slide-in 0.3s var(--ease-spring) both; }
+.bb-modal { animation: bb-pop 0.22s var(--ease-spring) both; }
+.bb-toast, .bb-chip { animation: bb-rise 0.2s var(--ease-out) both; }
+
+.bb-bubble { position: fixed; left: 52%; top: 10%; width: min(360px, 38vw); }
+.bb-bubble::before {
+  content: ''; position: absolute; left: -13px; top: 40%; width: 18px; height: 18px;
+  background: var(--card); border-left: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+  transform: rotate(45deg);
+}
+.bb-bubble .who { display: block; font-size: 12px; letter-spacing: 0.12em; color: var(--coral-deep); margin-bottom: 4px; }
+
+.bb-toast { position: fixed; left: 50%; bottom: 7%; transform: translateX(-50%); padding: 12px 20px; border-radius: 999px; font-size: 17px; }
+.bb-toast--hiding { opacity: 0; transition: opacity 0.15s ease; }
+.bb-chip { position: fixed; left: 50%; bottom: 6%; transform: translateX(-50%); padding: 8px 16px; border-radius: 999px; font-size: 14px; transition: opacity 0.6s; }
+/* Top-center (brief §5): clear of the right-hand .bb-info card and the bottom .bb-chip/.bb-dpad. */
+.bb-achievement-toast {
+  position: fixed; left: 50%; top: 4%; transform: translateX(-50%);
+  padding: 12px 20px; border-radius: 999px; font-size: 16px; text-align: center;
+  animation: bb-rise 0.2s var(--ease-out) both;
+}
+.bb-key { display: inline-block; border: 2.5px solid var(--ink); border-radius: 6px; padding: 0 7px; margin: 0 2px; background: #fff; box-shadow: 0 2px 0 rgba(20, 53, 62, 0.3); font-size: 0.9em; }
+
+.bb-info { position: fixed; right: 3%; top: 6%; bottom: 6%; width: min(360px, 31vw); display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+@keyframes bb-info-out { to { opacity: 0; transform: translateX(24px); } }
+.bb-info--leaving { animation: bb-info-out 0.2s cubic-bezier(.33,1,.68,1) both; }
+.bb-info h2 { margin: 0; font-size: 26px; line-height: 1.15; }
+.bb-info ul { margin: 2px 0; padding-left: 18px; line-height: 1.45; }
+.bb-info .cta { margin-top: auto; }
+.bb-info__blurb { margin: 2px 0; font-size: 14px; line-height: 1.5; color: #4C6970; }
+
+/* Photo sits flush with the card's border (breaks out of .bb-card's own padding
+   via negative margins matching it) so it reads as a framed photo, not an inset thumbnail. */
+.bb-info__photo { margin: -16px -18px 0; }
+.bb-info__photo img {
+  display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
+  border-radius: 15px 15px 0 0;
+}
+.bb-info__photo figcaption { margin: 0; padding: 4px 18px 0; }
+.bb-pill { display: inline-block; border: 2.5px solid var(--ink); border-radius: 999px; padding: 2px 10px; background: var(--sky); font-size: 13px; margin: 0 4px 4px 0; }
+.bb-pill--warm { background: var(--sand); }
+
+.bb-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(640px, 92vw); max-height: 88vh; overflow-y: auto; }
+.bb-modal h2 { margin: 0 0 2px; font-size: 24px; }
+.bb-cols { display: flex; gap: 16px; flex-wrap: wrap; }
+.bb-cols > * { flex: 1 1 240px; }
+.bb-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.bb-day {
+  aspect-ratio: 1; display: grid; place-items: center; border: 2px solid var(--ink);
+  border-radius: 8px; background: #fff; font-family: var(--font); font-size: 13px; cursor: pointer;
+}
+.bb-day:disabled { opacity: 0.28; border-style: dashed; cursor: default; }
+.bb-day[aria-pressed='true'] { background: var(--coral); color: #fff; }
+.bb-day--has { background: var(--sky); }
+.bb-slot { border: 2.5px solid var(--ink); border-radius: 999px; padding: 5px 12px; background: #fff; font-family: var(--font); cursor: pointer; margin: 0 6px 6px 0; }
+.bb-slot[aria-pressed='true'] { background: var(--sun); }
+.bb-field { display: block; width: 100%; box-sizing: border-box; border: 2.5px solid var(--ink); border-radius: 10px; padding: 9px 10px; font-family: var(--font); font-size: 15px; margin-bottom: 8px; }
+.bb-caption { font-size: 12px; color: #7A959B; }
+.bb-error { color: var(--coral-deep); font-size: 14px; }
+
+.bb-navtab {
+  position: fixed; left: 0; top: 38%; z-index: 20; writing-mode: vertical-rl; letter-spacing: 0.14em;
+  background: var(--card); border: 3px solid var(--ink); border-left: none; border-radius: 0 14px 14px 0;
+  padding: 14px 9px; font-family: var(--font); font-size: 13px; cursor: pointer;
+  box-shadow: 3px 4px 0 rgba(20, 53, 62, 0.25);
+}
+.bb-scrim { position: fixed; inset: 0; background: rgba(20, 53, 62, 0.35); z-index: 25; border: none; }
+.bb-drawer {
+  position: fixed; left: 0; top: 0; bottom: 0; width: min(320px, 82vw); z-index: 30;
+  border-radius: 0 22px 22px 0; border-left: none; display: flex; flex-direction: column; gap: 4px; overflow-y: auto;
+}
+.bb-drawer .sect { font-size: 11px; letter-spacing: 0.16em; color: var(--coral-deep); margin-top: 10px; }
+.bb-drawer button.link { display: block; width: 100%; text-align: left; background: none; border: none; font-family: var(--font); font-size: 15px; color: var(--ink); padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.bb-drawer button.link:hover { background: var(--sky); }
+
+.bb-center { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(420px, 92vw); text-align: center; }
+@keyframes bb-stamp-pulse { from { box-shadow: 0 0 0 0 #FFD166; } to { box-shadow: 0 0 0 12px #FFD16600; } }
+.bb-stamp {
+  width: 54px; height: 54px; margin: 0 auto 8px; border-radius: 50%; background: var(--leaf);
+  border: 3px solid var(--ink); display: grid; place-items: center; font-size: 26px;
+  transform: rotate(-6deg); animation: bb-stamp-pulse 0.6s var(--ease-out) 1;
+}
+
+.bb-dpad { position: fixed; left: 4%; bottom: 4%; display: grid; grid-template: repeat(3, 56px) / repeat(3, 56px); gap: 4px; z-index: 15; }
+.bb-dpad button { border: 2.5px solid var(--ink); border-radius: 10px; background: var(--card); font-size: 18px; box-shadow: 0 3px 0 rgba(20, 53, 62, 0.3); }
+.bb-land {
+  position: fixed; right: 4%; bottom: 5%; width: 92px; height: 92px; border-radius: 50%;
+  background: var(--coral); color: #fff; border: 3px solid var(--ink); font-family: var(--font);
+  font-size: 16px; box-shadow: 0 4px 0 rgba(20, 53, 62, 0.3); z-index: 15;
+  transition: transform 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out);
+}
+.bb-land:hover { transform: translateY(-1px); box-shadow: 0 5px 0 rgba(20, 53, 62, 0.3); }
+.bb-land:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(20, 53, 62, 0.3); }
+.bb-land:disabled { opacity: 0.45; }
+
+.bb-fallback { height: 100%; overflow-y: auto; background: linear-gradient(180deg, var(--sky-top), var(--horizon)); padding: 24px; box-sizing: border-box; }
+
+@keyframes bb-slide-in-sheet { from { opacity: 0; transform: translateY(24px); } }
+
+@media (max-width: 720px) {
+  .bb-info {
+    right: 0; left: 0; top: auto; bottom: 0; width: auto; max-height: 60vh; border-radius: 18px 18px 0 0;
+    animation-name: bb-slide-in-sheet; /* bottom-sheet on mobile: rise from below, not in from the right */
+  }
+  .bb-modal { top: auto; bottom: 0; transform: translateX(-50%); border-radius: 18px 18px 0 0; max-height: 80vh; }
+  .bb-bubble { left: 8%; width: 84vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

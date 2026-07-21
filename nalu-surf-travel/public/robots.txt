@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://birdie-bre-2b166b6a-giladi47.wix-site-host.com/sitemap.xml
