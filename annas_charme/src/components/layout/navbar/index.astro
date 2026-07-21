@@ -1,0 +1,45 @@
+---
+import CartModal from "../../cart/cart-modal.astro";
+import LogoSquare from "../../logo-square.astro";
+
+const { SITE_NAME } = import.meta.env;
+---
+
+<nav class="relative flex items-center justify-between p-4 lg:px-6">
+  <div class="flex w-full items-center">
+    <div class="flex w-full items-center">
+      <a
+        href="/"
+        class="mr-2 flex items-center justify-center lg:mr-6"
+      >
+        <LogoSquare />
+        <div class="ml-2 flex-none text-sm font-medium uppercase lg:block hidden">
+          {SITE_NAME}
+        </div>
+      </a>
+      <ul class="hidden gap-6 text-sm md:flex md:items-center">
+        <li>
+          <a
+            href="/build"
+            data-astro-prefetch
+            class="text-neutral-800 dark:text-neutral-100 font-medium underline-offset-4 hover:underline"
+          >
+            Build a Bracelet
+          </a>
+        </li>
+        <li>
+          <a
+            href="/about"
+            data-astro-prefetch
+            class="text-neutral-800 dark:text-neutral-100 font-medium underline-offset-4 hover:underline"
+          >
+            About
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="flex justify-end">
+      <CartModal />
+    </div>
+  </div>
+</nav>
