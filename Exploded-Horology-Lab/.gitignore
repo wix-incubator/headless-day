@@ -1,0 +1,14 @@
+# Wix Headless — site-specific / secrets, never commit
+.wix/
+wix.config.json
+.env
+.env.*
+*.local
+
+# deps / build output
+node_modules/
+dist/
+
+# OS / editor
+.DS_Store
+Thumbs.db
