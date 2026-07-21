@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RibbonRule from '../components/RibbonRule.astro';
+import BouquetBuilder from '../components/react/BouquetBuilder.tsx';
+import { getBouquets, getCows, getAddOns, imgSrc } from '../lib/cms';
+import { STEMS, PRESETS } from '../lib/stems';
+
+const [bouquets, cows, addOns] = await Promise.all([getBouquets(), getCows(), getAddOns()]);
+
+const initialBouquet = Astro.url.searchParams.get('bouquet') ?? '';
+const initialCow = Astro.url.searchParams.get('cow') ?? '';
+const initialStems = PRESETS[initialBouquet] ?? [];
+
+const cowProps = cows.map((c) => ({
+  slug: c.slug, name: c.name, breed: c.breed, age: c.age, mood: c.mood,
+  favoriteGreens: c.favoriteGreens ?? [], portrait: imgSrc(c.portrait, 320, 240),
+}));
+const addOnProps = addOns.map((a) => ({ name: a.name, price: a.price }));
+
+// SEO: each stem is a purchasable product component of a bouquet.
+const productLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'ZER4MOO bouquet stems',
+  itemListElement: STEMS.map((s, i) => ({
+    '@type': 'ListItem', position: i + 1,
+    item: {
+      '@type': 'Product', name: s.name, category: s.kind === 'flower' ? 'Wildflowers' : 'Greens',
+      offers: { '@type': 'Offer', price: s.price, priceCurrency: 'ILS', availability: 'https://schema.org/InStock' },
+    },
+  })),
+};
+---
+<Layout title="Build a Bouquet" path="/shop" description="Gather your own hand-tied bouquet stem by stem from the field — hay, fresh grass, and wildflowers — then choose your cow and send it grazing." jsonLd={productLd} stickyBar={false}>
+  <section class="section--tight">
+    <div class="container">
+      <p class="eyebrow">The builder</p>
+      <h1 class="display-2">Gather a bouquet from the field</h1>
+      <RibbonRule />
+      <p class="lead measure">Pick your stems one by one, watch the bouquet come together, choose your cow, and send. Every arrangement is hand-tied from food-grade greens and matched to her taste profile.</p>
+    </div>
+  </section>
+  <section style="padding-bottom:clamp(3rem,7vw,6rem);">
+    <div class="container" style="max-width:1000px;">
+      {cows.length === 0 ? (
+        <div class="card" style="padding:2rem;text-align:center;">
+          <p>Our greens are being gathered. Please check back in a moment.</p>
+        </div>
+      ) : (
+        <BouquetBuilder client:load stems={STEMS} cows={cowProps} addOns={addOnProps} initialStems={initialStems} initialCow={initialCow} />
+      )}
+    </div>
+  </section>
+</Layout>

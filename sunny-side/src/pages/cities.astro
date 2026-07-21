@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCities, imgSrc } from "../lib/wix";
+
+const cities = await getCities();
+---
+
+<Layout
+  title="The Cities — Sunny Side"
+  description="Seven cities where Wix has offices, each with a warm breakfast guide: Tel Aviv, Kyiv, Kraków, Dublin, Miami, Vilnius and São Paulo."
+>
+  <section class="section-sm" style="padding-top:56px;">
+    <div class="wrap">
+      <p class="eyebrow">The cities</p>
+      <h1 style="font-size:clamp(2.4rem,6vw,3.6rem);margin:10px 0 14px;max-width:18ch;">Seven cities, seven great mornings</h1>
+      <p class="muted" style="max-width:52ch;font-size:1.1rem;">
+        Every guide opens with two free picks. Unlock the full crawl — six more spots, routes and local tips — with the <a href="/pass" style="color:var(--terracotta);text-decoration:underline;text-underline-offset:3px;">All-Access Pass</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:16px;">
+    <div class="wrap">
+      <div class="grid grid-3">
+        {cities.map((city, i) => {
+          const url = imgSrc(city.heroImage, 800, 560);
+          return (
+            <a href={`/cities/${city.slug}`} class="card reveal" style={`transition-delay:${(i % 3) * 60}ms`} aria-label={`${city.name} breakfast guide`}>
+              <div class="card-media">
+                {url
+                  ? <img src={url} alt={`Breakfast in ${city.name}`} loading="lazy" width="800" height="560" />
+                  : <div class="tile"><span class="tile-label">{city.name}</span></div>}
+              </div>
+              <div style="padding:20px 22px 24px;">
+                <p class="eyebrow" style="font-size:11px;">{city.country}</p>
+                <h2 style="font-size:1.5rem;margin:6px 0 8px;font-family:var(--serif);">{city.name}</h2>
+                <p class="muted" style="font-size:14.5px;line-height:1.5;">{city.intro.length > 96 ? city.intro.slice(0, 96) + "…" : city.intro}</p>
+                <span style="display:inline-block;margin-top:14px;color:var(--terracotta);font-weight:600;font-size:14px;">View guide →</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+      {cities.length === 0 && (
+        <div class="center" style="padding:60px 0;">
+          <p class="muted">We couldn't load the cities right now. Please refresh in a moment.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>

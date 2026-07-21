@@ -1,0 +1,46 @@
+---
+import type { Bouquet } from '../lib/cms';
+import { money, wixThumb } from '../lib/site';
+import { BOUQUET_IMAGES } from '../lib/generatedMedia';
+
+interface Props { bouquet: Bouquet }
+const { bouquet } = Astro.props;
+
+const tints: Record<string, string> = {
+  'Hay Bouquets': 'linear-gradient(155deg,#F3E7C9,#E4CE96)',
+  'Fresh Grass Arrangements': 'linear-gradient(155deg,#DCE7CE,#B4CB96)',
+  'Wildflower Grazing Mixes': 'linear-gradient(155deg,#F6DDDF,#E7B2B8)',
+};
+const tint = tints[bouquet.category] ?? 'linear-gradient(155deg,#EFE7D6,#D9C9A6)';
+const image = wixThumb(BOUQUET_IMAGES[bouquet.slug] ?? '', 720, 900);
+const isBestseller = bouquet.tags?.includes('bestseller');
+---
+<article class="card reveal">
+  <a href={`/shop?bouquet=${bouquet.slug}`} style="text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%;">
+    <div class="tile-img" style={`background:${tint};position:relative;display:grid;place-items:center;padding:0;`}>
+      {image ? (
+        <img src={image} width="720" height="900" loading="lazy"
+          alt={`${bouquet.name} — ${bouquet.description}`}
+          style="width:100%;height:100%;object-fit:contain;" />
+      ) : (
+        <span aria-hidden="true" style="font-size:3.2rem;filter:drop-shadow(0 3px 6px rgba(46,58,43,.18));">💐</span>
+      )}
+      {isBestseller && <span class="badge" style="position:absolute;top:12px;left:12px;">Most-gifted</span>}
+      {bouquet.originalPrice && bouquet.originalPrice > bouquet.basePrice && (
+        <span class="badge badge--gold" style="position:absolute;top:12px;right:12px;">On offer</span>
+      )}
+    </div>
+    <div style="padding:1.15rem 1.25rem 1.35rem;display:flex;flex-direction:column;gap:0.5rem;flex:1;">
+      <p class="eyebrow" style="margin:0;">{bouquet.category}</p>
+      <h3 style="margin:0;font-size:1.32rem;">{bouquet.name}</h3>
+      <p class="muted" style="margin:0;font-size:0.95rem;flex:1;">{bouquet.description}</p>
+      <p class="price" style="margin-top:0.35rem;font-size:1.15rem;">
+        <span class="cur">{money(bouquet.basePrice)}</span>
+        {bouquet.originalPrice && bouquet.originalPrice > bouquet.basePrice && (
+          <span class="price-was">{money(bouquet.originalPrice)}</span>
+        )}
+      </p>
+      <span class="btn btn-ghost" style="margin-top:0.4rem;align-self:flex-start;">Build with this</span>
+    </div>
+  </a>
+</article>

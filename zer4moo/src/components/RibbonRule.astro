@@ -1,0 +1,8 @@
+---
+// The signature device: a hand-drawn ribbon stroke that "ties" itself in on scroll.
+interface Props { class?: string }
+const { class: cls = '' } = Astro.props;
+---
+<svg class={`ribbon-rule ${cls}`} viewBox="0 0 168 20" aria-hidden="true" role="presentation">
+  <path d="M2 11 C 22 2, 38 18, 58 10 S 96 2, 116 11 C 130 17, 142 4, 166 10" />
+</svg>

@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import DeliveredConfirmation from '../components/react/DeliveredConfirmation.tsx';
+---
+<Layout title="Delivered" path="/delivered" description="Your bouquet is grazing its way over." stickyBar={false}>
+  <section class="section" style="background:radial-gradient(90% 120% at 50% 0%, rgba(224,177,94,.14), transparent 60%);">
+    <div class="container">
+      <DeliveredConfirmation client:only="react" />
+    </div>
+  </section>
+</Layout>

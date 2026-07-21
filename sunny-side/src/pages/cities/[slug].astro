@@ -1,0 +1,173 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SuggestSpotForm from "../../components/SuggestSpotForm.astro";
+import CrawlMap from "../../components/CrawlMap.astro";
+import BookCrawl from "../../components/BookCrawl.astro";
+import { getCityBySlug, getPass, getCrawlForCity, CRAWLS, imgSrc } from "../../lib/wix";
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const [city, pass, crawl] = await Promise.all([
+  slug ? getCityBySlug(slug) : Promise.resolve(null),
+  getPass(),
+  slug ? getCrawlForCity(slug) : Promise.resolve(null),
+]);
+const price = pass?.formatted ?? "€9";
+const crawlTz = slug && CRAWLS[slug] ? CRAWLS[slug].timezone : "UTC";
+const meetingPoint = city?.freeSpots?.[0]?.name ?? "the meeting point";
+const heroUrl = city?.heroImage ? imgSrc(city.heroImage, 1600, 900) : "";
+---
+
+{city ? (
+  <Layout
+    title={`${city.name} breakfast guide — Sunny Side`}
+    description={city.intro}
+    ogImage={heroUrl || undefined}
+  >
+    <!-- HERO -->
+    <section class="hero" style="min-height:clamp(420px,60vh,560px);display:flex;align-items:flex-end;">
+      <div class="hero-media">
+        {heroUrl
+          ? <img src={heroUrl} alt={`Breakfast in ${city.name}, ${city.country}`} fetchpriority="high" width="1600" height="900" />
+          : <div class="hero-block-fallback"></div>}
+      </div>
+      <div class="wrap" style="position:relative;z-index:1;color:#fff;padding-bottom:44px;padding-top:60px;">
+        <a href="/cities" style="color:rgba(255,255,255,0.9);font-size:14px;font-weight:600;">← All cities</a>
+        <p class="eyebrow" style="color:var(--yolk);margin-top:16px;">{city.country}</p>
+        <h1 style="color:#fff;font-size:clamp(2.6rem,7vw,4.4rem);margin:8px 0 0;">{city.name}</h1>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="section-sm">
+      <div class="wrap-narrow">
+        <p style="font-family:var(--serif);font-size:clamp(1.3rem,3vw,1.7rem);line-height:1.4;">{city.intro}</p>
+      </div>
+    </section>
+
+    <!-- FREE SPOTS -->
+    <section class="section" style="padding-top:8px;">
+      <div class="wrap">
+        <div class="section-head" style="max-width:none;display:flex;align-items:center;gap:14px;">
+          <div>
+            <p class="eyebrow">Free picks</p>
+            <h2 style="font-size:clamp(1.7rem,4vw,2.4rem);margin-top:6px;">Start with these two</h2>
+          </div>
+          <span class="chip" style="margin-left:auto;">Free for everyone</span>
+        </div>
+
+        <div class="grid grid-2">
+          {city.freeSpots.map((spot, i) => {
+            const url = imgSrc(spot.image, 900, 600);
+            return (
+              <article id={`spot-${i}`} class="spot-card reveal">
+                <div class="spot-card-media">
+                  {url
+                    ? <img src={url} alt={`${spot.name} — ${spot.order || "breakfast"}`} loading="lazy" width="900" height="600" />
+                    : <div class="tile"><span class="tile-label">{spot.name}</span></div>}
+                </div>
+                <div class="spot-card-body">
+                  <div>
+                    <p class="eyebrow no-dot" style="font-size:11px;">{spot.neighborhood}</p>
+                    <h3 style="font-family:var(--serif);font-size:1.5rem;margin-top:6px;">{spot.name}</h3>
+                  </div>
+                  {spot.order && (
+                    <span class="order-line">
+                      <span class="order-label">Order the</span>
+                      <span class="order-what">{spot.order}</span>
+                    </span>
+                  )}
+                  <p class="spot-blurb">{spot.blurb || spot.hook}</p>
+                  <div class="spot-tags">
+                    {spot.vibe && <span class="tag">☀ {spot.vibe}</span>}
+                    {spot.bestTime && <span class="tag tag-time">◷ {spot.bestTime}</span>}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- MORNING CRAWL MAP -->
+    <CrawlMap cityName={city.name} freeSpots={city.freeSpots} premiumSpots={city.premiumSpots} />
+
+    <!-- LOCKED FULL GUIDE -->
+    <section class="section" style="padding-top:0;">
+      <div class="wrap">
+        <div class="section-head" style="max-width:none;">
+          <p class="eyebrow">The full guide</p>
+          <h2 style="font-size:clamp(1.7rem,4vw,2.4rem);margin-top:6px;">The rest of {city.name}'s morning</h2>
+          <p class="muted" style="max-width:52ch;margin-top:8px;">{city.premiumTeaser}</p>
+        </div>
+
+        <div class="locked" data-locked="true">
+          <div class="locked-inner">
+            <div class="premium-content">
+              <h3 style="font-family:var(--serif);font-size:1.3rem;margin-bottom:16px;">Six more curated spots</h3>
+              <div class="grid grid-2" style="gap:16px;">
+                {city.premiumSpots.map((spot) => (
+                  <div style="background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 20px;">
+                    <span class="chip">{spot.neighborhood}</span>
+                    <h4 style="font-family:var(--serif);font-size:1.2rem;margin:10px 0 6px;">{spot.name}</h4>
+                    <p class="muted" style="font-size:14.5px;line-height:1.5;">{spot.hook}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div class="two-col-even" style="margin-top:28px;align-items:start;">
+                <div>
+                  <h3 style="font-family:var(--serif);font-size:1.2rem;margin-bottom:10px;">The morning crawl</h3>
+                  <p style="line-height:1.6;">{city.crawlRoute}</p>
+                </div>
+                <div>
+                  <h3 style="font-family:var(--serif);font-size:1.2rem;margin-bottom:10px;">Local ordering tips</h3>
+                  <ul class="stack-sm" style="list-style:none;">
+                    {city.tips.map((tip) => (
+                      <li style="display:flex;gap:10px;"><span aria-hidden="true">☕</span><span>{tip}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div style="margin-top:30px;padding-top:24px;border-top:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <a class="btn btn-primary" href="/breakfast-passport.pdf" download>↓ Download your Breakfast Passport</a>
+                <span class="muted" style="font-size:14px;">Your all-cities PDF, ready for the road.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lock-overlay">
+            <div class="lock-badge" aria-hidden="true">🔒</div>
+            <div>
+              <h3 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:6px;">Unlock the full guide</h3>
+              <p class="muted" style="max-width:40ch;margin:0 auto;">Get six more spots, the morning crawl route, best-time tips and the Breakfast Passport — for every city.</p>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+              <button class="btn btn-primary btn-lg" data-buy>Unlock with the Pass — {price}</button>
+              <a class="btn btn-ghost" href="/pass">See what's inside</a>
+            </div>
+            <p id="buy-error" role="alert" hidden style="color:var(--terracotta);font-size:14px;"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <BookCrawl service={crawl} cityName={city.name} meetingPoint={meetingPoint} timezone={crawlTz} />
+
+    <SuggestSpotForm defaultCity={city.name} />
+  </Layout>
+) : (
+  <Layout title="City not found — Sunny Side" description="We couldn't find that city guide.">
+    <section class="section" style="min-height:52vh;display:flex;align-items:center;">
+      <div class="wrap center">
+        <p class="eyebrow">Hmm</p>
+        <h1 style="font-size:clamp(2rem,5vw,3rem);margin:10px 0 14px;">We couldn't find that city</h1>
+        <p class="muted" style="margin-bottom:24px;">It may have moved, or the link is off. Browse all seven guides instead.</p>
+        <a class="btn btn-primary btn-lg" href="/cities">View all cities</a>
+      </div>
+    </section>
+  </Layout>
+)}

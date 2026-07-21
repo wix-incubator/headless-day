@@ -1,0 +1,53 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="You're in — Sunny Side"
+  description="Your All-Access Pass is unlocked. Download your Breakfast Passport and explore every full city guide."
+>
+  <section class="section" style="min-height:70vh;display:flex;align-items:center;">
+    <div class="wrap-narrow center">
+      <div class="reveal in">
+        <div style="width:84px;height:84px;border-radius:999px;background:var(--yolk);display:grid;place-items:center;margin:0 auto 24px;font-size:38px;box-shadow:var(--shadow);" aria-hidden="true">🍳</div>
+        <p class="eyebrow">Welcome to the club</p>
+        <h1 style="font-size:clamp(2.4rem,6vw,3.6rem);margin:12px 0 14px;">You're in. Breakfast unlocked.</h1>
+        <p style="font-size:1.15rem;max-width:46ch;margin:0 auto 8px;">
+          Your All-Access Pass is active on this device. Every full city guide — all the spots, routes and tips — is now open.
+        </p>
+        <p class="muted" id="ty-note" style="margin-bottom:30px;"></p>
+
+        <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+          <a class="btn btn-primary btn-lg" href="/breakfast-passport.pdf" download>↓ Download your Breakfast Passport</a>
+          <a class="btn btn-ghost btn-lg" href="/passport">See your passport</a>
+          <a class="btn btn-ghost btn-lg" href="/cities">Explore the full guides</a>
+        </div>
+
+        <div class="card" style="margin-top:44px;padding:28px;text-align:left;">
+          <h2 style="font-family:var(--serif);font-size:1.3rem;margin-bottom:14px;">What's unlocked</h2>
+          <ul class="value-list">
+            <li><span class="check" aria-hidden="true">✓</span><span>All seven full city guides — six more spots each.</span></li>
+            <li><span class="check" aria-hidden="true">✓</span><span>The morning crawl route for every city.</span></li>
+            <li><span class="check" aria-hidden="true">✓</span><span>Best-time tips and local ordering phrases.</span></li>
+            <li><span class="check" aria-hidden="true">✓</span><span>The downloadable Breakfast Passport (all cities).</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var note = document.getElementById("ty-note");
+      if (params.get("purchased") === "1") {
+        if (window.SunnySide) window.SunnySide.grantPass();
+        if (note) note.textContent = "Payment received — thank you for supporting Sunny Side.";
+      } else if (window.SunnySide && window.SunnySide.hasPass()) {
+        if (note) note.textContent = "You already own the Pass on this device.";
+      } else if (note) {
+        note.innerHTML = 'Haven’t bought the Pass yet? <a href="/pass" style="color:var(--terracotta);text-decoration:underline;">Get it here</a>.';
+      }
+    })();
+  </script>
+</Layout>

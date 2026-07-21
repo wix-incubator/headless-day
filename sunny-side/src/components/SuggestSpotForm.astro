@@ -1,0 +1,143 @@
+---
+export interface Props {
+  defaultCity?: string;
+  compact?: boolean;
+}
+const { defaultCity = "", compact = false } = Astro.props;
+const cities = ["Tel Aviv", "Kyiv", "Kraków", "Dublin", "Miami", "Vilnius", "São Paulo"];
+---
+
+<section class="section suggest" id="suggest">
+  <div class="wrap-narrow">
+    <div class="suggest-box card reveal">
+      <p class="eyebrow">Know a spot we missed?</p>
+      <h2 style="font-size:clamp(1.7rem,4vw,2.3rem);margin:8px 0 8px;">Suggest a breakfast spot</h2>
+      <p class="muted" style="margin-bottom:24px;max-width:52ch;">
+        Found somewhere worth a morning detour? Tell us where — the best tips come from people who actually eat there.
+      </p>
+
+      <form class="suggest-form" novalidate>
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">City<span class="req" aria-hidden="true">*</span></span>
+            <select name="city" required>
+              <option value="" disabled selected={!defaultCity}>Choose a city…</option>
+              {cities.map((c) => (
+                <option value={c} selected={c === defaultCity}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Spot name<span class="req" aria-hidden="true">*</span></span>
+            <input type="text" name="spotName" required maxlength="120" placeholder="e.g. Café Xoho" autocomplete="off" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Neighborhood<span class="req" aria-hidden="true">*</span></span>
+          <input type="text" name="neighborhood" required maxlength="120" placeholder="e.g. Old Town, or a street name" autocomplete="off" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Why it's great<span class="req" aria-hidden="true">*</span></span>
+          <textarea name="whyGreat" required maxlength="2000" rows="4" placeholder="The dish to order, the vibe, the best time to go…"></textarea>
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field-label">Your name <span class="opt">(optional)</span></span>
+            <input type="text" name="submitterName" maxlength="120" placeholder="So we can credit you" autocomplete="name" />
+          </label>
+          <label class="field">
+            <span class="field-label">Email <span class="opt">(optional)</span></span>
+            <input type="email" name="submitterEmail" maxlength="200" placeholder="you@example.com" autocomplete="email" />
+          </label>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px;">
+          <button type="submit" class="btn btn-primary btn-lg suggest-submit">Send suggestion</button>
+          <span class="muted" style="font-size:13px;">We read every one. No spam, ever.</span>
+        </div>
+        <p class="form-error" role="alert" hidden></p>
+      </form>
+
+      <div class="form-success" hidden>
+        <div class="success-badge" aria-hidden="true">🍳</div>
+        <h3 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:8px;">Thanks — we'll check it out on our next morning walk.</h3>
+        <p class="muted" style="max-width:44ch;margin:0 auto 20px;">Your suggestion is in. If it makes the cut, you might spot it in a future guide.</p>
+        <button class="btn btn-ghost" type="button" data-suggest-another>Suggest another spot</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll(".suggest-box").forEach(function (box) {
+      var form = box.querySelector(".suggest-form");
+      var success = box.querySelector(".form-success");
+      var errEl = box.querySelector(".form-error");
+      var btn = box.querySelector(".suggest-submit");
+      if (!form || form.dataset.wired === "1") return;
+      form.dataset.wired = "1";
+
+      function showError(msg) {
+        errEl.textContent = msg;
+        errEl.hidden = false;
+      }
+
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        errEl.hidden = true;
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        var fd = new FormData(form);
+        var payload = {
+          city: fd.get("city") || "",
+          spotName: fd.get("spotName") || "",
+          neighborhood: fd.get("neighborhood") || "",
+          whyGreat: fd.get("whyGreat") || "",
+          submitterName: fd.get("submitterName") || "",
+          submitterEmail: fd.get("submitterEmail") || "",
+        };
+        var original = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = "Sending…";
+        fetch("/api/suggest-spot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            if (res.ok && res.d && res.d.ok) {
+              form.hidden = true;
+              success.hidden = false;
+              success.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+              throw new Error((res.d && res.d.error) || "Something went wrong.");
+            }
+          })
+          .catch(function (e) {
+            showError(e.message + " Please try again.");
+          })
+          .finally(function () {
+            btn.disabled = false;
+            btn.innerHTML = original;
+          });
+      });
+
+      var again = box.querySelector("[data-suggest-another]");
+      if (again) {
+        again.addEventListener("click", function () {
+          form.reset();
+          form.hidden = false;
+          success.hidden = true;
+          form.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+      }
+    });
+  })();
+</script>

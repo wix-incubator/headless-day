@@ -1,0 +1,36 @@
+---
+import { SITE } from '../lib/site';
+import RibbonRule from './RibbonRule.astro';
+import MeadowScene from './MeadowScene.astro';
+---
+<MeadowScene />
+<footer class="site-footer" style="margin-top:0;">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="color:var(--color-on-dark);font-size:1.5rem;">ZER<span>4</span>MOO</div>
+        <RibbonRule />
+        <p style="max-width:34ch;opacity:0.82;margin-top:0.5rem;">
+          Hand-tied bouquets for the cow who has everything — except flowers. We have never met a cow who wasn’t worth a bouquet.
+        </p>
+      </div>
+      <div>
+        <h4>Visit</h4>
+        <p style="opacity:0.82;">{SITE.location}<br />{SITE.hours}<br />Est. {SITE.founded}</p>
+      </div>
+      <div>
+        <h4>Wander</h4>
+        <p style="display:flex;flex-direction:column;gap:0.4rem;">
+          <a href="/shop">Build a bouquet</a>
+          <a href="/herd">The Herd</a>
+          <a href="/about">About</a>
+          <a href="/about#faq">FAQ</a>
+        </p>
+        <p style="opacity:0.82;margin-top:0.8rem;">{SITE.socials.instagram} · {SITE.socials.field}</p>
+      </div>
+    </div>
+    <p style="opacity:0.6;font-size:0.85rem;margin-top:2.5rem;border-top:1px solid rgba(241,234,217,0.15);padding-top:1.5rem;">
+      © {SITE.founded}–now ZER4MOO · {SITE.priceRange} · A joyful gift experience. Whether a specific cow receives a specific bundle is between you and the pasture.
+    </p>
+  </div>
+</footer>

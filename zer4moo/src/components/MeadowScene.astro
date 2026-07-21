@@ -1,0 +1,27 @@
+---
+// Footer signature: distant green hills with far-off grazing cows.
+// One continuous background gradient (page color → the image's exact sky color)
+// fills the padding above the image, so the page merges into the scene with no seam.
+---
+<div class="meadow" aria-hidden="true">
+  <img src="/footer-hills.png" alt="" loading="lazy" decoding="async" width="1376" height="768" />
+  <div class="meadow__fade"></div>
+</div>
+
+<style>
+  .meadow {
+    --pad: clamp(44px, 5vw, 88px);
+    position: relative; width: 100%; overflow: hidden; line-height: 0; padding-top: var(--pad);
+    /* cream → the image's sky color (#FCF5E4), reaching it exactly at the image's top edge */
+    background: linear-gradient(180deg, var(--color-background) 0, #FCF5E4 var(--pad));
+  }
+  /* Show the full sun with sky above it; crop ~1/5 off the bottom */
+  .meadow img {
+    display: block; width: 100%; height: clamp(340px, 40vw, 600px);
+    object-fit: cover; object-position: center 26%; margin-top: -1px;
+  }
+  .meadow__fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 26%; pointer-events: none;
+    background: linear-gradient(180deg, rgba(46,58,43,0) 0%, var(--color-dark) 94%);
+  }
+</style>
