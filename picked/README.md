@@ -2,6 +2,8 @@
 
 A static site for **PICKED**, a fresh-produce veg-box shop, powered by [Wix Headless](https://www.wix.com/studio/developers/headless) eCommerce.
 
+**Live site:** https://headless-752d6639-yuvalbl47.wix-site-host.com/PICKED.dc.html
+
 ## What's here
 
 - **`picked/`** — the built static site (`index.html`, `PICKED.dc.html`), 3D produce models (`.glb`), imagery, and the bundled browser cart module (`wix-cart.js`).

@@ -4,6 +4,8 @@ A cinematic web-app concept for discovering, hosting, and booking intimate
 vinyl-based listening events. Premium, dark, warm, and analog — built to feel
 like a 2026 lifestyle product rather than a marketing page.
 
+**Live site:** https://www.vinylroom.online/
+
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript**

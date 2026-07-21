@@ -12,6 +12,8 @@ redirects to a real Wix hosted checkout.
 
 > Built with [Claude Design](https://claude.ai) + [Wix Headless](https://www.wix-headless.dev).
 
+**Live site:** https://www.disacustomwatch.com/
+
 ## Quick start (design only)
 
 ```bash
