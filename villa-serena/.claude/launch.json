@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "villa-serena",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "export PATH=$HOME/.nvm/versions/node/v24.14.1/bin:$PATH && cd /Users/arielh/Git/villa-serena && CI=1 npx @wix/cli@latest dev"
+      ],
+      "port": 4321
+    }
+  ]
+}

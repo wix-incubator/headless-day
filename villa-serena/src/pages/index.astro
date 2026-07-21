@@ -1,0 +1,1153 @@
+---
+import { getContent, type SectionRow, type AmenityRow, type StatRow } from "../lib/content";
+
+let amenities: AmenityRow[] = [];
+let stats: StatRow[] = [];
+let sections: Record<string, SectionRow> = {};
+
+try {
+  const content = await getContent();
+  amenities = content.amenities;
+  stats = content.stats;
+  sections = content.sections;
+} catch (e) {
+  console.error("CMS fetch failed, using fallback copy", e);
+}
+
+const sec = (key: string, fallback: SectionRow): SectionRow =>
+  sections[key] && (sections[key].title || sections[key].body) ? sections[key] : fallback;
+
+const hero = sec("hero", {
+  overline: "A Private Mediterranean Estate",
+  title: "Villa Serena",
+  body: "Where the hillside meets the sea. Ten guests, five suites, and a horizon that never ends.",
+});
+const vision = sec("vision", {
+  overline: "The Vision",
+  body: "We built Serena to hold light the way the coast holds the sea — effortlessly, endlessly.",
+  attribution: "The Architects",
+});
+const living = sec("living", {
+  overline: "The Living Spaces",
+  title: "Rooms that breathe",
+  body: "Double-height ceilings, raw stone and linen. Every room opens to the terrace, and the terrace opens to everything.",
+});
+const kitchen = sec("kitchen", {
+  overline: "The Kitchen",
+  title: "The heart of the house",
+  body: "A marble island carved from a single block, morning light across the counters, and room for everyone who claims to be helping.",
+});
+const cta = sec("cta", {
+  overline: "Availability",
+  title: "Reserve your season",
+  body: "Villa Serena hosts a limited number of stays each year. Send us your dates and we will take care of the rest.",
+});
+
+if (!stats.length) {
+  stats = [
+    { label: "Guests", value: "10" },
+    { label: "Suites", value: "5" },
+    { label: "Baths", value: "6" },
+    { label: "Pool", value: "18m" },
+    { label: "Estate", value: "8 acres" },
+  ];
+}
+if (!amenities.length) {
+  amenities = [
+    { title: "Infinity Pool", description: "An 18-metre heated infinity edge that dissolves into the valley below.", icon: "pool" },
+    { title: "Chef's Kitchen", description: "Marble-clad kitchen with a professional Gaggenau suite and a twelve-seat table.", icon: "kitchen" },
+    { title: "Wine Cellar", description: "A temperature-controlled cellar stocked with local vintages and rare finds.", icon: "wine" },
+    { title: "Outdoor Cinema", description: "Sunset screenings under the stars, projected against the garden wall.", icon: "cinema" },
+    { title: "Spa & Sauna", description: "Cedar sauna, cold plunge and a rain-shower spa suite off the master wing.", icon: "spa" },
+    { title: "Olive Grove", description: "Three acres of century-old olive trees, pressed each autumn for the house oil.", icon: "olive" },
+    { title: "Smart Home", description: "Discreet automation for climate, light and sound throughout the villa.", icon: "smart" },
+    { title: "Concierge", description: "Private chef, drivers and curated experiences, on call around the clock.", icon: "concierge" },
+  ];
+}
+
+const ICONS: Record<string, string> = {
+  pool: '<path d="M2 17c2 0 2-1.4 4-1.4S8 17 10 17s2-1.4 4-1.4S16 17 18 17s2-1.4 4-1.4M2 21c2 0 2-1.4 4-1.4S8 21 10 21s2-1.4 4-1.4S16 21 18 21s2-1.4 4-1.4M14 4v9M8 4v9M8 8h6M8 12h6"/>',
+  kitchen: '<path d="M4 3h16v7H4zM4 10v11h16V10M9 14h6M8 6h.01M12 6h.01"/>',
+  wine: '<path d="M8 2h8l-1 8a3.5 3.5 0 0 1-6 0zM12 12v8M8 22h8"/>',
+  cinema: '<path d="M3 7h18v13H3zM3 11h18M7 7l2 4M12 7l2 4M17 7l2 4"/>',
+  spa: '<path d="M12 21c-5 0-8-3.4-8-8 3 0 5 .8 8 3.4C15 13.8 17 13 20 13c0 4.6-3 8-8 8zM12 16.4V9M12 9c1.8-1.2 2.6-3.2 2-6-2.4 1-3.4 2.8-2 6z"/>',
+  olive: '<path d="M11 21c-4.4 0-8-3.6-8-8 0-6 5-10 11-10-1 2.6-1 5 .4 7M15 21a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>',
+  smart: '<path d="M12 18h.01M8.6 14.6a5 5 0 0 1 6.8 0M5.8 11.8a9 9 0 0 1 12.4 0M3 9a13 13 0 0 1 18 0"/>',
+  concierge: '<path d="M4 19h16M12 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM12 5v2M4 16a8 8 0 0 1 16 0z"/>',
+};
+const iconSvg = (key?: string) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[key ?? ""] ?? ICONS.concierge}</svg>`;
+
+// behind the Wix proxy Astro.url reports http — canonical/OG URLs must be https
+const origin = Astro.url.origin.replace(/^http:/, "https:");
+const canonical = origin + "/";
+const pageTitle = "Villa Serena — A Private Mediterranean Estate";
+const pageDescription =
+  "Villa Serena — a private luxury villa for rent. Five suites, an 18-metre infinity pool and a chef's kitchen, framed by olive groves and sea light.";
+const ogImage = origin + "/gallery/villa-01.webp";
+// FAQ content: single source for the visible section and the FAQPage schema
+const faqs = [
+  {
+    q: "How many guests can Villa Serena host?",
+    a: "Villa Serena hosts up to ten guests in five en-suite bedroom suites, arranged across two wings of the estate.",
+  },
+  {
+    q: "Does the villa have a pool?",
+    a: "Yes — an 18-metre heated infinity pool with an edge that dissolves into the valley below, surrounded by shaded terraces.",
+  },
+  {
+    q: "What amenities are included?",
+    a: "A chef's kitchen with a full Gaggenau suite, a temperature-controlled wine cellar, an outdoor cinema, a cedar sauna and spa suite, a three-acre olive grove, discreet smart-home automation, and a round-the-clock concierge with a private chef on request.",
+  },
+  {
+    q: "Where is Villa Serena located?",
+    a: "On a private Mediterranean hillside estate — twelve minutes from the old harbour town, forty minutes from the airport, and a two-minute walk to the coastal trailhead.",
+  },
+  {
+    q: "How do I book a stay?",
+    a: "All stays are by inquiry. Send your dates and party size through the booking form and the villa team replies within a day.",
+  },
+];
+
+const jsonLd = JSON.stringify([
+  {
+    "@context": "https://schema.org",
+    "@type": "LodgingBusiness",
+    name: "Villa Serena",
+    description: pageDescription,
+    url: canonical,
+    image: [1, 2, 3, 4].map((n) => `${origin}/gallery/villa-0${n}.webp`),
+    numberOfRooms: 5,
+    amenityFeature: amenities.map((a) => ({
+      "@type": "LocationFeatureSpecification",
+      name: a.title,
+      value: true,
+    })),
+    potentialAction: {
+      "@type": "ReserveAction",
+      target: `${canonical}#reserve`,
+      name: "Send a booking inquiry",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  },
+]);
+const fontsHref =
+  "https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap";
+
+const galleryImages = [
+  { src: "/gallery/villa-01.webp", alt: "Villa Serena — the estate and infinity pool at golden hour", tall: true, parallax: -14 },
+  { src: "/gallery/villa-02.webp", alt: "The living room, fireplace and sea view", tall: false, parallax: 10 },
+  { src: "/gallery/villa-03.webp", alt: "The chef's kitchen and marble island at sunset", tall: true, parallax: 12 },
+  { src: "/gallery/villa-04.webp", alt: "The master suite at dusk", tall: false, parallax: -8 },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0e0d0c" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Villa Serena" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="873" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- non-blocking font load: render starts on fallback serif/sans, swaps when ready -->
+    <link rel="preload" as="style" href={fontsHref} />
+    <link rel="stylesheet" href={fontsHref} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={fontsHref} /></noscript>
+
+    <link rel="preload" as="image" href="/frames/zone1/desktop/frame-0001.webp" media="(min-width: 901px)" />
+    <link rel="preload" as="image" href="/frames/zone1/mobile/frame-0001.webp" media="(max-width: 900px)" />
+
+    <script type="application/ld+json" set:html={jsonLd} />
+  </head>
+  <body>
+    <!-- custom cursor -->
+    <div id="cursor-dot" aria-hidden="true"></div>
+    <div id="cursor-ring" aria-hidden="true"></div>
+
+    <!-- ambient layers -->
+    <div class="grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div id="tint" aria-hidden="true"></div>
+
+    <!-- loader -->
+    <div id="loader" role="status" aria-label="Loading Villa Serena">
+      <div class="loader-line" aria-hidden="true"></div>
+      <div class="loader-brand">Villa Serena</div>
+      <div class="loader-sub">A Private Mediterranean Estate</div>
+      <div class="loader-bar"><div class="loader-fill" id="loader-fill"></div></div>
+      <div class="loader-pct" id="loader-pct">0%</div>
+      <div class="loader-line" aria-hidden="true"></div>
+    </div>
+
+    <!-- chapter markers -->
+    <nav id="chapters" aria-label="Page sections">
+      <button data-target="zone1" data-label="Arrival" aria-label="Go to Arrival"><span></span></button>
+      <button data-target="zone1-living" data-label="Living" aria-label="Go to Living"><span></span></button>
+      <button data-target="zone1-kitchen" data-label="Kitchen" aria-label="Go to Kitchen"><span></span></button>
+      <button data-target="amenities" data-label="Amenities" aria-label="Go to Amenities"><span></span></button>
+      <button data-target="gallery" data-label="Gallery" aria-label="Go to Gallery"><span></span></button>
+      <button data-target="reserve" data-label="Reserve" aria-label="Go to Reserve"><span></span></button>
+    </nav>
+
+    <!-- ZONE 1 — the villa / living spaces -->
+    <section class="anim-zone" id="zone1" data-zone="1" aria-label="Villa Serena — living spaces">
+      <div class="sticky-stage">
+        <canvas class="zone-canvas"></canvas>
+        <div class="stage-grad-left" aria-hidden="true"></div>
+        <div class="stage-grad-bottom" aria-hidden="true"></div>
+
+        <div class="overlay overlay-left" data-show="0.00" data-hide="0.14">
+          <div class="overline">{hero.overline}</div>
+          <h1 class="hero-title">
+            <span data-split>{hero.title}</span>
+            <span class="sr-only">— a private luxury villa rental on the Mediterranean coast</span>
+          </h1>
+          <p class="hero-tag">{hero.body}</p>
+          <div class="hero-cta">
+            <a class="btn-primary" href="#reserve">Reserve Your Stay</a>
+          </div>
+          <div class="stat-bar" id="stat-bar">
+            {stats.map((s) => (
+              <div class="stat">
+                <div class="stat-value" data-count={s.value}>{s.value}</div>
+                <div class="stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="overlay overlay-left" data-show="0.28" data-hide="0.48">
+          <div class="quote-mark" aria-hidden="true">“</div>
+          <blockquote class="quote">{vision.body}</blockquote>
+          <div class="divider" aria-hidden="true"></div>
+          <cite class="attribution">{vision.attribution}</cite>
+        </div>
+
+        <div class="overlay overlay-left" data-show="0.54" data-hide="0.68">
+          <div class="overline">{kitchen.overline}</div>
+          <h2 class="section-title">{kitchen.title}</h2>
+          <p class="section-body">{kitchen.body}</p>
+          <ul class="feature-list">
+            <li><span class="feature-dot" aria-hidden="true"></span>Full Gaggenau appliance suite</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Twelve-seat marble dining island</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Private chef on request</li>
+          </ul>
+        </div>
+
+        <div class="overlay overlay-left" data-show="0.78" data-hide="0.98">
+          <div class="overline">{living.overline}</div>
+          <h2 class="section-title">{living.title}</h2>
+          <p class="section-body">{living.body}</p>
+          <ul class="feature-list">
+            <li><span class="feature-dot" aria-hidden="true"></span>Double-height living room with sea views</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Five en-suite bedrooms across two wings</li>
+            <li><span class="feature-dot" aria-hidden="true"></span>Shaded terraces on every level</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- AMENITIES -->
+    <section class="static-section" id="amenities" aria-label="Amenities">
+      <div class="container">
+        <div class="overline reveal">Every Comfort, Considered</div>
+        <h2 class="section-title reveal">Amenities</h2>
+        <div class="amenity-grid">
+          {amenities.map((a) => (
+            <div class="glass-cell reveal">
+              <div class="amenity-icon" set:html={iconSvg(a.icon)} />
+              <h3 class="amenity-title">{a.title}</h3>
+              <div class="amenity-desc">{a.description}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="static-section" id="gallery" aria-label="Gallery">
+      <div class="container">
+        <div class="overline reveal">A Closer Look</div>
+        <h2 class="section-title reveal">Moments at Serena</h2>
+        <div class="gallery-grid">
+          {galleryImages.map((g) => (
+            <figure class={`gallery-item reveal ${g.tall ? "tall" : ""}`} data-parallax={g.parallax}>
+              <img src={g.src} alt={g.alt} loading="lazy" decoding="async" />
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="static-section" id="faq" aria-label="Frequently asked questions">
+      <div class="container narrow">
+        <div class="overline centered reveal">Good to Know</div>
+        <h2 class="section-title centered reveal">Questions, answered</h2>
+        <div class="faq-list reveal">
+          {faqs.map((f) => (
+            <details class="faq-item">
+              <summary><h3>{f.q}</h3><span class="faq-mark" aria-hidden="true">+</span></summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- RESERVE / BOOKING INQUIRY -->
+    <section class="static-section" id="reserve" aria-label="Booking inquiry">
+      <div class="container narrow">
+        <div class="overline centered reveal">{cta.overline}</div>
+        <h2 class="section-title big centered reveal">{cta.title}</h2>
+        <p class="section-body centered reveal">{cta.body}</p>
+
+        <form id="inquiry-form" class="glass-form reveal" novalidate>
+          <div class="form-row">
+            <label>First name<input name="first_name" autocomplete="given-name" required /></label>
+            <label>Last name<input name="last_name" autocomplete="family-name" required /></label>
+          </div>
+          <div class="form-row">
+            <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+            <label>Phone<input name="phone" type="tel" autocomplete="tel" /></label>
+          </div>
+          <div class="form-row">
+            <label>Check-in<input name="check_in" type="date" required /></label>
+            <label>Check-out<input name="check_out" type="date" required /></label>
+          </div>
+          <div class="form-row">
+            <label>Guests
+              <select name="guests" required>
+                <option value="">Select</option>
+                {[2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <option value={String(n)}>{n}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label class="full">Message<textarea name="message" rows="4" placeholder="Tell us about your stay…"></textarea></label>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="inquiry-submit">Send Inquiry</button>
+            <a class="btn-ghost" href="mailto:arielh@wix.com">Email the house</a>
+          </div>
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-brand">Villa Serena</div>
+      <div class="footer-legal">© {new Date().getFullYear()} Villa Serena Estate. All stays are by inquiry.</div>
+    </footer>
+
+    <style is:global>
+      :root {
+        --concrete: #d4cfc8;
+        --concrete-dim: #9e9890;
+        --stone: #706050;
+        --charcoal: #1a1816;
+        --ink: #0e0d0c;
+        --warm-white: #f4f0ea;
+        --warm-white-dim: #c8c0b4;
+        --accent: #c89848;
+        --accent-glow: rgba(200, 152, 72, 0.35);
+        --accent-soft: rgba(200, 152, 72, 0.08);
+        --sunset-pink: #d4a0b0;
+        --heading: "Playfair Display", "Georgia", serif;
+        --body: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; overflow-x: clip; }
+      body {
+        background: var(--ink);
+        color: var(--warm-white);
+        font-family: var(--body);
+        font-weight: 300;
+        /* clip, not hidden: an overflow-x:hidden body becomes a scroll container and breaks position:sticky */
+        overflow-x: clip;
+        cursor: none;
+      }
+      @media (hover: none), (max-width: 900px) {
+        body { cursor: auto; }
+        #cursor-dot, #cursor-ring { display: none; }
+      }
+
+      /* cursor */
+      #cursor-dot {
+        position: fixed; z-index: 9998; width: 6px; height: 6px; border-radius: 50%;
+        background: #fff; mix-blend-mode: difference; pointer-events: none;
+        transform: translate(-50%, -50%); left: 0; top: 0;
+      }
+      #cursor-ring {
+        position: fixed; z-index: 9997; width: 36px; height: 36px; border-radius: 50%;
+        border: 1px solid rgba(244, 240, 234, 0.4); pointer-events: none;
+        transform: translate(-50%, -50%); left: 0; top: 0;
+        transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      #cursor-ring.hovering {
+        width: 56px; height: 56px; border-color: var(--accent);
+        box-shadow: 0 0 24px var(--accent-glow);
+      }
+
+      /* ambient */
+      .grain {
+        position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+        background-size: 256px 256px;
+      }
+      .vignette {
+        position: fixed; inset: 0; z-index: 99; pointer-events: none;
+        background: radial-gradient(ellipse at center, transparent 50%, rgba(14, 13, 12, 0.45) 100%);
+      }
+      #particles { position: fixed; inset: 0; z-index: 15; pointer-events: none; opacity: 0.4; }
+      #tint {
+        position: fixed; inset: 0; z-index: 5; pointer-events: none;
+        background: linear-gradient(135deg, var(--accent-soft), rgba(212, 160, 176, 0.04));
+        opacity: 0; transition: opacity 1.2s ease;
+      }
+
+      /* loader */
+      #loader {
+        position: fixed; inset: 0; z-index: 9999; background: var(--ink);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+        transition: opacity 0.8s ease, filter 0.8s ease;
+      }
+      #loader.done { opacity: 0; filter: blur(8px); pointer-events: none; }
+      .loader-line { width: 1px; height: 48px; background: linear-gradient(to bottom, transparent, var(--stone), transparent); }
+      .loader-brand {
+        font-family: var(--heading); font-weight: 300; letter-spacing: 0.35em; text-transform: uppercase;
+        font-size: clamp(20px, 3vw, 30px); color: var(--warm-white);
+      }
+      .loader-sub { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--concrete-dim); }
+      .loader-bar { width: 140px; height: 1px; background: rgba(244, 240, 234, 0.12); overflow: hidden; }
+      .loader-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--sunset-pink)); transition: width 0.2s ease; }
+      .loader-pct { font-size: 10px; letter-spacing: 0.2em; color: var(--concrete-dim); font-variant-numeric: tabular-nums; }
+
+      /* chapters */
+      #chapters {
+        position: fixed; right: 26px; top: 50%; transform: translateY(-50%);
+        z-index: 50; display: flex; flex-direction: column; gap: 18px;
+      }
+      #chapters button {
+        width: 24px; height: 10px; background: none; border: none; cursor: none;
+        display: flex; align-items: center; justify-content: flex-end; position: relative;
+      }
+      #chapters button span {
+        width: 6px; height: 6px; border-radius: 50%; background: rgba(244, 240, 234, 0.28);
+        transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+      }
+      #chapters button.active span {
+        background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); transform: scale(1.35);
+      }
+      #chapters button::after {
+        content: attr(data-label); position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+        font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--warm-white-dim);
+        opacity: 0; transition: opacity 0.25s; white-space: nowrap; pointer-events: none;
+      }
+      #chapters button:hover::after { opacity: 1; }
+      @media (max-width: 900px) { #chapters { display: none; } }
+
+      /* animation zone: one continuous flythrough with four dwell stops */
+      .anim-zone { position: relative; height: 640vh; }
+      /* svh keeps the stage stable when the mobile URL bar collapses (no resize thrash) */
+      .sticky-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+      @media (max-width: 900px) {
+        .anim-zone { height: 460vh; }
+      }
+      .zone-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+      .stage-grad-left {
+        position: absolute; inset: 0; z-index: 1; pointer-events: none;
+        background: linear-gradient(90deg, rgba(14, 13, 12, 0.72) 0%, rgba(14, 13, 12, 0.25) 38%, transparent 62%);
+      }
+      .stage-grad-bottom {
+        position: absolute; inset: 0; z-index: 1; pointer-events: none;
+        background: linear-gradient(to top, rgba(14, 13, 12, 0.8) 0%, transparent 28%);
+      }
+
+      /* overlays */
+      .overlay {
+        position: absolute; z-index: 10; max-width: 560px;
+        left: 6%; top: 50%; transform: translate(-20px, -50%);
+        opacity: 0; filter: blur(6px); visibility: hidden;
+        transition: opacity 0.7s ease, transform 0.7s ease, filter 0.7s ease, visibility 0s linear 0.7s;
+        /* the film has bright regions (sunset, lit windows) — keep text legible over any frame */
+        text-shadow: 0 1px 3px rgba(10, 9, 8, 0.5), 0 4px 26px rgba(10, 9, 8, 0.45);
+      }
+      .overlay.visible {
+        opacity: 1; transform: translate(0, -50%); filter: blur(0); visibility: visible;
+        transition: opacity 0.7s ease, transform 0.7s ease, filter 0.7s ease, visibility 0s;
+      }
+      .overlay-center { left: 50%; transform: translate(calc(-50% - 20px), -50%); text-align: center; }
+      .overlay-center.visible { transform: translate(-50%, -50%); }
+      @media (max-width: 900px) {
+        .overlay { left: 7%; right: 7%; max-width: none; }
+        /* text spans the full frame width on phones — back it with a soft scrim */
+        .overlay::before {
+          content: ""; position: absolute; inset: -14% -10%; z-index: -1; pointer-events: none;
+          background: radial-gradient(ellipse closest-side, rgba(14, 13, 12, 0.6), rgba(14, 13, 12, 0.38) 60%, transparent 100%);
+        }
+      }
+
+      .overline {
+        font-size: 9px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase;
+        color: var(--accent); margin-bottom: 18px;
+      }
+      .overline.centered { text-align: center; }
+      .hero-title {
+        font-family: var(--heading); font-weight: 300; line-height: 1.05;
+        font-size: clamp(42px, 5.5vw, 76px); margin-bottom: 18px;
+      }
+      [data-split] .word { display: inline-block; white-space: nowrap; }
+      [data-split] .ch { display: inline-block; opacity: 0; transform: translateY(0.4em); transition: opacity 0.5s ease, transform 0.5s ease; }
+      [data-split].split-done .ch { opacity: 1; transform: translateY(0); }
+      .hero-tag { color: var(--warm-white-dim); font-size: clamp(15px, 1.4vw, 18px); line-height: 1.7; max-width: 44ch; }
+      .hero-cta { margin-top: 26px; }
+      .hero-cta .btn-primary { display: inline-block; text-decoration: none; }
+      .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+      }
+
+      .stat-bar {
+        display: flex; gap: 0; margin-top: 34px; border: 1px solid rgba(244, 240, 234, 0.06);
+        /* solid, not backdrop-filter: a blur over the animating canvas re-blurs on every frame draw */
+        background: rgba(20, 18, 16, 0.55);
+      }
+      .stat { flex: 1; padding: 16px 18px; text-align: center; border-right: 1px solid rgba(244, 240, 234, 0.06); }
+      .stat:last-child { border-right: none; }
+      .stat-value { font-family: var(--heading); font-size: clamp(18px, 2vw, 26px); color: var(--warm-white); font-variant-numeric: tabular-nums; }
+      .stat-label { font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--concrete-dim); margin-top: 4px; }
+      @media (max-width: 640px) { .stat { padding: 12px 8px; } }
+
+      .quote-mark { font-family: var(--heading); font-size: 110px; line-height: 0.6; color: var(--accent); opacity: 0.55; margin-bottom: 24px; }
+      .quote { font-family: var(--heading); font-style: italic; font-weight: 300; font-size: clamp(24px, 2.8vw, 38px); line-height: 1.4; }
+      .divider { width: 56px; height: 1px; background: var(--accent); margin: 26px 0 14px; opacity: 0.6; }
+      .attribution { font-style: normal; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--concrete-dim); }
+
+      .section-title { font-family: var(--heading); font-weight: 300; font-size: clamp(30px, 3.6vw, 52px); line-height: 1.12; margin-bottom: 18px; }
+      .section-title.big { font-size: clamp(36px, 4.6vw, 64px); }
+      .section-title.centered, .section-body.centered { text-align: center; margin-left: auto; margin-right: auto; }
+      .section-body { color: var(--warm-white-dim); font-size: clamp(15px, 1.3vw, 17px); line-height: 1.75; max-width: 50ch; }
+
+      .feature-list { list-style: none; margin-top: 26px; }
+      .feature-list li {
+        display: flex; align-items: center; gap: 14px; padding: 13px 0;
+        border-bottom: 1px solid rgba(244, 240, 234, 0.07);
+        font-size: 14px; color: var(--warm-white-dim); letter-spacing: 0.02em;
+      }
+      .feature-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex: none; box-shadow: 0 0 8px var(--accent-glow); }
+
+      /* static sections */
+      .static-section { position: relative; padding: 140px 0; background: var(--ink); z-index: 20; }
+      .container { width: min(1180px, 88vw); margin: 0 auto; }
+      .container.narrow { width: min(760px, 88vw); }
+
+      .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s ease; }
+      .reveal.in { opacity: 1; transform: translateY(0); }
+
+      .amenity-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 44px; }
+      @media (max-width: 1000px) { .amenity-grid { grid-template-columns: repeat(2, 1fr); } }
+      @media (max-width: 560px) { .amenity-grid { grid-template-columns: 1fr; } }
+      .glass-cell {
+        background: rgba(244, 240, 234, 0.03); border: 1px solid rgba(244, 240, 234, 0.06);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        padding: 28px 24px; transition: background 0.35s, border-color 0.35s, transform 0.35s;
+      }
+      .glass-cell:hover { background: rgba(244, 240, 234, 0.06); border-color: rgba(200, 152, 72, 0.35); transform: translateY(-3px); }
+      .amenity-icon { width: 30px; height: 30px; color: var(--accent); margin-bottom: 18px; }
+      .amenity-icon svg { width: 100%; height: 100%; }
+      .amenity-title { font-family: var(--heading); font-weight: 400; font-size: 19px; margin-bottom: 9px; }
+      .amenity-desc { font-size: 13px; line-height: 1.65; color: var(--concrete-dim); }
+
+      .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 220px; gap: 14px; margin-top: 44px; }
+      @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 180px; } }
+      .gallery-item { overflow: hidden; position: relative; }
+      .gallery-item.tall { grid-row: span 2; }
+      .gallery-item img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+        transition: transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); will-change: transform;
+      }
+      .gallery-item:hover img { transform: scale(1.03); }
+
+      /* faq */
+      .faq-list { margin-top: 40px; border-top: 1px solid rgba(244, 240, 234, 0.08); }
+      .faq-item { border-bottom: 1px solid rgba(244, 240, 234, 0.08); }
+      .faq-item summary {
+        display: flex; align-items: baseline; justify-content: space-between; gap: 18px;
+        padding: 22px 4px; cursor: pointer; list-style: none;
+      }
+      .faq-item summary::-webkit-details-marker { display: none; }
+      .faq-item summary h3 {
+        font-family: var(--heading); font-weight: 400; font-size: 18px; line-height: 1.4;
+      }
+      .faq-mark { color: var(--accent); font-size: 20px; flex: none; transition: transform 0.3s ease; }
+      .faq-item[open] .faq-mark { transform: rotate(45deg); }
+      .faq-item p {
+        padding: 0 4px 24px; max-width: 60ch;
+        color: var(--warm-white-dim); font-size: 15px; line-height: 1.75;
+      }
+      @media (max-width: 640px) { .faq-item summary h3 { font-size: 16px; } .faq-item p { font-size: 16px; } }
+
+      /* form */
+      .glass-form {
+        margin-top: 46px; padding: 40px;
+        background: rgba(244, 240, 234, 0.03); border: 1px solid rgba(244, 240, 234, 0.06);
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      }
+      @media (max-width: 640px) { .glass-form { padding: 26px 20px; } }
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+      @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+      .glass-form label {
+        display: flex; flex-direction: column; gap: 8px;
+        font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--concrete-dim);
+      }
+      .glass-form label.full { margin-bottom: 18px; }
+      .glass-form input, .glass-form select, .glass-form textarea {
+        background: rgba(14, 13, 12, 0.5); border: 1px solid rgba(244, 240, 234, 0.12);
+        color: var(--warm-white); font-family: var(--body); font-size: 15px; font-weight: 300;
+        padding: 13px 14px; outline: none; border-radius: 0;
+        transition: border-color 0.3s; width: 100%;
+        color-scheme: dark;
+      }
+      .glass-form input:focus, .glass-form select:focus, .glass-form textarea:focus { border-color: var(--accent); }
+      .form-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+      @media (max-width: 640px) {
+        .form-actions { flex-direction: column; }
+        .form-actions .btn-primary, .form-actions .btn-ghost { width: 100%; text-align: center; }
+      }
+      .btn-primary {
+        background: var(--accent); color: var(--ink); border: 1px solid var(--accent);
+        font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+        padding: 16px 34px; cursor: none; transition: box-shadow 0.3s, transform 0.3s;
+      }
+      .btn-primary:hover { box-shadow: 0 0 28px var(--accent-glow); transform: translateY(-1px); }
+      .btn-primary:disabled { opacity: 0.55; box-shadow: none; transform: none; }
+      .btn-ghost {
+        color: var(--warm-white-dim); border: 1px solid rgba(244, 240, 234, 0.2);
+        font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; text-decoration: none;
+        padding: 15px 30px; transition: border-color 0.3s, color 0.3s;
+      }
+      .btn-ghost:hover { border-color: var(--accent); color: var(--warm-white); }
+      .form-status { margin-top: 16px; font-size: 13px; letter-spacing: 0.04em; color: var(--concrete-dim); min-height: 18px; }
+      .form-status.ok { color: #9ec89a; }
+      .form-status.err { color: #d49a9a; }
+
+      /* mobile perf: backdrop-filter and the grain layer are GPU-heavy on phones */
+      @media (max-width: 900px) {
+        .grain { display: none; }
+        .stat-bar, .glass-cell, .glass-form {
+          backdrop-filter: none; -webkit-backdrop-filter: none;
+          background: rgba(20, 18, 16, 0.72);
+        }
+        .static-section { padding: 90px 0; }
+      }
+
+      /* mobile readability: the tracked micro-labels are too small on phones */
+      @media (max-width: 900px) {
+        .overline { font-size: 12px; letter-spacing: 0.22em; }
+        .hero-tag { font-size: 16px; }
+        .section-body { font-size: 16px; }
+        .stat-label { font-size: 10px; letter-spacing: 0.18em; }
+        .attribution { font-size: 12px; letter-spacing: 0.22em; }
+        .feature-list li { font-size: 15px; }
+        .amenity-desc { font-size: 14px; }
+        .glass-form label { font-size: 11px; letter-spacing: 0.18em; }
+        .form-status { font-size: 14px; }
+        .btn-primary, .btn-ghost { font-size: 12px; letter-spacing: 0.2em; }
+        .loader-sub { font-size: 11px; }
+        .loader-pct { font-size: 12px; }
+        .footer-legal { font-size: 12px; }
+        .footer-brand { font-size: 16px; }
+      }
+
+      footer { background: #131110; padding: 60px 0 46px; text-align: center; }
+      .footer-brand { font-family: var(--heading); letter-spacing: 0.3em; text-transform: uppercase; font-size: 15px; color: var(--warm-white-dim); }
+      .footer-legal { margin-top: 12px; font-size: 11px; color: var(--concrete-dim); letter-spacing: 0.06em; }
+
+      /* reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .anim-zone { height: auto; }
+        .sticky-stage { position: relative; height: auto; min-height: 100vh; padding: 12vh 0; display: flex; flex-direction: column; gap: 10vh; justify-content: center; }
+        .zone-canvas { position: absolute; height: 100%; }
+        .overlay { position: relative; opacity: 1; visibility: visible; filter: none; transform: none; top: auto; margin: 0 6%; }
+        .overlay-center.visible, .overlay-center { transform: none; }
+        .reveal { opacity: 1; transform: none; }
+        #particles, #cursor-dot, #cursor-ring { display: none; }
+        body { cursor: auto; }
+      }
+    </style>
+
+    <script>
+      // ===== Villa Serena — scroll engine =====
+      const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const IS_MOBILE = window.matchMedia("(max-width: 900px), (hover: none)").matches;
+      const FRAME_COUNT = 120;
+      // mobile: snappier follow, gentler dwell, and a 1x canvas (mobile frames are 960x540 anyway)
+      const LERP_FACTOR = IS_MOBILE ? 0.16 : 0.13;
+      const DWELL_WIDTH = 0.045;
+      const DWELL_PEAK = IS_MOBILE ? 2.2 : 2.8;
+      const REMAP_N = 2000;
+      // backing store above ~1.5x buys nothing (720p source) and doubles per-frame draw cost on retina
+      const DPR = IS_MOBILE ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+      const DIR = IS_MOBILE ? "mobile" : "desktop";
+
+      const framePath = (zone: number, i: number) =>
+        `/frames/zone${zone}/${DIR}/frame-${String(i + 1).padStart(4, "0")}.webp`;
+
+      // ---- dwell remap: gaussian density peaks at content stops ----
+      function buildRemap(centers: number[]) {
+        const density = (t: number) => {
+          let d = 1;
+          for (const c of centers) {
+            const x = (t - c) / DWELL_WIDTH;
+            d += DWELL_PEAK * Math.exp(-x * x);
+          }
+          return d;
+        };
+        const cum = new Float64Array(REMAP_N + 1);
+        for (let i = 1; i <= REMAP_N; i++) cum[i] = cum[i - 1] + density((i - 0.5) / REMAP_N);
+        const total = cum[REMAP_N];
+        // invert: scroll fraction -> effective progress
+        return (t: number) => {
+          if (t <= 0) return 0;
+          if (t >= 1) return 1;
+          const target = t * total;
+          let lo = 0, hi = REMAP_N;
+          while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (cum[mid] < target) lo = mid + 1; else hi = mid;
+          }
+          const c1 = cum[lo - 1], c2 = cum[lo];
+          const f = c2 > c1 ? (target - c1) / (c2 - c1) : 0;
+          return (lo - 1 + f) / REMAP_N;
+        };
+      }
+
+      // ---- per-zone animator ----
+      class Zone {
+        el: HTMLElement;
+        canvas: HTMLCanvasElement;
+        ctx: CanvasRenderingContext2D;
+        overlays: { el: HTMLElement; show: number; hide: number }[];
+        frames: (ImageBitmap | HTMLImageElement | null)[];
+        zone: number;
+        remap: (t: number) => number;
+        current = 0;
+        lastDrawn = -1;
+        loaded = 0;
+        started = false;
+        isOnscreen = false;
+        onProgress: ((loaded: number, total: number) => void) | null = null;
+
+        constructor(el: HTMLElement, dwellCenters: number[]) {
+          this.el = el;
+          this.zone = Number(el.dataset.zone);
+          this.canvas = el.querySelector(".zone-canvas") as HTMLCanvasElement;
+          this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+          this.frames = new Array(FRAME_COUNT).fill(null);
+          this.remap = buildRemap(dwellCenters);
+          this.overlays = Array.from(el.querySelectorAll(".overlay")).map((o) => ({
+            el: o as HTMLElement,
+            show: parseFloat((o as HTMLElement).dataset.show || "0"),
+            hide: parseFloat((o as HTMLElement).dataset.hide || "1"),
+          }));
+          this.resize();
+          window.addEventListener("resize", () => {
+            // ignore the small height jitter from the mobile URL bar — a real resize changes width
+            const w = Math.round(this.canvas.clientWidth * DPR);
+            const h = Math.round(this.canvas.clientHeight * DPR);
+            if (w === this.canvas.width && Math.abs(h - this.canvas.height) < 160 * DPR) return;
+            this.resize();
+            this.lastDrawn = -1;
+          });
+        }
+
+        resize() {
+          const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+          this.canvas.width = Math.round(w * DPR);
+          this.canvas.height = Math.round(h * DPR);
+          // setting width resets context state — reapply the upscale filter.
+          // "high" is a CPU multi-pass resample: ~66ms/draw at desktop size vs
+          // 0.37ms for "medium" (GPU bilinear) — it caused a visible hitch on
+          // every frame advance, felt as scroll lag
+          this.ctx.imageSmoothingEnabled = true;
+          this.ctx.imageSmoothingQuality = "medium";
+        }
+
+        async fetchFrame(i: number): Promise<void> {
+          const res = await fetch(framePath(this.zone, i));
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const blob = await res.blob();
+          this.frames[i] = typeof createImageBitmap === "function"
+            ? await createImageBitmap(blob)
+            : await new Promise<HTMLImageElement>((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+                img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+                img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+                img.src = url;
+              });
+        }
+
+        async loadFrame(i: number): Promise<void> {
+          if (this.frames[i]) return;
+          try {
+            await this.fetchFrame(i);
+          } catch {
+            // one retry — the CDN occasionally 500s on cold-cache fills right after a release
+            try {
+              await new Promise((r) => setTimeout(r, 800));
+              await this.fetchFrame(i);
+            } catch {
+              this.frames[i] = null; // nearest-neighbor fallback covers gaps
+            }
+          }
+          this.loaded++;
+          this.onProgress?.(this.loaded, FRAME_COUNT);
+        }
+
+        async load(criticalDone?: () => void) {
+          if (this.started) return;
+          this.started = true;
+          // first frame gets the network to itself — earliest possible paint on slow connections
+          await this.loadFrame(0);
+          // critical pass: every 4th frame
+          const critical: number[] = [];
+          for (let i = 4; i < FRAME_COUNT; i += 4) critical.push(i);
+          await Promise.all(critical.map((i) => this.loadFrame(i)));
+          this.lastDrawn = -1; // force first paint
+          criticalDone?.();
+          // fill remaining in small batches
+          const rest: number[] = [];
+          for (let i = 0; i < FRAME_COUNT; i++) if (!this.frames[i]) rest.push(i);
+          const BATCH = 10;
+          for (let b = 0; b < rest.length; b += BATCH) {
+            await Promise.all(rest.slice(b, b + BATCH).map((i) => this.loadFrame(i)));
+          }
+        }
+
+        nearestFrame(i: number) {
+          if (this.frames[i]) return this.frames[i];
+          for (let d = 1; d < FRAME_COUNT; d++) {
+            if (this.frames[i - d]) return this.frames[i - d];
+            if (this.frames[i + d]) return this.frames[i + d];
+          }
+          return null;
+        }
+
+        draw(index: number): boolean {
+          const img = this.nearestFrame(index);
+          if (!img) return false;
+          const cw = this.canvas.width, ch = this.canvas.height;
+          const iw = (img as ImageBitmap).width, ih = (img as ImageBitmap).height;
+          const scale = Math.max(cw / iw, ch / ih);
+          const dw = iw * scale, dh = ih * scale;
+          this.ctx.drawImage(img as CanvasImageSource, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+          return true;
+        }
+
+        tick() {
+          // one layout read per zone per frame: onscreen + progress from the same rect
+          const rect = this.el.getBoundingClientRect();
+          this.isOnscreen = rect.bottom > 0 && rect.top < window.innerHeight;
+          if (!this.isOnscreen) return;
+          const total = rect.height - window.innerHeight;
+          const raw = total > 0 ? Math.max(0, Math.min(1, -rect.top / total)) : 0;
+          const eff = this.remap(raw);
+          const target = eff * (FRAME_COUNT - 1);
+          this.current += (target - this.current) * LERP_FACTOR;
+          if (Math.abs(target - this.current) < 0.4) this.current = target;
+          const idx = Math.round(this.current);
+          // only mark drawn when a frame actually painted — otherwise retry every
+          // tick, so the film appears the moment the first frame arrives
+          if (idx !== this.lastDrawn && this.draw(idx)) {
+            this.lastDrawn = idx;
+          }
+          for (const o of this.overlays) {
+            o.el.classList.toggle("visible", raw >= o.show && raw <= o.hide);
+          }
+        }
+      }
+
+      const zone1El = document.getElementById("zone1")!;
+      // dwell stops: exterior, living room, kitchen, bedroom (motion-equalized timeline)
+      const z1 = new Zone(zone1El, [0.05, 0.38, 0.6, 0.88]);
+
+      // ---- loader (tracks zone 1 critical set) ----
+      const loader = document.getElementById("loader")!;
+      const fill = document.getElementById("loader-fill")!;
+      const pct = document.getElementById("loader-pct")!;
+      const CRITICAL_TOTAL = Math.ceil(FRAME_COUNT / 4);
+      // reveal at 75% of the critical set — waiting for the last parallel
+      // stragglers (or a 500-retry) parks the bar near the end for seconds
+      // while the film underneath is already viewable
+      const REVEAL_AT = Math.ceil(CRITICAL_TOTAL * 0.75);
+      let loaderHidden = false;
+      z1.onProgress = (loaded) => {
+        if (loaderHidden) return;
+        const p = Math.min(100, Math.round((loaded / REVEAL_AT) * 100));
+        fill.style.width = p + "%";
+        pct.textContent = p + "%";
+        if (loaded >= REVEAL_AT && z1.frames[0]) hideLoader();
+      };
+      function hideLoader() {
+        if (loaderHidden) return;
+        loaderHidden = true;
+        fill.style.width = "100%";
+        pct.textContent = "100%";
+        setTimeout(() => loader.classList.add("done"), 150);
+        setTimeout(() => loader.remove(), 1200);
+      }
+
+      if (REDUCED) {
+        // static experience: first frame, everything visible
+        z1.loadFrame(0).then(() => { z1.draw(0); hideLoader(); });
+        document.querySelectorAll(".overlay").forEach((o) => o.classList.add("visible"));
+        document.querySelectorAll(".reveal").forEach((o) => o.classList.add("in"));
+      } else {
+        z1.load(hideLoader);
+        // safety: hide loader even if a frame stalls
+        setTimeout(hideLoader, 9000);
+      }
+
+      // ---- main loop ----
+      const tint = document.getElementById("tint")!;
+      let tintOn = false;
+      function loop() {
+        z1.tick();
+        const wantTint = z1.isOnscreen;
+        if (wantTint !== tintOn) {
+          tintOn = wantTint;
+          tint.style.opacity = wantTint ? "1" : "0";
+        }
+        requestAnimationFrame(loop);
+      }
+      if (!REDUCED) requestAnimationFrame(loop);
+
+      // ---- letter split ----
+      document.querySelectorAll("[data-split]").forEach((el) => {
+        const text = el.textContent || "";
+        el.textContent = "";
+        // aria-label is prohibited on a generic span — expose the text via an sr-only node instead
+        const sr = document.createElement("span");
+        sr.className = "sr-only";
+        sr.textContent = text;
+        el.appendChild(sr);
+        // group letters into word spans so lines can only break at spaces, never mid-word
+        let ci = 0;
+        text.split(" ").forEach((word, wi, words) => {
+          const w = document.createElement("span");
+          w.className = "word";
+          w.setAttribute("aria-hidden", "true");
+          word.split("").forEach((ch) => {
+            const span = document.createElement("span");
+            span.className = "ch";
+            span.textContent = ch;
+            span.style.transitionDelay = `${ci * 35}ms`;
+            ci++;
+            w.appendChild(span);
+          });
+          el.appendChild(w);
+          if (wi < words.length - 1) {
+            el.appendChild(document.createTextNode(" "));
+            ci++;
+          }
+        });
+      });
+      setTimeout(() => document.querySelectorAll("[data-split]").forEach((el) => el.classList.add("split-done")), 600);
+
+      // ---- stat counters ----
+      function animateCounters() {
+        document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+          const raw = el.dataset.count || "";
+          const m = raw.match(/^([\d.]+)(.*)$/);
+          if (!m) return;
+          const target = parseFloat(m[1]);
+          const suffix = m[2];
+          const decimals = (m[1].split(".")[1] || "").length;
+          const t0 = performance.now();
+          const dur = 1500;
+          const step = (t: number) => {
+            const p = Math.min(1, (t - t0) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = (target * eased).toFixed(decimals) + suffix;
+            if (p < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        });
+      }
+      if (!REDUCED) setTimeout(animateCounters, 900);
+
+      // ---- particles ----
+      if (!REDUCED && !IS_MOBILE) {
+        const pc = document.getElementById("particles") as HTMLCanvasElement;
+        const pctx = pc.getContext("2d")!;
+        let pw = (pc.width = window.innerWidth);
+        let ph = (pc.height = window.innerHeight);
+        window.addEventListener("resize", () => { pw = pc.width = window.innerWidth; ph = pc.height = window.innerHeight; });
+        const dots = Array.from({ length: 36 }, () => ({
+          x: Math.random() * pw, y: Math.random() * ph,
+          r: 0.3 + Math.random() * 1.5,
+          vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.12,
+          a: 0.05 + Math.random() * 0.3,
+        }));
+        (function drift() {
+          pctx.clearRect(0, 0, pw, ph);
+          for (const d of dots) {
+            d.x = (d.x + d.vx + pw) % pw;
+            d.y = (d.y + d.vy + ph) % ph;
+            pctx.beginPath();
+            pctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            pctx.fillStyle = `rgba(244, 240, 234, ${d.a})`;
+            pctx.fill();
+          }
+          requestAnimationFrame(drift);
+        })();
+      }
+
+      // ---- custom cursor ----
+      if (!IS_MOBILE && !REDUCED) {
+        const dot = document.getElementById("cursor-dot")!;
+        const ring = document.getElementById("cursor-ring")!;
+        let mx = -100, my = -100, rx = -100, ry = -100;
+        window.addEventListener("mousemove", (e) => {
+          mx = e.clientX; my = e.clientY;
+          dot.style.left = mx + "px"; dot.style.top = my + "px";
+        });
+        (function follow() {
+          rx += (mx - rx) * 0.15; ry += (my - ry) * 0.15;
+          ring.style.left = rx + "px"; ring.style.top = ry + "px";
+          requestAnimationFrame(follow);
+        })();
+        document.querySelectorAll("a, button, .glass-cell, input, select, textarea, .gallery-item").forEach((el) => {
+          el.addEventListener("mouseenter", () => ring.classList.add("hovering"));
+          el.addEventListener("mouseleave", () => ring.classList.remove("hovering"));
+        });
+      }
+
+      // ---- chapter markers ----
+      const chapterBtns = Array.from(document.querySelectorAll<HTMLElement>("#chapters button"));
+      const chapterTargets = () => {
+        const z1Top = zone1El.offsetTop;
+        const runway = zone1El.offsetHeight - window.innerHeight;
+        return [
+          z1Top,
+          z1Top + runway * 0.38, // living room dwell
+          z1Top + runway * 0.6, // kitchen dwell
+          (document.getElementById("amenities") as HTMLElement).offsetTop - 80,
+          (document.getElementById("gallery") as HTMLElement).offsetTop - 80,
+          (document.getElementById("reserve") as HTMLElement).offsetTop - 80,
+        ];
+      };
+      // cache section offsets — recomputing 6 offsetTops on every scroll event forces layout
+      let chapterPositions = chapterTargets();
+      const refreshChapters = () => { chapterPositions = chapterTargets(); };
+      chapterBtns.forEach((btn, i) => {
+        btn.addEventListener("click", () => {
+          refreshChapters(); // layout may have shifted since the cache was taken
+          window.scrollTo({ top: chapterPositions[i], behavior: REDUCED ? "auto" : "smooth" });
+        });
+      });
+      function updateChapters() {
+        const pos = window.scrollY + window.innerHeight * 0.4;
+        let active = 0;
+        chapterPositions.forEach((t, i) => { if (pos >= t) active = i; });
+        chapterBtns.forEach((b, i) => b.classList.toggle("active", i === active));
+      }
+      // CSS hides #chapters below 900px by width alone — gate on the same query, not IS_MOBILE
+      if (window.matchMedia("(min-width: 901px)").matches) {
+        // the async font swap reflows sections without firing a resize event
+        document.fonts?.ready.then(() => { refreshChapters(); updateChapters(); });
+        window.addEventListener("resize", refreshChapters);
+        window.addEventListener("scroll", updateChapters, { passive: true });
+        updateChapters();
+      }
+
+      // ---- reveal on scroll + gallery parallax ----
+      const revealObs = new IntersectionObserver(
+        (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("in"); }),
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => revealObs.observe(el));
+
+      if (!REDUCED && !IS_MOBILE) {
+        const parallaxEls = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]"));
+        (function parallax() {
+          const vh = window.innerHeight;
+          for (const el of parallaxEls) {
+            const rect = el.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > vh) continue;
+            const centerOffset = (rect.top + rect.height / 2 - vh / 2) / vh;
+            const depth = parseFloat(el.dataset.parallax || "0");
+            const img = el.querySelector("img");
+            if (img) img.style.transform = `translateY(${centerOffset * depth}px)`;
+          }
+          requestAnimationFrame(parallax);
+        })();
+      }
+
+      // ---- booking inquiry form ----
+      const form = document.getElementById("inquiry-form") as HTMLFormElement;
+      const status = document.getElementById("form-status")!;
+      const submitBtn = document.getElementById("inquiry-submit") as HTMLButtonElement;
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        status.className = "form-status";
+        if (!form.reportValidity()) return;
+        const data = Object.fromEntries(new FormData(form));
+        submitBtn.disabled = true;
+        status.textContent = "Sending…";
+        try {
+          const res = await fetch("/api/inquiry", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+          const body = await res.json();
+          if (res.ok && body.ok) {
+            status.textContent = "Thank you — we received your inquiry and will be in touch within a day.";
+            status.classList.add("ok");
+            form.reset();
+          } else {
+            throw new Error(body.error || "Submission failed");
+          }
+        } catch (err) {
+          status.textContent = err instanceof Error ? err.message : "Something went wrong — please try again.";
+          status.classList.add("err");
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
