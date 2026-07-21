@@ -1,0 +1,43 @@
+{
+  "collectionIds": {
+    "dinners": "Dinners",
+    "testimonials": "Testimonials",
+    "story": "Story",
+    "faq": "FaqItems",
+    "waitlist": "Waitlist"
+  },
+  "itemIds": {
+    "Dinners": [
+      "d12cc4ef-192e-4c16-ad2e-62d2a751b5d0",
+      "ab544c0e-2162-41d8-9f6c-9322d7b18642",
+      "d8ea3df1-ce0a-4683-bbb3-6c92a891b614",
+      "00e884c0-7e68-4e07-9222-5cd8ff52d10a",
+      "b04c0bf2-51a9-45ee-bff2-092e65d8b34e",
+      "c3f57311-700c-4377-9992-4b2420d63e78",
+      "b9c41243-4788-4308-869f-d3f373f2db66",
+      "013dfc1f-51d3-4968-8daa-3fad446513ba"
+    ],
+    "Testimonials": [
+      "c8fd04c8-47b9-4300-bc9f-f7ff1173524e",
+      "e385de7f-e557-4230-bcb3-df3568850804",
+      "5f34d1ed-8e3f-49ce-b410-60ffaf421a75"
+    ],
+    "Story": [
+      "3c0c686f-853c-464e-b816-b1a1db9fb06b"
+    ],
+    "FaqItems": [
+      "3fa092f9-453a-4d0d-a0b9-2152f2ae4602",
+      "5c2b3904-4144-4359-8429-fae95f6a6bba",
+      "fb715bc4-1ccb-4ee4-9e10-1ea6f0c39ddb",
+      "c88b5ad9-6a98-4e49-9c12-c21186c5a049",
+      "68adf515-ce6e-4a61-8eee-4c79720ea23f",
+      "4b242841-c061-4169-98fd-54931ea94e18"
+    ]
+  },
+  "counts": {
+    "Dinners": 8,
+    "Testimonials": 3,
+    "Story": 1,
+    "FaqItems": 6
+  }
+}

@@ -1,0 +1,82 @@
+---
+// SSR — resolves the dinner (CMS) + its seat + deposit products (@wix/stores),
+// then hands the branded deposit/full selector to the ReserveFlow island.
+import Layout from "../../layouts/Layout.astro";
+import ReserveFlow from "../../components/ReserveFlow.tsx";
+import CurrencyTip from "../../components/CurrencyTip.astro";
+import { getDinnerBySlug, formatPrice } from "../../lib/content";
+import { productsV3 } from "@wix/stores";
+import { SCENES, sized } from "../../lib/media";
+
+const { slug } = Astro.params;
+const dinner = await getDinnerBySlug(slug!);
+if (!dinner) return Astro.redirect("/events");
+
+async function lookup(productSlug: string) {
+  try {
+    const { product } = await productsV3.getProductBySlug(productSlug, { fields: ["CURRENCY"] });
+    if (!product) return null;
+    return {
+      id: product._id as string,
+      label: product.actualPriceRange?.minValue?.formattedAmount as string | undefined,
+    };
+  } catch (err) {
+    console.error(`[reserve] lookup ${productSlug} failed:`, err);
+    return null;
+  }
+}
+
+const full = await lookup(dinner.reserveSlug);
+const deposit = await lookup(`reserve-deposit-${dinner.slug}`);
+
+const soldOut = dinner.seatsAvailable <= 0;
+const balance = dinner.price - Math.round(dinner.price * 0.2);
+---
+
+<Layout
+  title={`Reserve · ${dinner.title}`}
+  description={`Reserve a seat at ${dinner.title} — ${dinner.menuTheme}. Pay a 20% deposit or in full. Seven courses at the twelve-seat oak table.`}
+>
+  <section class="max-w-6xl mx-auto px-6 pt-20 md:pt-24 pb-16">
+    <a href="/events" class="font-body text-mute text-xs tracking-[0.14em] uppercase">&larr; All dinners</a>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 mt-8 items-start">
+      {/* Dinner summary */}
+      <div class="flex flex-col gap-5">
+        <img src={sized(dinner.heroImageUrl || SCENES.dish, 900, 675)} alt={`A plated course from ${dinner.title}`} class="rounded-md shutter w-full object-cover" style="aspect-ratio: 4/3;" width="900" height="675" />
+
+        <span class="kicker">Reserve a seat</span>
+        <h1 class="font-display text-4xl md:text-5xl leading-[1.05]">{dinner.title}</h1>
+        <p class="text-mute">{dinner.dateLabel} · 19:00 · Seven courses</p>
+        <p class="text-sm uppercase tracking-wide text-ink-soft">{dinner.menuTheme}</p>
+        <p class="text-ink leading-relaxed max-w-prose">{dinner.coursePreview}</p>
+        <p class="text-sm text-mute">
+          {formatPrice(dinner.price)} per seat · optional wine pairing {formatPrice(dinner.winePairingPrice)} ·
+          {dinner.seatsAvailable > 0 ? ` ${dinner.seatsAvailable} of ${dinner.seatsTotal} seats left` : " fully booked"}
+        </p>
+      </div>
+
+      {/* Payment selector */}
+      <div class="accent-card p-7 md:p-8 md:sticky md:top-24">
+        {soldOut || !full ? (
+          <div class="flex flex-col gap-4">
+            <h2 class="font-display text-2xl">This dinner is full</h2>
+            <p class="text-mute">Join the waitlist and we will text you the moment a seat opens.</p>
+            <a href="/events" class="btn-primary">Join the waitlist</a>
+          </div>
+        ) : (
+          <ReserveFlow
+            client:load
+            dinnerTitle={dinner.title}
+            fullProductId={full.id}
+            fullPriceLabel={formatPrice(dinner.price)}
+            depositProductId={deposit?.id}
+            depositPriceLabel={formatPrice(Math.round(dinner.price * 0.2))}
+            balanceLabel={formatPrice(balance)}
+          />
+        )}
+        {!soldOut && full && <CurrencyTip class="mt-5" />}
+      </div>
+    </div>
+  </section>
+</Layout>

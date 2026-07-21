@@ -1,0 +1,77 @@
+{
+  "scenes": {
+    "hero": {
+      "url": "https://static.wixstatic.com/media/699ede_5db4deb0688649179b789cc205f150fa~mv2.png"
+    },
+    "story": {
+      "url": "https://static.wixstatic.com/media/699ede_a366a440cfb44e2aa4f2e4aff9f862f1~mv2.png"
+    },
+    "dish": {
+      "url": "https://static.wixstatic.com/media/699ede_9886e67477024176bef15fbca4bf35d3~mv2.png"
+    },
+    "forage": {
+      "url": "https://static.wixstatic.com/media/699ede_1bdb7731ba47418d950f2250df08b518~mv2.png"
+    },
+    "forage2": {
+      "url": "https://static.wixstatic.com/media/699ede_ffba2792688a4855b674e3a87d4d2601~mv2.png"
+    },
+    "boathouse": {
+      "url": "https://static.wixstatic.com/media/699ede_4523631d7cd244aab47c7207d2ff3a2e~mv2.png"
+    },
+    "aboutRoom": {
+      "url": "https://static.wixstatic.com/media/699ede_017312d64956476d90cfdfd714fba4af~mv2.png"
+    }
+  },
+  "dinners": {
+    "midsummer-forage": {
+      "url": "https://static.wixstatic.com/media/699ede_10bbfe7ca83a4db6875da248ae23e7be~mv2.png"
+    },
+    "late-cod-season": {
+      "url": "https://static.wixstatic.com/media/699ede_7231570e38424614b99b656e37de104f~mv2.png"
+    },
+    "birch-ember": {
+      "url": "https://static.wixstatic.com/media/699ede_1136e8fba0c240c48bc508a14099f463~mv2.png"
+    },
+    "mushroom-table": {
+      "url": "https://static.wixstatic.com/media/699ede_dd3949acfc20445ba98bea1dd2887ea2~mv2.png"
+    },
+    "sea-buckthorn": {
+      "url": "https://static.wixstatic.com/media/699ede_cd6fb50b3b5242c68146446cf459ea48~mv2.png"
+    },
+    "cabbage-feast": {
+      "url": "https://static.wixstatic.com/media/699ede_5b14833d235248d99efc045ad2ac079d~mv2.png"
+    },
+    "stone-sorrel": {
+      "url": "https://static.wixstatic.com/media/699ede_5c26d20dfb914bfc908e59f1a1f72d57~mv2.png"
+    },
+    "last-light": {
+      "url": "https://static.wixstatic.com/media/699ede_ed5a6a18c62a458fa2acbe0705544529~mv2.png"
+    }
+  },
+  "products": {
+    "36e582f7-593d-4b2d-ae48-cd409ab7dfb4": {
+      "url": "https://static.wixstatic.com/media/699ede_5cd39899e4a049e9be9f7c76e7844de6~mv2.png"
+    },
+    "16f02c69-d943-4b56-b56d-3d2a495bc64a": {
+      "url": "https://static.wixstatic.com/media/699ede_097c8bd017c746b3a3067f727406526a~mv2.png"
+    },
+    "779087c2-95bd-4f3b-bd75-68e8d5298052": {
+      "url": "https://static.wixstatic.com/media/699ede_b75561328e7142f087b5cc3b85f80269~mv2.png"
+    },
+    "7e5d2be8-22fc-41b6-a179-43964282800b": {
+      "url": "https://static.wixstatic.com/media/699ede_21c9a86f5c71443b929802e47d7e5c55~mv2.png"
+    },
+    "1a17eb44-0135-4e60-9f6c-0f0e350b4d97": {
+      "url": "https://static.wixstatic.com/media/699ede_7463deb6210b4877adcf885f60f8021f~mv2.png"
+    },
+    "628a07a2-453f-4933-846c-34f3d49d2d79": {
+      "url": "https://static.wixstatic.com/media/699ede_f2f881f6ab184675b506765641f73859~mv2.png"
+    },
+    "c4d6e877-cdc9-4bc0-b54f-61779393abb0": {
+      "url": "https://static.wixstatic.com/media/699ede_d607179f466a4d6a81b54843fa8be5e2~mv2.png"
+    },
+    "7fb59995-b2e1-4326-aedf-8efbf0c2649b": {
+      "url": "https://static.wixstatic.com/media/699ede_877d6559c5e841d993d5d52bb5697401~mv2.png"
+    }
+  }
+}

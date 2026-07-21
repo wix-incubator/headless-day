@@ -1,0 +1,144 @@
+---
+// /category/[slug] — server-side filtered, cursor-paginated category
+// landing. Renders the same product grid as /products, but constrained to
+// one category, with breadcrumbs and a category-specific page header.
+//
+// The CategoryRail is shared with /products via transition:persist, so
+// switching categories swaps only the grid and header.
+import Layout from "../../layouts/Layout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import CategoryRail from "../../components/CategoryRail.astro";
+import {
+  getCategoryBySlug,
+  listProductsInCategory,
+  listStoreCategories,
+} from "../../utils/categories";
+
+const PAGE_SIZE = 24;
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect("/products");
+}
+
+let category: Awaited<ReturnType<typeof getCategoryBySlug>> = null;
+try {
+  category = await getCategoryBySlug(slug);
+} catch (err) {
+  console.error("[category] getCategoryBySlug failed:", err);
+}
+if (!category) {
+  return new Response("Category not found", { status: 404 });
+}
+
+const cursor = Astro.url.searchParams.get("cursor") ?? undefined;
+let page: Awaited<ReturnType<typeof listProductsInCategory>> = {
+  items: [],
+  nextCursor: null,
+  prevCursor: null,
+};
+try {
+  page = await listProductsInCategory(category.id, { limit: PAGE_SIZE, cursor });
+} catch (err) {
+  console.error("[category] listProductsInCategory failed:", err);
+}
+
+// Drop the Wix Gift Card app's auto-mirror products (DIGITAL stand-ins
+// tagged "Gift Card") — real purchases happen via /gift-cards.
+const productList = page.items.filter((p: any) => p.ribbon?.name !== "Gift Card");
+
+let allCategories: Awaited<ReturnType<typeof listStoreCategories>> = [];
+try {
+  allCategories = await listStoreCategories();
+} catch (err) {
+  console.error("[category] category list failed:", err);
+}
+
+const impressionContents = productList.map((p, index) => ({
+  id: p._id,
+  name: p.name,
+  price: Number(p.actualPriceRange?.minValue?.amount ?? 0),
+  currency: p.actualPriceRange?.minValue?.currency ?? undefined,
+  position: index + 1,
+}));
+
+function pageHref(c: string | null): string | null {
+  if (!c) return null;
+  const params = new URLSearchParams();
+  params.set("cursor", c);
+  return `/category/${category!.slug}?${params.toString()}`;
+}
+---
+
+<Layout
+  title={category.name}
+  description={category.description ?? `From the ${category.name.toLowerCase()} shelf at the boathouse.`}
+>
+  <section class="pt-16 pb-8">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col gap-4">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="/" data-astro-prefetch="hover">Home</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/products" data-astro-prefetch="hover">Shop</a>
+        <span aria-hidden="true">&middot;</span>
+        <span aria-current="page">{category.name}</span>
+      </nav>
+      <h1 class="font-display text-4xl md:text-5xl leading-tight">{category.name}</h1>
+      {category.description && (
+        <p class="font-body text-ink-soft leading-relaxed max-w-prose">{category.description}</p>
+      )}
+      <hr class="editorial-rule w-16 ml-0" />
+    </div>
+    {category.imageUrl && (
+      <div class="max-w-6xl mx-auto px-6 mt-8" aria-hidden="true">
+        <div class="rounded-md overflow-hidden aspect-[16/6] bg-paper-warm" data-decorative-slot="category">
+          <img src={category.imageUrl} alt="" loading="lazy" decoding="async" />
+        </div>
+      </div>
+    )}
+  </section>
+
+  <CategoryRail
+    categories={allCategories}
+    activeSlug={category.slug}
+    prevHref={pageHref(page.prevCursor)}
+    nextHref={pageHref(page.nextCursor)}
+  />
+
+  <section class="py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      {productList.length === 0 ? (
+        <p class="font-body text-mute italic py-24 text-center">
+          Nothing on the {category.name.toLowerCase()} shelf just now. Please look again shortly.
+        </p>
+      ) : (
+        <div class="product-grid">
+          {productList.map((product, idx) => (
+            <ProductCard product={product} index={idx} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<script
+  type="application/json"
+  id="analytics-impressions"
+  is:inline
+  set:html={JSON.stringify(impressionContents)}
+/>
+<script>
+  import { trackEvent } from "../../utils/analytics";
+  function fireImpressions() {
+    const el = document.getElementById("analytics-impressions");
+    if (!el?.textContent) return;
+    trackEvent("AddProductImpression", {
+      contents: JSON.parse(el.textContent),
+      origin: "Category Page",
+    });
+  }
+  // astro:page-load fires on initial load AND after every <ClientRouter />
+  // navigation, so a single listener covers both fresh hits and swaps.
+  document.addEventListener("astro:page-load", fireImpressions);
+</script>

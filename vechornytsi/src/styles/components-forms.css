@@ -1,0 +1,61 @@
+/* Forms pack — contact / private-dining / waitlist form styling.
+   References the declared token vocabulary only (var(--token)). */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+.form-field label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  background: var(--color-paper-warm);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  transition: border-color 160ms ease;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+.form-field textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+.form-reassurance {
+  font-size: 0.85rem;
+  color: var(--color-mute);
+  margin-top: 0.75rem;
+  line-height: 1.5;
+}
+.form-status {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.form-status[data-state="success"] {
+  background: color-mix(in srgb, var(--color-accent) 18%, var(--color-paper-warm));
+  border: 1px solid var(--color-accent);
+  color: var(--color-ink);
+}
+.form-status[data-state="error"] {
+  background: color-mix(in srgb, var(--color-error) 12%, var(--color-paper-warm));
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+}

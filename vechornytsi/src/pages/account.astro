@@ -1,0 +1,52 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="My Account"
+  description="Look up a Vechornytsi order or booking, and manage your waitlist and drop-alert preferences."
+>
+  <section class="max-w-6xl mx-auto px-6 pt-20 md:pt-24 pb-8">
+    <div class="max-w-[52rem] reveal">
+      <span class="kicker">My account</span>
+      <h1 class="font-display text-4xl md:text-6xl leading-[1.05] mt-4">Your seat, your orders</h1>
+      <p class="text-mute text-lg mt-5 max-w-prose">
+        Bookings and shop orders are tied to the email you use at checkout. Look yours up below, or reach the kitchen directly.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="accent-card p-7 reveal">
+        <h2 class="font-display text-2xl">Your bookings</h2>
+        <p class="text-mute mt-2 leading-relaxed">
+          Every reservation and shop order is confirmed by email with a receipt and, for dinners, a booking code. Search your inbox for “Vechornytsi”, or forward the receipt to us and we will pull it up.
+        </p>
+        <a href="/contact" class="btn-secondary mt-4 inline-flex">Look up a booking</a>
+      </div>
+
+      <div class="accent-card p-7 reveal">
+        <h2 class="font-display text-2xl">Waitlist &amp; alerts</h2>
+        <p class="text-mute mt-2 leading-relaxed">
+          Join a dinner's waitlist from the Upcoming Dinners page. We text and email the moment a seat opens — first to respond keeps it.
+        </p>
+        <a href="/events" class="btn-secondary mt-4 inline-flex">Manage waitlist</a>
+      </div>
+
+      <div class="accent-card p-7 reveal">
+        <h2 class="font-display text-2xl">Order history</h2>
+        <p class="text-mute mt-2 leading-relaxed">
+          Pantry and ceramics orders ship within Ukraine with tracking. Gift vouchers arrive by email with a redeemable code valid for six months.
+        </p>
+        <a href="/products" class="btn-secondary mt-4 inline-flex">Back to the shop</a>
+      </div>
+    </div>
+
+    <div class="container-reading mt-14 rounded-sm border border-rule bg-paper-warm p-6 reveal">
+      <p class="text-sm text-mute leading-relaxed">
+        <span class="text-ink font-medium">A note on sign-in.</span> Vechornytsi is a small kitchen — we keep things by email rather than passwords. There is no login to remember; your receipts are your record. Need anything changed? The kitchen answers every message.
+      </p>
+    </div>
+  </section>
+</Layout>

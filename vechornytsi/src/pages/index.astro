@@ -1,0 +1,250 @@
+---
+import Layout from "../layouts/Layout.astro";
+import StickyReserveBar from "../components/StickyReserveBar.astro";
+import { getNextDinner, getTestimonials, getDinners, formatPrice } from "../lib/content";
+import { SCENES, sized, CATEGORY_TILES } from "../lib/media";
+
+const nextDinner = await getNextDinner();
+const testimonials = await getTestimonials();
+const dinners = await getDinners();
+const upcoming = dinners.slice(0, 4);
+
+const shopCategories = [
+  { label: "Pantry", note: "Ferments, birch syrup, preserves", href: "/products" },
+  { label: "Ceramics", note: "Ash-glaze stoneware, thrown in Kyiv", href: "/products" },
+  { label: "The Table", note: "Beeswax tapers, undyed linen", href: "/products" },
+  { label: "Vouchers", note: "One seat, any dinner", href: "/products" },
+];
+
+const seatTone = (n: number) => (n <= 0 ? "seat-dot--none" : n <= 4 ? "seat-dot--low" : "");
+---
+
+<Layout
+  title="A Kyiv supper club on the Dnipro"
+  description="Vechornytsi is a single-table supper club inside a converted Dnipro boathouse in Kyiv. Twelve seats, a weekly-changing seven-course tasting menu built from local forage. Reservations open 14 days ahead."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FoodEstablishment",
+      name: "Vechornytsi",
+      description: "A single-table supper club inside a converted Dnipro boathouse in Kyiv. A weekly-changing seven-course tasting menu built from local forage.",
+      servesCuisine: "Ukrainian, Nordic, foraged tasting menu",
+      priceRange: "$$$$",
+      foundingDate: "2019",
+      address: { "@type": "PostalAddress", streetAddress: "Beresteiskyi Ave, 5", postalCode: "02000", addressLocality: "Kyiv", addressCountry: "UA" },
+      telephone: "+380934944068",
+      email: "tanyazavodenko188@gmail.com",
+      openingHours: "Fr 19:00",
+      url: "https://www.vechornytsi.com",
+    })} />
+  </Fragment>
+
+  {/* 1 · Hero — candlelit boathouse scene */}
+  <section class="relative">
+    <div class="boathouse-scene relative min-h-[86vh] md:min-h-[92vh] flex items-center">
+      <img
+        src={sized(SCENES.hero, 1600, 900)}
+        alt="The twelve-seat oak table set for dinner inside the candlelit boathouse, harbour water through a window"
+        class="absolute inset-0 w-full h-full object-cover"
+        fetchpriority="high"
+        width="1600"
+        height="900"
+      />
+      <div class="hero-overlay absolute inset-0"></div>
+      <div class="relative max-w-6xl mx-auto px-6 w-full">
+        <div class="max-w-[640px] mx-auto text-center flex flex-col items-center gap-6 py-24">
+          <span class="kicker enter enter-1" style="color: var(--color-accent);">Kyiv · A single table · Fridays at seven</span>
+          <h1 class="enter enter-2 font-display font-bold text-[2rem] leading-[1.05] md:text-[3.5rem]" style="color: #F5F0EB;">
+            One table, twelve strangers, seven courses
+          </h1>
+          <p class="enter enter-3 font-body text-[0.95rem] md:text-lg max-w-[520px]" style="color: rgba(245,240,235,0.86);">
+            A supper club inside a converted Dnipro boathouse. Twelve seats around a salvaged oak table, a seven-course menu built from what the chef foraged that week.
+          </p>
+          <div class="enter enter-4 flex flex-col sm:flex-row gap-3 w-full sm:w-auto pt-2">
+            <a href="/events" class="btn-primary w-full sm:w-auto" style="background: var(--color-cream); color: var(--color-ink);">Reserve a seat</a>
+            <a href="/products" class="btn-secondary w-full sm:w-auto" style="color: #F5F0EB; border-color: rgba(245,240,235,0.4);">Browse the shop</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 2 · Next dinner */}
+  {nextDinner && (
+    <section class="max-w-6xl mx-auto px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+      <div class="flex flex-col gap-5 reveal">
+        <span class="kicker">The next dinner</span>
+        <h2 class="font-display text-3xl md:text-4xl leading-tight">{nextDinner.title}</h2>
+        <p class="text-mute">{nextDinner.dateLabel} · Seven courses</p>
+        <div class="seat-pill">
+          <span class={`seat-dot ${seatTone(nextDinner.seatsAvailable)}`}></span>
+          {nextDinner.seatsAvailable > 0 ? `${nextDinner.seatsAvailable} of ${nextDinner.seatsTotal} seats remaining` : "Fully booked — join the waitlist"}
+        </div>
+        <p class="text-ink leading-relaxed max-w-prose">{nextDinner.coursePreview}</p>
+        <p class="text-mute text-sm">{formatPrice(nextDinner.price)} per seat · optional wine pairing {formatPrice(nextDinner.winePairingPrice)}</p>
+        <div class="flex flex-wrap gap-3 pt-1">
+          {nextDinner.seatsAvailable > 0
+            ? <a href={`/reserve/${nextDinner.slug}`} class="btn-primary">Reserve a seat</a>
+            : <a href="/events" class="btn-primary">Join the waitlist</a>}
+          <a href="/events" class="btn-ghost">See all dinners</a>
+        </div>
+      </div>
+      <img
+        src={sized(nextDinner.heroImageUrl || SCENES.dish, 900, 1125)}
+        alt={`A plated course from ${nextDinner.title}`}
+        class="rounded-md shutter w-full object-cover"
+        style="aspect-ratio: 4/5;"
+        width="900" height="1125" loading="lazy"
+      />
+    </section>
+  )}
+
+  {/* 3 · How it works */}
+  <section class="section-dark">
+    <div class="max-w-6xl mx-auto px-6 py-20 md:py-24">
+      <div class="max-w-prose mb-12 reveal">
+        <span class="kicker">How a seat works</span>
+        <h2 class="font-display text-3xl md:text-4xl mt-3">Twelve seats. Fourteen days' notice. First come.</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div class="flex flex-col gap-3 reveal">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.4"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>
+          <h3 class="font-display text-xl">Sign up for the drop alert</h3>
+          <p>Leave your email and we text and email you the moment a dinner's window opens.</p>
+        </div>
+        <div class="flex flex-col gap-3 reveal">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.4"><rect x="3" y="4" width="18" height="17" rx="1"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+          <h3 class="font-display text-xl">Reserve when the window opens</h3>
+          <p>Reservations open exactly 14 days ahead at noon. Twelve seats, and they go quickly.</p>
+        </div>
+        <div class="flex flex-col gap-3 reveal">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.4"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
+          <h3 class="font-display text-xl">Arrive at the boathouse</h3>
+          <p>Find the timber frame with the single lit window. Take your seat. Stay for seven courses.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 4 · The chef and the forage */}
+  <section class="max-w-6xl mx-auto px-6 py-20 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+    <div class="grid grid-cols-3 gap-4 order-last md:order-first reveal">
+      <img src={sized(SCENES.forage, 900, 1200)} alt="The chef foraging on a mountain slope in overcast light" class="rounded-md col-span-2 shutter w-full object-cover" style="aspect-ratio: 3/4;" width="900" height="1200" loading="lazy" />
+      <img src={sized(SCENES.forage2, 500, 667)} alt="Hands sorting wild mushrooms on a timber counter" class="rounded-md self-end w-full object-cover" style="aspect-ratio: 3/4;" width="500" height="667" loading="lazy" />
+    </div>
+    <div class="flex flex-col gap-4 max-w-prose reveal">
+      <span class="kicker">The chef and the forage</span>
+      <h2 class="font-display text-3xl md:text-4xl leading-tight">The menu is decided by the week, not the year</h2>
+      <p class="text-ink leading-relaxed">
+        Every Thursday the chef walks the riverbank and the slopes above the city with a basket and no plan. Sea lettuce, sorrel, birch sap, whatever the water gives up. What comes back sets the seven courses.
+      </p>
+      <p class="text-mute leading-relaxed">
+        There is no fixed menu and no menu card. Each course is told to the table as it is set down — the way the first dinner was served in 2019, and every one since.
+      </p>
+      <a href="/about" class="btn-ghost self-start mt-1 px-0">Read the story of the table →</a>
+    </div>
+  </section>
+
+  {/* 5 · Shop teaser */}
+  <section class="section-dark">
+    <div class="max-w-6xl mx-auto px-6 py-20 md:py-24">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 reveal">
+        <div class="max-w-prose">
+          <span class="kicker">From the pantry</span>
+          <h2 class="font-display text-3xl md:text-4xl mt-3">The same jars and stoneware we set on the table</h2>
+        </div>
+        <a href="/products" class="btn-secondary self-start" style="color:#F5F0EB; border-color: rgba(245,240,235,0.4);">Browse the shop</a>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {shopCategories.map((c) => (
+          <a href={c.href} class="group block rounded-sm border border-[rgba(245,240,235,0.16)] p-6 transition-colors hover:border-[var(--color-accent)]">
+            <img
+              src={sized(CATEGORY_TILES[c.label] ?? SCENES.dish, 500, 375)}
+              alt={c.label}
+              class="rounded-sm mb-4 w-full object-cover"
+              style="aspect-ratio: 4/3;"
+              width="500" height="375" loading="lazy"
+            />
+            <h3 class="font-display text-xl">{c.label}</h3>
+            <p class="text-sm mt-1" style="color: rgba(245,240,235,0.7);">{c.note}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* 6 · Testimonials */}
+  {testimonials.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+      <div class="max-w-prose mb-12 reveal">
+        <span class="kicker">From the table</span>
+        <h2 class="font-display text-3xl md:text-4xl mt-3">What guests carry home</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {testimonials.map((t) => (
+          <figure class="accent-card p-7 flex flex-col gap-5 reveal">
+            <blockquote class="font-display text-xl leading-snug text-ink">“{t.quote}”</blockquote>
+            <figcaption class="text-sm">
+              <span class="block text-ink font-medium">{t.name}</span>
+              <span class="block text-mute mt-0.5">{t.detail}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {/* 7 · Upcoming menus */}
+  {upcoming.length > 0 && (
+    <section class="bg-paper-warm border-y border-rule">
+      <div class="max-w-6xl mx-auto px-6 py-20 md:py-24">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 reveal">
+          <div class="max-w-prose">
+            <span class="kicker">Upcoming dinners</span>
+            <h2 class="font-display text-3xl md:text-4xl mt-3">The next four Fridays</h2>
+          </div>
+          <a href="/events" class="btn-ghost self-start px-0">See every dinner →</a>
+        </div>
+        <div class="flex flex-col gap-4">
+          {upcoming.map((d) => (
+            <article class="accent-card p-6 md:p-7 flex flex-col md:flex-row md:items-center gap-4 md:gap-8 reveal">
+              <div class="md:w-48 shrink-0">
+                <p class="font-display text-2xl">{d.title}</p>
+                <p class="text-mute text-sm mt-1">{d.dateLabel}</p>
+              </div>
+              <div class="flex-1">
+                <p class="text-sm text-mute uppercase tracking-wide">{d.menuTheme}</p>
+                <div class="seat-pill mt-2">
+                  <span class={`seat-dot ${seatTone(d.seatsAvailable)}`}></span>
+                  {d.seatsAvailable > 0 ? `${d.seatsAvailable} seats left` : "Waitlist only"}
+                </div>
+              </div>
+              <div class="shrink-0">
+                {d.seatsAvailable > 0
+                  ? <a href={`/reserve/${d.slug}`} class="btn-primary">Reserve</a>
+                  : <a href="/events" class="btn-secondary">Waitlist</a>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* 8 · Private dining */}
+  <section class="section-dark">
+    <div class="max-w-6xl mx-auto px-6 py-20 md:py-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div class="max-w-prose reveal">
+        <span class="kicker">Private dining</span>
+        <h2 class="font-display text-3xl md:text-4xl mt-3">Take the whole table</h2>
+        <p class="mt-4">Twelve seats, one evening, a menu built with you and the chef. Tell us the date and the size of your group and we will write back.</p>
+      </div>
+      <div class="reveal">
+        <a href="/contact" class="btn-secondary" style="color:#F5F0EB; border-color: rgba(245,240,235,0.4);">Send an inquiry</a>
+      </div>
+    </div>
+  </section>
+
+  <StickyReserveBar />
+</Layout>

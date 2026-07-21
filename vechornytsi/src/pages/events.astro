@@ -1,0 +1,135 @@
+---
+import Layout from "../layouts/Layout.astro";
+import WaitlistForm from "../components/WaitlistForm.tsx";
+import { getDinners, formatPrice } from "../lib/content";
+import { SCENES, sized } from "../lib/media";
+
+const dinners = await getDinners();
+const seatTone = (n: number) => (n <= 0 ? "seat-dot--none" : n <= 4 ? "seat-dot--low" : "");
+const seatLabel = (d: { seatsAvailable: number; seatsTotal: number }) =>
+  d.seatsAvailable <= 0 ? "Fully booked" : `${d.seatsAvailable} of ${d.seatsTotal} seats`;
+
+const eventsLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  itemListElement: dinners.map((d, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Event",
+      name: `${d.title} — ${d.menuTheme}`,
+      startDate: `${d.dateISO}T19:00:00+03:00`,
+      eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      location: { "@type": "Place", name: "Vechornytsi", address: { "@type": "PostalAddress", streetAddress: "Beresteiskyi Ave, 5", addressLocality: "Kyiv", addressCountry: "UA" } },
+      description: d.coursePreview,
+      offers: { "@type": "Offer", price: d.price, priceCurrency: "UAH", availability: d.seatsAvailable > 0 ? "https://schema.org/InStock" : "https://schema.org/SoldOut" },
+      organizer: { "@type": "Organization", name: "Vechornytsi", url: "https://www.vechornytsi.com" },
+    },
+  })),
+};
+---
+
+<Layout
+  title="Upcoming Dinners"
+  description="The next eight seven-course dinners at Vechornytsi. Each menu changes weekly with the forage. Reserve a seat, or join the waitlist when a dinner is full."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(eventsLd)} />
+  </Fragment>
+
+  <section class="max-w-6xl mx-auto px-6 pt-20 md:pt-24 pb-8">
+    <div class="max-w-[52rem] reveal">
+      <span class="kicker">Upcoming dinners</span>
+      <h1 class="font-display text-4xl md:text-6xl leading-[1.05] mt-4">Eight Fridays, eight forages</h1>
+      <p class="text-mute text-lg mt-5 max-w-prose">
+        Reservations open exactly 14 days before each dinner. Seat counts update live below. When a dinner is full, join its waitlist and we will text you the moment a seat opens.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="flex flex-col gap-6">
+      {dinners.map((d) => (
+        <article class="accent-card p-6 md:p-8 reveal" data-dinner={d.slug}>
+          <div
+            data-soldout-banner
+            class:list={["rounded-sm px-4 py-2.5 mb-5 text-sm flex items-center gap-2", d.seatsAvailable > 0 && "hidden"]}
+            style="background: var(--color-ink); color: var(--color-cream);"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.6" class="shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+            <span><span class="font-medium">Fully booked.</span> Join the waitlist below and we'll text you the moment a seat opens.</span>
+          </div>
+          <div class="flex flex-col md:flex-row md:items-start gap-6">
+            <img
+              src={sized(d.heroImageUrl || SCENES.dish, 260, 195)}
+              alt={`A plated course from ${d.title}`}
+              class="rounded-sm w-full md:w-40 h-44 md:h-28 object-cover shrink-0"
+              width="260" height="195" loading="lazy"
+            />
+            <div class="flex-1">
+              <div class="flex items-center gap-3 flex-wrap">
+                <h2 class="font-display text-2xl md:text-3xl">{d.title}</h2>
+                {d.status === "Filling" && d.seatsAvailable > 0 && (
+                  <span class="text-xs uppercase tracking-wide px-2 py-1 rounded-sm" style="background: color-mix(in srgb, var(--color-error) 12%, transparent); color: var(--color-error);">Filling</span>
+                )}
+              </div>
+              <p class="text-mute mt-1">{d.dateLabel} · 19:00</p>
+              <p class="text-sm uppercase tracking-wide text-ink-soft mt-3">{d.menuTheme}</p>
+              <p class="text-ink leading-relaxed mt-3 max-w-prose">{d.coursePreview}</p>
+            </div>
+            <div class="md:w-56 shrink-0 flex flex-col gap-3 md:items-end md:text-right">
+              <div class="seat-pill" data-seat-pill>
+                <span class={`seat-dot ${seatTone(d.seatsAvailable)}`} data-seat-dot></span>
+                <span data-seat-label>{seatLabel(d)}</span>
+              </div>
+              <p class="font-display text-3xl text-ink-soft">{formatPrice(d.price)}</p>
+              <p class="text-xs text-mute">per seat · wine pairing {formatPrice(d.winePairingPrice)}</p>
+              <div data-reserve-slot class="w-full md:w-auto">
+                {d.seatsAvailable > 0
+                  ? <a href={`/reserve/${d.slug}`} class="btn-primary w-full md:w-auto">Reserve a seat</a>
+                  : <span class="text-sm text-mute">Waitlist below</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Waitlist — shown for fully-booked dinners */}
+          <div data-waitlist-slot class:list={["mt-6 pt-6 border-t border-rule", d.seatsAvailable > 0 && "hidden"]}>
+            <p class="font-display text-lg">This dinner is full. Join the waitlist.</p>
+            <p class="text-sm text-mute">Seats open when a guest cancels. First to respond keeps the seat.</p>
+            <WaitlistForm client:visible dinnerSlug={d.slug} dinnerTitle={d.title} />
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  {/* Live availability polling — updates seat counts without a reload */}
+  <script>
+    async function refreshAvailability() {
+      try {
+        const res = await fetch("/api/availability", { headers: { "cache-control": "no-store" } });
+        if (!res.ok) return;
+        const { dinners } = await res.json();
+        for (const d of dinners) {
+          const card = document.querySelector<HTMLElement>(`[data-dinner="${d.slug}"]`);
+          if (!card) continue;
+          const label = card.querySelector<HTMLElement>("[data-seat-label]");
+          const dot = card.querySelector<HTMLElement>("[data-seat-dot]");
+          if (label) label.textContent = d.seatsAvailable <= 0 ? "Fully booked" : `${d.seatsAvailable} of ${d.seatsTotal} seats`;
+          if (dot) {
+            dot.classList.remove("seat-dot--low", "seat-dot--none");
+            if (d.seatsAvailable <= 0) dot.classList.add("seat-dot--none");
+            else if (d.seatsAvailable <= 4) dot.classList.add("seat-dot--low");
+          }
+          const soldOut = d.seatsAvailable <= 0;
+          card.querySelector<HTMLElement>("[data-soldout-banner]")?.classList.toggle("hidden", !soldOut);
+          card.querySelector<HTMLElement>("[data-waitlist-slot]")?.classList.toggle("hidden", !soldOut);
+        }
+      } catch { /* offline — keep the SSR values */ }
+    }
+    refreshAvailability();
+    setInterval(refreshAvailability, 30000);
+    document.addEventListener("astro:after-swap", refreshAvailability);
+  </script>
+</Layout>

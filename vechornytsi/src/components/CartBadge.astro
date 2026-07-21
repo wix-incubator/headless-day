@@ -1,0 +1,79 @@
+---
+// Plain Astro component (NOT a React island) so the nav badge doesn't pull
+// React DOM (~136KB) onto every page. Count comes from the sessionStorage
+// snapshot CartView writes, a lightweight /api/cart-count fetch, and the
+// `cart-updated` event dispatched by the SDK-bearing islands.
+---
+<a href="/cart" class="cart-badge" data-cart-badge aria-label="Basket">
+  <svg
+    class="cart-badge-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M5 8h14l-1.2 10.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z" />
+    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+  </svg>
+  <span class="cart-badge-count" data-cart-count hidden></span>
+</a>
+
+<script>
+  const CART_CACHE_KEY = "cart:last-snapshot";
+
+  function cachedCount(): number {
+    try {
+      const items = JSON.parse(sessionStorage.getItem(CART_CACHE_KEY) || "{}")?.lineItems;
+      return Array.isArray(items) ? items.reduce((s: number, i: any) => s + (i?.quantity ?? 0), 0) : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function render(n: number) {
+    const el = document.querySelector<HTMLElement>("[data-cart-count]");
+    const link = document.querySelector<HTMLElement>("[data-cart-badge]");
+    if (!el) return;
+    if (n > 0) {
+      el.textContent = String(n);
+      el.hidden = false;
+      link?.setAttribute("aria-label", `Basket, ${n} items`);
+    } else {
+      el.hidden = true;
+      link?.setAttribute("aria-label", "Basket");
+    }
+  }
+
+  async function refresh() {
+    try {
+      const r = await fetch("/api/cart-count", { headers: { "cache-control": "no-store" } });
+      if (r.ok) {
+        const d = await r.json();
+        if (typeof d.count === "number") render(d.count);
+      }
+    } catch { /* offline — keep cached */ }
+  }
+
+  function init() { render(cachedCount()); refresh(); }
+
+  window.addEventListener("cart-updated", (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    const items = detail?.cart?.lineItems;
+    if (Array.isArray(items)) {
+      render(items.reduce((s: number, i: any) => s + (i?.quantity ?? 0), 0));
+    } else if (typeof detail?.delta === "number") {
+      const el = document.querySelector<HTMLElement>("[data-cart-count]");
+      const cur = el && !el.hidden ? parseInt(el.textContent || "0", 10) : 0;
+      render(Math.max(0, cur + detail.delta));
+    } else {
+      refresh();
+    }
+  });
+
+  document.addEventListener("astro:page-load", init);
+  init();
+</script>

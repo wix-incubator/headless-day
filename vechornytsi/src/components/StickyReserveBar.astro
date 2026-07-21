@@ -1,0 +1,19 @@
+---
+// Mobile-only sticky reserve bar. Appears after the hero scrolls out of view.
+const { href = "/events", label = "Reserve a seat" } = Astro.props;
+---
+<div class="sticky-reserve" data-sticky-reserve>
+  <a href={href} class="btn-primary w-full" style="min-height: 44px;">{label}</a>
+</div>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-sticky-reserve]");
+  if (bar) {
+    const onScroll = () => {
+      bar.dataset.visible = window.scrollY > window.innerHeight * 0.6 ? "true" : "false";
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("astro:after-swap", onScroll);
+  }
+</script>

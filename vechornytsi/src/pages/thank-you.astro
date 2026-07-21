@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { applyOrderToSeats } from "../lib/orders";
+
+const orderId = Astro.url.searchParams.get("orderId");
+
+// A successful order lands here — decrement the reserved dinner's seats and mark
+// it sold out at zero. Idempotent per orderId, so a refresh won't double-count.
+if (orderId) {
+  await applyOrderToSeats(orderId);
+}
+---
+
+<Layout title="Order received" description="Your order is in. We will be in touch.">
+  <section class="py-24 md:py-32">
+    <div class="max-w-prose mx-auto px-6 text-center flex flex-col gap-6 items-center">
+      <hr class="editorial-rule w-16" />
+      <h1 class="font-display text-4xl md:text-5xl leading-tight">Your order is in</h1>
+      <p class="text-lg text-ink-soft max-w-prose">
+        Thank you. We have received your order and will be in touch with the details.
+      </p>
+      {orderId && (
+        <p class="text-mute text-sm tracking-wide">Order reference: {orderId}</p>
+      )}
+      <a href="/products" class="btn-primary mt-4">Back to the shop</a>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { trackEvent } from "../utils/analytics";
+  const orderId = new URLSearchParams(window.location.search).get("orderId");
+  if (orderId) {
+    trackEvent("Purchase", { id: orderId, origin: "Thank You Page" });
+  }
+</script>
