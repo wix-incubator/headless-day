@@ -1,0 +1,72 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCities, getPass } from "../lib/wix";
+
+const [cities, pass] = await Promise.all([getCities(), getPass()]);
+const price = pass?.formatted ?? "€9";
+const rotations = [-3, 2, -2, 3, -1, 2, -3];
+---
+
+<Layout
+  title="The Breakfast Passport — Sunny Side"
+  description="Collect a stamp for every Wix-office city. Unlock all seven with the All-Access Pass and download your Breakfast Passport."
+>
+  <section class="section" style="padding-top:56px;">
+    <div class="wrap">
+      <div class="section-head" style="max-width:640px;">
+        <p class="eyebrow">The collectible</p>
+        <h1 style="font-size:clamp(2.4rem,6vw,3.6rem);margin:10px 0 12px;">The Breakfast Passport</h1>
+        <p class="muted" style="font-size:1.1rem;">One stamp for every city where Wix has an office. Unlock the Pass to fill your passport — and take the printable version with you.</p>
+      </div>
+
+      <div class="passport reveal" data-passport data-unlocked="false">
+        <div class="passport-head">
+          <div>
+            <p class="eyebrow" style="color:var(--yolk);">Sunny Side · Global</p>
+            <h2 style="font-family:var(--serif);color:var(--cream);font-size:1.7rem;margin-top:6px;">Breakfast Passport</h2>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:var(--serif);font-size:2rem;color:var(--yolk);line-height:1;" data-pass-missing>0 / 7</div>
+            <div style="font-family:var(--serif);font-size:2rem;color:var(--yolk);line-height:1;" data-pass-owned hidden>7 / 7</div>
+            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(251,246,239,0.7);margin-top:6px;">stamps</div>
+          </div>
+        </div>
+
+        <div class="stamp-grid">
+          {cities.map((city, i) => (
+            <div class="stamp" style={`--rot:${rotations[i % rotations.length]}deg;--d:${i * 90}ms`}>
+              <span class="stamp-lock" aria-hidden="true">🔒</span>
+              <svg class="stamp-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="5" fill="#F4B942" stroke="#FBF6EF" stroke-width="1.3" />
+                <g stroke="#F4B942" stroke-width="1.6" stroke-linecap="round">
+                  <path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19" />
+                </g>
+              </svg>
+              <span class="stamp-city">{city.name}</span>
+              <span class="stamp-country">{city.country}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Locked prompt -->
+      <div class="center" data-pass-missing style="margin-top:34px;">
+        <p class="muted" style="max-width:44ch;margin:0 auto 18px;">Your passport is waiting. Unlock the Pass and every stamp lights up — plus the printable Breakfast Passport is yours to keep.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+          <button class="btn btn-primary btn-lg" data-buy>Unlock your passport — {price}</button>
+          <a class="btn btn-ghost btn-lg" href="/cities">Browse the free guides</a>
+        </div>
+        <p id="buy-error" role="alert" hidden style="color:var(--terracotta);margin-top:14px;font-size:14px;"></p>
+      </div>
+
+      <!-- Unlocked payoff -->
+      <div class="center" data-pass-owned hidden style="margin-top:34px;">
+        <p style="max-width:44ch;margin:0 auto 18px;font-family:var(--serif);font-size:1.3rem;">Passport activated. Every city is yours.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+          <a class="btn btn-primary btn-lg" href="/breakfast-passport.pdf" download>↓ Download your Breakfast Passport</a>
+          <a class="btn btn-ghost btn-lg" href="/cities">Explore the full guides</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

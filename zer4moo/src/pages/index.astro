@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RibbonRule from '../components/RibbonRule.astro';
+import HeroMeadow from '../components/HeroMeadow.astro';
+import BouquetCard from '../components/BouquetCard.astro';
+import CowCard from '../components/CowCard.astro';
+import { getBouquets, getFeaturedCows, getTestimonials } from '../lib/cms';
+import { SITE, MEDIA, CATEGORIES } from '../lib/site';
+import { GRAZING } from '../lib/generatedMedia';
+
+const [bouquets, cows, testimonials] = await Promise.all([
+  getBouquets(),
+  getFeaturedCows(),
+  getTestimonials(),
+]);
+
+const storeLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Store',
+  name: SITE.name,
+  description: SITE.description,
+  url: SITE.url,
+  image: MEDIA.hero,
+  priceRange: SITE.priceRange,
+  address: { '@type': 'PostalAddress', name: SITE.location },
+  openingHours: 'Mo-Su sunrise-sunset',
+  foundingDate: SITE.founded,
+  sameAs: ['https://instagram.com/zer4moo', 'https://instagram.com/thedailygraze'],
+};
+
+const steps = [
+  { n: '1', t: 'Build the bouquet', d: 'Choose a base — hay, fresh grass, or wildflowers — then a size and a few finishing touches.' },
+  { n: '2', t: 'Choose your cow', d: 'Browse the herd and pick your recipient. We’ll match the arrangement to her taste profile.' },
+  { n: '3', t: 'Send it grazing', d: 'Add a gift message and send. Somewhere, a cow is about to have the best afternoon of her week.' },
+];
+---
+<Layout path="/" jsonLd={storeLd} preloadImage={GRAZING}>
+  <!-- 1 · Living meadow hero -->
+  <HeroMeadow />
+
+  <!-- 2 · How it works -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="center" style="margin-bottom:2rem;">
+        <h2 class="display-2">It starts with a bundle of grass</h2>
+        <RibbonRule class="center" />
+      </div>
+      <div class="grid grid-3">
+        {steps.map((s) => (
+          <div class="reveal" style="text-align:left;">
+            <div class="step-num">{s.n}</div>
+            <h3 style="font-size:1.35rem;">{s.t}</h3>
+            <p class="muted">{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · The collection preview -->
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">The collection</p>
+      <h2 class="display-2">Four ways to spoil her</h2>
+      <RibbonRule />
+      <div class="grid grid-4" style="margin-top:1.5rem;">
+        {CATEGORIES.map((c) => (
+          <a class="cat-tile reveal" href="/shop" style={`background:${c.tint};`}>
+            <span>
+              {c.name}
+              <span style="display:block;font-family:var(--font-body);font-weight:500;font-size:0.85rem;opacity:0.85;margin-top:0.3rem;">{c.blurb}</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Meet a few of the herd -->
+  <section class="section on-dark">
+    <div class="container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+        <div>
+          <p class="eyebrow" style="color:rgba(241,234,217,.7);">Real cows · real portraits</p>
+          <h2 class="display-2">Meet a few of the herd</h2>
+        </div>
+        <a class="btn btn-ghost" href="/herd" style="color:var(--color-on-dark);border-color:rgba(241,234,217,.5);">See all {cows.length ? '' : ''}the cows</a>
+      </div>
+      <div class="grid grid-3">
+        {cows.map((cow) => <CowCard cow={cow} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · The Most Pampered -->
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Featured arrangements</p>
+      <h2 class="display-2">The Most Pampered</h2>
+      <RibbonRule />
+      <div class="grid grid-3" style="margin-top:1.5rem;">
+        {bouquets.map((b) => <BouquetCard bouquet={b} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Why send greens -->
+  <section class="section--tight">
+    <div class="container center measure mx-auto reveal">
+      <span aria-hidden="true" style="font-size:2rem;">🌾</span>
+      <h2 class="display-2" style="margin-top:0.5rem;">Why send greens from ZER4MOO</h2>
+      <RibbonRule class="center" />
+      <p class="lead">
+        Everyone else gets flowers — birthdays, apologies, just-because Tuesdays. The cows, standing there being gentle and enormous, received nothing. We opened to fix exactly that. Because joy shouldn’t be limited to those who can hold a vase.
+      </p>
+      <a class="btn btn-primary" href="/about" style="margin-top:0.5rem;">Read our story</a>
+    </div>
+  </section>
+
+  <!-- 7 · Happy recipients -->
+  <section class="section" style="background:var(--color-surface);">
+    <div class="container">
+      <div class="center" style="margin-bottom:2rem;">
+        <p class="eyebrow">Happy recipients</p>
+        <h2 class="display-2">In their own words</h2>
+        <RibbonRule class="center" />
+      </div>
+      <div class="grid grid-3">
+        {testimonials.map((t) => (
+          <figure class="card reveal" style="padding:1.6rem 1.5rem;margin:0;">
+            <span aria-hidden="true" style="font-family:var(--font-display);font-size:2.6rem;color:var(--color-accent);line-height:0.5;">“</span>
+            <blockquote class="quote" style="margin:0.4rem 0 1rem;">{t.quote}</blockquote>
+            <figcaption>
+              <strong style="color:var(--color-primary);">{t.name}</strong>
+              <div class="muted" style="font-size:0.85rem;">{t.detail}</div>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · CTA band — light, flows into the footer meadow -->
+  <section class="section" style="text-align:center;padding-bottom:1.5rem;background:linear-gradient(180deg,#EDF1E1 0%,var(--color-background) 100%);">
+    <div class="container measure mx-auto">
+      <h2 class="display-1" style="font-size:clamp(2.2rem,5vw,3.6rem);color:var(--color-primary);">It starts with a bundle of grass,<br />not a plunge into the ordinary.</h2>
+      <p class="lead" style="margin-top:1rem;">Build a bouquet, choose your cow, and make her afternoon.</p>
+      <a class="btn btn-primary btn-lg" href="/shop" style="margin-top:1rem;">Build a bouquet</a>
+    </div>
+  </section>
+</Layout>
+

@@ -1,0 +1,187 @@
+---
+import App from '../App';
+import Layout from '../layouts/Layout.astro';
+import { DESTINATIONS } from '../data/destinations';
+import { DESTINATION_PHOTOS } from '../data/photos';
+import { AGENCY } from '../data/agency';
+import { SERVICE_NAME } from '../bookings/api';
+import { buildJsonLd } from '../seo/jsonld';
+import { buildFaqJsonLd, type FaqItem } from '../seo/faqJsonld';
+
+const DESCRIPTION =
+  "Nalu Surf Travel plans real surf trips to twelve of the world's best breaks. Fly a toy helicopter " +
+  'around a pocket Earth to explore them, then book a trip-planning session with a real surf-travel agent.';
+const jsonLd = buildJsonLd();
+
+const bali = DESTINATIONS.find((d) => d.id === 'bali')!;
+const teahupoo = DESTINATIONS.find((d) => d.id === 'teahupoo')!;
+const snapper = DESTINATIONS.find((d) => d.id === 'snapper')!;
+const jbay = DESTINATIONS.find((d) => d.id === 'jbay')!;
+
+const FAQS: FaqItem[] = [
+  {
+    question: 'When is the best time to surf Uluwatu, Bali?',
+    answer: `${bali.bestWindow.months} — ${bali.bestWindow.windNotes}; ${bali.bestWindow.tideNotes}.`,
+  },
+  {
+    question: "Do I need to be advanced to surf Teahupo'o?",
+    answer: `Yes — we rate ${teahupoo.name} "${teahupoo.skillLevel}." The reef is razor-shallow, so most visitors watch from ${teahupoo.spots[1].name} unless they already surf at that level.`,
+  },
+  {
+    question: 'Is Snapper Rocks good for beginners?',
+    answer: `Yes — Snapper Rocks is rated "${snapper.skillLevel}," so beginners and experts both find a wave along the Superbank.`,
+  },
+  {
+    question: "What's the best time to surf Jeffreys Bay's Supertubes?",
+    answer: `${jbay.bestWindow.months} — ${jbay.bestWindow.windNotes}; ${jbay.bestWindow.tideNotes}.`,
+  },
+  {
+    question: 'How do I book a trip?',
+    answer: `Land at any break in the game and click "Plan this trip," or open the menu and click "Book a session." Either way, you'll book a real ${SERVICE_NAME.toLowerCase()} with a human agent.`,
+  },
+  {
+    question: 'Does Nalu Surf Travel handle flights and accommodation too?',
+    answer: AGENCY.about,
+  },
+];
+const faqJsonLd = buildFaqJsonLd(FAQS);
+---
+
+<Layout description={DESCRIPTION}>
+	<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+	<script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+	<div id="bb-splash">
+		<p class="bb-splash-title"><span class="bb-splash-heli">🚁</span> Nalu Surf Travel</p>
+		<p class="bb-splash-sub">Nalu is on the way…</p>
+		<p class="bb-splash-retry">Taking a while? Refresh to try again</p>
+	</div>
+	<noscript><style>#bb-splash{display:none!important}</style></noscript>
+	<App client:only="react" />
+	<main class="bb-seo-content">
+		<h1>Nalu Surf Travel — plan a real surf trip to 12 of the world's best waves</h1>
+		<p>
+			Fly a toy helicopter around a pocket Earth, land at a break, and book a planning session with a
+			real surf-travel agent. {AGENCY.about}
+		</p>
+		{DESTINATIONS.map((d) => (
+			<section aria-labelledby={`dest-${d.id}`}>
+				<h2 id={`dest-${d.id}`}>{d.name} · {d.country} {d.emoji}</h2>
+				<img
+					src={DESTINATION_PHOTOS[d.id].src}
+					alt={DESTINATION_PHOTOS[d.id].alt}
+					width="640"
+					height="360"
+					loading="lazy"
+				/>
+				<p>{d.blurb}</p>
+				<p>
+					Best window: {d.bestWindow.months} — {d.bestWindow.windNotes}; {d.bestWindow.tideNotes}.
+				</p>
+				<ul>
+					{d.spots.map((s) => (
+						<li><strong>{s.name}</strong> — {s.note}</li>
+					))}
+				</ul>
+				<p>Skill level: {d.skillLevel} · Water temperature: {d.waterTemp}</p>
+			</section>
+		))}
+		<p>
+			Book a real trip-planning session with your surf agent — {SERVICE_NAME}, a 30-minute
+			online video call to pick your dates, your break, and your backup spot for when the
+			wind turns.
+		</p>
+		<p>
+			Questions? Email <a href={`mailto:${AGENCY.email}`}>{AGENCY.email}</a> or call{' '}
+			<a href={`tel:${AGENCY.phone.replace(/[^+\d]/g, '')}`}>{AGENCY.phone}</a>.
+		</p>
+		<section class="bb-faq" aria-labelledby="faq-heading">
+			<h2 id="faq-heading">Frequently asked questions</h2>
+			{FAQS.map((faq) => (
+				<div>
+					<h3>{faq.question}</h3>
+					<p>{faq.answer}</p>
+				</div>
+			))}
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.bb-seo-content {
+		max-width: 720px;
+		margin: 0 auto;
+		padding: 40px 20px 80px;
+		font-family: 'Fredoka', ui-rounded, sans-serif;
+		line-height: 1.5;
+	}
+	.bb-seo-content h1 {
+		font-size: 28px;
+	}
+	.bb-seo-content section {
+		margin: 24px 0;
+	}
+	.bb-seo-content .bb-faq h3 {
+		font-size: 17px;
+		margin: 20px 0 4px;
+	}
+	.bb-seo-content section img {
+		width: 100%;
+		max-width: 640px;
+		height: auto;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+		border-radius: 12px;
+		display: block;
+		margin: 8px 0;
+	}
+
+	#bb-splash {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		text-align: center;
+		padding: 24px;
+		background: linear-gradient(180deg, #8FE3DB 0%, #FDF3DC 100%);
+		font-family: 'Fredoka', ui-rounded, sans-serif;
+		color: #14353E;
+	}
+	.bb-splash-title {
+		margin: 0;
+		font-size: clamp(24px, 5vw, 32px);
+		font-weight: 600;
+	}
+	.bb-splash-heli {
+		display: inline-block;
+		animation: bbBob 1.2s ease-in-out infinite;
+	}
+	.bb-splash-sub {
+		margin: 0;
+		font-size: 16px;
+		opacity: 0.8;
+	}
+	.bb-splash-retry {
+		margin: 12px 0 0;
+		font-size: 14px;
+		opacity: 0;
+		animation: bbShow 0.5s ease 8s forwards;
+	}
+
+	@keyframes bbBob {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-10px); }
+	}
+	@keyframes bbShow {
+		to { opacity: 0.8; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.bb-splash-heli {
+			animation: none;
+		}
+	}
+</style>

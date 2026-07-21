@@ -1,0 +1,147 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RibbonRule from '../components/RibbonRule.astro';
+import BeforeAfter from '../components/react/BeforeAfter.tsx';
+import { getStory, getCows } from '../lib/cms';
+
+const [story, cows] = await Promise.all([getStory(), getCows()]);
+
+const faqs = [
+  { q: 'Is this a real service? Do the cows actually get the flowers?',
+    a: 'Think of ZER4MOO as a joyful gift experience. We take the idea of gifting a bouquet to a cow completely seriously — the arrangements, the taste profiles, the delivery confirmation are all part of the bit. Whether a specific cow receives a specific bundle is between you and the pasture.' },
+  { q: 'How do I choose the right bouquet for my cow?',
+    a: 'Every cow has a taste profile on her page. The builder shows a small match badge when your arrangement suits her — Clementine adores wildflowers, Sir Reginald insists on first-cut timothy, and Buttercup, bless her, loves everything.' },
+  { q: 'Can I write a gift message?',
+    a: 'Yes. Add a note at the send step and we’ll include it on the card. She will pretend to read it, then eat the bouquet. This is the highest compliment a cow can pay.' },
+  { q: 'What’s in a bouquet?',
+    a: 'Depending on the base you choose: sun-dried timothy hay, fresh-cut pasture grass, or a wildflower grazing mix of clover, dandelion, and edible meadow blooms. Add-ons include a gourmet salt lick, a premium carrot centerpiece, and apple-slice confetti.' },
+  { q: 'Which cow is the most spoiled right now?',
+    a: 'Check the Herd Leaderboard. It updates with bouquets received, this month’s most-gifted greens, and each cow’s Contentment Index. Buttercup is usually winning. Buttercup is always winning.' },
+  { q: 'Do you deliver everywhere?',
+    a: 'We deliver to most pastures within the region. A minimum pasture-delivery fee applies, as with any good florist.' },
+];
+const faqLd = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+const team = [
+  { name: 'The Founder', role: 'Head Florist', note: 'Ties every ribbon. Cried at the first delivery. Would do it again.' },
+  { name: 'The Herd Photographer', role: 'Portraits', note: 'Has never met a cow who wasn’t worth a bouquet. Does not expect to.' },
+  { name: 'The Delivery Team', role: 'Pasture Logistics', note: 'Knows every gate, every field, every good afternoon.' },
+];
+---
+<Layout title="About" path="/about" description="The origin story of ZER4MOO — hand-tied bouquets for the cow who has everything except flowers." jsonLd={faqLd}>
+  <!-- Hero + before/after slider -->
+  <section class="section--tight">
+    <div class="container">
+      <div class="measure">
+        <p class="eyebrow">Our story</p>
+        <h1 class="display-2">{story?.heading ?? 'It began in a flower shop, on an ordinary afternoon.'}</h1>
+        <RibbonRule />
+        <p class="lead" style="color:var(--color-text);">
+          Everyone else gets flowers. The cows, standing there being gentle and enormous, got nothing — until us. Drag the slider and see the difference a bouquet makes.
+        </p>
+      </div>
+      <div style="margin-top:1.6rem;">
+        <BeforeAfter client:visible />
+      </div>
+    </div>
+  </section>
+
+  <!-- Origin story, told with the window -->
+  <section class="section--tight">
+    <div class="container about-story">
+      <img class="about-story__img" src="/about/story.png" width="1100" height="821" loading="lazy"
+        alt="A florist's window looking out across the road onto a field of grazing cows." />
+      <div>
+        <p class="eyebrow">Why we opened</p>
+        <RibbonRule />
+        <p class="lead" style="color:var(--color-text);">
+          {story?.body ?? 'ZER4MOO was founded on a single stubborn belief: that every cow deserves to feel chosen.'}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The crowned herd (reuses the thank-you art) -->
+  <section class="section" style="background:var(--color-surface);">
+    <div class="container">
+      <div class="center" style="margin-bottom:2rem;">
+        <p class="eyebrow">We have never met a cow who wasn’t worth a bouquet</p>
+        <h2 class="display-2">The crowned</h2>
+        <RibbonRule class="center" />
+      </div>
+      <div class="crowned-grid">
+        {cows.map((c) => (
+          <a class="crowned reveal" href={`/herd/${c.slug}`}>
+            <img src={`/thankyou/${c.slug}.png`} width="640" height="640" loading="lazy" alt={`${c.name} wearing a flower crown`} />
+            <span>{c.name}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- The promise -->
+  <section class="section on-dark">
+    <div class="container">
+      <div class="grid grid-3">
+        <div><h3>Hand-tied</h3><p class="lead">Every arrangement is bound by hand from food-grade greens, matched to your cow’s taste profile.</p></div>
+        <div><h3>Photographed by us</h3><p class="lead">We photograph every cow ourselves. The portraits on the Herd page are the real recipients.</p></div>
+        <div><h3>Delivered with care</h3><p class="lead">We deliver to most pastures within the region, and we always send you a photo of the moment.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="section">
+    <div class="container">
+      <div class="center" style="margin-bottom:2rem;">
+        <p class="eyebrow">The people behind the pasture</p>
+        <h2 class="display-2">Our team</h2>
+        <RibbonRule class="center" />
+      </div>
+      <div class="grid grid-3">
+        {team.map((m) => (
+          <div class="card reveal" style="padding:1.5rem;text-align:center;">
+            <div class="img-fallback" style="width:76px;height:76px;border-radius:50%;margin:0 auto 1rem;font-size:1.8rem;">🌿</div>
+            <h3 style="margin:0;font-size:1.2rem;">{m.name}</h3>
+            <p class="eyebrow" style="margin:0.3rem 0;">{m.role}</p>
+            <p class="muted" style="margin:0;">{m.note}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="section" style="background:var(--color-background);scroll-margin-top:80px;">
+    <div class="container measure">
+      <p class="eyebrow">Questions, sincerely answered</p>
+      <h2 class="display-2">FAQ</h2>
+      <RibbonRule />
+      <div style="margin-top:1.5rem;display:grid;gap:0.8rem;">
+        {faqs.map((f) => (
+          <details class="card" style="padding:0;">
+            <summary style="cursor:pointer;padding:1.1rem 1.3rem;font-family:var(--font-display);font-weight:600;color:var(--color-primary);font-size:1.12rem;list-style:none;">{f.q}</summary>
+            <div style="padding:0 1.3rem 1.2rem;color:var(--color-text-muted);">{f.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight center">
+    <div class="container">
+      <a class="btn btn-primary btn-lg" href="/shop">Build a bouquet</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about-story { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: center; }
+  .about-story__img { width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); aspect-ratio: 4 / 3; object-fit: cover; }
+  @media (max-width: 760px) { .about-story { grid-template-columns: 1fr; } }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] > summary { border-bottom: 1px solid var(--color-border); }
+</style>

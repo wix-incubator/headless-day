@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Wix local state / logs
+.wix/
+wix.config.json
+
+# OS / editor
+.DS_Store
+*.log
+
+# Env (never commit credentials — API scripts read TOKEN/SITE_ID from the environment)
+.env
+.env.*

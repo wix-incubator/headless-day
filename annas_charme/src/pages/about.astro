@@ -1,0 +1,103 @@
+---
+import Footer from "../components/layout/footer.astro";
+import Layout from "../components/layout/layout.astro";
+---
+
+<Layout>
+  <div class="w-full">
+    <!-- Hero section -->
+    <section class="mx-auto max-w-5xl px-4 py-16 md:py-24">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <!-- Text — first on mobile -->
+        <div class="flex flex-col gap-6 order-1 md:order-2">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-rose-400 mb-3">Meet the maker</p>
+            <h1 class="font-display text-4xl font-medium tracking-tight md:text-5xl mb-6">
+              Hi, I'm Anna! 💕
+            </h1>
+          </div>
+
+          <div class="flex flex-col gap-4 text-neutral-600 dark:text-neutral-300 leading-relaxed">
+            <p>
+              I'm a mom of three, and my girls absolutely love jewelry and bracelets. Our creative journey
+              started with making simple beaded bracelets together at home. Seeing how much they enjoyed
+              designing their own pieces inspired me to dive into the world of DIY jewelry.
+            </p>
+            <p>
+              As we kept creating, I realized that starting a new project often meant buying lots of beads
+              and supplies — even if you only wanted to make one or two bracelets. I wanted to make crafting
+              easier and more affordable.
+            </p>
+          </div>
+
+          <a
+            href="/build"
+            class="inline-flex self-start items-center gap-2 rounded-full bg-neutral-900 dark:bg-white px-7 py-3 text-sm font-semibold text-white dark:text-black transition hover:opacity-80"
+          >
+            Build your bracelet →
+          </a>
+        </div>
+
+        <!-- Image — second on mobile -->
+        <div class="flex justify-center order-2 md:order-1">
+          <img
+            src="/anna.jpg"
+            alt="Anna making bracelets"
+            class="w-full max-w-sm rounded-2xl shadow-2xl object-cover aspect-[4/5]"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Story section -->
+    <section class="border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+      <div class="mx-auto max-w-3xl px-4 py-16 md:py-24 text-center flex flex-col gap-6">
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-rose-400">Why I started</p>
+        <h2 class="font-display text-3xl font-medium tracking-tight md:text-4xl">The kits that started it all</h2>
+
+        <div class="flex flex-col gap-5 text-neutral-600 dark:text-neutral-300 leading-relaxed text-left md:text-center">
+          <p>
+            That's why I created these DIY bracelet kits. Each kit includes everything you need to make
+            beautiful bracelets without the hassle of shopping for individual supplies.
+          </p>
+          <p>
+            Whether you're looking for a fun activity to enjoy with your kids, a relaxing creative hobby,
+            or a thoughtful gift, these kits are designed to make creating easy, fun, and inspiring.
+          </p>
+          <p class="font-medium text-neutral-800 dark:text-neutral-100">
+            Thank you for supporting my small business. I hope these kits bring you as much joy as they've
+            brought my family! 💖
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Values strip -->
+    <section class="mx-auto max-w-5xl px-4 py-16 md:py-20">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+        <div class="flex flex-col items-center gap-3 p-8 rounded-3xl bg-rose-50 dark:bg-rose-900/10">
+          <span class="text-3xl">💝</span>
+          <h3 class="font-semibold text-lg">Made with love</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+            Every kit is packed with care, just like the bracelets we make at home.
+          </p>
+        </div>
+        <div class="flex flex-col items-center gap-3 p-8 rounded-3xl bg-purple-50 dark:bg-purple-900/10">
+          <span class="text-3xl">✨</span>
+          <h3 class="font-semibold text-lg">All-in-one kits</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+            No hunting for supplies — everything you need arrives in one box.
+          </p>
+        </div>
+        <div class="flex flex-col items-center gap-3 p-8 rounded-3xl bg-sky-50 dark:bg-sky-900/10">
+          <span class="text-3xl">👨‍👩‍👧‍👦</span>
+          <h3 class="font-semibold text-lg">Family-first</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+            Designed for kids and adults alike — the perfect creative activity for any age.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <Footer />
+</Layout>

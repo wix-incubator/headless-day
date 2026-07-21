@@ -1,0 +1,1431 @@
+---
+import RootLayout from "../components/layout/layout.astro";
+import Footer from "../components/layout/footer.astro";
+
+const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 };
+---
+
+<RootLayout>
+  <div class="max-w-6xl mx-auto px-4 py-12 lg:px-8">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="font-display text-4xl font-light tracking-tight mb-3">Build Your Bracelet</h1>
+      <p class="text-neutral-500 dark:text-neutral-400 text-lg">Design something uniquely yours.</p>
+    </div>
+
+
+    <!-- Main layout -->
+    <div class="flex flex-col lg:flex-row gap-10 items-start">
+
+      <!-- Left: design panel -->
+      <div class="flex-1 min-w-0">
+
+        <div class="step-panel">
+          <h2 class="font-display text-2xl font-light mb-6">Design your bracelet</h2>
+
+          <!-- Style radio selector -->
+          <div class="flex gap-3 mb-8">
+            <button id="label-radio-single" type="button" class="flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-900 bg-neutral-900 text-white">
+              <span class="text-sm font-medium select-none">📿 Single-strand</span>
+            </button>
+            <button id="label-radio-multi" type="button" class="flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-200 text-neutral-500">
+              <span class="text-sm font-medium select-none">✨ Multi-strand</span>
+            </button>
+          </div>
+          <!-- Single-strand color section -->
+          <div id="single-color-section">
+            <div class="flex flex-col lg:flex-row gap-6 mb-5">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Choose up to 5 bead colors for your design.</p>
+                <div id="color-category-filters" class="flex flex-wrap gap-2 mb-4"></div>
+                <div id="color-grid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1 sm:gap-2"></div>
+              </div>
+              <div class="lg:w-52 shrink-0 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20 p-4 h-fit">
+                <p class="text-sm font-medium mb-3">Your selected colors (<span id="color-count">0</span>/5)</p>
+                <div id="selected-color-slots" class="flex flex-wrap gap-2 min-h-[3.5rem]"></div>
+                <p class="text-xs text-neutral-400 mt-3">Pick up to 5 colors.</p>
+              </div>
+            </div>
+            <div class="rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+              💡 Tip: Click on a bead to add it to your selection. You can pick up to 5 colors.
+            </div>
+          </div>
+
+          <!-- Multi-strand design section -->
+          <div id="multi-section" style="display:none">
+            <div class="mb-6">
+              <p class="text-sm font-medium mb-3">Number of strands</p>
+              <div class="flex gap-2">
+                <button class="strand-cnt-btn px-5 py-2 rounded-full border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 hover:border-neutral-400" data-count="3">3</button>
+                <button class="strand-cnt-btn px-5 py-2 rounded-full border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 hover:border-neutral-400" data-count="5">5</button>
+                <button class="strand-cnt-btn px-5 py-2 rounded-full border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 hover:border-neutral-400" data-count="7">7</button>
+                <button class="strand-cnt-btn px-5 py-2 rounded-full border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 hover:border-neutral-400" data-count="9">9</button>
+              </div>
+            </div>
+            <div class="mb-5">
+              <div class="flex items-center gap-3 mb-3">
+                <p class="text-sm font-medium">Color</p>
+                <span id="active-color-dot" class="inline-flex h-10 w-10 items-center justify-center flex-shrink-0">
+                  <img id="active-color-img" src="/beads/red.png" alt="Active color" class="h-9 w-9 object-contain drop-shadow-sm" />
+                </span>
+                <button id="erase-btn" class="text-xs px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none">Erase</button>
+                <button id="clear-all-btn" class="text-xs px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none ml-auto">Clear all</button>
+              </div>
+              <div id="multi-color-grid" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-1 sm:gap-2 max-h-64 overflow-y-auto pr-1"></div>
+            </div>
+            <div class="mb-2">
+              <p class="text-sm font-medium mb-2">Pattern <span class="font-normal text-neutral-400 text-xs ml-1">10 beads × <span id="row-count-label">5</span> strands — click or drag to paint</span></p>
+              <div id="pattern-grid-editor" class="overflow-x-auto pb-1 select-none"></div>
+            </div>
+            <div class="mb-5 mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-700">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" id="fill-empty-toggle" class="mt-0.5 rounded border-neutral-300" />
+                <div>
+                  <span class="text-sm font-medium">Fill empty beads</span>
+                  <p class="text-xs text-neutral-400 mt-0.5">Missing squares use a default color and are included in your kit</p>
+                </div>
+              </label>
+              <div id="default-fill-picker" class="hidden mt-3 pl-7">
+                <p class="text-xs font-medium text-neutral-400 mb-2">Default bead color</p>
+                <div id="default-fill-color-grid" class="flex flex-wrap gap-1.5"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personalize — single-strand only, either letters OR bead pattern -->
+          <div id="personalize-section" class="mt-10" style="display:none">
+            <div class="h-px bg-neutral-100 dark:bg-neutral-700 mb-8"></div>
+            <h3 class="font-display text-xl font-light mb-2">Personalize</h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-6">Optional — pick one.</p>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <button id="choose-letters" class="personalize-choice text-left p-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-700 transition-all hover:border-neutral-400 dark:hover:border-neutral-500 focus:outline-none">
+                <div class="text-2xl mb-2 select-none">🔤</div>
+                <div class="font-semibold text-sm mb-1">Letter beads</div>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">Spell out a name or word</p>
+              </button>
+              <button id="choose-pattern" class="personalize-choice text-left p-5 rounded-2xl border-2 border-neutral-200 dark:border-neutral-700 transition-all hover:border-neutral-400 dark:hover:border-neutral-500 focus:outline-none">
+                <div class="text-2xl mb-2 select-none">🌸</div>
+                <div class="font-semibold text-sm mb-1">Bead pattern</div>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">Cherry, bee, butterfly & more</p>
+              </button>
+            </div>
+
+            <!-- Letter beads config (shown when choose-letters is active) -->
+            <div id="letters-config" class="hidden">
+              <label class="block text-sm font-medium mb-3">Your letters <span class="font-normal text-neutral-400">(max 10)</span></label>
+              <input
+                type="text"
+                id="letters-input"
+                maxlength="10"
+                placeholder="e.g. ANNA"
+                class="w-full max-w-xs px-4 py-3 rounded-xl border-2 border-neutral-200 dark:border-neutral-700 bg-transparent text-base focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-400 transition"
+              />
+              <p class="text-xs text-neutral-400 mt-2 mb-6"><span id="letters-chars">0</span>/10</p>
+
+              <p class="text-sm font-medium mb-3">Bead color</p>
+              <div class="flex gap-3 flex-wrap mb-8">
+                <button class="letter-style-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-style="colorful">
+                  <span class="flex items-center gap-2">
+                    <span class="flex gap-0.5"><span class="w-3.5 h-3.5 rounded-full bg-rose-400 inline-block"></span><span class="w-3.5 h-3.5 rounded-full bg-violet-400 inline-block"></span><span class="w-3.5 h-3.5 rounded-full bg-sky-400 inline-block"></span></span>
+                    Colorful
+                  </span>
+                </button>
+                <button class="letter-style-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-style="black">
+                  <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-neutral-900 inline-block ring-1 ring-neutral-600/40"></span>Black</span>
+                </button>
+                <button class="letter-style-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-style="white">
+                  <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-white inline-block ring-1 ring-neutral-300"></span>White</span>
+                </button>
+                <button class="letter-style-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-style="clear">
+                  <span class="flex items-center gap-2"><span class="w-4 h-4 rounded-full inline-block ring-1 ring-sky-300/60" style="background:rgba(186,230,255,0.18)"></span>See-through</span>
+                </button>
+              </div>
+
+              <p class="text-sm font-medium mb-3">Add a special bead</p>
+              <div class="flex gap-3">
+                <button id="deco-heart" class="deco-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-deco="heart">
+                  <span class="flex items-center gap-2">❤️ Heart bead</span>
+                </button>
+                <button id="deco-star" class="deco-btn px-5 py-2.5 rounded-xl border-2 text-sm font-medium transition-all border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400" data-deco="star">
+                  <span class="flex items-center gap-2">⭐ Star bead</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bead pattern config (shown when choose-pattern is active) -->
+            <div id="pattern-config" class="hidden">
+              <div id="bead-pattern-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+              <div id="flower-customizer" class="hidden mt-8">
+                <div class="flex items-center gap-3 mb-5">
+                  <h4 class="text-sm font-semibold">Customize flower colors</h4>
+                  <button id="add-flower-btn" class="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition">+ Add variation</button>
+                </div>
+                <div id="flower-config-list" class="space-y-4"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-10 flex justify-end">
+            <button id="next-2" class="btn-primary" disabled>Add to Cart</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: Live summary -->
+      <div class="lg:w-72 flex-shrink-0 w-full">
+        <div class="sticky top-24 rounded-3xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-7 shadow-sm">
+          <h3 class="font-display text-xl font-light mb-1">Your Kit</h3>
+          <p class="text-xs text-neutral-400 mb-5">We ship everything you need — you assemble it!</p>
+
+          <!-- Visual bracelet preview -->
+          <div id="bead-preview" class="mb-5 flex items-center justify-center min-h-[180px]">
+            <span id="preview-placeholder" class="text-sm text-neutral-400 italic">Selections will appear here…</span>
+          </div>
+
+          <!-- Kit contents -->
+          <div class="mb-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-3">What's in your kit</p>
+            <div id="kit-contents" class="space-y-1.5 text-sm text-neutral-600 dark:text-neutral-300">
+              <span class="text-neutral-400 italic text-xs">Choose your design to see kit contents…</span>
+            </div>
+          </div>
+
+          <div class="h-px bg-neutral-100 dark:bg-neutral-700 mb-4"></div>
+
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-neutral-400 text-sm">Quantity</span>
+            <div class="flex items-center gap-2">
+              <button id="qty-minus" class="w-7 h-7 rounded-full border border-neutral-200 dark:border-neutral-600 flex items-center justify-center text-base leading-none hover:bg-neutral-100 dark:hover:bg-neutral-700 transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>−</button>
+              <span id="qty-display" class="text-sm font-medium w-5 text-center">1</span>
+              <button id="qty-plus" class="w-7 h-7 rounded-full border border-neutral-200 dark:border-neutral-600 flex items-center justify-center text-base leading-none hover:bg-neutral-100 dark:hover:bg-neutral-700 transition">+</button>
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-neutral-400 text-sm">Total</span>
+            <span id="sum-total" class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">₪40</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <Footer />
+</RootLayout>
+
+<style>
+  @reference "../styles/global.css";
+  .step-panel { animation: fadeUp 0.22s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .btn-primary {
+    @apply px-6 py-2.5 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-black text-sm font-medium transition-all hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply px-6 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-600 text-sm font-medium transition-all hover:bg-neutral-100 dark:hover:bg-neutral-700;
+  }
+  .bead-picker-btn {
+    @apply flex flex-col items-center gap-0.5 p-1 rounded-xl transition-all duration-150 hover:scale-105 focus:outline-none;
+  }
+  .bead-picker-btn.is-selected {
+    @apply ring-2 ring-rose-400 ring-offset-2 dark:ring-offset-neutral-900;
+  }
+  .bead-picker-btn.is-active {
+    @apply ring-2 ring-neutral-900 dark:ring-white ring-offset-2 dark:ring-offset-neutral-900;
+  }
+  .bead-picker-btn--compact img {
+    @apply h-8 w-8;
+  }
+  .bead-picker-btn--mini img {
+    @apply h-7 w-7;
+  }
+</style>
+
+<!-- Inject server-fetched Wix prices into the client bundle -->
+<script is:inline define:vars={{ kitPrices }}>
+  window.__kitPrices = kitPrices;
+</script>
+
+<script>
+  import { saveCartPreview, saveStoredCartItem, svgElementToDataUrl } from "../lib/cart-preview.client";
+  import { BEAD_CATEGORIES, BEAD_COLORS, BEAD_COLOR_MAP, type BeadCategory } from "../lib/bead-colors";
+  import { renderDiyCartLines, updateCartBadge } from "../lib/kit-cart.client";
+
+  /* ---------- data ---------- */
+  const COLORS = BEAD_COLORS;
+
+  const BEAD_PATTERNS = [
+    { name: "Cherry",    emoji: "🍒", desc: "Sweet cherry charms" },
+    { name: "Flower",    emoji: "🌸", desc: "Delicate flowers" },
+    { name: "Bee",       emoji: "🐝", desc: "Cute little bees" },
+    { name: "Butterfly", emoji: "🦋", desc: "Elegant butterflies" },
+    { name: "Pineapple", emoji: "🍍", desc: "Tiny pineapple charms" },
+    { name: "Grape",     emoji: "🍇", desc: "Clusters of grapes" },
+  ];
+
+  const COLOR_MAP = BEAD_COLOR_MAP;
+  const beadByHex = (hex: string) => COLORS.find(c => c.hex === hex);
+
+  let colorCategory: BeadCategory = 'all';
+
+  // Prices injected from Wix at render time via window.__kitPrices (see inline script)
+  const _wp = (window as any).__kitPrices ?? {};
+  const KIT_PRICES = {
+    single: Number(_wp.single) || 40,
+    multi3: Number(_wp.multi3) || 65,
+    multi5: Number(_wp.multi5) || 80,
+    multi7: Number(_wp.multi7) || 95,
+    multi9: Number(_wp.multi9) || 110,
+  };
+
+  function calcPrice(): number {
+    if (s.type !== 'multi') return KIT_PRICES.single;
+    if (s.strandCount <= 3) return KIT_PRICES.multi3;
+    if (s.strandCount <= 5) return KIT_PRICES.multi5;
+    if (s.strandCount <= 7) return KIT_PRICES.multi7;
+    return KIT_PRICES.multi9;
+  }
+
+  function buildKitItems(): string[] {
+    const items: string[] = [];
+
+    if (s.type === 'single' && s.colors.length > 0) {
+      const n = s.colors.length;
+      s.colors.forEach(hex => {
+        const name = COLOR_MAP.get(hex) ?? hex;
+        if (n === 1)        items.push(`1 bag ${name} pony beads`);
+        else if (n === 2)   items.push(`½ bag ${name} pony beads`);
+        else                items.push(`¼ bag ${name} pony beads`);
+      });
+      if (s.beadPattern) {
+        const pat = BEAD_PATTERNS.find(p => p.name === s.beadPattern);
+        items.push(`${pat?.emoji ?? ''} ${s.beadPattern} pattern bead set`.trim());
+      }
+      const lp = s.personal;
+      if (lp?.kind === 'letters' && lp.value) {
+        const styleLabel = lp.style === 'black' ? 'Black' : lp.style === 'white' ? 'White' : lp.style === 'clear' ? 'Clear' : 'Colorful';
+        items.push(`${styleLabel} letter beads: "${lp.value.toUpperCase()}"`);
+      }
+      if (lp?.decoration === 'heart' || lp?.decoration === 'both') items.push('Heart charm bead');
+      if (lp?.decoration === 'star'  || lp?.decoration === 'both') items.push('Star charm bead');
+      items.push('Elastic bracelet cord');
+      items.push('Closing clasp kit');
+
+    } else if (s.type === 'multi') {
+      const counts: Record<string, number> = {};
+      for (let row = 0; row < s.strandCount; row++) {
+        for (let col = 0; col < 10; col++) {
+          const hex = getMultiCellColor(row, col);
+          if (hex) counts[hex] = (counts[hex] || 0) + 1;
+        }
+      }
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (total > 0) {
+        Object.entries(counts)
+          .sort(([, a], [, b]) => b - a)
+          .forEach(([hex, count]) => {
+            const name = COLOR_MAP.get(hex) ?? hex;
+            const pct = count / total;
+            const amt = pct >= 0.55 ? '1 bag' : pct >= 0.30 ? '½ bag' : '¼ bag';
+            items.push(`${amt} ${name} pony beads`);
+          });
+      }
+      items.push(`${s.strandCount}× elastic bracelet cord`);
+      items.push('Multi-strand closing clasp kit');
+    }
+
+    if (items.length > 0) items.push('Step-by-step instructions booklet');
+    return items;
+  }
+
+  /* ---------- state ---------- */
+  interface FlowerCfg { petal: string; center: string; }
+
+  const s = {
+    type:          null as 'single' | 'multi' | null,
+    // single-strand
+    colors:        [] as string[],
+    beadPattern:   null as string | null,
+    flowerConfigs: [] as FlowerCfg[],
+    personal:      null as { kind: 'letters'; value: string; style: 'colorful' | 'black' | 'white' | 'clear'; decoration: 'none' | 'heart' | 'star' | 'both' } | null,
+    // multi-strand
+    strandCount:   5,
+    pattern:       [] as string[][],
+    activeColor:   '#e11d48',
+    fillEmptyBeads: false,
+    defaultFillColor: '#ffffff',
+    quantity:      1,
+  };
+
+  /* ---------- helpers ---------- */
+  const $  = (id: string) => document.getElementById(id)!;
+  const show = (id: string) => { const el = $(id); el.style.display = ''; el.classList.remove('hidden'); };
+  const hide = (id: string) => { const el = $(id); el.style.display = 'none'; el.classList.add('hidden'); };
+
+  /* ---------- bead image helpers ---------- */
+  function beadImg(color: { name: string; image: string }, imgClass = 'h-14 w-14 object-contain drop-shadow-sm pointer-events-none'): string {
+    return `<img src="${color.image}" alt="${color.name}" class="${imgClass}" loading="lazy" />`;
+  }
+
+  function setActiveColorDot(hex: string) {
+    const dot = $('active-color-dot');
+    const img = $('active-color-img') as HTMLImageElement;
+    const bead = beadByHex(hex);
+    if (bead) {
+      dot.className = 'inline-flex h-10 w-10 items-center justify-center flex-shrink-0';
+      img.src = bead.image;
+      img.alt = bead.name;
+      img.classList.remove('hidden');
+    } else {
+      dot.className = 'inline-flex h-10 w-10 items-center justify-center flex-shrink-0 rounded-full border-2 border-dashed border-neutral-400';
+      img.classList.add('hidden');
+    }
+  }
+
+  function renderSelectedColorSlots() {
+    const slots = $('selected-color-slots');
+    slots.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const hex = s.colors[i];
+      const bead = hex ? beadByHex(hex) : null;
+      const slot = document.createElement('div');
+      slot.className = 'h-12 w-12 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/50 flex items-center justify-center overflow-hidden';
+      if (bead) {
+        slot.className = 'h-12 w-12 flex items-center justify-center';
+        slot.innerHTML = beadImg(bead, 'h-11 w-11 object-contain drop-shadow-sm');
+      }
+      slots.appendChild(slot);
+    }
+    ($('color-count') as HTMLElement).textContent = String(s.colors.length);
+  }
+
+  function syncBeadPickerButtons() {
+    document.querySelectorAll<HTMLButtonElement>('.bead-picker-btn[data-hex]').forEach(btn => {
+      const hex = btn.dataset.hex!;
+      const mode = btn.dataset.mode;
+      btn.classList.remove('is-selected', 'is-active');
+      if (mode === 'multi-select' && s.colors.includes(hex)) btn.classList.add('is-selected');
+      if (mode === 'single-select' && s.activeColor === hex) btn.classList.add('is-active');
+      if (mode === 'fill-select' && s.defaultFillColor === hex) btn.classList.add('is-active');
+    });
+  }
+
+  function renderColorCategoryFilters() {
+    const wrap = $('color-category-filters');
+    wrap.innerHTML = '';
+    const ACTIVE = ['bg-rose-100', 'dark:bg-rose-950/40', 'border-rose-300', 'dark:border-rose-700', 'text-neutral-900', 'dark:text-white'];
+    const INACTIVE = ['border-neutral-200', 'dark:border-neutral-700', 'text-neutral-500', 'dark:text-neutral-400'];
+
+    BEAD_CATEGORIES.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all focus:outline-none';
+      const isActive = colorCategory === cat.id;
+      btn.classList.add(...(isActive ? ACTIVE : INACTIVE));
+      if (cat.dot) {
+        btn.innerHTML = `<span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${cat.dot}"></span>${cat.label}`;
+      } else {
+        btn.textContent = cat.label;
+      }
+      btn.addEventListener('click', () => {
+        colorCategory = cat.id;
+        renderColorCategoryFilters();
+        renderSingleColorGrid();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function filteredBeads(category: BeadCategory = colorCategory) {
+    return category === 'all' ? COLORS : COLORS.filter(c => c.category === category);
+  }
+
+  function createBeadButton(
+    color: typeof COLORS[number],
+    mode: 'multi-select' | 'single-select' | 'fill-select',
+    opts: { showLabel?: boolean; compact?: boolean; mini?: boolean } = {},
+  ): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.hex = color.hex;
+    btn.dataset.mode = mode;
+    btn.title = color.name;
+    btn.className = 'bead-picker-btn focus:outline-none';
+    if (opts.compact) btn.classList.add('bead-picker-btn--compact');
+    if (opts.mini) btn.classList.add('bead-picker-btn--mini');
+
+    const imgClass = opts.mini ? 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none'
+      : opts.compact ? 'h-8 w-8 object-contain drop-shadow-sm pointer-events-none'
+      : 'h-14 w-14 sm:h-16 sm:w-16 object-contain drop-shadow-sm pointer-events-none';
+
+    btn.innerHTML = opts.showLabel === false
+      ? beadImg(color, imgClass)
+      : `${beadImg(color, imgClass)}<span class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 leading-tight text-center">${color.name}</span>`;
+
+    btn.addEventListener('click', () => {
+      if (mode === 'multi-select') toggleColor(color.hex);
+      else if (mode === 'single-select') selectPaintColor(color.hex);
+      else if (mode === 'fill-select') selectDefaultFillColor(color.hex);
+    });
+
+    return btn;
+  }
+
+  function renderSingleColorGrid() {
+    const colorGrid = $('color-grid');
+    colorGrid.innerHTML = '';
+    filteredBeads().forEach(color => {
+      colorGrid.appendChild(createBeadButton(color, 'multi-select'));
+    });
+    syncBeadPickerButtons();
+  }
+
+  function toggleColor(hex: string) {
+    const idx = s.colors.indexOf(hex);
+    if (idx === -1) {
+      if (s.colors.length >= 5) return;
+      s.colors.push(hex);
+    } else {
+      s.colors.splice(idx, 1);
+    }
+    renderSelectedColorSlots();
+    syncBeadPickerButtons();
+    updateNext2();
+    renderSummary();
+  }
+
+  function selectPaintColor(hex: string) {
+    s.activeColor = hex;
+    setActiveColorDot(hex);
+    syncBeadPickerButtons();
+  }
+
+  function selectDefaultFillColor(hex: string) {
+    s.defaultFillColor = hex;
+    renderDefaultFillColorGrid();
+    renderPatternGrid();
+    updateNext2();
+    renderSummary();
+  }
+
+  renderColorCategoryFilters();
+  renderSingleColorGrid();
+  renderSelectedColorSlots();
+
+  function getMultiCellColor(row: number, col: number): string {
+    const painted = s.pattern[row]?.[col] ?? '';
+    if (painted) return painted;
+    if (s.fillEmptyBeads && s.defaultFillColor) return s.defaultFillColor;
+    return '';
+  }
+
+  function multiPatternReady(): boolean {
+    if (s.fillEmptyBeads && s.defaultFillColor) return true;
+    return s.pattern.slice(0, s.strandCount).some(row => row.slice(0, 10).some(c => c));
+  }
+
+  function patternCellStyle(row: number, col: number): { bg: string; border: string } {
+    const painted = s.pattern[row]?.[col] ?? '';
+    if (painted) {
+      return { bg: painted, border: '1px solid rgba(0,0,0,0.18)' };
+    }
+    if (s.fillEmptyBeads && s.defaultFillColor) {
+      return { bg: s.defaultFillColor, border: '1px dashed rgba(0,0,0,0.35)' };
+    }
+    return { bg: '#e5e7eb', border: '1px solid #d1d5db' };
+  }
+
+  function updateNext2() {
+    const btn = $('next-2') as HTMLButtonElement;
+    btn.disabled = s.type === 'multi'
+      ? !multiPatternReady()
+      : s.colors.length === 0;
+  }
+
+  function renderPatternGrid() {
+    while (s.pattern.length < s.strandCount) s.pattern.push(Array.from({length:10}, () => ''));
+    s.pattern.length = s.strandCount;
+    s.pattern.forEach(r => { while (r.length < 10) r.push(''); r.length = 10; });
+
+    const wrap = $('pattern-grid-editor') as HTMLElement;
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:inline-grid;grid-template-columns:repeat(10,34px);gap:3px;';
+
+    for (let row = 0; row < s.strandCount; row++) {
+      for (let col = 0; col < 10; col++) {
+        const { bg, border } = patternCellStyle(row, col);
+        const cell = document.createElement('button');
+        cell.className = 'focus:outline-none';
+        cell.style.cssText = `width:34px;height:34px;background:${bg};border:${border};border-radius:6px;cursor:crosshair;transition:background 0.05s;`;
+        cell.dataset.row = String(row);
+        cell.dataset.col = String(col);
+        cell.addEventListener('mousedown', e => { e.preventDefault(); paintCell(row, col); });
+        cell.addEventListener('mouseenter', e => { if ((e as MouseEvent).buttons === 1) paintCell(row, col); });
+        grid.appendChild(cell);
+      }
+    }
+    wrap.innerHTML = '';
+    wrap.appendChild(grid);
+
+    const lbl = document.getElementById('row-count-label');
+    if (lbl) lbl.textContent = String(s.strandCount);
+  }
+
+  function paintCell(row: number, col: number) {
+    s.pattern[row][col] = s.activeColor;
+    const cell = $('pattern-grid-editor').querySelector<HTMLElement>(`[data-row="${row}"][data-col="${col}"]`);
+    if (cell) {
+      const { bg, border } = patternCellStyle(row, col);
+      cell.style.background = bg;
+      cell.style.border = border;
+    }
+    updateNext2();
+    renderSummary();
+  }
+
+  /* ---------- build bead pattern grid ---------- */
+  const beadPatternGrid = $('bead-pattern-grid');
+  BEAD_PATTERNS.forEach(({ name, emoji, desc }) => {
+    const btn = document.createElement('button');
+    btn.className = 'bead-pat-card p-4 rounded-2xl border-2 border-neutral-200 dark:border-neutral-700 text-center transition-all duration-150 hover:border-neutral-400 dark:hover:border-neutral-500 focus:outline-none';
+    btn.dataset.bpat = name;
+    btn.innerHTML = `<div class="text-3xl mb-2 select-none">${emoji}</div><div class="text-xs font-semibold mb-1">${name}</div><div class="text-xs text-neutral-400 leading-snug">${desc}</div>`;
+    btn.addEventListener('click', () => {
+      if (s.beadPattern === name) {
+        s.beadPattern = null;
+        btn.classList.remove('border-neutral-900','dark:border-white','bg-neutral-50','dark:bg-neutral-800');
+        hide('flower-customizer');
+      } else {
+        document.querySelectorAll<HTMLElement>('.bead-pat-card').forEach(b => {
+          b.classList.remove('border-neutral-900','dark:border-white','bg-neutral-50','dark:bg-neutral-800');
+        });
+        btn.classList.add('border-neutral-900','dark:border-white','bg-neutral-50','dark:bg-neutral-800');
+        s.beadPattern = name;
+
+        if (name === 'Flower' || name === 'Multi-color flower') {
+          if (s.flowerConfigs.length === 0) {
+            s.flowerConfigs = name === 'Flower'
+              ? [{ petal: '#f9a8d4', center: '#fbbf24' }]
+              : [{ petal: '#fb923c', center: '#f43f5e' }];
+          }
+          show('flower-customizer');
+          renderFlowerCustomizer();
+        } else {
+          hide('flower-customizer');
+        }
+      }
+      renderSummary();
+    });
+    beadPatternGrid.appendChild(btn);
+  });
+
+  /* ---------- build pattern grid ---------- */
+
+  /* ---------- flower customizer ---------- */
+  $('add-flower-btn').addEventListener('click', () => {
+    s.flowerConfigs.push({ petal: '#a78bfa', center: '#fbbf24' });
+    renderFlowerCustomizer();
+    renderSummary();
+  });
+
+  function renderFlowerCustomizer() {
+    const list = $('flower-config-list');
+    list.innerHTML = '';
+    s.flowerConfigs.forEach((cfg, idx) => {
+      const card = document.createElement('div');
+      card.className = 'p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700';
+
+      const removeBtn = s.flowerConfigs.length > 1
+        ? `<button class="remove-flower flex-shrink-0 text-neutral-400 hover:text-rose-500 transition text-lg leading-none" data-idx="${idx}">×</button>`
+        : '';
+
+      card.innerHTML = `
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 mt-1">${miniFlowerSvg(cfg.petal, cfg.center)}</div>
+          <div class="flex-1 min-w-0 space-y-3">
+            <div>
+              <p class="text-xs font-medium text-neutral-400 mb-2">Petal color</p>
+              <div class="flex flex-wrap gap-1.5">${COLORS.map(c =>
+                `<button type="button" class="bead-picker-btn bead-picker-btn--mini fc-btn flex-shrink-0 transition-all hover:scale-110 focus:outline-none ${cfg.petal === c.hex ? 'is-active' : ''}"
+                  data-role="petal" data-idx="${idx}" data-hex="${c.hex}" title="${c.name}">${beadImg(c, 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none')}</button>`
+              ).join('')}</div>
+            </div>
+            <div>
+              <p class="text-xs font-medium text-neutral-400 mb-2">Center color</p>
+              <div class="flex flex-wrap gap-1.5">${COLORS.map(c =>
+                `<button type="button" class="bead-picker-btn bead-picker-btn--mini fc-btn flex-shrink-0 transition-all hover:scale-110 focus:outline-none ${cfg.center === c.hex ? 'is-active' : ''}"
+                  data-role="center" data-idx="${idx}" data-hex="${c.hex}" title="${c.name}">${beadImg(c, 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none')}</button>`
+              ).join('')}</div>
+            </div>
+          </div>
+          ${removeBtn}
+        </div>`;
+
+      card.querySelectorAll<HTMLButtonElement>('.fc-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          const role = b.dataset.role as 'petal' | 'center';
+          const i    = parseInt(b.dataset.idx!);
+          s.flowerConfigs[i][role] = b.dataset.hex!;
+          renderFlowerCustomizer();
+          renderSummary();
+        });
+      });
+
+      card.querySelectorAll<HTMLButtonElement>('.remove-flower').forEach(b => {
+        b.addEventListener('click', () => {
+          s.flowerConfigs.splice(parseInt(b.dataset.idx!), 1);
+          renderFlowerCustomizer();
+          renderSummary();
+        });
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  function miniFlowerSvg(petalColor: string, centerColor: string): string {
+    const parts: string[] = [];
+    const cx = 28, cy = 28, petalR = 7, petalDist = 11, centerR = 7;
+    for (let i = 0; i < 6; i++) {
+      const a  = (i / 6) * Math.PI * 2;
+      const px = (cx + petalDist * Math.cos(a)).toFixed(1);
+      const py = (cy + petalDist * Math.sin(a)).toFixed(1);
+      parts.push(`<circle cx="${px}" cy="${py}" r="${petalR}" fill="${petalColor}" stroke="rgba(0,0,0,0.1)" stroke-width="0.8"/>`);
+    }
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${centerR}" fill="${centerColor}" stroke="rgba(0,0,0,0.1)" stroke-width="0.8"/>`);
+    return `<svg viewBox="0 0 56 56" width="48" height="48" xmlns="http://www.w3.org/2000/svg">${parts.join('')}</svg>`;
+  }
+
+  /* ---------- multi-strand UI ---------- */
+  const multiColorGrid = $('multi-color-grid');
+  COLORS.forEach(color => {
+    multiColorGrid.appendChild(createBeadButton(color, 'single-select', { compact: true, showLabel: false }));
+  });
+  setActiveColorDot(s.activeColor);
+
+  (document.getElementById('erase-btn') as HTMLButtonElement).addEventListener('click', () => {
+    s.activeColor = '';
+    setActiveColorDot('');
+    syncBeadPickerButtons();
+  });
+
+  (document.getElementById('clear-all-btn') as HTMLButtonElement).addEventListener('click', () => {
+    s.pattern.forEach(row => row.fill(''));
+    renderPatternGrid();
+    updateNext2();
+    renderSummary();
+  });
+
+  function renderDefaultFillColorGrid() {
+    const grid = $('default-fill-color-grid');
+    grid.innerHTML = '';
+    COLORS.forEach(color => {
+      grid.appendChild(createBeadButton(color, 'fill-select', { mini: true, showLabel: false }));
+    });
+    syncBeadPickerButtons();
+  }
+
+  renderDefaultFillColorGrid();
+
+  ($('fill-empty-toggle') as HTMLInputElement).addEventListener('change', (e) => {
+    s.fillEmptyBeads = (e.target as HTMLInputElement).checked;
+    if (s.fillEmptyBeads) show('default-fill-picker');
+    else hide('default-fill-picker');
+    renderPatternGrid();
+    updateNext2();
+    renderSummary();
+  });
+
+  const ACTIVE_CNT_CLS  = ['bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white'];
+  const INACTIVE_CNT_CLS = ['border-neutral-200','dark:border-neutral-700'];
+
+  document.querySelectorAll<HTMLButtonElement>('.strand-cnt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.strand-cnt-btn').forEach(b => {
+        b.classList.remove(...ACTIVE_CNT_CLS); b.classList.add(...INACTIVE_CNT_CLS);
+      });
+      btn.classList.remove(...INACTIVE_CNT_CLS); btn.classList.add(...ACTIVE_CNT_CLS);
+      s.strandCount = parseInt(btn.dataset.count!);
+      while (s.pattern.length < s.strandCount) s.pattern.push(Array.from({length:10}, () => ''));
+      s.pattern.length = s.strandCount;
+      renderPatternGrid();
+      updateNext2();
+      renderSummary();
+    });
+  });
+
+  /* ---------- style radio ---------- */
+  function setStyleType(type: 'single' | 'multi') {
+    s.type = type;
+
+    // Switch sections — done first, inline, cannot fail
+    const singleSec = document.getElementById('single-color-section')!;
+    const multiSec  = document.getElementById('multi-section')!;
+    const persSec   = document.getElementById('personalize-section')!;
+    if (type === 'single') {
+      singleSec.style.display = '';
+      multiSec.style.display  = 'none';
+      persSec.style.display   = '';
+    } else {
+      singleSec.style.display = 'none';
+      multiSec.style.display  = '';
+      persSec.style.display   = 'none';
+    }
+
+    // Toggle button styles
+    const lblSingle = document.getElementById('label-radio-single')!;
+    const lblMulti  = document.getElementById('label-radio-multi')!;
+    if (type === 'single') {
+      lblSingle.className = 'flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-900 bg-neutral-900 text-white';
+      lblMulti.className  = 'flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-200 text-neutral-500';
+    } else {
+      lblMulti.className  = 'flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-900 bg-neutral-900 text-white';
+      lblSingle.className = 'flex items-center gap-2 px-5 py-2.5 rounded-full border-2 cursor-pointer transition-all border-neutral-200 text-neutral-500';
+    }
+
+    if (type === 'multi') renderPatternGrid();
+    updateNext2();
+    renderSummary();
+  }
+
+  document.getElementById('label-radio-single')!.addEventListener('click', () => setStyleType('single'));
+  document.getElementById('label-radio-multi')!.addEventListener('click', () => setStyleType('multi'));
+
+  /* ---------- toast for "added to cart" feedback ---------- */
+  function showAddedToast() {
+    const toast = document.createElement('div');
+    toast.textContent = '✓ Added to cart!';
+    toast.style.cssText = 'position:fixed;top:5rem;left:50%;transform:translateX(-50%);background:#171717;color:#fff;font-size:.875rem;font-weight:500;padding:.6rem 1.25rem;border-radius:9999px;box-shadow:0 4px 20px rgba(0,0,0,.18);z-index:9999;transition:opacity .3s';
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+  }
+
+  if (new URLSearchParams(location.search).get('added') === '1') {
+    history.replaceState(null, '', location.pathname);
+    showAddedToast();
+  }
+
+  /* ---------- prefetch kit product info (elevated call isolated in separate request) ---------- */
+  let kitProductId = '';
+  const kitVariants: Record<string, string> = {};
+
+  fetch('/api/kit-product-info')
+    .then(r => r.json())
+    .then(d => {
+      if (d.productId) { kitProductId = d.productId; Object.assign(kitVariants, d.variants); }
+    })
+    .catch(() => {});
+
+  /* ---------- reset design after adding to cart ---------- */
+  function resetDesign() {
+    // clear color selections
+    s.colors = [];
+    colorCategory = 'all';
+    renderColorCategoryFilters();
+    renderSingleColorGrid();
+    renderSelectedColorSlots();
+
+    // clear personal / pattern
+    s.personal     = null;
+    s.beadPattern  = null;
+    s.flowerConfigs = [];
+
+    // reset multi-strand pattern
+    s.pattern = Array.from({ length: 9 }, () => Array(36).fill(''));
+    s.strandCount = 5;
+    s.fillEmptyBeads = false;
+    s.defaultFillColor = '#ffffff';
+    s.quantity    = 1;
+
+    const fillToggle = $('fill-empty-toggle') as HTMLInputElement;
+    fillToggle.checked = false;
+    hide('default-fill-picker');
+    renderDefaultFillColorGrid();
+
+    // reset UI to single-strand
+    setStyleType('single');
+
+    // reset personalize radio to "no customization" state (hide sub-panels)
+    hide('letters-config');
+    hide('pattern-config');
+    hide('flower-customizer');
+    const lInput = $('letters-input') as HTMLInputElement;
+    if (lInput) lInput.value = '';
+
+    // reset quantity display
+    ($('qty-display') as HTMLElement).textContent = '1';
+    ($('qty-minus') as HTMLButtonElement).disabled = true;
+
+    renderSummary();
+    updateNext2();
+  }
+
+  /* ---------- wire Add to Cart ---------- */
+  $('next-2').addEventListener('click', async () => {
+    const btn = $('next-2') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Adding…';
+
+    try {
+      if (!kitProductId) {
+        throw new Error('Product info not loaded yet — please try again in a moment.');
+      }
+
+      const previewSvg = $('bead-preview').querySelector('svg');
+      const previewDataUrl = previewSvg
+        ? await svgElementToDataUrl(previewSvg)
+        : null;
+
+      const cartItemId = crypto.randomUUID();
+      let previewId: string | undefined;
+      if (previewDataUrl) {
+        previewId = saveCartPreview(cartItemId, previewDataUrl);
+      }
+
+      if (s.type) {
+        saveStoredCartItem({
+          id: cartItemId,
+          previewId,
+          type: s.type === 'multi' ? 'multi' : 'single',
+          strandCount: s.strandCount,
+          quantity: s.quantity,
+          kitItems: buildKitItems(),
+        });
+      }
+
+      await fetch('/api/bracelet-clear-diy-wix', {
+        method: 'POST',
+        credentials: 'same-origin',
+      }).catch(() => {});
+
+      showAddedToast();
+      resetDesign();
+      const wixQty = Number(document.getElementById('cart-modal')?.dataset.wixQty ?? '0');
+      updateCartBadge(wixQty);
+      renderDiyCartLines();
+
+      btn.disabled = false;
+      btn.textContent = 'Add to Cart';
+    } catch (e: any) {
+      btn.disabled = false;
+      btn.textContent = 'Add to Cart';
+      alert('Could not add to cart:\n' + (e?.message ?? String(e)));
+    }
+  });
+
+  /* ---------- personalize — mutually exclusive choice cards ---------- */
+  const ACTIVE_CHOICE_CLS  = ['bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white'];
+  const INACTIVE_CHOICE_CLS = ['border-neutral-200','dark:border-neutral-700'];
+
+  function setChoiceActive(activeId: 'choose-letters' | 'choose-pattern') {
+    (['choose-letters','choose-pattern'] as const).forEach(id => {
+      const btn = $(id);
+      btn.classList.remove(...ACTIVE_CHOICE_CLS);
+      btn.classList.add(...INACTIVE_CHOICE_CLS);
+    });
+    const active = $(activeId);
+    active.classList.remove(...INACTIVE_CHOICE_CLS);
+    active.classList.add(...ACTIVE_CHOICE_CLS);
+  }
+
+  $('choose-letters').addEventListener('click', () => {
+    setChoiceActive('choose-letters');
+    show('letters-config');
+    hide('pattern-config');
+    s.beadPattern = null;
+    hide('flower-customizer');
+    s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style: s.personal?.style ?? 'colorful', decoration: s.personal?.decoration ?? 'none' };
+    renderSummary();
+  });
+
+  $('choose-pattern').addEventListener('click', () => {
+    setChoiceActive('choose-pattern');
+    hide('letters-config');
+    show('pattern-config');
+    s.personal = null;
+    renderSummary();
+  });
+
+  /* ---------- letter beads input + style + decoration ---------- */
+  $('letters-input').addEventListener('input', (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    ($('letters-chars') as HTMLElement).textContent = String(val.length);
+    s.personal = { kind: 'letters', value: val, style: s.personal?.style ?? 'colorful', decoration: s.personal?.decoration ?? 'none' };
+    renderSummary();
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.letter-style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll<HTMLButtonElement>('.letter-style-btn').forEach(b => {
+        b.classList.remove('bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white');
+        b.classList.add('border-neutral-200','dark:border-neutral-700','text-neutral-500','dark:text-neutral-400');
+      });
+      btn.classList.remove('border-neutral-200','dark:border-neutral-700','text-neutral-500','dark:text-neutral-400');
+      btn.classList.add('bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white');
+      const style = btn.dataset.style as 'colorful' | 'black' | 'white' | 'clear';
+      s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style, decoration: s.personal?.decoration ?? 'none' };
+      renderSummary();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.deco-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const isActive = btn.classList.contains('text-white');
+      if (isActive) {
+        btn.classList.remove('bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white');
+        btn.classList.add('border-neutral-200','dark:border-neutral-700','text-neutral-500','dark:text-neutral-400');
+      } else {
+        btn.classList.remove('border-neutral-200','dark:border-neutral-700','text-neutral-500','dark:text-neutral-400');
+        btn.classList.add('bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white');
+      }
+      const heartOn = ($('deco-heart') as HTMLElement).classList.contains('text-white');
+      const starOn  = ($('deco-star')  as HTMLElement).classList.contains('text-white');
+      const decoration: 'none'|'heart'|'star'|'both' = heartOn && starOn ? 'both' : heartOn ? 'heart' : starOn ? 'star' : 'none';
+      s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style: s.personal?.style ?? 'colorful', decoration };
+      renderSummary();
+    });
+  });
+
+  /* ---------- render summary ---------- */
+  function renderSummary() {
+    // Kit contents list
+    const kitEl = $('kit-contents');
+    const items = buildKitItems();
+    if (items.length > 0) {
+      kitEl.innerHTML = items.map(item =>
+        `<div class="flex items-start gap-2">
+          <span class="text-neutral-400 flex-shrink-0 mt-0.5">·</span>
+          <span>${item}</span>
+        </div>`
+      ).join('');
+    } else {
+      kitEl.innerHTML = '<span class="text-neutral-400 italic text-xs">Choose your design to see kit contents…</span>';
+    }
+
+    // Price
+    ($('sum-total') as HTMLElement).textContent = `₪${s.quantity * calcPrice()}`;
+
+    renderBraceletPreview();
+  }
+
+  /* ---------- bracelet SVG preview ---------- */
+  function renderBraceletPreview() {
+    const preview = $('bead-preview');
+    const isMulti = s.type === 'multi';
+
+    if (isMulti) {
+      if (!multiPatternReady()) {
+        preview.innerHTML = '<span class="text-sm text-neutral-400 italic">Draw a pattern to see the preview…</span>';
+        return;
+      }
+      // Flat loom-style bracelet grid — repeats the 10-col pattern across 30 cols
+      const pitch = 9, beadR = 4, cols = 30, rows = s.strandCount;
+      const bracW = cols * pitch, bracH = rows * pitch;
+      const W = 300, H = Math.max(170, bracH + 40);
+      const ox = Math.round((W - bracW) / 2);
+      const oy = Math.round((H - bracH) / 2);
+      const parts: string[] = [];
+      // Cast shadow
+      parts.push(`<rect x="${ox}" y="${oy + bracH + 5}" width="${bracW}" height="9" rx="4.5" fill="rgba(0,0,0,0.18)" filter="url(#sfblur)"/>`);
+      // Cord/backing band
+      parts.push(`<rect x="${ox-5}" y="${oy-4}" width="${bracW+10}" height="${bracH+8}" rx="6" fill="#b8a070" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>`);
+      // Bead grid — tile the 10-bead pattern
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const patCol = col % 10;
+          const hex = getMultiCellColor(row, patCol) || '#d1d5db';
+          const x = (ox + col*pitch + pitch/2).toFixed(1);
+          const y = (oy + row*pitch + pitch/2).toFixed(1);
+          parts.push(flatBead(x, y, beadR, hex));
+        }
+      }
+      preview.innerHTML = wrapSvgFlat(W, H, parts.join(''));
+      return;
+    }
+
+    if (s.colors.length === 0) {
+      preview.innerHTML = '<span class="text-sm text-neutral-400 italic">Selections will appear here…</span>';
+      return;
+    }
+
+    const found = s.beadPattern ? BEAD_PATTERNS.find(p => p.name === s.beadPattern) : null;
+    const W = 230, H = 230, cx = 115, cy = 115;
+
+    // Single-strand
+    const r        = 70;
+    const beadR    = 8;
+    const isBee    = found?.name === 'Bee';
+    const isFlower = found?.name === 'Flower';
+    // bee needs 3 consecutive slots; flower can sit tightly; others use 5
+    const totalPos = found ? (isBee ? 24 : 20) : 24;
+    const patEvery = found ? (isBee ? 8 : isFlower ? 5 : 5) : 0;
+    const parts: string[] = [];
+
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="5.5"/>`);
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e0d5c8" stroke-width="3.5"/>`);
+
+    // Collect charm positions
+    const charmSlots = new Set<number>();
+    if (found) {
+      let charmIdx = 0;
+      for (let i = 0; i < totalPos; i += patEvery) {
+        charmSlots.add(i);
+        if (isBee) { charmSlots.add(i - 1); charmSlots.add(i + 1); } // skip neighbors for bee
+        const a  = (i / totalPos) * Math.PI * 2 - Math.PI / 2;
+        const bx = cx + r * Math.cos(a);
+        const by = cy + r * Math.sin(a);
+        parts.push(drawCharm(found!.name, bx, by, cx, cy, charmIdx));
+        charmIdx++;
+      }
+    }
+
+    // Letter bead slots — grouped consecutively, centered at bottom of ring
+    const letterSlots = new Map<number, string>();
+    const lp = s.personal?.kind === 'letters'
+      ? s.personal as { kind: 'letters'; value: string; style: 'colorful' | 'black' | 'white' | 'clear' }
+      : null;
+    if (lp?.value || (lp && lp.decoration !== 'none')) {
+      // Build the full bead sequence: decoration chars + letters
+      const decoChars: string[] = [];
+      if (lp!.decoration === 'heart' || lp!.decoration === 'both') decoChars.push('♥');
+      if (lp!.decoration === 'star'  || lp!.decoration === 'both') decoChars.push('★');
+      const allBeads = [...decoChars, ...lp!.value.toUpperCase().split('').filter(Boolean)];
+      if (allBeads.length > 0) {
+        const centerPos = Math.floor(totalPos / 2);
+        const startPos  = ((centerPos - Math.floor(allBeads.length / 2)) % totalPos + totalPos) % totalPos;
+        allBeads.forEach((ch, i) => {
+          let pos = (startPos + i) % totalPos;
+          let tries = 0;
+          while (charmSlots.has(pos) && tries < totalPos) { pos = (pos + 1) % totalPos; tries++; }
+          letterSlots.set(pos, ch);
+        });
+      }
+    }
+    const LETTER_COLORS = ['#f43f5e','#a78bfa','#38bdf8','#14b8a6','#fbbf24','#fb923c','#ec4899','#6ee7b7'];
+
+    // Color beads + letter beads (skip charm slots)
+    const letterR = 10;
+    let colorIdx = 0;
+    for (let i = 0; i < totalPos; i++) {
+      if (charmSlots.has(i)) continue;
+      const a = (i / totalPos) * Math.PI * 2 - Math.PI / 2;
+      const x = (cx + r * Math.cos(a)).toFixed(1);
+      const y = (cy + r * Math.sin(a)).toFixed(1);
+      if (letterSlots.has(i)) {
+        const letter = letterSlots.get(i)!;
+        const idx = [...letterSlots.keys()].sort((pa, pb) => pa - pb).indexOf(i);
+        let fill: string, stroke: string, textColor: string, hlOpacity: number;
+        if (lp!.style === 'black') {
+          fill = '#111111'; stroke = 'rgba(255,255,255,0.1)'; textColor = '#ffffff'; hlOpacity = 0.18;
+        } else if (lp!.style === 'white') {
+          fill = '#f4f4f5'; stroke = 'rgba(0,0,0,0.15)'; textColor = '#1a1a1a'; hlOpacity = 0.6;
+        } else if (lp!.style === 'clear') {
+          fill = 'rgba(186,230,255,0.15)'; stroke = 'rgba(100,180,255,0.45)'; textColor = '#1a1a1a'; hlOpacity = 0.5;
+        } else {
+          fill = LETTER_COLORS[idx % LETTER_COLORS.length]; stroke = 'rgba(0,0,0,0.1)'; textColor = '#ffffff'; hlOpacity = 0.4;
+        }
+        const lxf = parseFloat(x), lyf = parseFloat(y);
+        const lsp1x = (lxf - letterR*0.28).toFixed(1), lsp1y = (lyf - letterR*0.35).toFixed(1);
+        const lclx  = (lxf - letterR*0.38).toFixed(1), lcly  = (lyf - letterR*0.44).toFixed(1);
+        parts.push(`<circle cx="${x}" cy="${y}" r="${letterR}" fill="${fill}" stroke="${stroke}" stroke-width="0.8" filter="url(#bshadow)"/>`);
+        parts.push(`<circle cx="${x}" cy="${y}" r="${letterR}" fill="url(#rim)" stroke="none"/>`);
+        parts.push(`<circle cx="${x}" cy="${y}" r="${letterR}" fill="url(#bshdim)" stroke="none"/>`);
+        parts.push(`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="bold" fill="${textColor}" font-family="sans-serif">${letter}</text>`);
+        parts.push(`<ellipse cx="${lsp1x}" cy="${lsp1y}" rx="${(letterR*0.20).toFixed(1)}" ry="${(letterR*0.10).toFixed(1)}" fill="white" opacity="0.55" transform="rotate(-35 ${lsp1x} ${lsp1y})"/>`);
+        parts.push(`<circle cx="${lclx}" cy="${lcly}" r="${(letterR*0.07).toFixed(1)}" fill="white" opacity="0.85"/>`);
+      } else {
+        parts.push(beadCircle(x, y, beadR, s.colors[colorIdx++ % s.colors.length]));
+      }
+    }
+
+    if (found) {
+      parts.push(`<text x="${cx}" y="${cy + 5}" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#d1d5db" font-family="sans-serif" letter-spacing="0.5">${found.name.toUpperCase()}</text>`);
+    } else if (lp?.value) {
+      const styleLabel = lp.style === 'black' ? 'BLACK' : lp.style === 'white' ? 'WHITE' : lp.style === 'clear' ? 'CLEAR' : 'COLORFUL';
+      parts.push(`<text x="${cx}" y="${cy + 5}" text-anchor="middle" dominant-baseline="central" font-size="8" fill="#d1d5db" font-family="sans-serif" letter-spacing="0.5">${styleLabel} LETTERS</text>`);
+    }
+
+    preview.innerHTML = wrapSvg(W, H, parts.join(''));
+  }
+
+  /* ---------- charm dispatcher ---------- */
+  function drawCharm(name: string, bx: number, by: number, cx: number, cy: number, charmIdx: number = 0): string {
+    switch (name) {
+      case 'Cherry':    return cherryCharm(bx, by, cx, cy);
+      case 'Flower': {
+        const cfg = s.flowerConfigs.length
+          ? s.flowerConfigs[charmIdx % s.flowerConfigs.length]
+          : { petal: '#f9a8d4', center: '#fbbf24' };
+        return flowerCharm(bx, by, cfg.petal, cfg.center);
+      }
+      case 'Bee':       return beeCharm(bx, by, cx, cy);
+      case 'Butterfly': return butterflyCharm(bx, by, cx, cy);
+      case 'Pineapple': return pineappleCharm(bx, by, cx, cy);
+      case 'Grape':     return grapeCharm(bx, by, cx, cy);
+      default: {
+        const found = BEAD_PATTERNS.find(p => p.name === name);
+        return [
+          `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="11" fill="white" stroke="#e5e7eb" stroke-width="1.5"/>`,
+          `<text x="${bx.toFixed(1)}" y="${by.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="13">${found?.emoji ?? '✦'}</text>`,
+        ].join('');
+      }
+    }
+  }
+
+  /* ---------- charm shapes (bead-accurate) ---------- */
+
+  // Unit vectors helper
+  function outwardVec(bx: number, by: number, cx: number, cy: number) {
+    const dx = bx - cx, dy = by - cy, len = Math.sqrt(dx*dx + dy*dy);
+    return { ox: dx/len, oy: dy/len, px: -dy/len, py: dx/len }; // outward + perp
+  }
+
+  // 🍒 Cherry: green stem bead on cord + 2 red cherry beads outward
+  function cherryCharm(bx: number, by: number, cx: number, cy: number): string {
+    const { ox, oy, px, py } = outwardVec(bx, by, cx, cy);
+    const stemR = 8, cherryR = 8, stemLen = 16, spread = 8;
+    const c1x = (bx + ox*stemLen - px*spread).toFixed(1);
+    const c1y = (by + oy*stemLen - py*spread).toFixed(1);
+    const c2x = (bx + ox*stemLen + px*spread).toFixed(1);
+    const c2y = (by + oy*stemLen + py*spread).toFixed(1);
+    const bxs = bx.toFixed(1), bys = by.toFixed(1);
+    return [
+      `<line x1="${bxs}" y1="${bys}" x2="${c1x}" y2="${c1y}" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>`,
+      `<line x1="${bxs}" y1="${bys}" x2="${c2x}" y2="${c2y}" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>`,
+      sphere3d(bxs, bys, stemR, '#16a34a'),
+      sphere3d(c1x, c1y, cherryR, '#dc2626'),
+      sphere3d(c2x, c2y, cherryR, '#dc2626'),
+    ].join('');
+  }
+
+  // 🌸 Flower: 6 petal beads around a yellow center bead
+  function flowerCharm(bx: number, by: number, petalColor: string, centerColor: string): string {
+    const petalR = 6, petalDist = 10, centerR = 6;
+    const parts: string[] = [];
+    for (let i = 0; i < 6; i++) {
+      const a  = (i / 6) * Math.PI * 2;
+      parts.push(sphere3d((bx + petalDist * Math.cos(a)).toFixed(1), (by + petalDist * Math.sin(a)).toFixed(1), petalR, petalColor, 'rgba(0,0,0,0.12)'));
+    }
+    parts.push(sphere3d(bx.toFixed(1), by.toFixed(1), centerR, centerColor, 'rgba(0,0,0,0.12)'));
+    return parts.join('');
+  }
+
+  // 🐝 Bee: 2 white beads on cord + yellow/black/yellow spread outward (like cherry structure)
+  function beeCharm(bx: number, by: number, cx: number, cy: number): string {
+    const { ox, oy, px, py } = outwardVec(bx, by, cx, cy);
+    const r = 8, stemLen = 16, spread = 9, wSp = 7;
+    const bxs = bx.toFixed(1), bys = by.toFixed(1);
+    // 3 outward beads: yellow(left), black(center), yellow(right)
+    const ylx = (bx + ox*stemLen - px*spread).toFixed(1), yly = (by + oy*stemLen - py*spread).toFixed(1);
+    const blx = (bx + ox*stemLen).toFixed(1),             bly = (by + oy*stemLen).toFixed(1);
+    const yrx = (bx + ox*stemLen + px*spread).toFixed(1), yry = (by + oy*stemLen + py*spread).toFixed(1);
+    // 2 white beads on cord (tangential)
+    const w1x = (bx - px*wSp).toFixed(1), w1y = (by - py*wSp).toFixed(1);
+    const w2x = (bx + px*wSp).toFixed(1), w2y = (by + py*wSp).toFixed(1);
+    return [
+      `<line x1="${bxs}" y1="${bys}" x2="${ylx}" y2="${yly}" stroke="#c4ae90" stroke-width="1.5" stroke-linecap="round"/>`,
+      `<line x1="${bxs}" y1="${bys}" x2="${blx}" y2="${bly}" stroke="#c4ae90" stroke-width="1.5" stroke-linecap="round"/>`,
+      `<line x1="${bxs}" y1="${bys}" x2="${yrx}" y2="${yry}" stroke="#c4ae90" stroke-width="1.5" stroke-linecap="round"/>`,
+      sphere3d(ylx, yly, r, '#fde047', 'rgba(0,0,0,0.15)'),
+      sphere3d(yrx, yry, r, '#fde047', 'rgba(0,0,0,0.15)'),
+      sphere3d(blx, bly, r, '#111111', 'rgba(255,255,255,0.1)'),
+      sphere3d(w1x, w1y, r, '#f2f2f2', 'rgba(0,0,0,0.15)'),
+      sphere3d(w2x, w2y, r, '#f2f2f2', 'rgba(0,0,0,0.15)'),
+    ].join('');
+  }
+
+  // 🦋 Butterfly: 4 wing beads + small body bead
+  function butterflyCharm(bx: number, by: number, cx: number, cy: number): string {
+    const { ox, oy, px, py } = outwardVec(bx, by, cx, cy);
+    const wingR = 7, bodyR = 5, wDist = 9, wOff = 8;
+    const wings = [
+      { dx: -px*wDist - ox*wOff, dy: -py*wDist - oy*wOff, color: '#c084fc' },
+      { dx:  px*wDist - ox*wOff, dy:  py*wDist - oy*wOff, color: '#c084fc' },
+      { dx: -px*(wDist-2) + ox*wOff, dy: -py*(wDist-2) + oy*wOff, color: '#e879f9' },
+      { dx:  px*(wDist-2) + ox*wOff, dy:  py*(wDist-2) + oy*wOff, color: '#e879f9' },
+    ];
+    return [
+      ...wings.map(w => sphere3d((bx+w.dx).toFixed(1), (by+w.dy).toFixed(1), wingR, w.color, 'rgba(0,0,0,0.1)')),
+      sphere3d(bx.toFixed(1), by.toFixed(1), bodyR, '#7c3aed'),
+    ].join('');
+  }
+
+  // 🍍 Pineapple: small green crown bead on cord + yellow body bead hanging outward
+  function pineappleCharm(bx: number, by: number, cx: number, cy: number): string {
+    const { ox, oy } = outwardVec(bx, by, cx, cy);
+    const crownR = 6, bodyR = 9, dist = 16;
+    const bxs = bx.toFixed(1), bys = by.toFixed(1);
+    const bdx = (bx + ox*dist).toFixed(1), bdy = (by + oy*dist).toFixed(1);
+    return [
+      `<line x1="${bxs}" y1="${bys}" x2="${bdx}" y2="${bdy}" stroke="#15803d" stroke-width="1.2" stroke-linecap="round"/>`,
+      sphere3d(bdx, bdy, bodyR, '#fbbf24'),
+      sphere3d(bxs, bys, crownR, '#16a34a'),
+    ].join('');
+  }
+
+  // 🍇 Grape: green stem bead on cord + triangular bunch of purple beads outward
+  function grapeCharm(bx: number, by: number, cx: number, cy: number): string {
+    const { ox, oy, px, py } = outwardVec(bx, by, cx, cy);
+    const grapeR = 6, greenR = 6, sp = 11;
+    const parts: string[] = [];
+    const bunch = [
+      { d: sp,   s: -sp }, { d: sp,   s: 0 }, { d: sp,   s: sp },
+      { d: sp*2, s: -sp/2 },                   { d: sp*2, s: sp/2 },
+      { d: sp*3, s: 0 },
+    ];
+    bunch.forEach(({ d, s }) => {
+      parts.push(sphere3d((bx+ox*d+px*s).toFixed(1), (by+oy*d+py*s).toFixed(1), grapeR, '#9333ea'));
+    });
+    parts.push(sphere3d(bx.toFixed(1), by.toFixed(1), greenR, '#16a34a'));
+    return parts.join('');
+  }
+
+  // Lightweight bead for flat multi-strand grid (no per-bead drop shadow for performance)
+  function flatBead(x: string, y: string, r: number, hex: string): string {
+    const id = `f${hex.replace(/[^a-f0-9]/gi,'')}`;
+    const xf = parseFloat(x), yf = parseFloat(y);
+    const holeR = Math.max(1, r * 0.22);
+    const hlX = (xf - r*0.25).toFixed(1), hlY = (yf - r*0.3).toFixed(1);
+    const hlRx = (r*0.20).toFixed(1), hlRy = (r*0.10).toFixed(1);
+    const clx = (xf - r*0.35).toFixed(1), cly = (yf - r*0.38).toFixed(1);
+    return [
+      `<defs><radialGradient id="${id}" cx="30%" cy="25%" r="72%">`,
+      `<stop offset="0%" stop-color="white" stop-opacity="0.65"/>`,
+      `<stop offset="22%" stop-color="${hex}"/>`,
+      `<stop offset="100%" stop-color="${hex}"/>`,
+      `</radialGradient></defs>`,
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${id})" stroke="rgba(0,0,0,0.22)" stroke-width="0.4"/>`,
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#rim)" stroke="none"/>`,
+      `<circle cx="${x}" cy="${y}" r="${holeR.toFixed(1)}" fill="#111" opacity="0.88"/>`,
+      `<ellipse cx="${hlX}" cy="${hlY}" rx="${hlRx}" ry="${hlRy}" fill="white" opacity="0.78" transform="rotate(-35 ${hlX} ${hlY})"/>`,
+      `<circle cx="${clx}" cy="${cly}" r="${Math.max(0.5, r*0.08).toFixed(1)}" fill="white" opacity="0.9"/>`,
+    ].join('');
+  }
+
+  function wrapSvgFlat(w: number, h: number, inner: string) {
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="sfblur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="6"/>
+        </filter>
+        <radialGradient id="bshdim" cx="65%" cy="68%" r="55%">
+          <stop offset="0%"   stop-color="#000" stop-opacity="0.30"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="rim" cx="50%" cy="50%" r="50%">
+          <stop offset="52%" stop-color="#000" stop-opacity="0"/>
+          <stop offset="82%" stop-color="#000" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0.58"/>
+        </radialGradient>
+        <radialGradient id="bgsurf" cx="42%" cy="38%" r="70%">
+          <stop offset="0%"   stop-color="#fefcf8"/>
+          <stop offset="60%"  stop-color="#f5f0ea"/>
+          <stop offset="100%" stop-color="#ede5d8"/>
+        </radialGradient>
+      </defs>
+      <rect width="${w}" height="${h}" fill="url(#bgsurf)"/>
+      ${inner}
+    </svg>`;
+  }
+
+  // 3D sphere helper used by charm beads
+  function sphere3d(x: string | number, y: string | number, r: number, fill: string, stroke = 'rgba(0,0,0,0.25)'): string {
+    const xs = String(x), ys = String(y);
+    const xf = parseFloat(xs), yf = parseFloat(ys);
+    const sp1x = (xf - r * 0.28).toFixed(1), sp1y = (yf - r * 0.35).toFixed(1);
+    const sp1rx = (r * 0.22).toFixed(1), sp1ry = (r * 0.11).toFixed(1);
+    const clx = (xf - r * 0.38).toFixed(1), cly = (yf - r * 0.44).toFixed(1);
+    const clr = Math.max(0.8, r * 0.07).toFixed(1);
+    return [
+      `<circle cx="${xs}" cy="${ys}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="0.8" filter="url(#bshadow)"/>`,
+      `<circle cx="${xs}" cy="${ys}" r="${r}" fill="url(#rim)" stroke="none"/>`,
+      `<circle cx="${xs}" cy="${ys}" r="${r}" fill="url(#bshdim)" stroke="none"/>`,
+      `<ellipse cx="${sp1x}" cy="${sp1y}" rx="${sp1rx}" ry="${sp1ry}" fill="white" opacity="0.82" transform="rotate(-35 ${sp1x} ${sp1y})"/>`,
+      `<circle cx="${clx}" cy="${cly}" r="${clr}" fill="white" opacity="0.95"/>`,
+    ].join('');
+  }
+
+  function beadCircle(x: string, y: string, r: number, hex: string) {
+    const id = `g${hex.replace(/[^a-f0-9]/gi,'')}`;
+    const xf = parseFloat(x), yf = parseFloat(y);
+    const holeR = r * 0.22;
+    const sp1x = (xf - r * 0.28).toFixed(1), sp1y = (yf - r * 0.35).toFixed(1);
+    const sp1rx = (r * 0.22).toFixed(1), sp1ry = (r * 0.11).toFixed(1);
+    const clx = (xf - r * 0.38).toFixed(1), cly = (yf - r * 0.44).toFixed(1);
+    return [
+      `<defs><radialGradient id="${id}" cx="30%" cy="25%" r="75%">`,
+      `  <stop offset="0%"   stop-color="white" stop-opacity="0.70"/>`,
+      `  <stop offset="22%"  stop-color="${hex}" stop-opacity="1"/>`,
+      `  <stop offset="100%" stop-color="${hex}"/>`,
+      `</radialGradient></defs>`,
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#${id})" stroke="rgba(0,0,0,0.22)" stroke-width="0.7" filter="url(#bshadow)"/>`,
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#rim)" stroke="none"/>`,
+      `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#bshdim)" stroke="none"/>`,
+      `<circle cx="${x}" cy="${y}" r="${holeR.toFixed(1)}" fill="#111" opacity="0.88"/>`,
+      `<circle cx="${(xf - holeR*0.3).toFixed(1)}" cy="${(yf - holeR*0.3).toFixed(1)}" r="${(holeR*0.4).toFixed(1)}" fill="white" opacity="0.22"/>`,
+      `<ellipse cx="${sp1x}" cy="${sp1y}" rx="${sp1rx}" ry="${sp1ry}" fill="white" opacity="0.82" transform="rotate(-35 ${sp1x} ${sp1y})"/>`,
+      `<circle cx="${clx}" cy="${cly}" r="${(r*0.07).toFixed(1)}" fill="white" opacity="0.95"/>`,
+    ].join('');
+  }
+
+  function wrapSvg(w: number, h: number, inner: string) {
+    const cx = w / 2, cy = h / 2;
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Per-bead drop shadow -->
+        <filter id="bshadow" x="-80%" y="-80%" width="260%" height="260%">
+          <feDropShadow dx="1" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.55)"/>
+        </filter>
+        <!-- Cast shadow blur -->
+        <filter id="sfblur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="9"/>
+        </filter>
+        <!-- Bottom-right shadow overlay on beads -->
+        <radialGradient id="bshdim" cx="65%" cy="68%" r="55%">
+          <stop offset="0%"   stop-color="#000" stop-opacity="0.38"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Edge darkening (rim) — makes every bead look spherical -->
+        <radialGradient id="rim" cx="50%" cy="50%" r="50%">
+          <stop offset="52%" stop-color="#000" stop-opacity="0"/>
+          <stop offset="82%" stop-color="#000" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0.60"/>
+        </radialGradient>
+        <!-- Surface background gradient -->
+        <radialGradient id="bgsurf" cx="42%" cy="38%" r="70%">
+          <stop offset="0%"   stop-color="#fefcf8"/>
+          <stop offset="60%"  stop-color="#f5f0ea"/>
+          <stop offset="100%" stop-color="#ede5d8"/>
+        </radialGradient>
+      </defs>
+      <!-- Surface background -->
+      <rect width="${w}" height="${h}" fill="url(#bgsurf)"/>
+      <!-- Cast shadow under bracelet -->
+      <ellipse cx="${cx}" cy="${cy + 9}" rx="84" ry="15" fill="rgba(0,0,0,0.22)" filter="url(#sfblur)"/>
+      ${inner}
+    </svg>`;
+  }
+
+  /* ---------- quantity ---------- */
+  function updateQtyDisplay() {
+    ($('qty-display') as HTMLElement).textContent = String(s.quantity);
+    ($('qty-minus') as HTMLButtonElement).disabled = s.quantity <= 1;
+    ($('qty-plus') as HTMLButtonElement).disabled = s.quantity >= 10;
+    ($('sum-total') as HTMLElement).textContent = `₪${s.quantity * calcPrice()}`;
+  }
+
+  $('qty-minus').addEventListener('click', () => {
+    if (s.quantity > 1) { s.quantity--; updateQtyDisplay(); }
+  });
+  $('qty-plus').addEventListener('click', () => {
+    if (s.quantity < 10) { s.quantity++; updateQtyDisplay(); }
+  });
+
+  /* ---------- init ---------- */
+  setStyleType('single');
+</script>

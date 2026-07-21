@@ -1,0 +1,68 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { imgSrc } from "../lib/wix";
+import siteImages from "../data/site-images.json";
+
+const aboutImg = siteImages.about ? imgSrc(siteImages.about, 1200, 900) : "";
+---
+
+<Layout
+  title="About — Sunny Side"
+  description="Why a breakfast guide to the cities where Wix has offices? Because the best way to know a place is the way it starts its morning."
+>
+  <section class="section" style="padding-top:56px;">
+    <div class="wrap">
+      <div class="two-col" style="gap:48px;">
+        <div>
+          <p class="eyebrow">About Sunny Side</p>
+          <h1 style="font-size:clamp(2.4rem,6vw,3.6rem);margin:12px 0 18px;">The best way to know a city is how it eats breakfast</h1>
+          <div class="stack" style="font-size:1.08rem;">
+            <p>Sunny Side is a small, warm love letter to mornings — and to seven cities that happen to share something in common: each is home to a <strong>Wix office</strong>. Tel Aviv, Kyiv, Kraków, Dublin, Miami, Vilnius and São Paulo.</p>
+            <p>We think breakfast is the most honest meal a place serves. It's unhurried, local, and rarely for tourists. Shakshuka spilling onto a Tel Aviv sidewalk. Syrniki in Podil. Pão de queijo, still warm, in São Paulo. Get the first meal right and the whole day follows.</p>
+            <p>So we built a guide around it. Every city opens with two picks, free for everyone — genuinely good places we'd send a friend to. The <a href="/pass" style="color:var(--terracotta);text-decoration:underline;text-underline-offset:3px;">All-Access Pass</a> unlocks the rest: six more spots per city, a walkable morning crawl, when to go, what to say, and a Breakfast Passport to carry with you.</p>
+            <p>One payment. No subscription. Just better mornings, city by city.</p>
+          </div>
+          <div style="margin-top:28px;">
+            <a class="btn btn-primary btn-lg" href="/cities">Explore the cities</a>
+          </div>
+        </div>
+        <div class="reveal">
+          <div style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-lg);aspect-ratio:4/3;">
+            {aboutImg
+              ? <img src={aboutImg} alt="A cozy sunlit café interior in the morning" width="1200" height="900" style="width:100%;height:100%;object-fit:cover;" />
+              : <div class="tile" style="height:100%;"><span class="tile-label">Good mornings</span></div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm">
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><span class="num">7</span><span class="label">Wix cities</span></div>
+        <div class="stat"><span class="num">14</span><span class="label">Free picks</span></div>
+        <div class="stat"><span class="num">1</span><span class="label">Pass, yours forever</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm" style="padding-bottom:80px;">
+    <div class="wrap">
+      <div class="grid grid-3">
+        <div class="reveal">
+          <h3 style="font-family:var(--serif);font-size:1.35rem;margin-bottom:8px;">Why breakfast</h3>
+          <p class="muted">It's local, unpretentious, and the same everywhere and nowhere. The truest snapshot of a city.</p>
+        </div>
+        <div class="reveal">
+          <h3 style="font-family:var(--serif);font-size:1.35rem;margin-bottom:8px;">Why these cities</h3>
+          <p class="muted">Seven places where Wix builds — an insider map that happens to make a great trip.</p>
+        </div>
+        <div class="reveal">
+          <h3 style="font-family:var(--serif);font-size:1.35rem;margin-bottom:8px;">Why a Pass</h3>
+          <p class="muted">The free picks are real. The Pass is for when two spots aren't enough and you want the whole morning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

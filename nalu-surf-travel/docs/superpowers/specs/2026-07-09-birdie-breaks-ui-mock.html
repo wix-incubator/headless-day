@@ -1,0 +1,429 @@
+<title>Birdie Breaks — UI Layout Mock</title>
+<style>
+  :root{
+    --lagoon:#2FA8BC; --sky-hi:#8FE3DB; --sky-lo:#FDF3DC;
+    --coral:#FF7E6B; --coral-deep:#E85F4C; --sun:#FFD166;
+    --sand:#F2D8A7; --leaf:#8ED081; --leaf-deep:#5FB56E;
+    --ink:#14353E; --card:#FFFDF7;
+    --shell-bg:#EAF4F2; --shell-ink:#1C3A42; --shell-mut:#5A7A80; --shell-line:#CBDEDA;
+    --font-round:"Arial Rounded MT Bold",ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN","Varela Round",sans-serif;
+    --font-ui:-apple-system,"Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --shell-bg:#0E2227; --shell-ink:#D9EAE6; --shell-mut:#7FA0A3; --shell-line:#24444B; }
+  }
+  :root[data-theme="dark"]{ --shell-bg:#0E2227; --shell-ink:#D9EAE6; --shell-mut:#7FA0A3; --shell-line:#24444B; }
+  :root[data-theme="light"]{ --shell-bg:#EAF4F2; --shell-ink:#1C3A42; --shell-mut:#5A7A80; --shell-line:#CBDEDA; }
+
+  body{ background:var(--shell-bg); color:var(--shell-ink); font-family:var(--font-ui);
+        margin:0; padding:28px 20px 64px; }
+  .wrap{ max-width:1060px; margin:0 auto; }
+
+  /* ---------- shell chrome ---------- */
+  .kicker{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--coral); font-weight:700; }
+  h1{ font-family:var(--font-round); font-size:clamp(26px,4vw,34px); margin:6px 0 4px; text-wrap:balance; }
+  .sub{ color:var(--shell-mut); max-width:64ch; margin:0 0 18px; line-height:1.5; }
+  .bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 14px; }
+  .tabs{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tab{ font-family:var(--font-round); font-size:14px; padding:8px 14px; border-radius:999px;
+        border:2.5px solid var(--ink); background:var(--card); color:var(--ink); cursor:pointer;
+        box-shadow:0 3px 0 rgba(20,53,62,.25); }
+  .tab[aria-selected="true"]{ background:var(--coral); color:#fff; }
+  .tab:focus-visible{ outline:3px solid var(--sun); outline-offset:2px; }
+  .lbl-toggle{ margin-left:auto; display:flex; align-items:center; gap:7px; font-size:13px; color:var(--shell-mut); user-select:none; }
+  .lbl-toggle input{ accent-color:var(--coral); width:16px; height:16px; }
+  .note{ font-size:14px; color:var(--shell-mut); min-height:2.6em; line-height:1.45; margin:10px 2px 10px; max-width:80ch; }
+  .note b{ color:var(--shell-ink); }
+
+  /* ---------- game viewport ---------- */
+  .viewport{ position:relative; aspect-ratio:16/9; border-radius:22px; overflow:hidden;
+             border:3px solid var(--ink); box-shadow:0 8px 0 rgba(20,53,62,.28);
+             background:linear-gradient(180deg,var(--sky-hi) 0%,#BEEFE4 55%,var(--sky-lo) 100%);
+             font-family:var(--font-round); color:var(--ink); }
+
+  .sunball{ position:absolute; top:6%; right:7%; width:9%; aspect-ratio:1; border-radius:50%;
+            background:var(--sun); border:3px solid var(--ink); box-shadow:0 0 0 10px rgba(255,209,102,.35); }
+  .cloud{ position:absolute; height:5.5%; aspect-ratio:3.1/1; background:#fff; border-radius:999px;
+          border:3px solid var(--ink); opacity:.95; }
+  .cloud::before{ content:""; position:absolute; left:22%; top:-62%; width:38%; height:120%;
+                  background:#fff; border:3px solid var(--ink); border-bottom:none; border-radius:999px 999px 0 0; }
+  .c1{ top:12%; left:10%; } .c2{ top:24%; right:20%; transform:scale(.8); } .c3{ bottom:16%; left:20%; transform:scale(.7); }
+  @media (prefers-reduced-motion: no-preference){
+    .c1{ animation:drift 26s linear infinite alternate; }
+    .c2{ animation:drift 34s linear infinite alternate-reverse; }
+    @keyframes drift{ to{ transform:translateX(60px); } }
+  }
+
+  /* globe */
+  .globe{ position:absolute; left:50%; top:54%; transform:translate(-50%,-50%); height:76%; aspect-ratio:1; }
+  .globe svg{ width:100%; height:100%; display:block; }
+  .marker{ position:absolute; width:5.5%; aspect-ratio:1; transform:translate(-50%,-90%); }
+  .marker .pin{ position:absolute; inset:0; background:var(--coral); border:3px solid var(--ink); border-radius:50% 50% 50% 6%;
+                transform:rotate(45deg); }
+  .marker .dot{ position:absolute; left:50%; top:42%; width:34%; aspect-ratio:1; transform:translate(-50%,-50%);
+                background:var(--card); border-radius:50%; border:2.5px solid var(--ink); z-index:1; }
+  .m-oahu{ left:38%; top:26%; } .m-bali{ left:72%; top:56%; } .m-cr{ left:24%; top:62%; }
+  .ring{ position:absolute; left:50%; top:78%; width:150%; aspect-ratio:1; transform:translate(-50%,-50%);
+         border:3px dashed var(--coral-deep); border-radius:50%; opacity:0; }
+  .viewport[data-state="approach"] .m-oahu .ring,
+  .viewport[data-state="landed"]   .m-oahu .ring{ opacity:1; }
+  @media (prefers-reduced-motion: no-preference){
+    .viewport[data-state="approach"] .m-oahu{ animation:bounce 1s ease-in-out infinite; }
+    @keyframes bounce{ 50%{ transform:translate(-50%,-100%);} }
+  }
+
+  /* Nalu the bird */
+  .bird{ position:absolute; left:30%; top:16%; width:11%; transition:left .8s ease, top .8s ease; z-index:3; }
+  .bird svg{ width:100%; display:block; }
+  @media (prefers-reduced-motion: no-preference){
+    .bird .bob{ animation:bob 2.4s ease-in-out infinite; }
+    @keyframes bob{ 50%{ transform:translateY(-6px);} }
+  }
+  .viewport[data-state="landed"] .bird,
+  .viewport[data-state="approach"] .bird{ left:36%; top:13%; }
+  .viewport[data-state="confirmed"] .bird{ left:56%; top:12%; }
+
+  /* ---------- overlays ---------- */
+  .ov{ position:absolute; opacity:0; visibility:hidden; transform:translateY(8px);
+       transition:opacity .25s ease, transform .25s ease, visibility .25s; z-index:5; }
+  .show{ opacity:1; visibility:visible; transform:none; }
+
+  .card{ background:var(--card); border:3px solid var(--ink); border-radius:18px;
+         box-shadow:0 5px 0 rgba(20,53,62,.28); }
+
+  /* speech bubble */
+  .bubble{ left:38%; top:9%; width:31%; padding:14px 16px; font-size:clamp(11px,1.45vw,15px); line-height:1.4; }
+  .bubble::before{ content:""; position:absolute; left:-14px; top:38%; width:20px; height:20px;
+                   background:var(--card); border-left:3px solid var(--ink); border-bottom:3px solid var(--ink);
+                   transform:rotate(45deg); }
+  .bubble .who{ font-size:.75em; letter-spacing:.12em; color:var(--coral-deep); display:block; margin-bottom:4px; }
+  .btn{ font-family:var(--font-round); display:inline-block; margin-top:10px; padding:8px 16px; border-radius:999px;
+        background:var(--coral); color:#fff; border:3px solid var(--ink); font-size:1em; cursor:pointer;
+        box-shadow:0 3px 0 rgba(20,53,62,.3); }
+  .btn.alt{ background:var(--sun); color:var(--ink); }
+
+  /* side-nav tab (always visible) */
+  .navtab{ position:absolute; left:0; top:38%; z-index:6; background:var(--card); border:3px solid var(--ink); border-left:none;
+           border-radius:0 14px 14px 0; padding:12px 9px; font-size:clamp(10px,1.2vw,13px); writing-mode:vertical-rl;
+           letter-spacing:.14em; box-shadow:3px 4px 0 rgba(20,53,62,.25); font-family:var(--font-round); }
+
+  /* controls chip */
+  .chip{ left:50%; bottom:5%; transform:translateX(-50%); padding:8px 16px; font-size:clamp(10px,1.3vw,14px); border-radius:999px; }
+  .ov.chip.show{ transform:translateX(-50%); }
+  .key{ display:inline-block; border:2.5px solid var(--ink); border-radius:6px; padding:0 7px; margin:0 2px;
+        background:#fff; box-shadow:0 2px 0 rgba(20,53,62,.3); font-size:.9em; }
+
+  /* hint toast */
+  .toast{ left:50%; bottom:7%; transform:translateX(-50%); padding:12px 20px; font-size:clamp(12px,1.6vw,17px); border-radius:999px; }
+  .ov.toast.show{ transform:translateX(-50%); }
+
+  /* info card */
+  .info{ right:3%; top:6%; bottom:6%; width:31%; padding:16px 18px; overflow:hidden;
+         display:flex; flex-direction:column; gap:8px; font-size:clamp(10px,1.25vw,14px); }
+  .info .eyebrow{ font-size:.7em; letter-spacing:.16em; color:var(--coral-deep); }
+  .info h2{ font-size:1.5em; margin:0; line-height:1.15; }
+  .chips{ display:flex; flex-wrap:wrap; gap:5px; }
+  .pill{ border:2.5px solid var(--ink); border-radius:999px; padding:2px 9px; background:var(--sky-hi); font-size:.82em; }
+  .pill.warm{ background:var(--sand); }
+  .info ul{ margin:2px 0; padding-left:18px; line-height:1.45; }
+  .meta{ display:flex; gap:12px; font-size:.85em; color:#4A6A72; }
+  .info .btn{ margin-top:auto; text-align:center; }
+  .tiny{ font-size:.72em; text-align:center; color:#7A959B; }
+
+  /* booking modal */
+  .modal{ left:50%; top:50%; width:60%; padding:18px 20px 16px; font-size:clamp(9px,1.2vw,14px); }
+  .ov.modal{ transform:translate(-50%,-46%); } .ov.modal.show{ transform:translate(-50%,-50%); }
+  .modal h2{ margin:0 0 2px; font-size:1.45em; }
+  .modal .who{ font-size:.78em; color:var(--coral-deep); letter-spacing:.1em; }
+  .cols{ display:flex; gap:16px; margin-top:10px; }
+  .cal{ flex:1.2; } .side{ flex:1; display:flex; flex-direction:column; gap:8px; }
+  .month{ display:flex; justify-content:space-between; align-items:center; font-size:.95em; margin-bottom:6px; }
+  .grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .d{ aspect-ratio:1; display:grid; place-items:center; border:2px solid var(--ink); border-radius:8px;
+      background:#fff; font-size:.78em; }
+  .d.off{ opacity:.28; border-style:dashed; }
+  .d.sel{ background:var(--coral); color:#fff; }
+  .d.has{ background:var(--sky-hi); }
+  .slots{ display:flex; flex-wrap:wrap; gap:6px; }
+  .slot{ border:2.5px solid var(--ink); border-radius:999px; padding:4px 10px; background:#fff; font-size:.85em; }
+  .slot.sel{ background:var(--sun); }
+  .field{ border:2.5px solid var(--ink); border-radius:10px; padding:7px 10px; background:#fff; color:#8AA2A8; font-size:.9em; }
+  .caption{ font-size:.75em; color:#7A959B; }
+
+  /* confirmation */
+  .confirm{ left:50%; top:50%; width:36%; padding:22px 22px 18px; text-align:center; font-size:clamp(10px,1.3vw,15px); }
+  .ov.confirm{ transform:translate(-50%,-46%);} .ov.confirm.show{ transform:translate(-50%,-50%); }
+  .stamp{ width:54px; height:54px; margin:0 auto 8px; border-radius:50%; background:var(--leaf); border:3px solid var(--ink);
+          display:grid; place-items:center; font-size:26px; }
+  .confirm h2{ margin:0 0 6px; font-size:1.5em; }
+  .confirm p{ margin:3px 0; line-height:1.45; }
+
+  /* menu drawer */
+  .scrim{ inset:0; background:rgba(20,53,62,.35); border-radius:0; }
+  .drawer{ left:0; top:0; bottom:0; width:28%; border-radius:0 22px 22px 0; border:3px solid var(--ink); border-left:none;
+           background:var(--card); padding:18px 16px; font-size:clamp(9px,1.25vw,14px);
+           display:flex; flex-direction:column; gap:6px; }
+  .ov.drawer{ transform:translateX(-20px); } .ov.drawer.show{ transform:none; }
+  .drawer .logo{ font-size:1.2em; letter-spacing:.06em; margin-bottom:4px; }
+  .drawer .sect{ font-size:.72em; letter-spacing:.16em; color:var(--coral-deep); margin-top:8px; }
+  .drawer a{ color:var(--ink); text-decoration:none; padding:4px 8px; border-radius:8px; display:block; }
+  .drawer a:hover{ background:var(--sky-hi); }
+  .drawer .foot{ margin-top:auto; font-size:.78em; color:#7A959B; line-height:1.4; }
+
+  /* labels */
+  .tag{ position:absolute; z-index:9; font-family:var(--font-ui); font-size:11px; font-weight:600; letter-spacing:.02em;
+        background:var(--ink); color:#fff; padding:3px 8px; border-radius:6px; opacity:0; visibility:hidden;
+        transition:opacity .2s; pointer-events:none; white-space:nowrap; }
+  .tag::before{ content:""; position:absolute; left:12px; bottom:-5px; border:5px solid transparent; border-top-color:var(--ink); border-bottom:none; }
+  body.labeled .tag.on{ opacity:1; visibility:visible; }
+
+  /* ---------- mobile section ---------- */
+  h3{ font-family:var(--font-round); margin:42px 0 6px; font-size:20px; }
+  .mobrow{ display:flex; gap:26px; align-items:flex-start; flex-wrap:wrap; }
+  .phone{ position:relative; width:min(300px,84vw); aspect-ratio:9/17.5; border-radius:30px; border:3px solid var(--ink);
+          overflow:hidden; background:linear-gradient(180deg,var(--sky-hi),#BEEFE4 55%,var(--sky-lo));
+          box-shadow:0 8px 0 rgba(20,53,62,.28); font-family:var(--font-round); color:var(--ink); flex:none; }
+  .phone .globe{ height:38%; top:42%; }
+  .phone .bird{ width:16%; left:28%; top:14%; }
+  .phone .navtab{ top:30%; font-size:10px; padding:9px 7px; }
+  .dpad{ position:absolute; left:5%; bottom:4%; width:34%; aspect-ratio:1; display:grid;
+         grid-template:repeat(3,1fr)/repeat(3,1fr); gap:4px; }
+  .dbtn{ grid-area:auto; background:var(--card); border:2.5px solid var(--ink); border-radius:10px;
+         display:grid; place-items:center; font-size:14px; box-shadow:0 3px 0 rgba(20,53,62,.3); }
+  .du{ grid-area:1/2; } .dl{ grid-area:2/1; } .dr{ grid-area:2/3; } .dd{ grid-area:3/2; }
+  .landbtn{ position:absolute; right:5%; bottom:6%; width:26%; aspect-ratio:1; border-radius:50%;
+            background:var(--coral); color:#fff; border:3px solid var(--ink); display:grid; place-items:center;
+            font-size:13px; box-shadow:0 4px 0 rgba(20,53,62,.3); }
+  .mobnotes{ flex:1; min-width:260px; font-size:14px; color:var(--shell-mut); line-height:1.6; max-width:56ch; }
+  .mobnotes b{ color:var(--shell-ink); }
+
+  footer{ margin-top:40px; padding-top:14px; border-top:1px solid var(--shell-line);
+          font-size:13px; color:var(--shell-mut); line-height:1.6; max-width:78ch; }
+</style>
+
+<div class="wrap">
+  <div class="kicker">Birdie Breaks · design spec companion</div>
+  <h1>UI layout mock — approve the screens</h1>
+  <p class="sub">Placeholder art: the real globe and Nalu are low-poly 3D (three.js), and the real build bundles the Fredoka typeface. What's up for approval here is the <b>layout</b> — which elements appear in each state and where they sit.</p>
+
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Game states">
+      <button class="tab" role="tab" aria-selected="true"  data-s="intro">1 · Intro</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="flying">2 · Flying</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="approach">3 · Approach</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="landed">4 · Landed</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="booking">5 · Booking</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="confirmed">6 · Confirmed</button>
+      <button class="tab" role="tab" aria-selected="false" data-s="menu">☰ Menu</button>
+    </div>
+    <label class="lbl-toggle"><input type="checkbox" id="lbl" checked> Labels</label>
+  </div>
+  <p class="note" id="note"></p>
+
+  <div class="viewport" id="vp" data-state="intro">
+    <div class="sunball"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+
+    <div class="globe">
+      <svg viewBox="0 0 200 200" aria-label="Toy globe placeholder">
+        <circle cx="100" cy="100" r="95" fill="#2FA8BC" stroke="#14353E" stroke-width="4"/>
+        <ellipse cx="72" cy="62" rx="30" ry="20" fill="#8ED081" stroke="#14353E" stroke-width="3" transform="rotate(-14 72 62)"/>
+        <ellipse cx="138" cy="96" rx="22" ry="15" fill="#5FB56E" stroke="#14353E" stroke-width="3" transform="rotate(10 138 96)"/>
+        <ellipse cx="86" cy="142" rx="26" ry="16" fill="#F2D8A7" stroke="#14353E" stroke-width="3" transform="rotate(6 86 142)"/>
+        <ellipse cx="148" cy="150" rx="12" ry="8"  fill="#8ED081" stroke="#14353E" stroke-width="3"/>
+        <circle cx="52" cy="108" r="7" fill="#F2D8A7" stroke="#14353E" stroke-width="3"/>
+      </svg>
+      <div class="marker m-oahu"><div class="ring"></div><div class="pin"></div><div class="dot"></div></div>
+      <div class="marker m-bali"><div class="pin"></div><div class="dot"></div></div>
+      <div class="marker m-cr"><div class="pin"></div><div class="dot"></div></div>
+      <span class="tag on" style="left:58%; bottom:-4%;">Globe — always fully in frame</span>
+      <span class="tag on" style="left:26%; top:12%;">Destination marker</span>
+    </div>
+
+    <div class="bird">
+      <svg viewBox="0 0 100 74" class="bob" aria-label="Nalu the nene, placeholder">
+        <ellipse cx="46" cy="46" rx="30" ry="20" fill="#B7A98D" stroke="#14353E" stroke-width="3.5"/>
+        <ellipse cx="40" cy="52" rx="16" ry="10" fill="#FFFDF7" stroke="#14353E" stroke-width="3"/>
+        <path d="M38 40 Q56 22 74 38 Q58 44 44 48 Z" fill="#8D7F63" stroke="#14353E" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="76" cy="30" r="13" fill="#14353E"/>
+        <path d="M70 36 Q76 42 84 36 L82 30 Z" fill="#F5E9C9"/>
+        <circle cx="80" cy="27" r="2.6" fill="#fff"/>
+        <path d="M88 30 L98 33 L88 37 Z" fill="#FF9A57" stroke="#14353E" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M60 42 Q66 48 60 52" fill="none" stroke="#FF7E6B" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+      <span class="tag on" style="left:0; top:-26px;">Nalu (bird = guide)</span>
+    </div>
+
+    <div class="navtab">MENU ☰<span class="tag on" style="left:30px; top:0;">Side-nav tab (all states)</span></div>
+
+    <!-- intro -->
+    <div class="ov card bubble" data-show="intro">
+      <span class="who">NALU</span>
+      Aloha! I'm <b>Nalu</b> — nene, pilot, wave-chaser. This is <b>Birdie Breaks</b>, your surf-travel agency.
+      Steer me with the <span class="key">←</span><span class="key">→</span><span class="key">↑</span><span class="key">↓</span> keys,
+      and press <span class="key">Space</span> to land wherever you see a pin.
+      <br><button class="btn">Let's fly! →</button>
+      <span class="tag on" style="left:8px; top:-26px;">Speech bubble — anchored to bird</span>
+    </div>
+
+    <!-- flying -->
+    <div class="ov card chip" data-show="flying">
+      <span class="key">←</span><span class="key">→</span><span class="key">↑</span><span class="key">↓</span> fly ·
+      <span class="key">Space</span> land
+      <span class="tag on" style="left:8px; top:-30px;">Controls chip — fades after a few seconds</span>
+    </div>
+
+    <!-- approach -->
+    <div class="ov card toast" data-show="approach">
+      🌺 Press <span class="key">Space</span> to land at <b>Oahu — North Shore</b>
+      <span class="tag on" style="left:8px; top:-30px;">Hint toast (in landing range)</span>
+    </div>
+
+    <!-- landed -->
+    <div class="ov card info" data-show="landed">
+      <span class="eyebrow">DESTINATION</span>
+      <h2>Oahu — North Shore 🌺</h2>
+      <div class="chips"><span class="pill">Nov – Feb</span><span class="pill warm">NE trade winds</span><span class="pill warm">Mid tide best</span></div>
+      <ul>
+        <li><b>Pipeline</b> — the world's barrel</li>
+        <li><b>Sunset Beach</b> — big open walls</li>
+        <li><b>Waimea Bay</b> — the big-wave classic</li>
+      </ul>
+      <div class="meta"><span>Skill: Advanced</span><span>Water: 25°C</span></div>
+      <button class="btn">Plan this trip with the agent</button>
+      <span class="tiny"><span class="key">Space</span> take off</span>
+      <span class="tag on" style="left:10px; top:-26px;">Info card — right panel</span>
+    </div>
+
+    <!-- booking -->
+    <div class="ov card modal" data-show="booking">
+      <span class="who">NALU: "Let's find a time!"</span>
+      <h2>Book with your surf agent</h2>
+      <span class="caption">Trip-planning session · 30 min · online video call</span>
+      <div class="cols">
+        <div class="cal">
+          <div class="month"><span>◀</span><b>July 2026</b><span>▶</span></div>
+          <div class="grid">
+            <div class="d off">S</div><div class="d off">M</div><div class="d off">T</div><div class="d off">W</div><div class="d off">T</div><div class="d off">F</div><div class="d off">S</div>
+            <div class="d off"></div><div class="d off"></div><div class="d off"></div><div class="d">1</div><div class="d">2</div><div class="d has">3</div><div class="d off">4</div>
+            <div class="d off">5</div><div class="d has">6</div><div class="d">7</div><div class="d has">8</div><div class="d">9</div><div class="d has">10</div><div class="d off">11</div>
+            <div class="d off">12</div><div class="d has">13</div><div class="d sel">14</div><div class="d has">15</div><div class="d">16</div><div class="d has">17</div><div class="d off">18</div>
+            <div class="d off">19</div><div class="d has">20</div><div class="d">21</div><div class="d has">22</div><div class="d has">23</div><div class="d">24</div><div class="d off">25</div>
+          </div>
+        </div>
+        <div class="side">
+          <div class="slots"><span class="slot">09:00</span><span class="slot sel">11:30</span><span class="slot">15:00</span><span class="slot">17:30</span></div>
+          <div class="field">Your name</div>
+          <div class="field">Email</div>
+          <button class="btn">Confirm booking</button>
+          <span class="caption">Real availability via Wix Bookings</span>
+        </div>
+      </div>
+      <span class="tag on" style="left:12px; top:-26px;">Booking modal — game-styled calendar</span>
+    </div>
+
+    <!-- confirmed -->
+    <div class="ov card confirm" data-show="confirmed">
+      <div class="stamp">🤙</div>
+      <h2>You're booked!</h2>
+      <p><b>Tue, Jul 14 · 11:30</b> — 30 min video call<br>with your surf agent</p>
+      <p class="caption">Confirmation sent to your email · saved under “My booking”</p>
+      <button class="btn alt">Back to the skies</button>
+      <span class="tag on" style="left:12px; top:-26px;">Confirmation card — Nalu celebrates</span>
+    </div>
+
+    <!-- menu -->
+    <div class="ov scrim" data-show="menu"></div>
+    <div class="ov drawer" data-show="menu">
+      <div class="logo">🐦 BIRDIE BREAKS</div>
+      <div class="sect">DESTINATIONS — click & Nalu flies there</div>
+      <a href="#">🌺 Oahu — North Shore</a>
+      <a href="#">🌴 Bali — Uluwatu</a>
+      <a href="#">🐚 Ericeira, Portugal</a>
+      <a href="#">🐪 Taghazout, Morocco</a>
+      <a href="#">🦥 Nosara, Costa Rica</a>
+      <a href="#">🐋 Jeffreys Bay, SA</a>
+      <div class="sect">THE AGENCY</div>
+      <a href="#">About Birdie Breaks</a>
+      <a href="#">My booking / contact</a>
+      <div class="foot">Shows your saved booking when one exists; otherwise opens the calendar directly.</div>
+      <span class="tag on" style="right:-150px; left:auto; top:16px;">Side-nav drawer</span>
+    </div>
+  </div>
+
+  <h3>Touch variant (basic mobile)</h3>
+  <div class="mobrow">
+    <div class="phone">
+      <div class="sunball" style="width:14%;"></div>
+      <div class="cloud c1" style="height:4%;"></div>
+      <div class="globe">
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="95" fill="#2FA8BC" stroke="#14353E" stroke-width="4"/>
+          <ellipse cx="72" cy="62" rx="30" ry="20" fill="#8ED081" stroke="#14353E" stroke-width="3" transform="rotate(-14 72 62)"/>
+          <ellipse cx="86" cy="142" rx="26" ry="16" fill="#F2D8A7" stroke="#14353E" stroke-width="3"/>
+          <ellipse cx="138" cy="96" rx="22" ry="15" fill="#5FB56E" stroke="#14353E" stroke-width="3"/>
+        </svg>
+        <div class="marker m-oahu"><div class="pin"></div><div class="dot"></div></div>
+      </div>
+      <div class="bird">
+        <svg viewBox="0 0 100 74" class="bob">
+          <ellipse cx="46" cy="46" rx="30" ry="20" fill="#B7A98D" stroke="#14353E" stroke-width="3.5"/>
+          <ellipse cx="40" cy="52" rx="16" ry="10" fill="#FFFDF7" stroke="#14353E" stroke-width="3"/>
+          <path d="M38 40 Q56 22 74 38 Q58 44 44 48 Z" fill="#8D7F63" stroke="#14353E" stroke-width="3.5" stroke-linejoin="round"/>
+          <circle cx="76" cy="30" r="13" fill="#14353E"/>
+          <path d="M70 36 Q76 42 84 36 L82 30 Z" fill="#F5E9C9"/>
+          <circle cx="80" cy="27" r="2.6" fill="#fff"/>
+          <path d="M88 30 L98 33 L88 37 Z" fill="#FF9A57" stroke="#14353E" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="navtab">☰</div>
+      <div class="dpad">
+        <div class="dbtn du">▲</div><div class="dbtn dl">◀</div><div class="dbtn dr">▶</div><div class="dbtn dd">▼</div>
+        <span class="tag on" style="left:0; top:-28px;">Virtual d-pad</span>
+      </div>
+      <div class="landbtn">LAND<span class="tag on" style="left:-20px; top:-28px;">Land button</span></div>
+    </div>
+    <div class="mobnotes">
+      <p><b>Same scene, touch controls.</b> The d-pad steers Nalu; the coral <b>Land</b> button replaces Space and only activates in landing range (it pulses when a landing is available).</p>
+      <p>Info card and calendar become bottom sheets at this width; the side-nav tab stays on the left edge. No further mobile polish in v1 — this is the "basic mobile" scope from the spec.</p>
+    </div>
+  </div>
+
+  <footer>
+    <b>How to review:</b> click through the 7 states and check each element's placement (labels can be toggled off to feel the vibe).
+    Colors, proportions and copy are directional; the 3D art will be richer than these placeholders.
+    Approving this locks the layout for the implementation plan — changes after that are still fine, just costlier.
+  </footer>
+</div>
+
+<script>
+  const notes = {
+    intro:     "<b>Intro.</b> Nalu glides in and introduces the agency and the controls in one bubble sequence. A single primary action — “Let's fly!” — hands over control. Side-nav tab is already present but quiet.",
+    flying:    "<b>Flying.</b> Minimal HUD: just the side-nav tab and a controls chip that fades out. The globe rotates under the bird; nothing competes with the scene.",
+    approach:  "<b>Approach.</b> Entering landing range: the destination's pin glows and bounces, and a hint toast names the destination. No accidental popups — landing is a deliberate action.",
+    landed:    "<b>Landed.</b> Info card docks right (doesn't cover the globe or the bird): travel window, wind & tide notes, spots, skill/water, and the booking CTA. Space takes off again.",
+    booking:   "<b>Booking.</b> Center modal, game-styled: calendar with availability days, slot chips, name + email, confirm. Data is real Wix Bookings availability. Nalu stays visible behind, cheering you on.",
+    confirmed: "<b>Confirmed.</b> Compact center card with the appointment summary; Nalu does a happy hop. Booking is saved locally for “My booking” in the menu.",
+    menu:      "<b>Menu.</b> Left drawer over a scrim: destinations quick-jump (click → Nalu flies there), About, and My booking / contact. Esc or scrim-click closes."
+  };
+  const vp = document.getElementById('vp'), note = document.getElementById('note');
+  const tabs = [...document.querySelectorAll('.tab')];
+  function setState(s){
+    vp.dataset.state = s;
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.s === s)));
+    note.innerHTML = notes[s];
+    document.querySelectorAll('.ov').forEach(o => {
+      const on = o.dataset.show === s;
+      o.classList.toggle('show', on);
+      o.querySelectorAll('.tag').forEach(tag => tag.classList.toggle('on', on));
+    });
+    document.querySelectorAll('.ov .tag').forEach(tag => {
+      if (!tag.closest('.ov').classList.contains('show')) tag.classList.remove('on');
+    });
+  }
+  tabs.forEach(t => t.addEventListener('click', () => setState(t.dataset.s)));
+  document.getElementById('lbl').addEventListener('change', e =>
+    document.body.classList.toggle('labeled', e.target.checked));
+  document.body.classList.add('labeled');
+  setState('intro');
+</script>

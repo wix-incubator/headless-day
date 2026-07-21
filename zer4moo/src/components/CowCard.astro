@@ -1,0 +1,40 @@
+---
+import type { Cow } from '../lib/cms';
+import { imgSrc } from '../lib/cms';
+
+interface Props { cow: Cow; eager?: boolean }
+const { cow, eager = false } = Astro.props;
+const src = imgSrc(cow.portrait, 720, 900);
+const initial = cow.name.charAt(0);
+---
+<article class="card reveal amble">
+  <a href={`/herd/${cow.slug}`} style="text-decoration:none;color:inherit;display:flex;flex-direction:column;height:100%;">
+    <div style="position:relative;">
+      {src ? (
+        <img
+          class="tile-img tile-img--cow"
+          src={src}
+          width="720"
+          height="720"
+          alt={`Portrait of ${cow.name}, a ${cow.breed} cow — ${cow.portraitNote}.`}
+          loading={eager ? 'eager' : 'lazy'}
+          style="filter:saturate(0.9);"
+        />
+      ) : (
+        <div class="tile-img tile-img--cow img-fallback">{initial}</div>
+      )}
+      <span class="badge badge--sage" style="position:absolute;bottom:12px;left:12px;text-transform:none;letter-spacing:0.02em;">
+        {cow.mood}
+      </span>
+    </div>
+    <div style="padding:1.1rem 1.25rem 1.3rem;display:flex;flex-direction:column;gap:0.45rem;flex:1;">
+      <h3 style="margin:0;font-size:1.3rem;">{cow.name}</h3>
+      <p class="eyebrow" style="margin:0;">{cow.breed} · {cow.age} {cow.age === 1 ? 'yr' : 'yrs'}</p>
+      <p class="muted" style="margin:0;font-size:0.95rem;flex:1;">{cow.bio}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.2rem;">
+        {cow.favoriteGreens?.slice(0, 3).map((g) => <span class="chip">{g}</span>)}
+      </div>
+      <span class="btn btn-accent" style="margin-top:0.6rem;align-self:flex-start;">Send her a bouquet</span>
+    </div>
+  </a>
+</article>

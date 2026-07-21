@@ -1,0 +1,110 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ContactForm from "../components/ContactForm.tsx";
+import { forms } from "@wix/forms";
+import { auth } from "@wix/essentials";
+import { SCENES, sized } from "../lib/media";
+
+let formId = "";
+let formFields: {
+  label: string;
+  target: string;
+  required: boolean;
+  componentType: string;
+  identifier: string;
+}[] = [];
+
+try {
+  const elevatedListForms = auth.elevate(forms.listForms);
+  const listResult = await elevatedListForms("wix.form_app.form");
+  const wixForm = listResult.forms?.[0];
+  formId = wixForm?._id ?? "";
+  formFields =
+    wixForm?.formFields
+      ?.filter((f: any) => f.fieldType === "INPUT" && !f.hidden)
+      .map((f: any) => {
+        const opts = f.inputOptions;
+        const str = opts?.stringOptions;
+        const label =
+          str?.textInputOptions?.label ??
+          str?.phoneInputOptions?.label ??
+          "";
+        return {
+          label,
+          target: opts?.target ?? "",
+          required: opts?.required ?? false,
+          componentType: str?.componentType ?? "TEXT_INPUT",
+          identifier: f.identifier ?? "",
+        };
+      }) ?? [];
+} catch (err) {
+  console.error("[contact] form discovery failed:", err);
+}
+---
+
+<Layout
+  title="Contact"
+  description="Find the Vechornytsi boathouse on the Dnipro, inquire about a private buyout of the table, or reach the kitchen directly."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FoodEstablishment",
+      name: "Vechornytsi",
+      address: { "@type": "PostalAddress", streetAddress: "Beresteiskyi Ave, 5", postalCode: "02000", addressLocality: "Kyiv", addressCountry: "UA" },
+      telephone: "+380934944068",
+      email: "tanyazavodenko188@gmail.com",
+      priceRange: "$$$$",
+      openingHours: "Fr 19:00",
+    })} />
+  </Fragment>
+
+  <section class="max-w-6xl mx-auto px-6 pt-20 md:pt-24 pb-8">
+    <div class="max-w-[52rem] reveal">
+      <span class="kicker">Contact &amp; private dining</span>
+      <h1 class="font-display text-4xl md:text-6xl leading-[1.05] mt-4">Find the lit window</h1>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+    {/* Left — the form */}
+    <div class="reveal">
+      <h2 class="font-display text-2xl md:text-3xl">Inquire about a private buyout</h2>
+      <p class="text-mute mt-2 max-w-prose">Twelve seats, one evening, a menu built with the chef. Tell us the date and your group size and we will write back.</p>
+      <div class="mt-6">
+        {formId ? (
+          <ContactForm client:load formId={formId} fields={formFields} />
+        ) : (
+          <div class="accent-card p-6">
+            <p class="text-ink">The inquiry form is being prepared. In the meantime, email us at
+              <a href="mailto:tanyazavodenko188@gmail.com" class="text-accent"> tanyazavodenko188@gmail.com</a>.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Right — location + details */}
+    <div class="flex flex-col gap-8 reveal">
+      <img src={sized(SCENES.boathouse, 900, 675)} alt="The boathouse on the Dnipro wharf at dusk, a single lit window" class="rounded-md shutter w-full object-cover" style="aspect-ratio: 4/3;" width="900" height="675" loading="lazy" />
+      <div class="flex flex-col gap-5">
+        <div>
+          <p class="kicker">Where</p>
+          <p class="mt-1 text-ink">Beresteiskyi Ave, 5</p>
+          <p class="text-ink">02000 Kyiv, Ukraine</p>
+          <p class="text-mute text-sm mt-1">On the Dnipro wharf. No sign on the door — look for the timber frame with the single lit window.</p>
+        </div>
+        <div>
+          <p class="kicker">When</p>
+          <p class="mt-1 text-ink">Dinner service Fridays at 19:00</p>
+          <p class="text-mute text-sm">Reservations open 14 days in advance.</p>
+        </div>
+        <div>
+          <p class="kicker">Reach us</p>
+          <p class="mt-1"><a href="tel:+380934944068" class="text-ink hover:text-accent">+38 093 494 40 68</a></p>
+          <p><a href="mailto:tanyazavodenko188@gmail.com" class="text-ink hover:text-accent">tanyazavodenko188@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

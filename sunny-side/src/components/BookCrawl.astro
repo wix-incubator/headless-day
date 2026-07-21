@@ -1,0 +1,182 @@
+---
+import type { CrawlService } from "../lib/wix";
+export interface Props {
+  service: CrawlService | null;
+  cityName: string;
+  meetingPoint: string;
+  timezone: string;
+}
+const { service, cityName, meetingPoint, timezone } = Astro.props;
+const hours = service ? Math.round((service.durationMin / 60) * 10) / 10 : 3;
+const included = [
+  "A local host for the full morning",
+  "Tastings at three to four breakfast spots",
+  "Coffee, ordered the local way",
+  "All the ordering know-how you'll need",
+];
+---
+
+<section class="section" id="book-crawl" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head" style="max-width:none;">
+      <p class="eyebrow">Do it with us</p>
+      <h2 style="font-size:clamp(1.7rem,4vw,2.4rem);margin-top:6px;">Book the crawl</h2>
+      <p class="muted" style="max-width:56ch;margin-top:8px;">Rather be shown around? Reserve a guided {cityName} breakfast crawl with a local host.</p>
+    </div>
+
+    {service ? (
+      <div class="crawl-book card two-col" data-service={service._id} data-tz={timezone} data-meet={meetingPoint} data-name={service.name} data-price={service.formatted}>
+        <div class="crawl-book-info">
+          <span class="chip">Guided experience</span>
+          <h3 style="font-family:var(--serif);font-size:1.6rem;margin:12px 0 6px;">{service.name}</h3>
+          <p class="muted" style="margin-bottom:16px;">{service.description}</p>
+          <ul class="crawl-facts">
+            <li><span>◷</span> {hours} hours</li>
+            <li><span>📍</span> Meet at {meetingPoint}</li>
+            <li><span>☀</span> {service.formatted}{service.price ? " · pay on the day" : ""}</li>
+          </ul>
+          <h4 style="font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px;">What's included</h4>
+          <ul class="value-list">
+            {included.map((it) => (<li><span class="check" aria-hidden="true">✓</span><span>{it}</span></li>))}
+          </ul>
+        </div>
+
+        <div class="crawl-book-widget">
+          <div class="crawl-widget-inner">
+            <p class="crawl-step-label">Pick a morning</p>
+            <button class="btn btn-primary btn-lg" data-load-slots style="width:100%;">Check available times</button>
+            <div class="crawl-slots" hidden></div>
+
+            <form class="crawl-form" hidden novalidate>
+              <p class="crawl-step-label" data-slot-chosen></p>
+              <div class="field"><span class="field-label">First name<span class="req">*</span></span><input name="firstName" required maxlength="80" autocomplete="given-name" /></div>
+              <div class="field"><span class="field-label">Last name<span class="req">*</span></span><input name="lastName" required maxlength="80" autocomplete="family-name" /></div>
+              <div class="field"><span class="field-label">Email<span class="req">*</span></span><input type="email" name="email" required maxlength="200" autocomplete="email" /></div>
+              <div class="field"><span class="field-label">Phone <span class="opt">(optional)</span></span><input type="tel" name="phone" maxlength="40" autocomplete="tel" /></div>
+              <button type="submit" class="btn btn-primary btn-lg crawl-submit" style="width:100%;">Confirm booking</button>
+              <button type="button" class="crawl-back" data-back>← Pick a different time</button>
+            </form>
+
+            <div class="crawl-confirm" hidden>
+              <div class="success-badge" aria-hidden="true">🍳</div>
+              <h3 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:8px;">You're booked!</h3>
+              <p class="crawl-confirm-detail muted"></p>
+            </div>
+
+            <p class="crawl-error" role="alert" hidden></p>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <p class="muted">Guided crawl booking for {cityName} is coming soon.</p>
+    )}
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var box = document.querySelector(".crawl-book");
+    if (!box) return;
+    var serviceId = box.getAttribute("data-service");
+    var tz = box.getAttribute("data-tz") || "UTC";
+    var meet = box.getAttribute("data-meet") || "";
+    var price = box.getAttribute("data-price") || "";
+    var loadBtn = box.querySelector("[data-load-slots]");
+    var slotsEl = box.querySelector(".crawl-slots");
+    var form = box.querySelector(".crawl-form");
+    var confirm = box.querySelector(".crawl-confirm");
+    var errEl = box.querySelector(".crawl-error");
+    var chosenLabel = box.querySelector("[data-slot-chosen]");
+    var submitBtn = box.querySelector(".crawl-submit");
+    var selected = null;
+
+    var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    function dayLabel(dateStr) {
+      var p = dateStr.split("T")[0].split("-");
+      var d = new Date(+p[0], +p[1] - 1, +p[2]);
+      return DOW[d.getDay()] + ", " + MON[+p[1] - 1] + " " + (+p[2]);
+    }
+    function timeLabel(dateStr) {
+      var t = dateStr.split("T")[1].slice(0, 5).split(":");
+      var h = +t[0], m = t[1];
+      var ap = h < 12 ? "AM" : "PM";
+      var h12 = h % 12; if (h12 === 0) h12 = 12;
+      return h12 + ":" + m + " " + ap;
+    }
+    function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
+
+    loadBtn.addEventListener("click", function () {
+      errEl.hidden = true;
+      loadBtn.disabled = true;
+      loadBtn.textContent = "Loading times…";
+      fetch("/api/crawl-availability", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ serviceId: serviceId, timeZone: tz, days: 14 }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          loadBtn.disabled = false;
+          loadBtn.textContent = "Refresh times";
+          if (!data.slots || !data.slots.length) { showError("No open morning times in the next two weeks — check back soon."); return; }
+          var byDay = {};
+          data.slots.forEach(function (s) { var d = s.start.split("T")[0]; (byDay[d] = byDay[d] || []).push(s); });
+          var html = '<p class="crawl-step-label">Choose a start time (' + tz.split("/").pop().replace("_", " ") + ")</p>";
+          Object.keys(byDay).sort().slice(0, 7).forEach(function (d) {
+            html += '<div class="crawl-day"><span class="crawl-day-h">' + dayLabel(d) + "</span><div class=\"crawl-times\">";
+            byDay[d].slice(0, 8).forEach(function (s) {
+              html += '<button type="button" class="crawl-slot-btn" data-start="' + s.start + '" data-end="' + s.end + '" data-sched="' + s.scheduleId + '">' + timeLabel(s.start) + "</button>";
+            });
+            html += "</div></div>";
+          });
+          slotsEl.innerHTML = html;
+          slotsEl.hidden = false;
+          slotsEl.querySelectorAll(".crawl-slot-btn").forEach(function (b) {
+            b.addEventListener("click", function () {
+              selected = { start: b.getAttribute("data-start"), end: b.getAttribute("data-end"), sched: b.getAttribute("data-sched") };
+              slotsEl.querySelectorAll(".crawl-slot-btn").forEach(function (x) { x.classList.remove("sel"); });
+              b.classList.add("sel");
+              chosenLabel.textContent = "Your crawl · " + dayLabel(selected.start) + " at " + timeLabel(selected.start);
+              form.hidden = false;
+              submitBtn.textContent = "Confirm booking" + (price ? " — " + price + ", pay on the day" : "");
+              form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+          });
+        })
+        .catch(function () { showError("Couldn't load times just now — please try again."); loadBtn.hidden = false; loadBtn.disabled = false; loadBtn.textContent = "Check available times"; });
+    });
+
+    var backBtn = box.querySelector("[data-back]");
+    if (backBtn) backBtn.addEventListener("click", function () { form.hidden = true; slotsEl.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      errEl.hidden = true;
+      if (!selected) { showError("Please pick a time first."); return; }
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      var fd = new FormData(form);
+      var orig = submitBtn.textContent;
+      submitBtn.disabled = true; submitBtn.textContent = "Booking…";
+      fetch("/api/crawl-book", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serviceId: serviceId, scheduleId: selected.sched, start: selected.start, end: selected.end, timezone: tz,
+          firstName: fd.get("firstName"), lastName: fd.get("lastName"), email: fd.get("email"), phone: fd.get("phone"),
+        }),
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (res.ok && res.d && res.d.ok) {
+            form.hidden = true; slotsEl.hidden = true;
+            box.querySelector(".crawl-confirm-detail").textContent =
+              box.getAttribute("data-name") + " · " + dayLabel(selected.start) + " at " + timeLabel(selected.start) +
+              ". Meet at " + meet + (price ? ". " + price + " to pay on the day." : ".") + " See you there!";
+            confirm.hidden = false;
+            confirm.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else { throw new Error((res.d && res.d.error) || "Booking failed."); }
+        })
+        .catch(function (e) { showError(e.message + " Please try another time."); })
+        .finally(function () { submitBtn.disabled = false; submitBtn.textContent = orig; });
+    });
+  })();
+</script>

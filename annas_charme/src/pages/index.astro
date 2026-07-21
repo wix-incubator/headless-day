@@ -1,0 +1,101 @@
+---
+import Footer from "../components/layout/footer.astro";
+import RootLayout from "../components/layout/layout.astro";
+import Hero from "../components/hero.astro";
+---
+
+<RootLayout>
+  <Hero />
+
+  <!-- How it works -->
+  <section id="how-it-works" class="mx-auto max-w-5xl px-4 py-20 md:py-28">
+    <div class="text-center mb-14">
+      <p class="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-3">Simple as 1 – 2 – 3</p>
+      <h2 class="font-display text-4xl font-medium tracking-tight md:text-5xl">How it works</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="flex flex-col items-center text-center p-8 rounded-3xl bg-neutral-50 dark:bg-neutral-800/50">
+        <div class="text-4xl mb-5 select-none">📿</div>
+        <h3 class="font-semibold text-lg mb-3">1. Pick your style</h3>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          Start with a single elegant strand or go bold with multiple strands woven together.
+        </p>
+      </div>
+      <div class="flex flex-col items-center text-center p-8 rounded-3xl bg-neutral-50 dark:bg-neutral-800/50">
+        <div class="flex gap-1.5 mb-5 select-none">
+          {["#f43f5e","#a78bfa","#38bdf8","#fbbf24","#14b8a6"].map((hex) => (
+            <span class="w-7 h-7 rounded-full" style={`background:${hex}`}></span>
+          ))}
+        </div>
+        <h3 class="font-semibold text-lg mb-3">2. Choose your colors</h3>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          Mix up to 5 colors from our full palette — from soft pastels to bold jewel tones.
+        </p>
+      </div>
+      <div class="flex flex-col items-center text-center p-8 rounded-3xl bg-neutral-50 dark:bg-neutral-800/50">
+        <div class="text-4xl mb-5 select-none">✨</div>
+        <h3 class="font-semibold text-lg mb-3">3. Personalize it</h3>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          On single-strand bracelets, add a name, message, or choose a bead pattern — or keep it simple.
+        </p>
+      </div>
+    </div>
+    <div class="mt-12 text-center">
+      <a
+        href="/build"
+        class="inline-flex items-center gap-2 rounded-full bg-neutral-900 dark:bg-white px-8 py-3.5 text-sm font-semibold text-white dark:text-black transition hover:opacity-80"
+      >
+        Build yours now →
+      </a>
+    </div>
+  </section>
+
+  <!-- About Anna -->
+  <section class="border-t border-neutral-100 dark:border-neutral-800">
+    <div class="mx-auto max-w-5xl px-4 py-16 md:py-28">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+        <!-- Text — first on mobile, left on desktop -->
+        <div class="flex flex-col gap-5 order-1 md:order-2">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.25em] text-rose-400 mb-3">Meet the maker</p>
+            <h2 class="font-display text-3xl font-medium tracking-tight md:text-4xl mb-4">Hi, I'm Anna! 💕</h2>
+          </div>
+          <p class="text-neutral-600 dark:text-neutral-300 leading-relaxed">
+            I'm a mom of three, and my girls absolutely love jewelry and bracelets. Our creative journey started with making simple beaded bracelets together at home — and I wanted to make that joy accessible to everyone.
+          </p>
+          <p class="text-neutral-600 dark:text-neutral-300 leading-relaxed">
+            Each kit includes everything you need to make beautiful bracelets without the hassle of shopping for individual supplies. Whether it's a fun activity with your kids, a relaxing hobby, or a thoughtful gift — these kits are designed to make creating easy and fun.
+          </p>
+          <a
+            href="/about"
+            class="self-start text-sm font-semibold underline underline-offset-4 text-neutral-800 dark:text-neutral-100 hover:text-rose-500 transition-colors"
+          >
+            Read my full story →
+          </a>
+        </div>
+        <!-- Image — second on mobile, left on desktop -->
+        <div class="flex justify-center order-2 md:order-1">
+          <img
+            src="/anna.jpg"
+            alt="Anna making bracelets"
+            class="w-full max-w-[260px] md:max-w-xs rounded-2xl shadow-xl object-cover aspect-[4/5]"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="mx-auto max-w-3xl px-4 py-24 text-center">
+    <h2 class="font-display text-4xl font-medium tracking-tight mb-5 md:text-5xl">Ready to design yours?</h2>
+    <p class="text-neutral-500 dark:text-neutral-400 mb-10 text-lg">It only takes a few minutes. Every bracelet is made to order and ships within 3–5 days.</p>
+    <a
+      href="/build"
+      class="inline-flex items-center gap-2 rounded-full bg-neutral-900 dark:bg-white px-10 py-4 text-base font-semibold text-white dark:text-black transition hover:opacity-80"
+    >
+      Build a bracelet →
+    </a>
+  </section>
+
+  <Footer />
+</RootLayout>

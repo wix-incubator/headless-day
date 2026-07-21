@@ -1,0 +1,75 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RibbonRule from '../../components/RibbonRule.astro';
+import { getCowBySlug, imgSrc } from '../../lib/cms';
+import { SITE } from '../../lib/site';
+
+const { slug } = Astro.params;
+const cow = slug ? await getCowBySlug(slug) : null;
+
+if (!cow) {
+  Astro.response.status = 404;
+}
+const portrait = cow ? imgSrc(cow.portrait, 1000, 1250) : '';
+
+const cowLd = cow && {
+  '@context': 'https://schema.org',
+  '@type': 'ImageObject',
+  name: `${cow.name}, a ${cow.breed} cow`,
+  description: cow.bio,
+  contentUrl: portrait,
+};
+---
+{cow ? (
+  <Layout title={`Meet ${cow.name}`} path={`/herd/${cow.slug}`} description={`${cow.name} — a ${cow.age}-year-old ${cow.breed}. ${cow.bio}`} ogImage={portrait || undefined} jsonLd={cowLd}>
+    <section class="section--tight">
+      <div class="container">
+        <a href="/herd" class="muted" style="text-decoration:none;font-weight:600;">← Back to the herd</a>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:center;margin-top:1.2rem;" class="cow-detail">
+          <div class="reveal in">
+            {portrait ? (
+              <img src={portrait} width="1000" height="1250" fetchpriority="high"
+                alt={`Portrait of ${cow.name}, a ${cow.breed} cow — ${cow.portraitNote}.`}
+                style="width:100%;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);aspect-ratio:4/5;object-fit:cover;filter:saturate(0.9);" />
+            ) : (
+              <div class="tile-img img-fallback" style="border-radius:var(--radius-lg);">{cow.name.charAt(0)}</div>
+            )}
+          </div>
+          <div>
+            <p class="eyebrow">{cow.breed} · {cow.age} {cow.age === 1 ? 'year' : 'years'} · <span style="text-transform:none;letter-spacing:0.02em;">{cow.mood}</span></p>
+            <h1 class="display-1" style="font-size:clamp(2.4rem,6vw,4rem);">{cow.name}</h1>
+            <RibbonRule />
+            <p class="lead" style="color:var(--color-text);">{cow.bio}</p>
+
+            <div class="card" style="padding:1.2rem 1.4rem;margin:1.5rem 0;">
+              <h3 style="margin-top:0;font-size:1.05rem;">Taste profile</h3>
+              <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.8rem;">
+                {cow.favoriteGreens?.map((g) => <span class="chip">{g}</span>)}
+              </div>
+              <p class="muted" style="margin:0;font-size:0.92rem;">
+                Ribbon of choice: <strong style="color:var(--color-primary);text-transform:capitalize;">{cow.ribbonColor}</strong>. Bouquets are matched to her palate — we’ll flag it gently if your arrangement isn’t quite her taste.
+              </p>
+            </div>
+
+            <a class="btn btn-primary btn-lg" href={`/shop?cow=${cow.slug}`}>Send {cow.name} a bouquet</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </Layout>
+) : (
+  <Layout title="Cow not found" path="/herd" stickyBar={false}>
+    <section class="section" style="text-align:center;">
+      <div class="container measure mx-auto">
+        <div style="font-size:3rem;">🐄</div>
+        <h1 class="display-2">We couldn’t find that cow</h1>
+        <p class="lead">She may have wandered to another pasture. Let’s find you another.</p>
+        <a class="btn btn-primary btn-lg" href="/herd">Browse the herd</a>
+      </div>
+    </section>
+  </Layout>
+)}
+
+<style>
+  @media (max-width: 760px) { .cow-detail { grid-template-columns: 1fr !important; } }
+</style>

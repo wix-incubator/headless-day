@@ -1,0 +1,1250 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/geist-latin.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/geist-mono-latin.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-latin.woff2") format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@theme inline {
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  /* Base — deep, warm, almost-black (lifted for legibility) */
+  --color-void: #0c0a08;
+  --color-pitch: #14100c;
+  --color-charcoal: #241a13;
+  --color-espresso: #2e2017;
+  --color-ember: #3a281b;
+
+  /* Text — cream / beige family (raised contrast for legibility on near-black) */
+  --color-cream: #f8f0dd;
+  --color-beige: #d9c9ab;
+  --color-parchment: rgba(246, 238, 221, 0.95);
+  --color-dust: rgba(214, 200, 172, 0.88);
+  --color-ghost: rgba(191, 174, 145, 0.24);
+
+  /* Accents — analog warmth */
+  --color-amber: #e2a552;
+  --color-burnt: #c56c34;
+  --color-burgundy: #4a1717;
+  --color-gold: #d0ab61;
+
+  --color-edge: rgba(244, 232, 208, 0.14);
+  --color-edge-strong: rgba(244, 232, 208, 0.26);
+
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drift: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --spacing-section: 9rem;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    overflow-x: hidden;
+    letter-spacing: -0.005em;
+    line-height: 1.5;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-amber);
+    color: var(--color-void);
+  }
+
+  ::-webkit-scrollbar {
+    width: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-void);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--color-espresso), var(--color-charcoal));
+    border-radius: 99px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 0.98;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  /* Editorial metadata label */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-beige);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Warm glassy panel */
+  .glass {
+    background: linear-gradient(
+      160deg,
+      rgba(46, 28, 19, 0.55),
+      rgba(14, 11, 9, 0.65)
+    );
+    backdrop-filter: blur(18px) saturate(1.1);
+    border: 1px solid var(--color-edge);
+  }
+
+  /* Warm inner + outer glow */
+  .glow-warm {
+    box-shadow:
+      0 0 0 1px rgba(216, 154, 69, 0.12),
+      0 30px 80px -30px rgba(180, 95, 42, 0.35),
+      inset 0 1px 0 rgba(244, 232, 208, 0.06);
+  }
+
+  .sleeve-sheen {
+    background:
+      linear-gradient(115deg, transparent 20%, rgba(248, 240, 221, 0.18) 44%, transparent 62%),
+      radial-gradient(circle at 72% 18%, rgba(226, 165, 82, 0.14), transparent 32%);
+    mix-blend-mode: screen;
+  }
+
+  .legal-copy {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .legal-copy section {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+    max-width: none;
+    padding: clamp(1.35rem, 3vw, 2.25rem);
+    border: 1px solid var(--color-edge);
+    border-radius: 1.5rem;
+    background: linear-gradient(145deg, rgba(46, 32, 23, 0.46), rgba(12, 10, 8, 0.34));
+  }
+
+  .legal-copy h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.55rem, 4vw, 2.15rem);
+    line-height: 1.05;
+    color: var(--color-cream);
+  }
+
+  .legal-copy p,
+  .legal-copy li {
+    color: var(--color-parchment);
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .legal-copy ul {
+    display: grid;
+    gap: 0.55rem;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+
+  .secondary-page-grid {
+    background:
+      linear-gradient(90deg, transparent 0 6.5rem, rgba(248, 240, 221, 0.025) 6.5rem 6.56rem),
+      radial-gradient(circle at 74% 16%, rgba(226, 165, 82, 0.08), transparent 28%);
+    background-size: 6.56rem 100%, 100% 100%;
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+  }
+
+  .newsletter-panel {
+    background:
+      linear-gradient(112deg, rgba(226, 165, 82, 0.1), transparent 38%),
+      linear-gradient(150deg, rgba(46, 32, 23, 0.72), rgba(12, 10, 8, 0.86));
+    box-shadow: inset 0 1px 0 rgba(248, 240, 221, 0.05), 0 30px 90px -60px rgba(226, 165, 82, 0.65);
+  }
+
+  .ritual-stage::before {
+    content: "";
+    position: absolute;
+    inset: 4% 2% 10%;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, transparent, rgba(226, 165, 82, 0.08), transparent),
+      repeating-linear-gradient(90deg, transparent 0 4.25rem, rgba(248, 240, 221, 0.035) 4.25rem 4.32rem);
+    mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent);
+    opacity: 0;
+    transition: opacity 360ms var(--ease-drift);
+  }
+
+  .ritual-stage.dj-rendering::before {
+    opacity: 1;
+  }
+
+  .dj-mode-control {
+    top: -3.25rem;
+    right: 0;
+    isolation: isolate;
+    touch-action: manipulation;
+    transition:
+      border-color 240ms ease,
+      box-shadow 240ms ease;
+  }
+
+  .dj-mode-control::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -6px;
+    pointer-events: none;
+    border: 1px solid rgba(226, 165, 82, 0.58);
+    border-radius: inherit;
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  .dj-mode-control::after {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: -22px;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(ellipse, rgba(226, 165, 82, 0.42), rgba(197, 108, 52, 0.16) 42%, transparent 72%);
+    filter: blur(8px);
+    opacity: 0;
+  }
+
+  .dj-mode-control.is-idle {
+    border-color: rgba(248, 240, 221, 0.9);
+    box-shadow:
+      0 0 0 2px rgba(226, 165, 82, 0.2),
+      0 0 24px rgba(248, 240, 221, 0.38),
+      0 0 48px rgba(226, 165, 82, 0.72),
+      0 0 86px rgba(197, 108, 52, 0.34);
+  }
+
+  .dj-mode-control.is-idle::before {
+    inset: -10px;
+    border-width: 2px;
+    animation: dj-mode-halo 1.9s ease-out infinite;
+  }
+
+  .dj-mode-control.is-idle::after {
+    animation: dj-mode-aura 1.9s ease-in-out infinite;
+  }
+
+  .dj-mode-control.is-idle > button {
+    position: relative;
+    overflow: hidden;
+    color: var(--color-void);
+    background: linear-gradient(135deg, var(--color-cream), var(--color-amber) 48%, var(--color-burnt));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 0 18px rgba(226, 165, 82, 0.5);
+    animation: dj-mode-button-breathe 1.9s ease-in-out infinite;
+  }
+
+  .dj-mode-control.is-idle > button::after {
+    content: "";
+    position: absolute;
+    inset: -50% auto -50% -38%;
+    width: 24%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.88), transparent);
+    transform: translateX(-180%) rotate(14deg);
+    animation: attention-sheen 2.4s ease-in-out infinite;
+  }
+
+  .sound-attention {
+    isolation: isolate;
+    color: var(--color-void);
+    background: linear-gradient(135deg, var(--color-cream), var(--color-amber) 52%, var(--color-burnt));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 0 0 2px rgba(226, 165, 82, 0.22),
+      0 0 28px rgba(226, 165, 82, 0.72),
+      0 0 58px rgba(197, 108, 52, 0.38);
+  }
+
+  .sound-attention::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: -50% auto -50% -38%;
+    width: 24%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.88), transparent);
+    transform: translateX(-180%) rotate(14deg);
+    animation: attention-sheen 2.4s ease-in-out infinite 280ms;
+  }
+
+  .sound-attention > svg,
+  .sound-attention > span:not(.sound-attention-halo) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sound-attention-halo {
+    z-index: -1 !important;
+    pointer-events: none;
+    animation: attention-halo 1.8s ease-out infinite;
+  }
+
+  .dj-mode-spark {
+    width: 0.42rem;
+    height: 0.42rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--color-void);
+    box-shadow:
+      0 0 0 2px rgba(248, 240, 221, 0.5),
+      0 0 10px rgba(248, 240, 221, 0.95);
+    animation: dj-mode-spark 950ms ease-in-out infinite alternate;
+  }
+
+  .dj-mode-control.is-active {
+    border-color: rgba(248, 240, 221, 0.72);
+    box-shadow:
+      0 0 18px rgba(226, 165, 82, 0.32),
+      inset 0 0 14px rgba(226, 165, 82, 0.08);
+  }
+
+  .dj-hologram-projector {
+    position: absolute;
+    z-index: 5;
+    top: -12%;
+    left: 4%;
+    width: clamp(210px, 18vw, 280px);
+    aspect-ratio: 2 / 3;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    isolation: isolate;
+    transition:
+      opacity 450ms var(--ease-drift),
+      visibility 0s linear 450ms;
+    will-change: opacity;
+  }
+
+  .dj-hologram-projector::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgba(7, 5, 4, 0.94);
+    opacity: 0;
+    transition: opacity 320ms var(--ease-drift);
+    -webkit-mask-image:
+      radial-gradient(
+        ellipse 82% 96% at 50% 45%,
+        #000 32%,
+        rgba(0, 0, 0, 0.9) 56%,
+        rgba(0, 0, 0, 0.42) 78%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 8%,
+        #000 72%,
+        rgba(0, 0, 0, 0.58) 84%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 9%,
+        #000 91%,
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in, source-in;
+    mask-image:
+      radial-gradient(
+        ellipse 82% 96% at 50% 45%,
+        #000 32%,
+        rgba(0, 0, 0, 0.9) 56%,
+        rgba(0, 0, 0, 0.42) 78%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 8%,
+        #000 72%,
+        rgba(0, 0, 0, 0.58) 84%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 9%,
+        #000 91%,
+        transparent 100%
+      );
+    mask-composite: intersect, intersect;
+  }
+
+  .dj-hologram {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    object-fit: contain;
+    pointer-events: none;
+    opacity: 0.86;
+    mix-blend-mode: screen;
+    filter:
+      brightness(0.9)
+      contrast(0.98)
+      saturate(0.7)
+      drop-shadow(0 0 10px rgba(226, 165, 82, 0.16))
+      drop-shadow(0 0 24px rgba(120, 70, 55, 0.1));
+  }
+
+  .dj-hologram-projector.is-static-mobile {
+    isolation: auto;
+    background: none;
+    mix-blend-mode: normal;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .dj-hologram-projector.is-static-mobile::after {
+    content: "";
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: url("/assets/video/dj-hologram-poster-alpha.webp") center / contain no-repeat;
+    mix-blend-mode: screen;
+  }
+
+  .dj-hologram-projector.is-static-mobile .dj-hologram {
+    display: none;
+  }
+
+  .dj-hologram-mobile-animation {
+    position: relative;
+    z-index: 2;
+    display: none;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    opacity: 0.86;
+    mix-blend-mode: screen;
+    filter:
+      brightness(0.9)
+      contrast(0.98)
+      saturate(0.72)
+      drop-shadow(0 0 10px rgba(226, 165, 82, 0.14));
+  }
+
+  .dj-hologram-projector.is-static-mobile.is-active .dj-hologram-mobile-animation {
+    display: block;
+  }
+
+  .dj-hologram-projector.is-active {
+    opacity: 0.96;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .dj-hologram-projector.is-active::before {
+    opacity: 1;
+  }
+
+  .dj-hologram-projector.is-active .dj-hologram-main {
+    -webkit-mask-image:
+      radial-gradient(
+        ellipse 82% 96% at 50% 45%,
+        #000 34%,
+        rgba(0, 0, 0, 0.94) 58%,
+        rgba(0, 0, 0, 0.5) 79%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 7%,
+        #000 74%,
+        rgba(0, 0, 0, 0.64) 86%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 7%,
+        #000 93%,
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in, source-in;
+    mask-image:
+      radial-gradient(
+        ellipse 82% 96% at 50% 45%,
+        #000 34%,
+        rgba(0, 0, 0, 0.94) 58%,
+        rgba(0, 0, 0, 0.5) 79%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 7%,
+        #000 74%,
+        rgba(0, 0, 0, 0.64) 86%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 7%,
+        #000 93%,
+        transparent 100%
+      );
+    mask-composite: intersect, intersect;
+  }
+
+  .dj-hologram-projector.is-active .dj-hologram {
+    animation: hologram-flicker 3.6s steps(1, end) infinite;
+  }
+
+  .dj-projection-beam {
+    position: absolute;
+    z-index: 3;
+    left: var(--beam-x, 84%);
+    top: var(--beam-y, 49%);
+    width: var(--beam-length, 0px);
+    height: var(--beam-spread, 0px);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%) rotate(var(--beam-angle, 0deg));
+    transform-origin: 0 50%;
+    clip-path: polygon(0 46%, 0 54%, 100% 100%, 100% 0);
+    background: linear-gradient(
+      to right,
+      rgba(248, 240, 221, 0.34) 0%,
+      rgba(226, 165, 82, 0.18) 12%,
+      rgba(197, 108, 52, 0.1) 48%,
+      transparent 100%
+    );
+    filter: blur(7px);
+    mix-blend-mode: screen;
+    transition:
+      opacity 380ms var(--ease-drift),
+      visibility 0s linear 380ms;
+  }
+
+  .dj-projection-beam.is-active {
+    opacity: 0.48;
+    visibility: visible;
+    transition-delay: 0s;
+    animation: beam-shimmer 2.4s ease-in-out infinite;
+  }
+
+  .dj-projection-rays {
+    position: absolute;
+    z-index: 4;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+    opacity: 0;
+    visibility: hidden;
+    filter:
+      drop-shadow(0 0 5px rgba(248, 240, 221, 0.58))
+      drop-shadow(0 0 13px rgba(226, 165, 82, 0.62));
+    transition:
+      opacity 360ms var(--ease-drift),
+      visibility 0s linear 360ms;
+  }
+
+  .dj-projection-rays span {
+    position: absolute;
+    left: var(--ray-x, 84%);
+    top: var(--ray-y, 49%);
+    display: block;
+    width: var(--ray-length, 0px);
+    height: 1px;
+    transform: translateY(-50%) rotate(var(--ray-angle, 0deg));
+    transform-origin: 0 50%;
+    background: linear-gradient(
+      to right,
+      rgba(248, 240, 221, 0.98) 0%,
+      rgba(248, 240, 221, 0.86) 7%,
+      rgba(226, 165, 82, 0.64) 22%,
+      rgba(226, 165, 82, 0.38) 62%,
+      rgba(197, 108, 52, 0.08) 92%,
+      transparent 100%
+    );
+    background-size: 220% 100%;
+    animation: projection-ray-flow 2.25s linear infinite;
+  }
+
+  .dj-projection-rays span:nth-child(1) {
+    height: 2px;
+    animation-delay: -0.2s;
+  }
+
+  .dj-projection-rays span:nth-child(2) {
+    animation-delay: -1.35s;
+  }
+
+  .dj-projection-rays span:nth-child(3) {
+    animation-delay: -0.75s;
+  }
+
+  .dj-projection-rays span:nth-child(4) {
+    height: 2px;
+    animation-delay: -1.9s;
+  }
+
+  .dj-projection-rays span:nth-child(5) {
+    animation-delay: -0.45s;
+  }
+
+  .dj-projection-rays span:nth-child(6) {
+    animation-delay: -1.55s;
+  }
+
+  .dj-projection-rays span:nth-child(7) {
+    height: 2px;
+    animation-delay: -1.05s;
+  }
+
+  .dj-projection-rays.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .dj-projection-emitter {
+    position: absolute;
+    z-index: 25;
+    left: 84%;
+    top: 49%;
+    width: clamp(32px, 4vw, 48px);
+    aspect-ratio: 1.8 / 1;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    border: 1px solid rgba(248, 240, 221, 0.52);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(248, 240, 221, 0.8), rgba(226, 165, 82, 0.34) 30%, transparent 68%);
+    box-shadow:
+      0 0 10px rgba(248, 240, 221, 0.7),
+      0 0 28px rgba(226, 165, 82, 0.82),
+      0 0 44px rgba(197, 108, 52, 0.18);
+    transition:
+      opacity 240ms ease-out,
+      visibility 0s linear 240ms;
+  }
+
+  .dj-projection-emitter::after {
+    content: "";
+    position: absolute;
+    inset: 28%;
+    border-radius: 50%;
+    background: var(--color-cream);
+    box-shadow: 0 0 12px rgba(248, 240, 221, 0.96);
+  }
+
+  .dj-projection-emitter.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+    animation: emitter-pulse 1.8s ease-in-out infinite;
+  }
+
+  .signal-dot {
+    animation: signal-rise 1.9s var(--ease-drift) infinite;
+  }
+
+  .hairline {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-edge-strong) 20%,
+      var(--color-edge-strong) 80%,
+      transparent
+    );
+    height: 1px;
+  }
+
+  /* Vinyl grooves */
+  .grooves {
+    background-image: repeating-radial-gradient(
+      circle at center,
+      rgba(10, 7, 5, 0.95) 0px,
+      rgba(10, 7, 5, 0.95) 1px,
+      rgba(70, 56, 44, 0.9) 2px,
+      rgba(38, 28, 20, 0.98) 3px
+    );
+  }
+
+  .clickable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .scratch-surface,
+  .scratch-surface * {
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* custom cursor active → hide the native one (desktop only) */
+  .cursor-hidden,
+  .cursor-hidden * {
+    cursor: none !important;
+  }
+
+  /* promote to its own compositor layer for jank-free transforms */
+  .gpu {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* skip layout/paint for offscreen sections — big scroll win */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* warm range slider */
+  .range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    border-radius: 99px;
+    background: var(--color-edge-strong);
+    outline: none;
+  }
+  .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 99px;
+    background: linear-gradient(135deg, #e8b45f, #b45f2a);
+    border: 2px solid var(--color-void);
+    box-shadow: 0 4px 14px -4px rgba(216, 154, 69, 0.8);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-cinematic);
+  }
+  .range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+  .range::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 99px;
+    background: linear-gradient(135deg, #e8b45f, #b45f2a);
+    border: 2px solid var(--color-void);
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 639px) {
+  .glass {
+    background: linear-gradient(160deg, rgba(46, 28, 19, 0.82), rgba(14, 11, 9, 0.94));
+    backdrop-filter: none;
+  }
+}
+
+/* Dedicated phone layout: reserve a safe slot above the player artwork. */
+@media (max-width: 767px) {
+  .ritual-stage {
+    padding-top: 0;
+  }
+
+  .ritual-stage.dj-rendering {
+    padding-top: clamp(250px, 74vw, 330px);
+  }
+
+  .ritual-stage .dj-mode-control {
+    top: 0;
+    right: -2%;
+  }
+
+  .ritual-stage .dj-mode-control > button {
+    min-height: 40px;
+  }
+
+  .dj-hologram-projector {
+    top: clamp(-330px, -76vw, -250px);
+    right: auto;
+    left: -2%;
+    width: clamp(160px, 50vw, 210px);
+  }
+
+  .dj-hologram-projector.is-active {
+    opacity: 0.94;
+  }
+
+  /* Phones use one decoded animated asset. Avoid per-frame filter and blend
+     passes, and keep the lightweight projection treatment static. */
+  .dj-hologram-mobile-animation {
+    mix-blend-mode: normal;
+    filter: none;
+  }
+
+  .dj-projection-rays {
+    filter: drop-shadow(0 0 4px rgba(226, 165, 82, 0.48));
+  }
+
+  .dj-projection-rays span {
+    animation: none;
+    background-size: 100% 100%;
+    opacity: 0.82;
+  }
+
+  .dj-projection-beam {
+    filter: blur(4px);
+  }
+
+  .dj-projection-beam.is-active {
+    animation: none;
+    opacity: 0.38;
+  }
+
+  .dj-projection-emitter.is-active {
+    animation: none;
+  }
+
+}
+
+/* Landscape phones use the desktop scroll choreography, so leave extra
+   vertical clearance for the sleeve's upward reveal. */
+@media (min-width: 640px) and (max-width: 767px) {
+  .dj-hologram-projector {
+    top: -360px;
+    left: -5%;
+    width: 140px;
+  }
+}
+
+/* The single-column tablet stage has enough room for a true left-side layout. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .ritual-stage {
+    padding-top: 0;
+  }
+
+  .ritual-stage.dj-rendering {
+    padding-top: clamp(330px, 46vw, 400px);
+  }
+
+  .ritual-stage .dj-mode-control {
+    top: 2%;
+    right: 2%;
+  }
+
+  .dj-hologram-projector {
+    top: clamp(-500px, -48.7vw, -374px);
+    right: auto;
+    left: -5%;
+    width: clamp(140px, 15vw, 160px);
+  }
+
+}
+
+/* The mobile animation carries its own feathered alpha channel. Keeping the
+   wrapper unmasked avoids a WebKit compositor flash when DJ mode activates. */
+@media (max-width: 1023px) {
+  .dj-projection-rays.is-active {
+    opacity: 0.88;
+  }
+}
+
+/* Desktop uses only CSS masks here, avoiding an extra public image request
+   while still dissolving every hard video edge into the page. */
+@media (min-width: 1024px) {
+  .dj-hologram-projector.is-active .dj-hologram-main {
+    -webkit-mask-image:
+      radial-gradient(
+        ellipse 86% 98% at 50% 45%,
+        #000 36%,
+        rgba(0, 0, 0, 0.94) 61%,
+        rgba(0, 0, 0, 0.46) 82%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 6%,
+        #000 74%,
+        rgba(0, 0, 0, 0.6) 87%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 6%,
+        #000 94%,
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in, source-in;
+    mask-image:
+      radial-gradient(
+        ellipse 86% 98% at 50% 45%,
+        #000 36%,
+        rgba(0, 0, 0, 0.94) 61%,
+        rgba(0, 0, 0, 0.46) 82%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 6%,
+        #000 74%,
+        rgba(0, 0, 0, 0.6) 87%,
+        transparent 100%
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        #000 6%,
+        #000 94%,
+        transparent 100%
+      );
+    mask-composite: intersect, intersect;
+  }
+}
+
+/* Keep the hologram above the stage while the desktop grid is still narrow. */
+@media (min-width: 1024px) and (max-width: 1359px) {
+  .dj-hologram-projector {
+    top: -61%;
+    right: auto;
+    left: 4%;
+    width: clamp(200px, 20vw, 230px);
+  }
+
+}
+
+@media (min-width: 1360px) {
+  .hologram-stage.dj-active {
+    translate: 11rem 0;
+  }
+
+  .hologram-stage.dj-active > .dj-mode-control {
+    translate: -11rem 0;
+  }
+
+  .dj-hologram-projector {
+    top: -22%;
+    right: calc(100% + clamp(0px, calc(12vw - 178px), 72px));
+    left: auto;
+    width: clamp(300px, 21.5vw, 340px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dj-hologram-projector.is-static-mobile::after {
+    display: block;
+  }
+
+  .dj-hologram-mobile-animation {
+    display: none !important;
+  }
+
+  .dj-hologram-projector {
+    transition-duration: 0.01ms;
+    will-change: auto;
+  }
+
+  .dj-hologram-projector.is-active .dj-hologram {
+    animation: none;
+  }
+
+  .dj-projection-beam.is-active,
+  .dj-projection-rays span,
+  .dj-projection-emitter.is-active,
+  .dj-mode-control.is-idle,
+  .dj-mode-control.is-idle::before,
+  .dj-mode-control.is-idle::after,
+  .dj-mode-control.is-idle > button,
+  .dj-mode-control.is-idle > button::after,
+  .dj-mode-spark,
+  .sound-attention::after,
+  .sound-attention-halo {
+    animation: none;
+  }
+}
+
+@keyframes hologram-flicker {
+  0%,
+  44%,
+  46%,
+  73%,
+  75%,
+  100% {
+    opacity: 0.86;
+    transform: translateY(0);
+  }
+  45% {
+    opacity: 0.66;
+    transform: translateY(0.5px);
+  }
+  74% {
+    opacity: 0.76;
+    transform: translateY(-0.5px);
+  }
+}
+
+@keyframes beam-shimmer {
+  0%,
+  100% {
+    opacity: 0.46;
+  }
+  50% {
+    opacity: 0.66;
+  }
+}
+
+@keyframes emitter-pulse {
+  0%,
+  100% {
+    filter: brightness(0.9);
+    transform: translate(-50%, -50%) rotate(-12deg) scale(0.94);
+  }
+  50% {
+    filter: brightness(1.2);
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1.06);
+  }
+}
+
+@keyframes projection-ray-flow {
+  0% {
+    opacity: 0.72;
+    background-position: 100% 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.78;
+    background-position: -80% 0;
+  }
+}
+
+@keyframes attention-sheen {
+  0%,
+  58% {
+    opacity: 0;
+    transform: translateX(-180%) rotate(14deg);
+  }
+  66% {
+    opacity: 0.88;
+  }
+  88%,
+  100% {
+    opacity: 0;
+    transform: translateX(650%) rotate(14deg);
+  }
+}
+
+@keyframes attention-halo {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.94);
+  }
+  76%,
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
+@keyframes dj-mode-halo {
+  0% {
+    opacity: 0.68;
+    transform: scale(0.96);
+  }
+  72%,
+  100% {
+    opacity: 0;
+    transform: scale(1.24);
+  }
+}
+
+@keyframes dj-mode-aura {
+  0%,
+  100% {
+    opacity: 0.36;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.86;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes dj-mode-button-breathe {
+  0%,
+  100% {
+    filter: brightness(0.94);
+    transform: scale(0.99);
+  }
+  50% {
+    filter: brightness(1.2);
+    transform: scale(1.03);
+  }
+}
+
+@keyframes dj-mode-spark {
+  from {
+    opacity: 0.7;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.22);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-color, rgba(226, 165, 82, 0.55));
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(226, 165, 82, 0);
+  }
+}
+
+@keyframes signal-rise {
+  0% {
+    opacity: 0.35;
+    transform: translateY(3px) scaleY(0.65);
+  }
+  48% {
+    opacity: 1;
+    transform: translateY(-2px) scaleY(1.08);
+  }
+  100% {
+    opacity: 0.45;
+    transform: translateY(2px) scaleY(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

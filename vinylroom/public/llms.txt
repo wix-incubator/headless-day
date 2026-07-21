@@ -1,0 +1,33 @@
+# Vinyl Rooms
+
+> Vinyl Rooms is a website for intimate vinyl listening sessions where guests discover ticketed rooms, reserve seats through Wix Events checkout, and hosts prepare listening-room briefs.
+
+Vinyl Rooms is a public-facing booking and discovery experience at https://www.vinylroom.online. The site uses Wix Headless integrations for events, checkout, and member sign-in. Agents should treat booking and authentication flows as user-initiated actions and should not attempt checkout or account actions without explicit user intent.
+
+## Key Pages
+
+- [Home](https://www.vinylroom.online/): Main discovery page with the listening ritual hero, featured rooms, room filtering, host studio, and community content.
+- [Open a room](https://www.vinylroom.online/host.html): What a host prepares before creating a ticketed listening room in Wix Events.
+- [Host guide](https://www.vinylroom.online/host-guide.html): Practical guidance for preparing and running a listening session.
+- [Equipment tips](https://www.vinylroom.online/equipment.html): A simple turntable, signal-path, and room checklist.
+- [Host pricing](https://www.vinylroom.online/pricing.html): How hosts set capacity and per-seat pricing before publishing through Wix Events.
+- [Privacy](https://www.vinylroom.online/privacy.html): How booking, member, and browser information is handled.
+- [Terms](https://www.vinylroom.online/terms.html): Terms for using Vinyl Rooms, member features, host drafts, and Wix-hosted services.
+- [Thank you](https://www.vinylroom.online/thank-you.html): Checkout return page that shows the booked room and digital ticket sleeve when Wix returns an order identifier.
+- [Login callback](https://www.vinylroom.online/login-callback.html): Wix member authentication callback page.
+
+## Primary User Flows
+
+- [Reserve a room](https://www.vinylroom.online/#rooms): Browse available listening rooms and start the Wix Events checkout flow.
+- [Host a night](https://www.vinylroom.online/#host): Prepare a room brief with title, schedule, location, capacity, price, mood, and record crate details.
+- [How it works](https://www.vinylroom.online/#how): Explanation of the guest experience and listening-room etiquette.
+- [Instagram](https://www.instagram.com/vinylroom.online/): Vinyl Rooms updates, records, and listening-room moments.
+
+## Technical Notes
+
+- [GitHub repository](https://github.com/irakliyt/vinylroom): Source code for the Next.js static export powering the site.
+- [llms.txt proposal](https://llmstxt.org/): Format used for this machine-readable site summary.
+
+## Optional
+
+- [Wix Events](https://dev.wix.com/docs/sdk/backend-modules/events/introduction): Wix Events documentation relevant to ticketed room data and checkout.

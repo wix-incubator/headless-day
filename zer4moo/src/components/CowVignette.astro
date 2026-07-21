@@ -1,0 +1,76 @@
+---
+// A framed watercolor drawing of cute cows grazing — the hero's focal image.
+const rnd = (n: number) => { const x = Math.sin(n * 91.7) * 43758.5453; return x - Math.floor(x); };
+const GREENS = ['#6E8A57', '#5C7A47', '#82A265', '#4E6B3E'];
+const blades = Array.from({ length: 26 }, (_, i) => {
+  const x = (i / 25) * 410 - 5 + (rnd(i) - 0.5) * 14;
+  const h = 46 + rnd(i + 4) * 66;
+  const w = 4 + rnd(i + 2) * 3.5;
+  const curl = (rnd(i + 6) - 0.5) * 30;
+  const color = GREENS[i % GREENS.length];
+  const amp = (2.6 + rnd(i + 8) * 3).toFixed(1);
+  const dur = (2.6 + rnd(i + 9) * 1.8).toFixed(2);
+  const delay = ((x / 410) * 1.0 + rnd(i + 11) * 0.4).toFixed(2);
+  const tipX = x + curl;
+  const d = `M ${x.toFixed(1)},500 Q ${(x - w * 0.2 + curl * 0.5).toFixed(1)},${(500 - h * 0.6).toFixed(1)} ${tipX.toFixed(1)},${(500 - h).toFixed(1)} Q ${(x + w * 0.8 + curl * 0.5).toFixed(1)},${(500 - h * 0.55).toFixed(1)} ${(x + w).toFixed(1)},500 Z`;
+  return { d, color, amp, dur, delay };
+});
+---
+<svg class="cv" viewBox="0 0 400 500" preserveAspectRatio="xMidYMax slice" role="img" aria-label="An illustration of cute cows grazing in a wildflower meadow">
+  <defs>
+    <linearGradient id="cvSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FDFAF3" /><stop offset="60%" stop-color="#F6F2E4" /><stop offset="100%" stop-color="#E7EFD6" />
+    </linearGradient>
+    <filter id="cvSoft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="1.3" /></filter>
+    <filter id="cvSun"><feGaussianBlur stdDeviation="10" /></filter>
+    <g id="vcow">
+      <ellipse cx="26" cy="39" rx="19" ry="2.6" fill="#2E3A2B" opacity="0.16" />
+      <g fill="#556544"><rect x="12" y="21" width="4" height="17" rx="2" /><rect x="20" y="22" width="4" height="16" rx="2" /><rect x="31" y="22" width="4" height="16" rx="2" /><rect x="39" y="21" width="4" height="17" rx="2" /></g>
+      <path d="M7 15 q-4 8 1 16" stroke="#556544" stroke-width="2.4" fill="none" stroke-linecap="round" />
+      <ellipse cx="26" cy="18" rx="20" ry="12" fill="#F4EDDE" />
+      <ellipse cx="20" cy="16" rx="6.5" ry="5.5" fill="#AFC791" opacity="0.9" /><ellipse cx="33" cy="21" rx="4.5" ry="3.5" fill="#AFC791" opacity="0.85" />
+      <ellipse cx="44" cy="13" rx="8" ry="7" fill="#F4EDDE" />
+      <ellipse cx="39" cy="7" rx="3.2" ry="2.1" fill="#E7B0B5" transform="rotate(-22 39 7)" /><ellipse cx="49" cy="7" rx="3.2" ry="2.1" fill="#E7B0B5" transform="rotate(22 49 7)" />
+      <path d="M44 6 q0 -4 2 -5" stroke="#E0B15E" stroke-width="2" fill="none" stroke-linecap="round" />
+      <ellipse cx="50" cy="16" rx="4" ry="3.2" fill="#EAC7C9" /><circle cx="45" cy="12" r="1.3" fill="#3A4636" />
+    </g>
+    <g id="vcowGraze">
+      <ellipse cx="26" cy="39" rx="19" ry="2.6" fill="#2E3A2B" opacity="0.16" />
+      <g fill="#556544"><rect x="12" y="21" width="4" height="17" rx="2" /><rect x="20" y="22" width="4" height="16" rx="2" /><rect x="31" y="22" width="4" height="16" rx="2" /><rect x="39" y="22" width="4" height="16" rx="2" /></g>
+      <path d="M7 15 q-4 8 1 16" stroke="#556544" stroke-width="2.4" fill="none" stroke-linecap="round" />
+      <ellipse cx="26" cy="18" rx="20" ry="12" fill="#F4EDDE" />
+      <ellipse cx="22" cy="16" rx="6.5" ry="5.5" fill="#AFC791" opacity="0.9" /><ellipse cx="34" cy="21" rx="4.5" ry="3.5" fill="#AFC791" opacity="0.85" />
+      <path d="M43 19 q8 3 8 13" stroke="#F4EDDE" stroke-width="7.5" fill="none" stroke-linecap="round" />
+      <ellipse cx="51" cy="32" rx="6" ry="5" fill="#F4EDDE" /><ellipse cx="54" cy="35" rx="3.1" ry="2.5" fill="#EAC7C9" /><circle cx="52" cy="31" r="1.1" fill="#3A4636" />
+    </g>
+  </defs>
+
+  <rect width="400" height="500" fill="url(#cvSky)" />
+  <circle cx="320" cy="90" r="52" fill="#F1DDA6" opacity="0.6" filter="url(#cvSun)" />
+  <g fill="#FFFFFF" opacity="0.7" class="m-cloud"><ellipse cx="110" cy="80" rx="42" ry="15" /><ellipse cx="146" cy="70" rx="30" ry="12" /></g>
+
+  <g filter="url(#cvSoft)">
+    <path d="M0,250 C120,210 260,290 400,240 L400,500 L0,500 Z" fill="#CBD8B0" />
+    <path d="M0,320 C140,286 280,346 400,312 L400,500 L0,500 Z" fill="#A8C089" />
+    <path d="M0,382 C150,352 300,404 400,372 L400,500 L0,500 Z" fill="#7C9A62" />
+  </g>
+
+  <!-- wildflowers on the hills -->
+  <g>
+    <g transform="translate(120,300)"><line x1="0" y1="0" x2="0" y2="-18" stroke="#5C7A47" stroke-width="2"/><circle cx="0" cy="-20" r="5" fill="#D98FA6"/></g>
+    <g transform="translate(300,330)"><line x1="0" y1="0" x2="0" y2="-16" stroke="#5C7A47" stroke-width="2"/><circle cx="0" cy="-18" r="5" fill="#E7C15E"/></g>
+    <g transform="translate(210,352)"><line x1="0" y1="0" x2="0" y2="-15" stroke="#5C7A47" stroke-width="2"/><circle cx="0" cy="-17" r="4.5" fill="#E7A6AC"/></g>
+  </g>
+
+  <!-- grazing cows -->
+  <use href="#vcowGraze" class="m-cow" transform="translate(48,286) scale(2.7)" />
+  <use href="#vcow" class="m-cow m-cow--2" transform="translate(232,262) scale(2.0)" />
+  <use href="#vcowGraze" class="m-cow m-cow--3" transform="translate(300,330) scale(1.45)" />
+
+  <!-- foreground swaying grass -->
+  <g>
+    {blades.map((b) => (
+      <path class="blade" d={b.d} fill={b.color} style={`--a:${b.amp}deg;--t:${b.dur}s;--d:${b.delay}s`} />
+    ))}
+  </g>
+</svg>

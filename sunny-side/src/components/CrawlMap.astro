@@ -1,0 +1,195 @@
+---
+import type { Spot } from "../lib/wix";
+export interface Props {
+  cityName: string;
+  freeSpots: Spot[];
+  premiumSpots?: Spot[];
+}
+const { cityName, freeSpots, premiumSpots = [] } = Astro.props;
+
+const num = (v: unknown) => (typeof v === "number" && isFinite(v) ? v : null);
+const firstSentence = (t?: string) => {
+  if (!t) return "";
+  const m = t.match(/^[\s\S]*?[.!?](?=\s|$)/);
+  return (m ? m[0] : t).trim();
+};
+const freePins = freeSpots
+  .map((s, i) => ({
+    n: i + 1, name: s.name, lat: num(s.lat), lng: num(s.lng), locked: false,
+    order: s.order || "", blurb: firstSentence(s.blurb || s.hook), vibe: s.vibe || "", bestTime: s.bestTime || "",
+    anchor: `spot-${i}`,
+  }))
+  .filter((p) => p.lat !== null && p.lng !== null);
+const premPins = premiumSpots
+  .map((s) => ({ n: 0, name: s.name, lat: num(s.lat), lng: num(s.lng), locked: true }))
+  .filter((p) => p.lat !== null && p.lng !== null);
+
+const pins = [...freePins, ...premPins];
+const hasMap = freePins.length >= 1;
+const hasPremium = premPins.length > 0;
+const mapData = JSON.stringify({ pins, route: freePins.map((p) => [p.lat, p.lng]), city: cityName });
+---
+
+{hasMap && (
+  <section class="section" id="morning-crawl" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head" style="max-width:none;">
+        <p class="eyebrow">On the map</p>
+        <h2 style="font-size:clamp(1.7rem,4vw,2.4rem);margin-top:6px;">The morning crawl</h2>
+        <p class="muted" style="max-width:56ch;margin-top:8px;">
+          From first coffee to last bite — here's how {cityName}'s two free picks line up{hasPremium ? ", with a few more spots we've kept for Pass holders" : ""}.
+        </p>
+      </div>
+
+      <div class="crawl-map" data-map={mapData} role="img" aria-label={`Map of the morning breakfast crawl in ${cityName}`}>
+        <div class="crawl-map-fallback">
+          {freePins.map((p) => (
+            <span class="crawl-stop"><span class="crawl-num">{p.n}</span>{p.name}</span>
+          ))}
+        </div>
+      </div>
+
+      <div class="crawl-legend">
+        <span><i class="pin-dot pin-free">1</i>Free pick</span>
+        {hasPremium && <span><i class="pin-dot pin-locked"></i>Locked spot</span>}
+        <span class="muted" style="margin-left:auto;">Map data © OpenStreetMap contributors</span>
+      </div>
+    </div>
+  </section>
+)}
+
+<script is:inline>
+  (function () {
+    var maps = document.querySelectorAll(".crawl-map[data-map]");
+    if (!maps.length) return;
+
+    var leafletPromise = null;
+    function ensureLeaflet() {
+      if (window.L) return Promise.resolve();
+      if (leafletPromise) return leafletPromise;
+      leafletPromise = new Promise(function (resolve, reject) {
+        var css = document.createElement("link");
+        css.rel = "stylesheet";
+        css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        document.head.appendChild(css);
+        var js = document.createElement("script");
+        js.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        js.async = true;
+        js.onload = resolve;
+        js.onerror = reject;
+        document.head.appendChild(js);
+      });
+      return leafletPromise;
+    }
+
+    function esc(s) {
+      return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      });
+    }
+
+    function pinIcon(L, p) {
+      var visible = p.locked ? 20 : 28;
+      var cls = "map-pin" + (p.locked ? " locked" : "");
+      // 44px transparent hit area around the visible dot → comfortable mobile tap target.
+      var html = '<div class="map-pin-hit"><div class="' + cls + '">' + (p.locked ? "" : "<span>" + p.n + "</span>") + "</div></div>";
+      return L.divIcon({ className: "", html: html, iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -(visible / 2) - 4] });
+    }
+
+    function popupHtml(p, city) {
+      if (p.locked) {
+        return (
+          '<div class="crawl-pop cp-locked">' +
+          '<span class="crawl-pop-eye">🔒 Pass-holder spot</span>' +
+          "<h4>Unlock the full guide</h4>" +
+          "<p>One of six more curated " + esc(city) + " spots, saved for Pass holders.</p>" +
+          '<a class="cp-btn" href="/pass">Unlock with the Pass →</a>' +
+          "</div>"
+        );
+      }
+      var dir = "https://www.google.com/maps/dir/?api=1&destination=" + p.lat + "," + p.lng;
+      return (
+        '<div class="crawl-pop">' +
+        '<span class="crawl-pop-eye">Stop ' + p.n + "</span>" +
+        "<h4>" + esc(p.name) + "</h4>" +
+        (p.order ? '<div class="crawl-pop-order"><span>Order the</span> ' + esc(p.order) + "</div>" : "") +
+        (p.blurb ? "<p>" + esc(p.blurb) + "</p>" : "") +
+        '<div class="crawl-pop-tags">' +
+        (p.vibe ? '<span class="cp-tag">☀ ' + esc(p.vibe) + "</span>" : "") +
+        (p.bestTime ? '<span class="cp-tag cp-time">◷ ' + esc(p.bestTime) + "</span>" : "") +
+        "</div>" +
+        '<div class="crawl-pop-links">' +
+        '<a class="cp-dir" target="_blank" rel="noopener" href="' + dir + '">Get directions →</a>' +
+        (p.anchor ? '<a class="cp-more" href="#' + esc(p.anchor) + '">Read more</a>' : "") +
+        "</div>" +
+        "</div>"
+      );
+    }
+
+    function initMap(el) {
+      var data;
+      try { data = JSON.parse(el.getAttribute("data-map")); } catch (e) { return; }
+      if (!data || !data.pins || !data.pins.length) return;
+      el.innerHTML = "";
+      var L = window.L;
+      var map = L.map(el, { scrollWheelZoom: false, zoomControl: true, attributionControl: true });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      // The two free picks define the frame (route = free-pick coords, in order).
+      var route = (data.route || []).slice();
+      var cLat = 0, cLng = 0;
+      route.forEach(function (r) { cLat += r[0]; cLng += r[1]; });
+      if (route.length) { cLat /= route.length; cLng /= route.length; }
+      // How far the free picks sit from their centroid — used to keep locked pins nearby.
+      var span = 0;
+      route.forEach(function (r) {
+        var d = Math.sqrt(Math.pow(r[0] - cLat, 2) + Math.pow(r[1] - cLng, 2));
+        if (d > span) span = d;
+      });
+      var maxR = Math.max(span * 0.9, 0.006);
+      var ring = [[0.004, 0.006], [-0.005, 0.004], [0.006, -0.004], [-0.004, -0.006], [0.005, 0.002], [-0.002, 0.006], [0.003, -0.006], [-0.006, -0.001]];
+      var ri = 0;
+
+      data.pins.forEach(function (p) {
+        var lat = p.lat, lng = p.lng;
+        // Locked pins that lack a real (nearby) coordinate get pulled into the cluster
+        // so they show as teasers — but they never affect the map bounds.
+        if (p.locked && route.length) {
+          var dist = Math.sqrt(Math.pow(lat - cLat, 2) + Math.pow(lng - cLng, 2));
+          if (dist > maxR) { var o = ring[ri % ring.length]; lat = cLat + o[0]; lng = cLng + o[1]; }
+          ri++;
+        }
+        L.marker([lat, lng], { icon: pinIcon(L, p), title: p.name, keyboard: false, riseOnHover: true })
+          .addTo(map)
+          .bindPopup(popupHtml(p, data.city), { maxWidth: 266, minWidth: 214, className: "crawl-popup", autoPanPadding: [18, 18] });
+      });
+
+      if (route.length >= 2) {
+        L.polyline(route, { color: "#C15F3C", weight: 3, opacity: 0.9, dashArray: "6 9" }).addTo(map);
+        // Frame ONLY the two free picks, with modest padding and a capped zoom.
+        map.fitBounds(L.latLngBounds(route), { padding: [52, 52], maxZoom: 15 });
+      } else if (route.length === 1) {
+        map.setView(route[0], 14);
+      } else {
+        map.fitBounds(L.latLngBounds(data.pins.map(function (p) { return [p.lat, p.lng]; })), { maxZoom: 14 });
+      }
+      setTimeout(function () { map.invalidateSize(); }, 200);
+    }
+
+    var io = new IntersectionObserver(
+      function (entries, obs) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          obs.unobserve(e.target);
+          var el = e.target;
+          ensureLeaflet().then(function () { initMap(el); }).catch(function () { /* leave fallback */ });
+        });
+      },
+      { rootMargin: "300px 0px" }
+    );
+    maps.forEach(function (m) { io.observe(m); });
+  })();
+</script>

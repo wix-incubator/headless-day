@@ -1,0 +1,56 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCrawlServices, getCities, imgSrc } from "../lib/wix";
+
+const [crawls, cities] = await Promise.all([getCrawlServices(), getCities()]);
+const cityBySlug = Object.fromEntries(cities.map((c) => [c.slug, c]));
+---
+
+<Layout
+  title="Guided Breakfast Crawls — Sunny Side"
+  description="Book a guided 3-hour breakfast crawl with a local host in any of our seven cities — from Tel Aviv's White City to São Paulo's Vila Madalena."
+>
+  <section class="section-sm" style="padding-top:56px;">
+    <div class="wrap">
+      <p class="eyebrow">Do it with us</p>
+      <h1 style="font-size:clamp(2.4rem,6vw,3.6rem);margin:10px 0 14px;max-width:20ch;">Guided breakfast crawls</h1>
+      <p class="muted" style="max-width:54ch;font-size:1.1rem;">
+        Three hours, one local host, and the best morning a city can offer. Reserve your crawl below — pay on the day.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:16px;">
+    <div class="wrap">
+      {crawls.length ? (
+        <div class="grid grid-3">
+          {crawls.map((cr, i) => {
+            const city = cityBySlug[cr.citySlug];
+            const url = imgSrc(city?.heroImage, 800, 560);
+            const hours = Math.round((cr.durationMin / 60) * 10) / 10;
+            return (
+              <article class="card reveal" style={`transition-delay:${(i % 3) * 60}ms`}>
+                <div class="card-media">
+                  {url
+                    ? <img src={url} alt={`Guided breakfast crawl in ${city?.name ?? ""}`} loading="lazy" width="800" height="560" />
+                    : <div class="tile"><span class="tile-label">{cr.name}</span></div>}
+                </div>
+                <div style="padding:20px 22px 24px;display:flex;flex-direction:column;flex:1;">
+                  <p class="eyebrow" style="font-size:11px;">{city?.country ?? "Wix city"} · {cr.formatted}{cr.price ? " · pay on the day" : ""}</p>
+                  <h2 style="font-size:1.4rem;margin:6px 0 8px;font-family:var(--serif);">{cr.name}</h2>
+                  <p class="muted" style="font-size:14.5px;line-height:1.5;">{cr.tagLine}</p>
+                  <div class="crawl-card-foot">
+                    <span class="muted" style="font-size:14px;">◷ {hours} hours</span>
+                    <a class="btn btn-primary" href={`/cities/${cr.citySlug}#book-crawl`}>Book the crawl →</a>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      ) : (
+        <div class="center" style="padding:60px 0;"><p class="muted">Guided crawls are loading — check back in a moment.</p></div>
+      )}
+    </div>
+  </section>
+</Layout>

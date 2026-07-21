@@ -1,0 +1,44 @@
+---
+---
+
+<section class="relative w-full overflow-hidden bg-neutral-950 text-white">
+  <!-- Decorative bead row background -->
+  <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none" aria-hidden="true">
+    <div class="flex flex-wrap gap-4 scale-[3] rotate-12">
+      {["#f43f5e","#ec4899","#a78bfa","#38bdf8","#14b8a6","#fbbf24","#fb923c","#d946ef","#86efac","#fde68a","#7c3aed","#6ee7b7","#f43f5e","#ec4899","#a78bfa","#38bdf8","#14b8a6","#fbbf24","#fb923c","#d946ef"].map((hex) => (
+        <span class="w-8 h-8 rounded-full flex-shrink-0" style={`background:${hex}`}></span>
+      ))}
+    </div>
+  </div>
+
+  <div class="relative z-10 mx-auto flex min-h-[78svh] w-full max-w-4xl flex-col items-center justify-center px-4 py-20 text-center">
+    <h1 class="font-display text-5xl font-medium leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
+      Build a bracelet<br /><em class="italic text-rose-400">that's&nbsp;yours.</em>
+    </h1>
+    <p class="mt-6 max-w-lg text-base text-white/70 md:text-lg leading-relaxed">
+      Choose your style, pick your colors, add a personal touch. Every bracelet is made to order, exactly the way you designed it.
+    </p>
+
+    <!-- Live bead preview strip -->
+    <div class="mt-10 flex gap-2 items-center justify-center flex-wrap max-w-xs" id="hero-beads" aria-hidden="true">
+      {["#f43f5e","#ec4899","#a78bfa","#f43f5e","#ec4899","#a78bfa","#f43f5e","#ec4899","#a78bfa","#f43f5e","#ec4899","#a78bfa"].map((hex) => (
+        <span class="w-5 h-5 rounded-full flex-shrink-0 opacity-90" style={`background:${hex}`}></span>
+      ))}
+    </div>
+
+    <div class="mt-10 flex items-center gap-4">
+      <a
+        href="/build"
+        class="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-neutral-200"
+      >
+        Start building
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 transition group-hover:translate-x-1">
+          <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="#how-it-works" class="inline-flex items-center rounded-full border border-white/30 px-7 py-3.5 text-sm font-medium text-white transition hover:bg-white/10">
+        How it works
+      </a>
+    </div>
+  </div>
+</section>

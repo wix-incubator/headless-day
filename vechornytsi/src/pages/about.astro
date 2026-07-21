@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getStory } from "../lib/content";
+import { SCENES, sized } from "../lib/media";
+
+const story = await getStory();
+const paragraphs = (story?.body ?? "").split(/\n\n+/).filter(Boolean);
+---
+
+<Layout
+  title="The Table"
+  description="The origin of Vechornytsi — a derelict Dnipro boathouse, a five-metre oak table salvaged from a fishing vessel, and a chef who cooks only what she forages that week."
+>
+  {/* Hero band */}
+  <section class="max-w-6xl mx-auto px-6 pt-20 md:pt-28 pb-10">
+    <div class="max-w-[52rem] reveal">
+      <span class="kicker">The Table</span>
+      <h1 class="font-display text-4xl md:text-6xl leading-[1.05] mt-4">{story?.heading ?? "The table does the work"}</h1>
+    </div>
+  </section>
+
+  {/* Full-bleed image */}
+  <section class="max-w-6xl mx-auto px-6">
+    <img src={sized(SCENES.aboutRoom, 1240, 620)} alt="The twelve-seat oak table set for dinner with stoneware and lit candles inside the empty boathouse" class="rounded-md shutter w-full object-cover" style="aspect-ratio: 2/1;" width="1240" height="620" loading="lazy" />
+  </section>
+
+  {/* Story body */}
+  <section class="max-w-6xl mx-auto px-6 py-16 md:py-24">
+    <div class="container-reading flex flex-col gap-6 reveal">
+      {paragraphs.length > 0
+        ? paragraphs.map((p) => <p class="text-lg leading-relaxed text-ink">{p}</p>)
+        : <p class="text-lg leading-relaxed text-ink">The story of the table is being set.</p>}
+    </div>
+  </section>
+
+  {/* The three fixtures */}
+  <section class="bg-paper-warm border-y border-rule">
+    <div class="max-w-6xl mx-auto px-6 py-16 md:py-20 grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div class="reveal">
+        <p class="font-display text-5xl text-ink-soft">2019</p>
+        <h3 class="font-display text-xl mt-2">The boathouse</h3>
+        <p class="text-mute mt-2 leading-relaxed">A derelict frame on the wharf, stripped to its bones and left mostly as it was found.</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-5xl text-ink-soft">5m</p>
+        <h3 class="font-display text-xl mt-2">The oak table</h3>
+        <p class="text-mute mt-2 leading-relaxed">Salvaged from a decommissioned fishing vessel, ringed by twelve mismatched chairs.</p>
+      </div>
+      <div class="reveal">
+        <p class="font-display text-5xl text-ink-soft">7</p>
+        <h3 class="font-display text-xl mt-2">The courses</h3>
+        <p class="text-mute mt-2 leading-relaxed">Told to the table as they are set down. No menu card, no announcements.</p>
+      </div>
+    </div>
+  </section>
+
+  {/* CTA */}
+  <section class="max-w-6xl mx-auto px-6 py-16 md:py-24 text-center flex flex-col items-center gap-6 reveal">
+    <h2 class="font-display text-3xl md:text-4xl max-w-[36rem]">See what the chef is foraging this week</h2>
+    <div class="flex flex-wrap gap-3 justify-center">
+      <a href="/events" class="btn-primary">See upcoming menus</a>
+      <a href="/products" class="btn-ghost">Browse the shop</a>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,16 @@
+---
+import CartBadge from './react/CartBadge.tsx';
+---
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/">ZER<span>4</span>MOO</a>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-links">
+        <a href="/herd">The Herd</a>
+        <a href="/about">About</a>
+      </div>
+      <CartBadge client:only="react" />
+      <a class="btn btn-primary" href="/shop">Build a bouquet</a>
+    </nav>
+  </div>
+</header>

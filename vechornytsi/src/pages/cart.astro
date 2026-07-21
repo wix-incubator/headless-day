@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CartView from "../components/CartView.tsx";
+import CurrencyTip from "../components/CurrencyTip.astro";
+---
+
+<Layout title="Basket" description="Review the pieces you have set aside before checkout.">
+  <section class="py-16 md:py-24">
+    <div class="max-w-6xl mx-auto px-6">
+      <header class="flex flex-col gap-3 mb-12">
+        <hr class="editorial-rule w-16 ml-0" />
+        <h1 class="font-display text-4xl md:text-5xl leading-tight">Your basket</h1>
+        <p class="text-mute max-w-prose">
+          The pieces you have set aside. Adjust quantities or remove anything before checkout.
+        </p>
+      </header>
+      <CartView client:load />
+
+      <CurrencyTip class="mt-8" />
+    </div>
+  </section>
+</Layout>

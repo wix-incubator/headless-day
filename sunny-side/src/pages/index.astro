@@ -1,0 +1,108 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCities, getPass, imgSrc } from "../lib/wix";
+import siteImages from "../data/site-images.json";
+
+const [cities, pass] = await Promise.all([getCities(), getPass()]);
+const price = pass?.formatted ?? "€9";
+const heroUrl = siteImages.home ? imgSrc(siteImages.home, 1600, 900) : "";
+---
+
+<Layout ogImage={heroUrl || undefined}>
+  <!-- HERO -->
+  <section class="hero" style="min-height:clamp(560px,86vh,760px);display:flex;align-items:center;">
+    <div class="hero-media">
+      {heroUrl
+        ? <img src={heroUrl} alt="A sunlit breakfast spread of eggs, coffee, pastries and fruit" fetchpriority="high" width="1600" height="900" />
+        : <div class="hero-block-fallback"></div>}
+    </div>
+    <div class="wrap" style="position:relative;z-index:1;color:#fff;padding-top:60px;padding-bottom:60px;">
+      <p class="eyebrow" style="color:var(--yolk);">Breakfast, city by city</p>
+      <h1 style="color:#fff;font-size:clamp(3rem,8vw,5.6rem);margin:14px 0 18px;max-width:16ch;">Sunny Side</h1>
+      <p style="font-size:clamp(1.1rem,2.4vw,1.5rem);max-width:44ch;color:rgba(255,255,255,0.94);">
+        A warm editorial guide to the best breakfast spots in the cities where Wix has offices — from Tel Aviv to São Paulo.
+      </p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:30px;">
+        <a class="btn btn-primary btn-lg" href="/cities">Explore the cities</a>
+        <a class="btn btn-lg" href="/pass" style="background:rgba(255,255,255,0.14);color:#fff;border-color:rgba(255,255,255,0.55);backdrop-filter:blur(4px);">Get the Pass — {price}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT -->
+  <section class="section-sm">
+    <div class="wrap-narrow center reveal">
+      <p class="pullquote">
+        Seven cities. Countless mornings. Every guide starts with <span style="color:var(--terracotta);">two free picks</span> — unlock the full crawl with a single <a href="/pass" style="color:var(--terracotta);text-decoration:underline;text-underline-offset:3px;">All-Access Pass</a>.
+      </p>
+    </div>
+    <div class="wrap" style="margin-top:44px;">
+      <div class="stats reveal">
+        <div class="stat"><span class="num">7</span><span class="label">Cities</span></div>
+        <div class="stat"><span class="num">14</span><span class="label">Free picks</span></div>
+        <div class="stat"><span class="num">1</span><span class="label">Pass, forever</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED CITIES STRIP -->
+  <section class="section" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;max-width:none;">
+        <div>
+          <p class="eyebrow">The cities</p>
+          <h2 style="font-size:clamp(2rem,4.5vw,2.8rem);margin-top:8px;">Where we eat breakfast</h2>
+        </div>
+        <a class="btn btn-secondary" href="/cities" style="flex:0 0 auto;">View all seven</a>
+      </div>
+
+      <div class="grid grid-3">
+        {cities.map((city, i) => {
+          const url = imgSrc(city.heroImage, 800, 560);
+          return (
+            <a href={`/cities/${city.slug}`} class="card reveal" style={`transition-delay:${(i % 3) * 60}ms`} aria-label={`${city.name} breakfast guide`}>
+              <div class="card-media">
+                {url
+                  ? <img src={url} alt={`Breakfast in ${city.name}`} loading="lazy" width="800" height="560" />
+                  : <div class="tile"><span class="tile-label">{city.name}</span></div>}
+              </div>
+              <div style="padding:20px 22px 24px;">
+                <p class="eyebrow" style="font-size:11px;">{city.country}</p>
+                <h3 style="font-size:1.5rem;margin:6px 0 8px;">{city.name}</h3>
+                <p class="muted" style="font-size:14.5px;line-height:1.5;">{city.intro.length > 92 ? city.intro.slice(0, 92) + "…" : city.intro}</p>
+                <span style="display:inline-block;margin-top:14px;color:var(--terracotta);font-weight:600;font-size:14px;">View guide →</span>
+              </div>
+            </a>
+          );
+        })}
+        {cities.length === 0 && (
+          <p class="muted">Cities are loading — check back in a moment.</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- PASS OFFER BAND -->
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="band reveal two-col">
+        <div>
+          <p class="eyebrow" style="color:var(--yolk);">The All-Access Pass</p>
+          <h2 style="color:var(--cream);font-size:clamp(1.9rem,4vw,2.7rem);margin:10px 0 14px;">One pass. Every full guide.</h2>
+          <p style="color:rgba(251,246,239,0.85);max-width:46ch;">
+            Unlock all seven full city guides, every curated spot, the morning crawl routes, and the downloadable Breakfast Passport. One payment, yours forever.
+          </p>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:24px;align-items:center;">
+            <button class="btn btn-primary btn-lg" data-buy>Get the Pass — {price}</button>
+            <a class="btn btn-lg" href="/pass" style="background:transparent;color:var(--cream);border-color:rgba(251,246,239,0.4);">What's inside</a>
+          </div>
+          <p id="buy-error" role="alert" hidden style="color:var(--yolk);margin-top:14px;font-size:14px;"></p>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--serif);font-size:clamp(3.4rem,10vw,5rem);color:var(--yolk);line-height:1;">{price}</div>
+          <p style="color:rgba(251,246,239,0.7);margin-top:6px;">one-time · yours forever</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,67 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="site-footer" transition:persist="site-footer">
+  <div class="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+    {/* 1 · Brand + contact */}
+    <div class="flex flex-col gap-3 max-w-prose">
+      <span class="font-display text-xl text-ink">Vechornytsi</span>
+      <p class="text-sm">One table. Seven courses. Every Friday at seven.</p>
+      <address class="not-italic text-sm mt-2 leading-relaxed">
+        Beresteiskyi Ave, 5<br />
+        02000 Kyiv, Ukraine
+      </address>
+      <p class="text-sm">
+        <a href="mailto:tanyazavodenko188@gmail.com" class="hover:text-accent">tanyazavodenko188@gmail.com</a><br />
+        <a href="tel:+380934944068" class="hover:text-accent">+38 093 494 40 68</a>
+      </p>
+    </div>
+
+    {/* 2 · Navigation */}
+    <nav>
+      <p class="kicker mb-3">Explore</p>
+      <ul class="flex flex-col gap-2 text-sm">
+        <li><a href="/" class="hover:text-accent">Home</a></li>
+        <li><a href="/about" class="hover:text-accent">The Table</a></li>
+        <li><a href="/events" class="hover:text-accent">Upcoming Dinners</a></li>
+        <li><a href="/products" class="hover:text-accent">Shop</a></li>
+        <li><a href="/cart" class="hover:text-accent">Cart</a></li>
+        <li><a href="/account" class="hover:text-accent">My Account</a></li>
+        <li><a href="/contact" class="hover:text-accent">Contact</a></li>
+      </ul>
+    </nav>
+
+    {/* 3 · Social */}
+    <div>
+      <p class="kicker mb-3">Follow</p>
+      <ul class="flex flex-col gap-2 text-sm">
+        <li>
+          <a href="https://instagram.com/zavodos" target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-accent">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>
+            @zavodos
+          </a>
+        </li>
+        <li>
+          <a href="https://facebook.com/zavodos" target="_blank" rel="noopener" class="inline-flex items-center gap-2 hover:text-accent">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v6h4v-6h3l1-4h-4V8a1 1 0 0 1 1-1z"/></svg>
+            @zavodos
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    {/* 4 · Legal */}
+    <div>
+      <p class="kicker mb-3">Legal</p>
+      <ul class="flex flex-col gap-2 text-sm">
+        <li><a href="/privacy" class="hover:text-accent">Privacy Policy</a></li>
+        <li><a href="/terms" class="hover:text-accent">Terms &amp; Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-6 pb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs border-t border-rule pt-6">
+    <p>© {year} Zavodenko Tetiana</p>
+    <a href="https://www.wix.com/lp-en/headless" target="_blank" rel="noopener" class="hover:text-accent">Powered by Wix Headless</a>
+  </div>
+</footer>

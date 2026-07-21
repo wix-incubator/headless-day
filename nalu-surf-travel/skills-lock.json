@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "wix-app": {
+      "source": "/Users/giladi/Documents/repos/birdie-breaks/node_modules/@wix/agent-skills",
+      "sourceType": "local",
+      "computedHash": "61e9edb397667617e974a1565d9081e48ed64c990f75c7e09029d9ad1ba44d69"
+    },
+    "wix-design-system": {
+      "source": "/Users/giladi/Documents/repos/birdie-breaks/node_modules/@wix/agent-skills",
+      "sourceType": "local",
+      "computedHash": "bee87f4486050e11eec2b914f67f2535462c7e29d25f110d72740b617f556bd8"
+    },
+    "wix-headless": {
+      "source": "/Users/giladi/Documents/repos/birdie-breaks/node_modules/@wix/agent-skills",
+      "sourceType": "local",
+      "computedHash": "9bfbcf1cdd72371ca509e10722579fed4d70a730e0c36efbcd0c3ee4dcbf706a"
+    },
+    "wix-manage": {
+      "source": "/Users/giladi/Documents/repos/birdie-breaks/node_modules/@wix/agent-skills",
+      "sourceType": "local",
+      "computedHash": "077ff6a75dfed9e095b8ee22724589330971607d31a9571cccd36b293d5a2a13"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+import { createClient } from '@wix/sdk';
+import { productsV3 } from '@wix/stores';
+const auth = { getAuthHeaders: async () => ({ headers: { Authorization: process.env.TOKEN, 'wix-site-id': process.env.SITE_ID } }) };
+const client = createClient({ modules: { productsV3 }, auth });
+const r = await client.productsV3.getProduct('b871045d-ebb2-468d-bfa9-77a7c8a5c3ad');
+console.log('top-level keys:', Object.keys(r));
+console.log('r.id?', r.id, '| r.product?', typeof r.product);
+console.log('revision:', r.revision || r.product?.revision);
+const p = r.product || r;
+console.log('variantsInfo variants:', JSON.stringify(p.variantsInfo?.variants?.map(v=>({id:v.id,price:v.price,inv:v.inventoryStatus})),null,1));

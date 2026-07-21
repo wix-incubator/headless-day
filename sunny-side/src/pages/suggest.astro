@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SuggestSpotForm from "../components/SuggestSpotForm.astro";
+---
+
+<Layout
+  title="Suggest a Spot — Sunny Side"
+  description="Know a great breakfast spot in one of our seven cities? Tell us where — the best tips come from people who actually eat there."
+>
+  <section class="section-sm" style="padding-top:56px;padding-bottom:0;">
+    <div class="wrap-narrow center">
+      <p class="eyebrow" style="justify-content:center;">Help us map breakfast</p>
+      <h1 style="font-size:clamp(2.2rem,5.5vw,3.2rem);margin:10px 0 12px;">Suggest a spot</h1>
+      <p class="muted" style="font-size:1.1rem;">Sunny Side gets better with local knowledge. If we missed somewhere worth a morning, point us to it.</p>
+    </div>
+  </section>
+
+  <SuggestSpotForm />
+</Layout>

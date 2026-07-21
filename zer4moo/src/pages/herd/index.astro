@@ -1,0 +1,52 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import RibbonRule from '../../components/RibbonRule.astro';
+import CowCard from '../../components/CowCard.astro';
+import HerdLeaderboard from '../../components/react/HerdLeaderboard.tsx';
+import { getCows, imgSrc } from '../../lib/cms';
+import { SITE } from '../../lib/site';
+
+const cows = await getCows();
+
+const itemListLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'The ZER4MOO Herd',
+  numberOfItems: cows.length,
+  itemListElement: cows.map((c, i) => ({
+    '@type': 'ListItem', position: i + 1,
+    url: `${SITE.url}/herd/${c.slug}`, name: c.name,
+  })),
+};
+
+const leaderboardCows = cows.map((c) => ({ name: c.name, slug: c.slug, mood: c.mood, portrait: imgSrc(c.portrait, 80, 80) }));
+---
+<Layout title="The Herd" path="/herd" description="Meet every cow in the ZER4MOO herd — bios, portraits, and taste profiles — and see who’s currently the most spoiled." jsonLd={itemListLd}>
+  <section class="section--tight">
+    <div class="container">
+      <p class="eyebrow">Real cows · real portraits</p>
+      <h1 class="display-2">The Herd</h1>
+      <RibbonRule />
+      <p class="lead measure">Every cow is photographed by us, bio’d by us, and — we say this with love — a little spoiled. Find the one who deserves a bouquet today.</p>
+    </div>
+  </section>
+
+  <section style="padding-bottom:clamp(2.5rem,6vw,4.5rem);">
+    <div class="container">
+      <div class="grid grid-4">
+        {cows.map((cow, i) => <CowCard cow={cow} eager={i < 4} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Bonus: Herd Leaderboard -->
+  <section id="leaderboard" class="section" style="background:var(--color-surface);scroll-margin-top:80px;">
+    <div class="container">
+      <p class="eyebrow">The Herd Leaderboard</p>
+      <h2 class="display-2">Who’s the most spoiled?</h2>
+      <RibbonRule />
+      <p class="lead measure" style="margin-bottom:2rem;">Bouquets received, this month’s most-gifted greens, and the herd’s Contentment Index. Buttercup is usually winning. Buttercup is always winning.</p>
+      <HerdLeaderboard client:visible cows={leaderboardCows} />
+    </div>
+  </section>
+</Layout>
