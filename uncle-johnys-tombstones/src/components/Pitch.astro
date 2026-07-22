@@ -1,0 +1,89 @@
+---
+// The closing pitch — a wry appeal to the reader's sense of legacy, leading
+// straight into the shop.
+---
+
+<section class="pitch" aria-labelledby="pitch-title">
+	<div class="inner">
+		<h2 id="pitch-title" class="headline">
+			Ever wondered how to be useful to your relatives after your death? Want to
+			save something meaningful after yourself? Select one of our tombstones and
+			you will leave a <span class="accent">major sign</span>!
+		</h2>
+		<a class="cta" href="/shop" data-evt="CTA: Select Tombstone (Pitch)"
+			>Select your tombstone</a
+		>
+	</div>
+</section>
+
+<style>
+	.pitch {
+		position: relative;
+		padding: clamp(4rem, 11vh, 8rem) 1.25rem;
+		display: flex;
+		justify-content: center;
+		text-align: center;
+		background:
+			radial-gradient(
+				120% 120% at 50% 0%,
+				var(--twilight-bottom) 0%,
+				var(--color-bg) 55%,
+				var(--color-void) 100%
+			);
+	}
+
+	.inner {
+		width: 100%;
+		max-width: 900px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: clamp(2rem, 5vh, 3rem);
+	}
+
+	.headline {
+		margin: 0;
+		/* creepy Eater face (ships at weight 400), 25% smaller than before */
+		font-family: var(--font-creepy);
+		font-weight: 400;
+		font-size: clamp(1.275rem, 3.15vw, 2.175rem);
+		line-height: 1.22;
+		color: var(--text-primary);
+		text-wrap: balance;
+	}
+
+	.accent {
+		color: var(--color-accent-bright);
+		text-shadow: 0 0 26px var(--color-accent-glow);
+	}
+
+	/* toxic-neon call to action — the site's primary action colour */
+	.cta {
+		display: inline-block;
+		padding: 0.85em 2.1em;
+		font-family: var(--font-display);
+		font-weight: 600;
+		font-size: clamp(1rem, 2.2vw, 1.2rem);
+		letter-spacing: 0.02em;
+		text-decoration: none;
+		color: var(--color-ink);
+		background: var(--color-toxic);
+		border-radius: 999px;
+		box-shadow: 0 0 30px var(--color-toxic-glow);
+		transition:
+			transform 0.18s ease,
+			background 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.cta:hover {
+		background: var(--color-toxic-bright);
+		transform: translateY(-2px);
+		box-shadow: 0 0 42px var(--color-toxic-glow);
+	}
+
+	.cta:focus-visible {
+		outline: 2px solid var(--color-toxic-bright);
+		outline-offset: 4px;
+	}
+</style>

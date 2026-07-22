@@ -1,0 +1,732 @@
+---
+// First screen: Uncle Johny's arrival plays out as an ordered sequence —
+// (1) he greets you, typed out letter by letter; (2) the man himself (with
+// his arched store name and halo) appears; (3) his introduction and the
+// speech below fade in. A small inline script drives the steps in turn so
+// each waits for the one before it, instead of racing independent delays.
+---
+
+<section class="hero" aria-label="Welcome from Uncle Johny">
+	<img
+		class="moon"
+		src="/moon.webp"
+		width="1024"
+		height="1024"
+		alt=""
+		aria-hidden="true"
+		loading="lazy"
+		decoding="async"
+	/>
+	<div class="tree" aria-hidden="true"></div>
+	<div class="glow" aria-hidden="true"></div>
+
+	<!-- a bat sweeps across the twilight, right to left, once every 5s -->
+	<img
+		class="bat"
+		src="/bat.webp"
+		width="890"
+		height="458"
+		alt=""
+		aria-hidden="true"
+		loading="lazy"
+		decoding="async"
+	/>
+
+	<div class="stage">
+		<!-- left half: Uncle Johny's speech -->
+		<div class="text-col">
+			<!-- <header class="wordmark">Uncle Johny&rsquo;s Tombstones</header> -->
+			<p class="greeting">Hello, dear friend!</p>
+			<script is:inline>
+				(function () {
+					function runHero() {
+						// Look the hero up directly rather than via
+						// document.currentScript: under client-side routing this
+						// runs from astro:page-load where currentScript is null.
+						var hero = document.querySelector(".hero");
+						if (!hero || hero.dataset.heroInit === "1") return;
+						var greeting = hero.querySelector(".greeting");
+						if (!greeting) return;
+						hero.dataset.heroInit = "1"; // one run per hero instance
+
+						var full = greeting.textContent.trim();
+						var reduce = window.matchMedia(
+							"(prefers-reduced-motion: reduce)"
+						).matches;
+
+						// reduced motion: skip the typewriter, show scene at rest
+						if (reduce) {
+							greeting.textContent = full;
+							hero.classList.add("reveal-figure", "reveal-text");
+							return;
+						}
+
+						// clear synchronously (before first paint) so the greeting
+						// never flashes, then type it one letter at a time
+						greeting.textContent = "";
+						greeting.classList.add("typing");
+
+						var i = 0;
+						function type() {
+							i += 1;
+							greeting.textContent = full.slice(0, i);
+							if (i < full.length) {
+								setTimeout(type, 55);
+								return;
+							}
+							// 1. greeting is fully typed
+							greeting.classList.remove("typing");
+							greeting.classList.add("done");
+							// 2. the man himself (portrait + title + halo) appears
+							setTimeout(function () {
+								hero.classList.add("reveal-figure");
+								// 3. his introduction and the speech fade in
+								setTimeout(function () {
+									hero.classList.add("reveal-text");
+								}, 650);
+							}, 350);
+						}
+						setTimeout(type, 420);
+					}
+
+					// Run now for the initial parser-driven load (clears the
+					// greeting before first paint). Also run after every
+					// client-side navigation: the ClientRouter swaps in a fresh
+					// hero and fires astro:page-load. Bind that listener once;
+					// the per-hero data flag stops the two triggers from
+					// double-starting the same instance.
+					runHero();
+					if (!window.__ujHeroBound) {
+						window.__ujHeroBound = true;
+						document.addEventListener("astro:page-load", runHero);
+					}
+				})();
+			</script>
+
+			<p class="line line-1">I&rsquo;m <span class="name">Uncle Johny</span>. I&rsquo;ll take care of you after you <span class="die">die</span></p>
+		</div>
+
+		<!-- right half: the man himself -->
+		<div class="figure-col">
+			<h1 class="store-title" aria-label="Uncle Johny&rsquo;s Tombstones">
+				<!-- text bent along the top half of a circle (semicircle arch) -->
+				<svg
+					class="store-title__svg"
+					viewBox="0 0 620 360"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<defs>
+						<path
+							id="storeArc"
+							fill="none"
+							d="M 30 320 A 280 280 0 0 1 590 320"
+						></path>
+					</defs>
+					<text text-anchor="middle">
+						<textPath
+							href="#storeArc"
+							startOffset="50%"
+							textLength="840"
+							lengthAdjust="spacingAndGlyphs"
+							>UNCLE JOHNY&rsquo;S TOMBSTONES</textPath
+						>
+					</text>
+				</svg>
+			</h1>
+			<img
+				class="character"
+				src="/uncle-johny.webp"
+				width="1024"
+				height="1024"
+				alt="Uncle Johny, a kindly old undertaker in a sage apron, holding a carved stone heart"
+				fetchpriority="high"
+			/>
+		</div>
+	</div>
+
+	<!-- below the stage: the closing line and the call to action, one row -->
+	<div class="outro">
+		<p class="line line-3">Select your tombstone, and I&rsquo;ll handle the rest.</p>
+		<a class="cta" href="/shop" data-evt="CTA: Select Tombstone"
+			>Select your tombstone</a
+		>
+	</div>
+
+	<div class="scroll-cue" aria-hidden="true">
+		<span>Scroll</span>
+		<span class="chevron"></span>
+	</div>
+</section>
+
+<style>
+	.hero {
+		position: relative;
+		min-height: 100svh;
+		width: 100%;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: clamp(2rem, 5vh, 5rem) 1.25rem;
+		/* twilight sky darkening to void — drawn from the portrait */
+		background:
+			radial-gradient(
+				125% 90% at 50% 12%,
+				var(--twilight-top) 0%,
+				var(--color-bg) 52%,
+				var(--color-void) 100%
+			);
+	}
+
+	/* watercolour moon hanging in the top-right of the twilight sky.
+	   the art already carries its own dark sky + halo, so `screen`
+	   blending melts that backdrop into the page while the bright disc
+	   and glow show through; a soft mask fades the square's corners. */
+	.moon {
+		position: absolute;
+		top: clamp(3rem, 6vw, 5rem);
+		right: clamp(10rem, 0vw, 1rem);
+		z-index: 0;
+		width: clamp(65px, 12vw, 150px);
+		height: auto;
+		mix-blend-mode: screen;
+		-webkit-mask-image: radial-gradient(
+			circle at 50% 50%,
+			#000 55%,
+			transparent 80%
+		);
+		mask-image: radial-gradient(circle at 50% 50%,#000 33%,transparent 60%);
+		/* faint warm halo so the disc sits in the sky, not on top of it */
+		filter: drop-shadow(0 0 26px rgba(245, 230, 200, 0.18));
+		opacity: 0.55;
+		pointer-events: none;
+	}
+
+	/* dead tree standing behind Uncle Johny. the source PNG is a solid black
+	   silhouette, so instead of drawing it directly (its trunk would vanish
+	   into the void) we use it as a mask and paint the shape with a cool
+	   gradient — lighter up in the twilight, sinking into shadow at the roots. */
+	.tree {
+		position: absolute;
+		left: 0%;
+		bottom: -6%;
+		transform: translateX(-50%);
+		z-index: 0;
+		width: min(125vw, 1050px);
+		aspect-ratio: 1 / 1;
+		background: linear-gradient(
+			to bottom,
+			#3b414d 0%,
+			#292e37 55%,
+			#171a20 100%
+		);
+		-webkit-mask-image: url("/tree.webp");
+		mask-image: url("/tree.webp");
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+		-webkit-mask-position: center bottom;
+		mask-position: center bottom;
+		-webkit-mask-size: contain;
+		mask-size: contain;
+		opacity: 0.6;
+		pointer-events: none;
+	}
+
+	/* creepy Eater wordmark, pinned to the top as the brand mark */
+	.wordmark {
+		position: absolute;
+		top: clamp(1.1rem, 3.5vh, 2.2rem);
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 2;
+		font-family: var(--font-creepy);
+		font-size: clamp(1.05rem, 2.6vw, 1.7rem);
+		font-weight: 400;
+		letter-spacing: 0.04em;
+		white-space: nowrap;
+		color: var(--text-secondary);
+		text-shadow: 0 0 18px rgba(45, 212, 191, 0.25);
+	}
+
+	/* eerie cyan-green halo behind the character (echoes his glasses).
+	   held dark until the portrait arrives, then fades in and settles into
+	   a gentle pulse */
+	.glow {
+		position: absolute;
+		top: 32%;
+		left: 50%;
+		width: min(70vw, 620px);
+		aspect-ratio: 1;
+		transform: translate(-50%, -50%);
+		background: radial-gradient(
+			circle,
+			var(--color-accent-glow) 0%,
+			rgba(45, 212, 191, 0.08) 42%,
+			transparent 70%
+		);
+		filter: blur(14px);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.hero.reveal-figure .glow {
+		animation:
+			glow-in 1.2s ease-out forwards,
+			glow-pulse 6s ease-in-out 1.2s infinite;
+	}
+
+	/* the bat: pinned 20% down the sky, off-screen to the right, then flown
+	   leftward across the whole hero once every 5s. only transform animates,
+	   so it stays on the compositor; overflow:hidden on .hero clips it at
+	   both edges so it never spills or adds a scrollbar. */
+	.bat {
+		position: absolute;
+		top: 20%;
+		left: 0;
+		z-index: 4;
+		width: clamp(64px, 9vw, 130px);
+		height: auto;
+		pointer-events: none;
+		will-change: transform;
+		transform: translateX(105vw);
+		animation: bat-fly 5s linear infinite;
+	}
+
+	/* two-column split: his speech on the left, the man on the right */
+	.stage {
+		position: relative;
+		z-index: 1;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		gap: clamp(1.5rem, 5vw, 4rem);
+		width: 100%;
+		max-width: 1080px;
+		text-align: left;
+	}
+
+	.text-col {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.figure-col {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		will-change: transform;
+		/* a gentle ambient bob lives on the wrapper, so it never fights the
+		   character's entrance transform — both stay smooth */
+		animation: float 7s ease-in-out infinite;
+	}
+
+	/* store name laid over the top of the portrait — creepy Eater face,
+	   blood-red to match "die", with a dark halo so it stays legible
+	   against the sky and his hair. the semicircle arches over the portrait.
+	   held hidden until the figure arrives, then rises + fades in with him */
+	.store-title {
+		position: absolute;
+		top: -14%;
+		left: 50%;
+		z-index: 2;
+		margin: 0;
+		width: clamp(280px, 48vw, 560px);
+		pointer-events: none;
+		opacity: 0;
+		transform: translateX(-50%) translateY(8px);
+		transition:
+			opacity 0.9s ease,
+			transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hero.reveal-figure .store-title {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+
+	.store-title__svg {
+		display: block;
+		width: 100%;
+		height: auto;
+		/* let the tall glyphs at the crown spill past the viewBox */
+		overflow: visible;
+		filter:
+			drop-shadow(0 0 16px rgba(224, 27, 27, 0.5))
+			drop-shadow(0 2px 8px rgba(0, 0, 0, 0.85));
+	}
+
+	.store-title__svg text {
+		fill: #e01b1b;
+		font-family: var(--font-creepy);
+		font-weight: 400;
+		font-size: 46px;
+		letter-spacing: 1px;
+	}
+
+	.character {
+		width: min(100%, 420px);
+		height: auto;
+		display: block;
+		/* transparent PNG — the drop-shadow traces his silhouette and grounds him */
+		filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.55));
+		/* held hidden until the greeting is typed, then rises + fades in.
+		   only opacity + transform animate, so it stays on the GPU compositor */
+		opacity: 0;
+		transform: translateY(24px) scale(0.985);
+		will-change: transform, opacity;
+		transition:
+			opacity 0.9s ease,
+			transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hero.reveal-figure .character {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+
+	/* below the stage: closing line + CTA sharing one centred row */
+	.outro {
+		position: relative;
+		z-index: 1;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(0.9rem, 2.5vw, 1.8rem);
+		width: 100%;
+		max-width: 1080px;
+		margin-top: clamp(4rem, 4vh, 2.4rem);
+	}
+
+	.outro .line-3 {
+		margin: 0;
+	}
+
+	/* the greeting — shares line-1's scale. min-height reserves a line so the
+	   scene below doesn't jump while it types */
+	.greeting {
+		margin: 0.2em 0;
+		min-height: 1.32em;
+		font-family: var(--font-body);
+		font-weight: 500;
+		line-height: 1.32;
+		font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+		color: var(--text-primary);
+		text-wrap: balance;
+	}
+
+	/* blinking caret, shown only while the greeting is typing */
+	.greeting.typing::after {
+		content: "";
+		display: inline-block;
+		width: 0.09em;
+		height: 1.05em;
+		margin-left: 0.06em;
+		vertical-align: -0.18em;
+		background: var(--color-accent-bright);
+		box-shadow: 0 0 10px var(--color-accent-glow);
+		animation: caret-blink 1s steps(1, end) infinite;
+	}
+
+	.line {
+		margin: 0.2em 0;
+		font-family: var(--font-body);
+		font-weight: 500;
+		line-height: 1.32;
+		color: var(--text-primary);
+		text-wrap: balance;
+	}
+
+	.line-1 {
+		font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+	}
+	.line-2 {
+		font-size: clamp(1.25rem, 3.2vw, 1.9rem);
+		color: var(--text-secondary);
+		font-style: italic;
+	}
+	.line-3 {
+		font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+		font-weight: 400;
+		font-style: italic;
+		color: var(--text-secondary);
+	}
+
+	/* step 3: the introduction (in the stage) and the outro row below the
+	   stage fade + rise in together */
+	.line-1,
+	.outro {
+		opacity: 0;
+		transform: translateY(12px);
+		transition:
+			opacity 0.8s ease,
+			transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.hero.reveal-text .line-1,
+	.hero.reveal-text .outro {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.name {
+		font-family: var(--font-creepy);
+		font-weight: 400;
+		color: var(--color-accent-bright);
+		white-space: nowrap;
+		letter-spacing: 0.02em;
+		text-shadow: 0 0 22px var(--color-accent-glow);
+	}
+
+	/* the word "die" — blood red in the creepy Eater face */
+	.die {
+		font-family: var(--font-creepy);
+		font-weight: 400;
+		font-style: normal;
+		color: #e01b1b;
+		letter-spacing: 0.04em;
+		text-shadow: 0 0 22px rgba(224, 27, 27, 0.55);
+	}
+
+	.cta {
+		display: inline-block;
+		white-space: nowrap;
+		font-family: var(--font-display);
+		font-size: 0.95rem;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--color-void);
+		background: var(--color-toxic);
+		padding: 0.95em 2.1em;
+		border-radius: 2px;
+		box-shadow:
+			0 0 0 1px rgba(57, 255, 20, 0.5),
+			0 0 28px var(--color-toxic-glow);
+		/* the outro row fades the CTA in with the text; keep only the hover
+		   transition here so the lift stays snappy */
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.25s ease,
+			background 0.2s ease;
+	}
+
+	.cta:hover {
+		background: var(--color-toxic-bright);
+		box-shadow:
+			0 0 0 1px var(--color-toxic-bright),
+			0 0 42px var(--color-toxic-glow);
+		transform: translateY(-2px);
+	}
+
+	.cta:focus-visible {
+		outline: 2px solid var(--color-toxic-bright);
+		outline-offset: 4px;
+	}
+
+	.scroll-cue {
+		position: absolute;
+		bottom: clamp(1rem, 4vh, 2.2rem);
+		left: 50%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.5rem;
+		font-family: var(--font-display);
+		font-size: 0.62rem;
+		letter-spacing: 0.25em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		/* fades in last; translateX(-50%) keeps it centred through the rise */
+		opacity: 0;
+		transform: translateX(-50%) translateY(10px);
+		transition:
+			opacity 0.8s ease 0.24s,
+			transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.24s;
+	}
+
+	.hero.reveal-text .scroll-cue {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+
+	.chevron {
+		width: 10px;
+		height: 10px;
+		border-right: 1.5px solid var(--text-muted);
+		border-bottom: 1.5px solid var(--text-muted);
+		transform: rotate(45deg);
+		animation: nudge 2s ease-in-out infinite;
+	}
+
+	@keyframes caret-blink {
+		0%,
+		49% {
+			opacity: 1;
+		}
+		50%,
+		100% {
+			opacity: 0;
+		}
+	}
+
+	@keyframes glow-in {
+		to {
+			opacity: 0.85;
+		}
+	}
+
+	@keyframes glow-pulse {
+		0%,
+		100% {
+			opacity: 0.85;
+			transform: translate(-50%, -50%) scale(1);
+		}
+		50% {
+			opacity: 1;
+			transform: translate(-50%, -50%) scale(1.06);
+		}
+	}
+
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-10px);
+		}
+	}
+
+	/* right-to-left crossing with a gentle undulation + tilt, as if flapping.
+	   X stays in vw for a near-constant glide; ends past the left edge so it
+	   fully clears the viewport on the smallest screens too. */
+	@keyframes bat-fly {
+		0% {
+			transform: translate(105vw, 0) rotate(-3deg);
+		}
+		20% {
+			transform: translate(80vw, 16px) rotate(3deg);
+		}
+		45% {
+			transform: translate(52vw, -12px) rotate(-3deg);
+		}
+		70% {
+			transform: translate(26vw, 14px) rotate(3deg);
+		}
+		100% {
+			transform: translate(-45vw, -6px) rotate(-2deg);
+		}
+	}
+
+	@keyframes nudge {
+		0%,
+		100% {
+			transform: rotate(45deg) translate(0, 0);
+		}
+		50% {
+			transform: rotate(45deg) translate(3px, 3px);
+		}
+	}
+
+	/* wide screens: nudge the halo over to sit behind the portrait on the right */
+	@media (min-width: 761px) {
+		.glow {
+			top: 42%;
+			left: 72%;
+			width: min(42vw, 560px);
+		}
+	}
+
+	/* narrow screens: fall back to a single stacked column, the man on top
+	   speaking down to his lines, everything re-centred */
+	@media (max-width: 760px) {
+		.stage {
+			grid-template-columns: 1fr;
+			justify-items: center;
+			gap: clamp(1rem, 4vw, 2rem);
+			text-align: center;
+			max-width: 640px;
+		}
+		.text-col {
+			align-items: center;
+		}
+		.figure-col {
+			order: -1;
+		}
+		.character {
+			width: clamp(220px, 60vw, 360px);
+		}
+	}
+
+	/* reduced motion: skip the sequence and ambient loops — show it all at rest */
+	@media (prefers-reduced-motion: reduce) {
+		.character,
+		.line-1,
+		.outro {
+			opacity: 1 !important;
+			transform: none !important;
+			transition: none !important;
+		}
+		.glow {
+			opacity: 0.85 !important;
+			animation: none !important;
+		}
+		.store-title {
+			opacity: 1 !important;
+			transform: translateX(-50%) !important;
+			transition: none !important;
+			animation: none !important;
+		}
+		.scroll-cue {
+			opacity: 1 !important;
+			transform: translateX(-50%) !important;
+			transition: none !important;
+		}
+		.figure-col {
+			animation: none !important;
+		}
+		.moon {
+			animation: none !important;
+			opacity: 0.85 !important;
+		}
+		.chevron {
+			animation: none;
+		}
+		.bat {
+			animation: none !important;
+			display: none;
+		}
+		.greeting.typing::after {
+			display: none;
+		}
+	}
+</style>
+
+<noscript>
+	<!-- without JS the typewriter never runs; reveal everything at rest -->
+	<style is:inline>
+		.character,
+		.line-1,
+		.outro {
+			opacity: 1 !important;
+			transform: none !important;
+		}
+		.glow {
+			opacity: 0.85 !important;
+		}
+		.store-title {
+			opacity: 1 !important;
+			transform: translateX(-50%) !important;
+		}
+		.scroll-cue {
+			opacity: 1 !important;
+			transform: translateX(-50%) !important;
+		}
+	</style>
+</noscript>
