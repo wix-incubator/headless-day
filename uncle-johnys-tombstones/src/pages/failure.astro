@@ -1,0 +1,188 @@
+---
+import Layout from "../layouts/Layout.astro";
+import GroundFooter from "../components/GroundFooter.astro";
+
+// Where the Wix-hosted checkout sends the buyer when the flow is ABANDONED or
+// INTERRUPTED (payment not completed). Wired up as `postFlowUrl` in
+// /api/checkout. The cart is left intact, so "try again" goes straight back
+// into a fresh checkout session.
+---
+
+<Layout>
+  <section class="outcome outcome--failure" aria-labelledby="outcome-title">
+    <header class="topbar">
+      <a class="back" href="/">&larr; Uncle Johny</a>
+      <span class="mark">Uncle Johny&rsquo;s Tombstones</span>
+    </header>
+
+    <div class="panel">
+      <p class="sigil" aria-hidden="true">&times;</p>
+
+      <h1 id="outcome-title">Not yet, dear <span class="friend">friend</span>.</h1>
+
+      <p class="lede">
+        Your payment didn&rsquo;t go through, so no stone has been cut and your
+        coin is safe. Your cart is just as you left it &mdash; when you&rsquo;re
+        ready, we&rsquo;ll try once more.
+      </p>
+
+      <div class="actions">
+        <a class="btn btn--primary" href="/api/checkout" data-astro-reload
+          >Try checkout again</a
+        >
+        <a class="btn btn--ghost" href="/shop">Back to the shop</a>
+      </div>
+    </div>
+  </section>
+
+  <GroundFooter />
+</Layout>
+
+<style>
+  .outcome {
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3rem) 1.25rem clamp(4rem, 8vh, 6rem);
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(
+      120% 70% at 50% -10%,
+      var(--twilight-bottom) 0%,
+      var(--color-bg) 42%,
+      var(--color-void) 100%
+    );
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .back {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .back:hover {
+    color: var(--color-accent-bright);
+  }
+  .mark {
+    font-family: var(--font-creepy);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    text-shadow: 0 0 16px rgba(224, 27, 27, 0.25);
+  }
+
+  .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    max-width: 42ch;
+    margin: 0 auto;
+  }
+
+  /* failing mark inside a soft blood-red halo */
+  .sigil {
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 12vw, 88px);
+    height: clamp(64px, 12vw, 88px);
+    margin: 0 0 clamp(1.25rem, 4vh, 2rem);
+    border-radius: 999px;
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    line-height: 1;
+    color: #fff;
+    background: #e01b1b;
+    box-shadow:
+      0 0 0 1px rgba(224, 27, 27, 0.5),
+      0 0 42px rgba(224, 27, 27, 0.45);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 5.5vw, 3.2rem);
+    margin: 0 0 0.6rem;
+    color: var(--text-primary);
+  }
+  .friend {
+    font-family: var(--font-creepy);
+    font-weight: 400;
+    color: #e01b1b;
+    text-shadow: 0 0 22px rgba(224, 27, 27, 0.55);
+  }
+
+  .lede {
+    font-family: var(--font-body);
+    font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0 0 clamp(1.75rem, 5vh, 2.5rem);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 3px;
+    padding: 0.95em 2em;
+    transition:
+      background 0.2s ease,
+      box-shadow 0.25s ease,
+      transform 0.15s ease,
+      color 0.2s ease;
+  }
+  .btn--primary {
+    color: var(--color-void);
+    background: var(--color-accent);
+    box-shadow:
+      0 0 0 1px rgba(94, 234, 212, 0.4),
+      0 0 28px var(--color-accent-glow);
+  }
+  .btn--primary:hover {
+    background: var(--color-accent-bright);
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px var(--color-accent-bright),
+      0 0 42px var(--color-accent-glow);
+  }
+  .btn--ghost {
+    color: var(--text-secondary);
+    border: 1px solid var(--color-border);
+  }
+  .btn--ghost:hover {
+    color: var(--text-primary);
+    border-color: var(--color-accent-deep);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--color-accent-bright);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
+    .btn:hover {
+      transform: none;
+    }
+  }
+</style>

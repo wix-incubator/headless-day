@@ -1,0 +1,156 @@
+---
+// Testimonials — three (tongue-in-cheek) reviews from beyond the veil.
+// Because the happiest customers are, naturally, the ones already resting
+// under our stonework.
+const testimonials = [
+	{
+		quote:
+			"I was skeptical about spending eternity under a slab of granite. Now? I wouldn't be caught dead anywhere else. They even fixed the typo in my epitaph — free of charge.",
+		name: "Bartholomew “Barty” Graves",
+		role: "Satisfied occupant, Plot 12",
+	},
+	{
+		quote:
+			"Uncle Johny handled everything while I handled the will. Dignified, punctual, and a tidy discount for cash. Grandpa has never looked more… permanent.",
+		name: "Mildred Thornbury",
+		role: "Grieving niece (and sole heir)",
+	},
+	{
+		quote:
+			"The marble is so tasteful I nearly stopped moaning at midnight. My haunting has never felt this on-brand. Ask for the deluxe angel — the acoustics for wailing are superb.",
+		name: "Reginald P. Wraith",
+		role: "Verified apparition, haunting since 1888",
+	},
+];
+---
+
+<section class="testimonials" aria-labelledby="testimonials-title">
+	<p class="eyebrow">Kind words from the other side</p>
+	<h2 id="testimonials-title" class="section-title">
+		What our residents are saying
+	</h2>
+
+	<ul class="grid" role="list">
+		{
+			testimonials.map((t) => (
+				<li class="card">
+					<div class="stars" aria-label="Five out of five stars">
+						<span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+					</div>
+					<blockquote class="quote">{t.quote}</blockquote>
+					<footer class="attribution">
+						<span class="name">{t.name}</span>
+						<span class="role">{t.role}</span>
+					</footer>
+				</li>
+			))
+		}
+	</ul>
+</section>
+
+<style>
+	.testimonials {
+		position: relative;
+		padding: clamp(4rem, 10vh, 7rem) 1.25rem;
+		background: var(--color-bg);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.eyebrow {
+		margin: 0 0 0.6rem;
+		font-family: var(--font-body);
+		font-style: italic;
+		font-size: clamp(0.9rem, 2vw, 1.05rem);
+		letter-spacing: 0.02em;
+		color: var(--color-accent-bright);
+		text-shadow: 0 0 18px var(--color-accent-glow);
+	}
+
+	.section-title {
+		margin: 0 0 clamp(2.4rem, 5vh, 3.5rem);
+		font-family: var(--font-display);
+		font-weight: 600;
+		font-size: clamp(1.8rem, 4.6vw, 3rem);
+		line-height: 1.1;
+		color: var(--text-primary);
+	}
+
+	.grid {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		max-width: 1080px;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1.1rem, 2.5vw, 1.8rem);
+	}
+
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: 1.1rem;
+		padding: clamp(1.5rem, 3vw, 2.1rem);
+		text-align: left;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 14px;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+		transition:
+			transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+			border-color 0.25s ease,
+			box-shadow 0.25s ease;
+	}
+
+	.card:hover {
+		transform: translateY(-4px);
+		border-color: var(--color-accent-deep);
+		box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+	}
+
+	.stars {
+		font-size: 1rem;
+		letter-spacing: 0.15em;
+		color: var(--color-accent-bright);
+		text-shadow: 0 0 14px var(--color-accent-glow);
+	}
+
+	.quote {
+		margin: 0;
+		font-family: var(--font-body);
+		font-style: italic;
+		font-size: clamp(1rem, 2.1vw, 1.12rem);
+		line-height: 1.5;
+		color: var(--text-primary);
+	}
+
+	.attribution {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		margin-top: auto;
+		padding-top: 0.4rem;
+	}
+
+	.name {
+		font-family: var(--font-display);
+		font-weight: 600;
+		font-size: 1rem;
+		color: var(--text-primary);
+	}
+
+	.role {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 780px) {
+		.grid {
+			grid-template-columns: 1fr;
+			max-width: 460px;
+		}
+	}
+</style>
