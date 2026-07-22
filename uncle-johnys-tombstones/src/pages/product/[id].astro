@@ -1,0 +1,430 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import GroundFooter from "../../components/GroundFooter.astro";
+import { getProduct, getCurrency, type ShopProduct } from "../../lib/shop";
+
+const { id } = Astro.params;
+
+let product: ShopProduct | null = null;
+let currency = "USD";
+let loadError = false;
+
+try {
+  [product, currency] = await Promise.all([
+    id ? getProduct(id) : Promise.resolve(null),
+    getCurrency(),
+  ]);
+} catch (e) {
+  loadError = true;
+}
+
+const priceFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency,
+});
+
+const notFound = !loadError && !product;
+if (notFound) Astro.response.status = 404;
+---
+
+<Layout>
+  <section class="product">
+    <header class="topbar">
+      <a class="back" href="/shop" data-evt="Nav: Shop">&larr; All tombstones</a>
+      <span class="mark">Uncle Johny&rsquo;s Tombstones</span>
+    </header>
+
+    {
+      loadError && (
+        <p class="notice" role="alert">
+          This tombstone couldn&rsquo;t be reached right now. Please try again in
+          a moment.
+        </p>
+      )
+    }
+
+    {
+      notFound && (
+        <div class="notice">
+          <p>That tombstone seems to have been buried.</p>
+          <a class="back-link" href="/shop">
+            &larr; Back to all tombstones
+          </a>
+        </div>
+      )
+    }
+
+    {
+      product && (
+        <article class="detail">
+          <div class="media">
+            {product.imageUrl ? (
+              <img src={product.imageUrl} alt={product.imageAlt} />
+            ) : (
+              <div class="media-empty" aria-hidden="true" />
+            )}
+          </div>
+
+          <div class="info">
+            <h1 class="name">{product.name}</h1>
+
+            {product.description && (
+              <p class="desc">{product.description}</p>
+            )}
+
+            <p class="price">
+              <span class="amount">
+                {priceFmt.format(Number(product.price))}
+              </span>
+              <span class="currency">{currency}</span>
+            </p>
+
+            <div class="actions">
+              <button
+                class="add"
+                type="button"
+                data-id={product.id}
+                data-name={product.name}
+                data-price={product.price}
+                disabled={!product.inStock}
+              >
+                {product.inStock ? "Add to cart" : "Sold out"}
+              </button>
+
+              {/* Revealed after a successful add — a real link to checkout. */}
+              <a
+                class="checkout"
+                href="/api/checkout"
+                data-astro-reload
+                data-evt="Checkout"
+                data-evt-props={JSON.stringify({
+                  product: product.name,
+                  price: Number(product.price) || 0,
+                })}
+                hidden
+              >
+                Go to checkout &rarr;
+              </a>
+            </div>
+
+            <p class="status" data-status role="status" aria-live="polite" />
+          </div>
+        </article>
+      )
+    }
+  </section>
+
+  <GroundFooter />
+</Layout>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("button.add");
+  const checkoutLink = document.querySelector<HTMLAnchorElement>("a.checkout");
+  const statusEl = document.querySelector<HTMLElement>("[data-status]");
+
+  // Send a Plausible custom event (no-op until the script has loaded/queued).
+  function track(name: string, props?: Record<string, unknown>) {
+    (window as any).plausible?.(name, props ? { props } : undefined);
+  }
+
+  function announce(msg: string) {
+    if (statusEl) statusEl.textContent = msg;
+  }
+
+  // A viewed product is itself an interaction worth measuring per-item
+  // (pageviews only give the URL path).
+  if (btn) {
+    track("Product View", {
+      product: btn.dataset.name ?? "",
+      price: Number(btn.dataset.price) || 0,
+    });
+  }
+
+  btn?.addEventListener("click", async () => {
+    if (btn.disabled) return;
+    const id = btn.dataset.id;
+    const name = btn.dataset.name ?? "This tombstone";
+    const price = Number(btn.dataset.price) || 0;
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+    const original = btn.textContent;
+    btn.textContent = "Adding…";
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ productId: id, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+
+      btn.textContent = "Added ✓";
+      btn.classList.remove("is-loading");
+      btn.classList.add("is-added");
+      announce(`${name} is in your cart.`);
+      track("Add to Cart", { product: name, price });
+
+      // Reveal the checkout link now that there's something to buy.
+      if (checkoutLink) {
+        checkoutLink.hidden = false;
+        checkoutLink.classList.add("is-visible");
+      }
+    } catch (err) {
+      announce(`Couldn't add ${name}. Please try again.`);
+      btn.textContent = original;
+      btn.classList.remove("is-loading");
+      btn.disabled = false;
+      track("Add to Cart: Failed", { product: name });
+    }
+  });
+</script>
+
+<style>
+  .product {
+    /* max-width: 1040px; */
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3rem) 1.25rem clamp(4rem, 8vh, 6rem);
+    min-height: 100svh;
+    background: radial-gradient(
+      120% 70% at 50% -10%,
+      var(--twilight-top) 0%,
+      var(--color-bg) 42%,
+      var(--color-void) 100%
+    );
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: clamp(1.5rem, 5vh, 3rem);
+  }
+  .back {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+  .back:hover {
+    color: var(--color-toxic-bright);
+  }
+  .mark {
+    font-family: var(--font-creepy);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    text-shadow: 0 0 16px rgba(57, 255, 20, 0.2);
+  }
+
+  .notice {
+    font-family: var(--font-body);
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    padding: 3rem 0;
+  }
+  .back-link {
+    color: var(--color-toxic-bright);
+    text-decoration: none;
+  }
+
+  .detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  .media {
+    aspect-ratio: 1;
+    background: var(--color-void);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .media-empty {
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--color-overlay),
+      var(--color-overlay) 10px,
+      var(--color-surface) 10px,
+      var(--color-surface) 20px
+    );
+  }
+
+  .info {
+    padding-top: clamp(0.5rem, 2vh, 1.5rem);
+  }
+  .name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+  }
+  .desc {
+    font-family: var(--font-body);
+    font-size: clamp(1.1rem, 2.2vw, 1.3rem);
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0 0 1.75rem;
+    white-space: pre-line;
+  }
+
+  .price {
+    margin: 0 0 2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    color: var(--color-toxic-bright);
+    text-shadow: 0 0 22px var(--color-toxic-glow);
+  }
+  .currency {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .add {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-void);
+    background: var(--color-toxic);
+    border: none;
+    border-radius: 3px;
+    padding: 1em 2.2em;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow:
+      0 0 0 1px rgba(57, 255, 20, 0.5),
+      0 0 28px var(--color-toxic-glow);
+    transition:
+      background 0.2s ease,
+      box-shadow 0.25s ease,
+      transform 0.15s ease,
+      opacity 0.2s ease;
+  }
+  .add:hover:not(:disabled) {
+    background: var(--color-toxic-bright);
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px var(--color-toxic-bright),
+      0 0 42px var(--color-toxic-glow);
+  }
+  .add:focus-visible {
+    outline: 2px solid var(--color-toxic-bright);
+    outline-offset: 4px;
+  }
+  .add:disabled {
+    background: var(--color-overlay);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  .add.is-loading {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .add.is-added {
+    background: var(--color-toxic-deep);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--color-toxic-deep);
+  }
+
+  /* checkout button — hidden until the item is added, then slides in as the
+     prominent next action (bright, filled, sitting beside the dim "Added ✓") */
+  .checkout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-void);
+    background: var(--color-toxic);
+    border-radius: 3px;
+    padding: 1em 2.2em;
+    box-shadow:
+      0 0 0 1px rgba(57, 255, 20, 0.5),
+      0 0 28px var(--color-toxic-glow);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease,
+      background 0.2s ease,
+      box-shadow 0.25s ease;
+  }
+  /* the `hidden` attribute must still win over the button's display */
+  .checkout[hidden] {
+    display: none;
+  }
+  .checkout.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .checkout:hover {
+    background: var(--color-toxic-bright);
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px var(--color-toxic-bright),
+      0 0 42px var(--color-toxic-glow);
+  }
+  .checkout:focus-visible {
+    outline: 2px solid var(--color-toxic-bright);
+    outline-offset: 4px;
+  }
+
+  .status {
+    margin-top: 1.5rem;
+    min-height: 1.2em;
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    color: var(--color-toxic-bright);
+  }
+
+  @media (max-width: 720px) {
+    .detail {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .add,
+    .checkout {
+      transition: none;
+    }
+  }
+</style>
