@@ -1,0 +1,44 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ContactForm from "../components/ContactForm.tsx";
+---
+
+<Layout title="Say hi — Flowerenco">
+  <section class="wrap contact-wrap">
+    <div class="intro">
+      <span class="pill" style="background: var(--mustard)">let's chat</span>
+      <h1>Message the studio</h1>
+      <p>
+        Not sure where to start, or want to talk through an idea before you order? Drop me a note. It's just me here,
+        so I read every message myself — I'll usually write back within a day or two.
+      </p>
+      <p class="tips">
+        💡 Handy things to mention: who the vase is for, colours or details you love, and roughly when you'd need it.
+      </p>
+      <ul class="contact-details">
+        <li>✉️ <a href="mailto:flowerenco@gmail.com">flowerenco@gmail.com</a></li>
+        <li>
+          <a href="https://instagram.com/flowerenco" target="_blank" rel="noopener">
+            <svg class="ig-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23a3.7 3.7 0 0 1-.9 1.38 3.7 3.7 0 0 1-1.38.9c-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16Zm0 1.44c-3.14 0-3.51.01-4.75.07-.9.04-1.38.19-1.71.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.13.33-.28.81-.32 1.71-.06 1.24-.07 1.61-.07 4.75s.01 3.51.07 4.75c.04.9.19 1.38.32 1.71.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.13.81.28 1.71.32 1.24.06 1.61.07 4.75.07s3.51-.01 4.75-.07c.9-.04 1.38-.19 1.71-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.13-.33.28-.81.32-1.71.06-1.24.07-1.61.07-4.75s-.01-3.51-.07-4.75c-.04-.9-.19-1.38-.32-1.71a2.86 2.86 0 0 0-.69-1.06 2.86 2.86 0 0 0-1.06-.69c-.33-.13-.81-.28-1.71-.32-1.24-.06-1.61-.07-4.75-.07Zm0 2.45a5.95 5.95 0 1 1 0 11.9 5.95 5.95 0 0 1 0-11.9Zm0 1.44a4.51 4.51 0 1 0 0 9.02 4.51 4.51 0 0 0 0-9.02Zm6.19-.62a1.39 1.39 0 1 1-2.78 0 1.39 1.39 0 0 1 2.78 0Z"/></svg>
+            @flowerenco
+          </a>
+        </li>
+        <li>📍 Kraków — made to order, ships worldwide</li>
+      </ul>
+    </div>
+    <ContactForm client:only="react" />
+  </section>
+
+  <style>
+    .contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; padding: 2rem 0; }
+    .intro h1 { font-size: clamp(2rem, 4vw, 2.8rem); margin: 1rem 0 0.6rem; }
+    .intro p { font-size: 1.1rem; color: var(--ink-soft); }
+    .tips { background: var(--blush-soft); color: var(--ink); border: var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; font-size: 1rem; }
+    .contact-details { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; gap: 0.55rem; }
+    .contact-details li { font-size: 1.05rem; font-weight: 700; }
+    .contact-details a { color: var(--cobalt); text-decoration: none; }
+    .contact-details a:hover { text-decoration: underline; }
+    .ig-icon { vertical-align: -3px; margin-right: 0.2rem; }
+    @media (max-width: 780px) { .contact-wrap { grid-template-columns: 1fr; } }
+  </style>
+</Layout>

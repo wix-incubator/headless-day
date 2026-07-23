@@ -1,0 +1,43 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { scaledStatic } from "../lib/wix";
+const ABOUT = scaledStatic("https://static.wixstatic.com/media/237b05_f67659e4642e47cdbe5c4987dd616d7a~mv2.png", 900, 900, 1024, 1024);
+---
+
+<Layout title="About — Flowerenco">
+  <section class="wrap about">
+    <div class="txt">
+      <span class="pill" style="background: var(--sage)">just me, honestly</span>
+      <h1>Hi, I'm the whole studio 👋</h1>
+      <p>
+        Flowerenco is a one-person ceramic studio. I sit at a little bench with a lump of clay, a stack of your photos,
+        and far too many tiny paintbrushes — and I turn the people and pets you love into wonky, cheerful bud vases.
+      </p>
+      <p>
+        No two are the same, because no two of <em>you</em> are the same. A crooked grin, a favourite jumper, a dog's
+        one flopped ear — those are the bits I live for. Every piece is hand-built, hand-painted, glazed and fired by me,
+        then packed up carefully and sent off to its new home.
+      </p>
+      <p>
+        Because it's just me, each vase takes a little while (usually two to three weeks) — but that's the point. It's
+        slow, it's silly, and it's made with a lot of love.
+      </p>
+      <div class="cta">
+        <a class="btn tomato" href="/shop">Start your vase</a>
+        <a class="btn ghost" href="/contact">Say hi first</a>
+      </div>
+    </div>
+    <div class="pic">
+      <img src={ABOUT} alt="A cosy one-person ceramic studio bench with character vases in progress" />
+    </div>
+  </section>
+
+  <style>
+    .about { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2.5rem; align-items: center; padding: 2rem 0; }
+    .about h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 1rem 0; }
+    .about p { font-size: 1.12rem; color: var(--ink-soft); }
+    .cta { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.4rem; }
+    .pic img { width: 100%; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); transform: rotate(-1.5deg); aspect-ratio: 1; object-fit: cover; }
+    @media (max-width: 780px) { .about { grid-template-columns: 1fr; } .pic { order: -1; } }
+  </style>
+</Layout>

@@ -1,0 +1,229 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = "Flowerenco — hand-made character vases", description = "A tiny one-person ceramic studio making whimsical, hand-painted bud vases inspired by your people and pets." } = Astro.props;
+
+const nav = [
+  { href: "/", label: "Home" },
+  { href: "/shop", label: "Shop" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/reviews", label: "Reviews" },
+  { href: "/contact", label: "Say hi" },
+];
+const path = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:ital,wght@0,400;0,700;1,400&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:ital,wght@0,400;0,700;1,400&display=swap"
+      />
+    </noscript>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="blobs" aria-hidden="true">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+    </div>
+
+    <header class="site-header">
+      <a href="/" class="brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        Flowerenco
+      </a>
+      <nav class="site-nav">
+        {nav.map((n) => (
+          <a href={n.href} class:list={["nav-link", { active: path === n.href }]}>{n.label}</a>
+        ))}
+      </nav>
+      <a href="/cart" class="cart-link" aria-label="Cart">
+        🧺 <span id="cart-badge"></span>
+      </a>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <script is:inline>
+      (function () {
+        function paint(n) {
+          var el = document.getElementById("cart-badge");
+          if (!el) return;
+          if (n) { el.textContent = n; el.className = "badge-count"; }
+          else { el.textContent = ""; el.className = ""; }
+        }
+        function load() {
+          fetch("/api/cart/get")
+            .then(function (r) { return r.json(); })
+            .then(function (d) { paint(d && d.count ? d.count : 0); })
+            .catch(function () {});
+        }
+        // Defer the initial cart lookup out of the page-load window so it doesn't compete with LCP.
+        if ("requestIdleCallback" in window) requestIdleCallback(load, { timeout: 2000 });
+        else setTimeout(load, 1200);
+        window.addEventListener("cart:updated", load);
+      })();
+    </script>
+
+    <footer class="site-footer">
+      <div class="foot-cols">
+        <div>
+          <p class="foot-brand">Flowerenco</p>
+          <p class="foot-small">Little clay people & pets, made one at a time by me.</p>
+        </div>
+        <div>
+          <p class="foot-head">Wander</p>
+          {nav.map((n) => <a href={n.href} class="foot-link">{n.label}</a>)}
+        </div>
+        <div>
+          <p class="foot-head">Get in touch</p>
+          <a class="foot-link" href="mailto:flowerenco@gmail.com">flowerenco@gmail.com</a>
+          <a class="foot-link" href="https://instagram.com/flowerenco" target="_blank" rel="noopener">@flowerenco</a>
+          <p class="foot-small">Kraków · made to order · ships worldwide</p>
+          <a href="/contact" class="foot-link">Message the studio</a>
+        </div>
+      </div>
+      <p class="foot-copy">© {new Date().getFullYear()} Flowerenco · handmade with muddy hands 🌸</p>
+    </footer>
+
+    <style is:global>
+      :root {
+        --cream: #fff6e9;
+        --paper: #fffdf8;
+        --ink: #34302b;
+        --ink-soft: #6b635a;
+        --blush: #f6a6a0;
+        --blush-soft: #fbd9d3;
+        --cobalt: #2e5bba;
+        --teal: #17a0a6;
+        --mustard: #f5b921;
+        --tomato: #ee6c4d;
+        --sage: #a7c4a0;
+        --radius: 22px;
+        --radius-sm: 14px;
+        --shadow: 0 14px 34px rgba(52, 48, 43, 0.12);
+        --border: 2.5px solid var(--ink);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "Nunito", system-ui, sans-serif;
+        color: var(--ink);
+        background: var(--cream);
+        line-height: 1.6;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+      h1, h2, h3, .display { font-family: "Fredoka", sans-serif; font-weight: 600; line-height: 1.1; }
+      a { color: inherit; }
+      img { max-width: 100%; display: block; }
+
+      .blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+      .blob { position: absolute; border-radius: 50%; filter: blur(8px); opacity: 0.4; }
+      .b1 { width: 340px; height: 340px; background: var(--blush-soft); top: -80px; left: -60px; }
+      .b2 { width: 300px; height: 300px; background: #cfe6e2; bottom: 6%; right: -70px; }
+      .b3 { width: 220px; height: 220px; background: #fbe6b0; top: 42%; left: 48%; }
+
+      /* Header */
+      .site-header {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 1rem clamp(1rem, 4vw, 3rem);
+        max-width: 1200px; margin: 0 auto;
+      }
+      .brand {
+        font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 1.55rem;
+        text-decoration: none; display: flex; align-items: center; gap: 0.5rem; margin-right: auto;
+      }
+      .brand-dot {
+        width: 18px; height: 18px; border-radius: 50%;
+        background: var(--tomato); border: 2px solid var(--ink);
+        box-shadow: 6px 0 0 -2px var(--mustard), 12px 0 0 -4px var(--teal);
+      }
+      .site-nav { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+      .nav-link {
+        text-decoration: none; font-weight: 700; padding: 0.4rem 0.85rem;
+        border-radius: 999px; transition: background 0.15s, color 0.15s;
+      }
+      .nav-link:hover { background: var(--blush-soft); }
+      .nav-link.active { background: var(--ink); color: var(--paper); }
+      .cart-link {
+        text-decoration: none; font-weight: 700; font-size: 1.1rem;
+        border: var(--border); border-radius: 999px; padding: 0.3rem 0.8rem;
+        background: var(--paper); display: inline-flex; align-items: center; gap: 0.35rem;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+
+      /* Shared building blocks */
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 3rem); }
+      .btn {
+        display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        font-family: "Fredoka", sans-serif; font-weight: 600; font-size: 1.05rem;
+        border: var(--border); border-radius: 999px; padding: 0.7rem 1.5rem;
+        background: var(--mustard); color: var(--ink); text-decoration: none;
+        box-shadow: 4px 4px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+      }
+      .btn:hover { transform: translate(-1px, -1px); box-shadow: 6px 6px 0 var(--ink); }
+      .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+      .btn.tomato { background: var(--tomato); color: var(--paper); }
+      .btn.teal { background: var(--teal); color: var(--paper); }
+      .btn.ghost { background: var(--paper); }
+      .btn[disabled] { opacity: 0.5; cursor: not-allowed; box-shadow: 2px 2px 0 var(--ink); }
+
+      .card {
+        background: var(--paper); border: var(--border); border-radius: var(--radius);
+        box-shadow: var(--shadow); overflow: hidden;
+      }
+      .pill {
+        display: inline-block; font-weight: 700; font-size: 0.8rem;
+        padding: 0.2rem 0.7rem; border-radius: 999px; border: 2px solid var(--ink);
+      }
+      .badge-count {
+        background: var(--tomato); color: var(--paper); border: 2px solid var(--ink);
+        border-radius: 999px; font-size: 0.75rem; font-weight: 800;
+        min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;
+        padding: 0 5px;
+      }
+
+      /* Footer */
+      .site-footer {
+        margin-top: 4rem; background: var(--ink); color: var(--paper);
+        padding: 2.5rem clamp(1rem, 4vw, 3rem) 1.5rem;
+      }
+      .foot-cols { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
+      .foot-brand { font-family: "Fredoka", sans-serif; font-size: 1.4rem; margin: 0 0 0.3rem; }
+      .foot-head { font-family: "Fredoka", sans-serif; margin: 0 0 0.4rem; color: var(--mustard); }
+      .foot-small { color: #d8d2c8; margin: 0.1rem 0; max-width: 22ch; }
+      .foot-link { display: block; text-decoration: none; color: var(--paper); opacity: 0.85; }
+      .foot-link:hover { opacity: 1; text-decoration: underline; }
+      .foot-copy { text-align: center; margin: 2rem 0 0; color: #b8b2a8; font-size: 0.9rem; }
+
+      @media (max-width: 640px) {
+        .site-header { flex-wrap: wrap; }
+        .brand { margin-right: 0; }
+      }
+    </style>
+  </body>
+</html>
