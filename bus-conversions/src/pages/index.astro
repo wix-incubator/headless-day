@@ -1,0 +1,175 @@
+---
+import Layout from "../layouts/Layout.astro";
+import RouteMarquee from "../components/RouteMarquee.astro";
+import WhyBus from "../components/WhyBus.astro";
+import BuildsGrid from "../components/BuildsGrid.astro";
+import RouteSign from "../components/RouteSign.astro";
+import Reviews from "../components/Reviews.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { BUSINESS, BUILD_LEVELS, formatPrice } from "../data/site";
+import { getFinishedBuilds, getReviews } from "../lib/cms";
+
+const builds = await getFinishedBuilds();
+const reviews = await getReviews();
+
+// Hero bus render — drop a transparent-PNG cutaway at
+// src/assets/hero/bus.png (see that folder's README) and it appears
+// overlapping the headline. Until then the hero is text-only.
+const heroRenders = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/hero/*.{png,webp,jpg,jpeg}",
+  { eager: true }
+);
+const heroKey = Object.keys(heroRenders).find((p) => /\/bus\./.test(p));
+const heroBus = heroKey ? heroRenders[heroKey].default : null;
+---
+
+<Layout>
+  <!-- HERO -->
+  <section class="hero" style="position:relative;overflow:hidden;background:var(--color-primary)">
+    <div style="position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 8%, rgba(58,72,38,.55) 0%, rgba(30,38,16,0) 60%)"></div>
+
+    <div class="relative mx-auto" style="max-width:1500px;padding:clamp(36px,5vw,68px) clamp(12px,3vw,28px) 0;text-align:center">
+      <div data-reveal="fade" class="mb-6 inline-flex items-center gap-2.5" style="--reveal-delay:60ms;padding:6px 14px;border:1px solid rgba(222,255,78,.4);border-radius:100px;background:rgba(30,38,16,.4)">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--color-accent)"></span>
+        <span class="eyebrow" style="font-size:12px;color:var(--color-accent)">{BUSINESS.city} · est. {BUSINESS.established}</span>
+      </div>
+      <h1 data-reveal class="hero-h1" style="--reveal-delay:130ms;margin:0 auto;line-height:.86;letter-spacing:-.02em;color:var(--color-accent);font-size:clamp(26px,6.3vw,104px)">
+        <span style="display:block;white-space:nowrap">Retired city buses</span>
+        <span style="display:block;white-space:nowrap">become rolling homes</span>
+      </h1>
+
+      {heroBus && (
+        <div class="hero-bus" data-reveal="fade" style="--reveal-delay:220ms">
+          <div class="hero-bus-shadow" aria-hidden="true"></div>
+          <div data-parallax="-0.03">
+            <img
+              class="hero-bus-img"
+              src={heroBus.src}
+              width={heroBus.width}
+              height={heroBus.height}
+              alt="A retired transit bus converted into a home, cut away to show the interior"
+              fetchpriority="high"
+            />
+          </div>
+        </div>
+      )}
+
+      <p data-reveal style="--reveal-delay:300ms;margin:clamp(8px,1.5vw,16px) auto clamp(24px,3.5vw,34px);max-width:min(96vw,1000px);font-size:clamp(16px,2.1vw,20px);line-height:1.55;color:#c2d29a">
+        A bus that hauled the #14 line for twenty years. Now it hauls a kitchen,
+        a bed, and you — titled as a legal motorhome, built in a Portland shop you
+        can walk through on a Saturday.
+      </p>
+      <div data-reveal style="--reveal-delay:360ms;padding-bottom:clamp(36px,5vw,60px)" class="flex flex-wrap justify-center gap-4">
+        <a href="/visit" class="cta inline-flex items-center gap-2.5" style="font-family:var(--font-display);font-weight:800;font-size:clamp(16px,2.2vw,21px);letter-spacing:.5px;text-transform:uppercase;color:var(--color-primary);background:var(--color-accent);padding:20px 38px;border-radius:3px;text-decoration:none">
+          Book an open-build Saturday <span class="arrow">→</span>
+        </a>
+        <a href="/builds" class="cta inline-flex items-center" style="font-family:var(--font-display);font-weight:800;font-size:clamp(16px,2.2vw,21px);letter-spacing:.5px;text-transform:uppercase;color:var(--color-on-dark);background:transparent;padding:20px 36px;border-radius:3px;text-decoration:none;border:2px solid var(--color-accent)">
+          See finished builds
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <RouteMarquee />
+
+  <WhyBus />
+
+  <!-- PACKAGES teaser -->
+  <section style="background:var(--color-background)" class="rib-grid">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-accent);color:var(--color-primary);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Conversion Packages</div>
+        <h2 class="display" style="margin:0;line-height:1;font-size:clamp(30px,5.5vw,60px);max-width:18ch">
+          Three build levels. You pick where the bus stops being a bus.
+        </h2>
+        <p style="margin:0;max-width:54ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-text-muted)">
+          Honest price ranges, not counting the bus itself. We'll tell you which
+          level fits before you spend a dime.
+        </p>
+      </div>
+      <div class="grid" data-reveal-stagger style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(12px,2vw,18px)">
+        {BUILD_LEVELS.map((p) => (
+          <a
+            href={`/packages#${p.slug}`}
+            class="lift flex flex-col no-underline"
+            style={`background:${p.featured ? "var(--color-primary)" : "var(--color-surface)"};border:1px solid ${p.featured ? "var(--color-primary)" : "var(--color-border)"};border-radius:8px;padding:22px 24px;color:${p.featured ? "var(--color-on-dark)" : "var(--color-text)"}`}
+          >
+            <div class="eyebrow" style={`letter-spacing:2px;font-size:12px;color:${p.featured ? "var(--color-accent)" : "var(--color-text-muted)"}`}>{p.level}</div>
+            <div class="display" style={`margin:6px 0 8px;font-size:clamp(24px,3vw,30px);line-height:1;color:${p.featured ? "var(--color-on-dark)" : "var(--color-text)"}`}>{p.name}</div>
+            <div style={`font-family:var(--font-display);font-weight:700;font-size:clamp(20px,2.4vw,26px);color:${p.featured ? "var(--color-accent)" : "var(--color-primary)"}`}>
+              {formatPrice(p.priceLow).replace(",000","k")}<span style="color:#9aa088">–</span>{formatPrice(p.priceHigh).replace(",000","k")}
+            </div>
+            <div style={`font-size:13px;margin-top:4px;color:${p.featured ? "#c7c9b6" : "var(--color-text-muted)"}`}>{p.duration}</div>
+          </a>
+        ))}
+      </div>
+      <div class="mt-8" data-reveal="fade">
+        <a href="/packages" class="ul-grow" style="font-family:var(--font-display);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:15px;color:var(--color-primary);text-decoration:none">
+          See what's included & configure your build →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINISHED BUILDS teaser -->
+  <section style="background:var(--color-maroon);color:var(--color-on-dark)">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-coral);color:var(--color-maroon);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Finished Builds</div>
+        <h2 class="display" style="margin:0;line-height:1;font-size:clamp(30px,5.5vw,60px);max-width:16ch">
+          Three routes retired. Three people who live in them now.
+        </h2>
+      </div>
+      <BuildsGrid builds={builds} limit={3} />
+      <div class="mt-8" data-reveal="fade">
+        <a href="/builds" class="ul-grow" style="font-family:var(--font-display);font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:15px;color:var(--color-coral);text-decoration:none">
+          Tour all {builds.length} builds & floor plans →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <RouteSign />
+
+  <Reviews reviews={reviews} />
+
+  <CtaBand />
+</Layout>
+
+<style>
+  /* Parked-on-the-route hero: big bus centered, grounded by a contact
+     shadow, resting on the road line that flows into the marquee. */
+  .hero-h1 { position: relative; z-index: 1; }
+  .hero-bus {
+    position: relative;
+    z-index: 3; /* in front, so it covers the bottom of the headline */
+    width: min(880px, 104%);
+    /* sits just below the headline with a touch of overlap */
+    margin: clamp(-40px, -3vw, -12px) auto clamp(2px, 1vw, 10px);
+    pointer-events: none;
+  }
+  .hero-bus-img {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    animation: heroBob 5.8s ease-in-out infinite;
+  }
+  /* soft contact shadow on the ground line */
+  .hero-bus-shadow {
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    bottom: 6px;
+    height: 26px;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 70%);
+    filter: blur(2px);
+    animation: heroShadow 5.8s ease-in-out infinite;
+  }
+  @keyframes heroBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+  @keyframes heroShadow { 0%,100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(.92); opacity: .65; } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-bus-img, .hero-bus-shadow { animation: none; }
+  }
+</style>

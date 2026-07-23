@@ -1,0 +1,23 @@
+---
+// Above-fold-on-mobile conversion control. Static markup (instantly
+// tappable on first paint); a tiny script just hides it on /visit so
+// it never covers the booking form. Hidden on md+ screens.
+---
+<div
+  id="mobile-sticky-bar"
+  class="fixed inset-x-0 bottom-0 z-70 flex items-center justify-between gap-3 md:hidden"
+  style="background:var(--color-accent);border-top:1px solid #bfe04a;padding:10px 14px"
+>
+  <div style="line-height:1.1">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--color-primary)">
+      Open-Build Saturdays
+    </div>
+    <div style="font-size:12px;color:#3a4416">No deposit · 10am–2pm</div>
+  </div>
+  <a
+    href="/visit"
+    class="cta"
+    style="font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.5px;text-transform:uppercase;color:var(--color-accent);background:var(--color-primary);padding:11px 18px;border-radius:5px;text-decoration:none;white-space:nowrap"
+    >Book <span class="arrow">→</span></a
+  >
+</div>

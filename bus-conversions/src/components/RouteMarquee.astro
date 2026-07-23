@@ -1,0 +1,29 @@
+---
+// Kinetic destination blind — retired route names scrolling sideways
+// like a moving roll sign. Track is duplicated for a seamless loop;
+// pauses on hover; freezes under prefers-reduced-motion.
+interface Props { items?: string[]; dur?: number; }
+const {
+  items = [
+    "Downtown", "Killingsworth", "Burnside", "Belmont", "MLK Jr Blvd",
+    "Cesar Chavez", "McLoughlin", "TV Highway", "Sandy Blvd", "Woodstock",
+    "Powell Blvd", "Jackson Park",
+  ],
+  dur = 44,
+} = Astro.props;
+const row = [...items, ...items];
+---
+<section
+  class="marquee"
+  aria-label="Retired transit routes we've converted"
+  style={`background:var(--color-dark);border-top:1px solid rgba(222,255,78,.14);border-bottom:1px solid rgba(222,255,78,.14);--marquee-dur:${dur}s`}
+>
+  <div class="marquee__track" style="padding:18px 0" aria-hidden="true">
+    {row.map((d) => (
+      <span class="inline-flex items-center" style="padding:0 clamp(18px,3vw,34px)">
+        <span style="font-family:var(--font-sign);font-weight:700;font-size:clamp(20px,3.4vw,36px);letter-spacing:.04em;text-transform:uppercase;color:var(--color-accent)">{d}</span>
+        <span aria-hidden="true" style="color:#5b6b3a;margin-left:clamp(18px,3vw,34px);font-size:clamp(14px,2vw,22px)">✦</span>
+      </span>
+    ))}
+  </div>
+</section>

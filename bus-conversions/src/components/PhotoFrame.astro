@@ -1,0 +1,36 @@
+---
+// Warm-graded placeholder for documentary photography slots.
+// Renders a tasteful olive→amber gradient with a film-grain overlay
+// and a quiet label, so layouts read as finished before real photos
+// are dropped in. `label` doubles as the accessible description.
+interface Props {
+  label: string;
+  class?: string;
+  style?: string;
+  /** gradient theme */
+  tone?: "warm" | "steel" | "dusk";
+  rounded?: boolean;
+}
+const { label, class: className = "", style = "", tone = "warm", rounded = false } = Astro.props;
+
+const tones: Record<string, string> = {
+  warm: "radial-gradient(120% 120% at 70% 18%,#E9C98F 0%,#C99A5C 45%,#8a6a3f 100%)",
+  steel: "linear-gradient(140deg,#4a4f3e 0%,#2f3326 55%,#1f2218 100%)",
+  dusk: "linear-gradient(160deg,#3a4030 0%,#273B1F 60%,#1E2610 100%)",
+};
+const grain =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+---
+<div
+  role="img"
+  aria-label={label}
+  class={className}
+  style={`position:relative;overflow:hidden;background:${tones[tone]};${rounded ? "border-radius:8px;" : ""}${style}`}
+>
+  <div style={`position:absolute;inset:0;opacity:.08;mix-blend-mode:overlay;background-image:${grain}`}></div>
+  <div
+    style="position:absolute;left:12px;bottom:10px;right:12px;font-family:var(--font-display);font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.82);text-shadow:0 1px 3px rgba(0,0,0,.4)"
+  >
+    {label}
+  </div>
+</div>

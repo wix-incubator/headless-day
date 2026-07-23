@@ -1,0 +1,78 @@
+---
+import Layout from "../layouts/Layout.astro";
+import BuildsGrid from "../components/BuildsGrid.astro";
+import InteriorModels from "../components/InteriorModels.astro";
+import FloorPlanViewer from "../components/FloorPlanViewer.tsx";
+import CtaBand from "../components/CtaBand.astro";
+import { BUSINESS, FLOOR_ZONES } from "../data/site";
+import { getFinishedBuilds } from "../lib/cms";
+
+const builds = await getFinishedBuilds();
+
+const itemListLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Finished bus conversions",
+  numberOfItems: builds.length,
+  itemListElement: builds.map((b, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Product",
+      name: b.busName,
+      description: b.ownerNote,
+      category: b.buildLevel,
+      offers: { "@type": "Offer", priceCurrency: "USD", price: b.priceBuilt, availability: "https://schema.org/SoldOut" },
+    },
+  })),
+};
+---
+<Layout
+  title={`Finished Builds — ${BUSINESS.name}`}
+  description="A portfolio of completed bus conversions: the route each bus used to run, its specs, floor plans, and the people who live in them now. Tour a build in progress on a Saturday."
+  jsonLd={[itemListLd]}
+>
+  <!-- PORTFOLIO -->
+  <section style="background:var(--color-maroon);color:var(--color-on-dark)">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-coral);color:var(--color-maroon);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Finished Builds</div>
+        <h1 class="display" style="margin:0;line-height:1;font-size:clamp(32px,6vw,64px);max-width:16ch">
+          Routes retired. People who live in them now.
+        </h1>
+        <p style="margin:0;max-width:54ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-maroon-soft)">
+          Every build keeps the route it used to run and the destination sign that
+          told you where it was going. Here's where they ended up.
+        </p>
+      </div>
+      <BuildsGrid builds={builds} />
+    </div>
+  </section>
+
+  <!-- INTERACTIVE FLOOR PLAN (bonus) -->
+  <section style="background:var(--color-background)" class="rib-grid">
+    <div class="mx-auto" data-reveal="fade" style="max-width:1180px;padding:clamp(56px,9vw,100px) clamp(16px,4vw,40px) clamp(30px,5vw,56px)">
+      <FloorPlanViewer client:visible zones={FLOOR_ZONES} busName="The Cascadia" meta="2006 Gillig Phantom · sleeps 2" />
+    </div>
+  </section>
+
+  <!-- INTERIOR MODELS -->
+  <section style="background:var(--color-background)">
+    <div class="mx-auto" style="max-width:1180px;padding:0 clamp(16px,4vw,40px) clamp(56px,9vw,104px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-accent);color:var(--color-primary);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Layouts</div>
+        <h2 class="display" style="margin:0;line-height:1;font-size:clamp(30px,5.5vw,56px);max-width:18ch">
+          Same shell. Pick how you live in it.
+        </h2>
+        <p style="margin:0;max-width:56ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-text-muted)">
+          Forty feet of floor lays out a dozen ways. These are the four interiors
+          clients start from — mix, swap, and move walls until it's yours.
+          <a href="/packages" style="color:var(--color-primary);text-decoration:underline;text-underline-offset:3px">Configure your build →</a>
+        </p>
+      </div>
+      <InteriorModels />
+    </div>
+  </section>
+
+  <CtaBand heading="Don't buy a bus on a screen. Stand inside one first." />
+</Layout>

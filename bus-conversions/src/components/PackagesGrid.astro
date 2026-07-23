@@ -1,0 +1,68 @@
+---
+import { BUILD_LEVELS, formatPrice } from "../data/site";
+---
+<div
+  class="grid items-stretch"
+  data-reveal-stagger
+  style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(16px,2.5vw,26px)"
+>
+  {
+    BUILD_LEVELS.map((p) => {
+      const featured = !!p.featured;
+      const cardBg = featured ? "var(--color-primary)" : "var(--color-surface)";
+      const cardBorder = featured ? "var(--color-primary)" : "var(--color-border)";
+      const headBorder = featured ? "rgba(216,210,188,.22)" : "var(--color-border)";
+      const levelColor = featured ? "var(--color-accent)" : "var(--color-text)";
+      const nameColor = featured ? "var(--color-on-dark)" : "var(--color-text)";
+      const priceColor = featured ? "var(--color-accent)" : "var(--color-primary)";
+      const durColor = featured ? "#c7c9b6" : "var(--color-text-muted)";
+      const blurbColor = featured ? "#dfe0cf" : "var(--color-primary-soft)";
+      const liColor = featured ? "var(--color-on-dark)" : "var(--color-text)";
+      const dash = featured ? "var(--color-accent)" : "var(--color-text)";
+      return (
+        <article
+          id={p.slug}
+          class="lift relative flex flex-col overflow-hidden"
+          style={`background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;scroll-margin-top:90px`}
+        >
+          {featured && (
+            <div
+              style="position:absolute;top:16px;right:16px;background:var(--color-accent);color:var(--color-primary);font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 11px;border-radius:100px"
+            >
+              Most chosen
+            </div>
+          )}
+          <div style={`padding:26px 26px 22px;border-bottom:1px solid ${headBorder}`}>
+            <div class="eyebrow" style={`letter-spacing:2px;color:${levelColor}`}>{p.level}</div>
+            <h3 class="display" style={`margin:6px 0 10px;font-size:clamp(26px,3.5vw,36px);color:${nameColor};line-height:1;font-family:var(--font-display);font-weight:800`}>
+              {p.name}
+            </h3>
+            <div style={`font-family:var(--font-display);font-weight:700;font-size:clamp(24px,3vw,32px);color:${priceColor}`}>
+              {formatPrice(p.priceLow).replace(",000", "k")} <span style="color:#9aa088;font-weight:500">–</span> {formatPrice(p.priceHigh).replace(",000", "k")}
+            </div>
+            <div style={`font-size:14px;color:${durColor};margin-top:4px`}>{p.duration}</div>
+          </div>
+          <div class="flex-1" style="padding:22px 26px">
+            <p style={`margin:0 0 18px;font-size:16px;line-height:1.5;color:${blurbColor}`}>{p.blurb}</p>
+            <ul class="m-0 flex list-none flex-col p-0" style="gap:11px">
+              {p.includes.map((item) => (
+                <li class="flex gap-2.5" style={`font-size:15px;line-height:1.4;color:${liColor}`}>
+                  <span style={`color:${dash};font-weight:700`}>—</span>{item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div style="padding:0 26px 26px">
+            <a
+              href={`/visit?level=${p.slug}`}
+              class="cta block text-center"
+              style={`font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;text-decoration:none;padding:13px;border-radius:5px;${featured ? "background:var(--color-accent);color:var(--color-primary)" : "background:transparent;color:var(--color-primary);border:2px solid var(--color-primary)"}`}
+            >
+              Tour this build <span class="arrow">→</span>
+            </a>
+          </div>
+        </article>
+      );
+    })
+  }
+</div>
