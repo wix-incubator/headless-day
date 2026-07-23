@@ -65,18 +65,14 @@ uncle-johnys-tombstones/
    npm install
    ```
 
-3. **Log in and connect to your own Wix site:**
+3. **Log in and connect to your Wix site:**
    ```bash
    wix login
    npm create @wix/new@latest init
    ```
-   This provisions a **new** Wix site for your account and writes a local `wix.config.json` (site-specific, gitignored — not committed to this repo). The business name is derived from the folder name.
+   This creates a new Wix site for your account and writes `wix.config.json` locally. That file is site-specific and is not committed to this repo.
 
-   > **Do not run `wix init`** — that command does not exist. Project linking is done via `npm create @wix/new@latest init` (from the `@wix/create-new` package, not `@wix/cli`).
-
-   If provisioning fails with an `INTERNAL` error, retry shortly or escalate with the Request ID from the error output.
-
-4. **Install required Wix Business Solutions** on your new site — install **Wix Stores** from the App Market in [manage.wix.com](https://manage.wix.com) and add products in the Stores dashboard.
+4. **Install Wix Stores** on your new site from the App Market in [manage.wix.com](https://manage.wix.com), then add products in the Stores dashboard.
 
 5. **Run locally:**
    ```bash
