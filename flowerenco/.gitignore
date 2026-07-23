@@ -1,5 +1,6 @@
 # wix integration
 .wix/
+wix.config.json
 
 # build output
 dist/

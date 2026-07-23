@@ -12,8 +12,7 @@ immediate capture. Auth-capture is dropped.
 
 ## Connecting card payments (owner, dashboard — cannot be done headlessly)
 Requires merchant onboarding (business + bank + ID), so it's a Wix dashboard step:
-1. manage.wix.com → site `421edfe8-aed6-484e-b980-bc434ab0b75a` → **Settings → Accept Payments**
-   (direct: https://manage.wix.com/dashboard/421edfe8-aed6-484e-b980-bc434ab0b75a/payments).
+1. Open [manage.wix.com](https://manage.wix.com), select your site, then go to **Settings → Accept Payments**.
 2. Connect **Wix Payments** (cards) — optionally add PayPal etc.
 3. Complete onboarding → the basket "Pay by card" button then accepts cards at the hosted checkout.
 

@@ -59,16 +59,17 @@ flowerenco/
 │               └── setup-reviews.ts  # One-time: creates the Reviews CMS collection
 ├── astro.config.mjs
 ├── package.json
-└── wix.config.example.json    # Copy to wix.config.json and fill in your values
+├── .env.example                 # Optional: Wix Form ID for CRM contact sync
+└── wix.config.example.json      # Reference only — generated locally by init
 ```
 
 ## How to Create This Yourself
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js v20.11.0+
 - A [Wix account](https://manage.wix.com)
-- [Wix CLI](https://dev.wix.com/docs/build-apps/developer-tools/cli/get-started/install-the-wix-cli) installed globally:
+- [Wix CLI](https://dev.wix.com/docs/wix-cli/guides/about-the-wix-cli) — install globally or use via `npx`:
   ```bash
   npm install -g @wix/cli
   ```
@@ -76,6 +77,8 @@ flowerenco/
 ---
 
 ### Option A: Download & Run This Project
+
+> **Important:** All commands below must be run from inside the `flowerenco/` folder, **not** the monorepo root. The monorepo is a collection of projects — the Wix CLI only works inside an individual project directory.
 
 1. **Sparse-clone just this folder** from the monorepo:
    ```bash
@@ -90,52 +93,60 @@ flowerenco/
    npm install
    ```
 
-3. **Connect to your own Wix site:**
+3. **Log in and connect to your own Wix site:**
    ```bash
-   wix init
+   wix login
+   npm create @wix/new@latest init
    ```
-   This generates a local `wix.config.json` with your site's `appId` and `siteId`. When prompted, select an existing Wix site or create a new one. Make sure the following are installed on it from the [App Market](https://www.wix.com/app-market):
-   - **Wix Stores**
-   - **Wix Portfolio**
-   - **Wix Forms**
+   This provisions a **new** Wix site for your account and writes a local `wix.config.json` (site-specific, gitignored — not committed to this repo). The business name is derived from the folder name.
 
-4. **Set up the Reviews CMS collection** (one-time, run after `wix dev` starts):
+   > **Do not run `wix init`** — that command does not exist. Project linking is done via `npm create @wix/new@latest init` (from the `@wix/create-new` package, not `@wix/cli`).
+
+   If provisioning fails with an `INTERNAL` error, retry shortly or escalate with the Request ID from the error output.
+
+4. **Set up your Wix dashboard content** — see [Dashboard setup](#dashboard-setup) below. Install **Wix Stores**, **Wix Portfolio**, and **Wix Forms** from the [App Market](https://www.wix.com/app-market).
+
+5. **Configure environment variables** (optional, for CRM contact sync):
+   ```bash
+   cp .env.example .env.local
+   ```
+   Paste your Wix Form ID into `.env.local`. Without this, contact messages still save to the `StudioMessages` CMS collection if you create it.
+
+6. **Set up the Reviews CMS collection** (one-time, run after `npm run dev` starts):
    ```bash
    curl -X POST http://localhost:3000/api/admin/setup-reviews
    ```
    You can delete `src/pages/api/admin/setup-reviews.ts` after running this.
 
-5. **Run locally:**
+7. **Run locally:**
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000).
+   Open the local URL shown in the terminal (typically [http://localhost:3000](http://localhost:3000)).
 
-6. **Deploy:**
+8. **Build and deploy:**
    ```bash
    npm run build
    npm run release
    ```
+   Your site will be live on Wix's infrastructure under your site's domain.
 
 ---
 
 ### Option B: Build It From Scratch
 
-1. **Scaffold a new Wix Managed Headless Astro project:**
+1. **Create a new Wix Managed Headless project:**
    ```bash
-   npm create @wix/app@latest
+   npm create @wix/new@latest -- headless
    ```
-   Choose **Headless** and **Astro** as the framework.
+   Follow the prompts for business name, folder name, and site template.
 
 2. **Install the required Wix SDK packages:**
    ```bash
    npm install @wix/stores @wix/ecom @wix/redirects @wix/portfolio @wix/forms @wix/data @wix/media @wix/essentials @wix/sdk
    ```
 
-3. **Set up Wix Business Solutions** on your site in [manage.wix.com](https://manage.wix.com):
-   - Add **Wix Stores** and create your products with variants (size, style options)
-   - Add **Wix Portfolio** and create collections with gallery images
-   - Add **Wix Forms** and create a contact form
+3. **Set up Wix Business Solutions** on your site in [manage.wix.com](https://manage.wix.com) — see [Dashboard setup](#dashboard-setup) below.
 
 4. **Build the custom order flow** in a React island:
    - Render size and style options from the product's variants
@@ -175,7 +186,22 @@ flowerenco/
    npm run release
    ```
 
-For full SDK reference, see the [Wix Headless docs](https://dev.wix.com/docs/go-headless).
+For full docs, see [Quick Start with the Wix CLI](https://dev.wix.com/docs/go-headless/get-started/quick-starts/wix-managed-headless/quick-start-with-the-wix-cli).
+
+---
+
+### Dashboard setup
+
+After linking your site, configure the following in [manage.wix.com](https://manage.wix.com):
+
+| What | Where | Details |
+|------|-------|---------|
+| **Wix Stores** | App Market | Create three products with these URL slugs (used by `styleImages.ts` for style previews): `custom-portrait-vase`, `custom-pet-vase`, `custom-duo-vase`. Each product needs size and style variants. |
+| **Wix Portfolio** | App Market | Create collections with gallery images for the `/gallery` pages. |
+| **Wix Forms** | App Market | Create a contact form with fields: `first_name`, `email`, `phone` (optional), `message`. Copy the form ID into `.env.local` as `WIX_FORM_ID`. |
+| **StudioMessages** | CMS (Content Manager) | Optional collection for storing contact inquiries. Fields: `name` (Text), `email` (Text), `phone` (Text), `message` (Text), `submittedAt` (Text). Created automatically if missing when a message is sent. |
+| **Reviews** | CMS | Run the one-time setup endpoint (step 6 in Option A) or create manually with fields: `name`, `email`, `rating`, `review`, `photoUrl`, `productName`, `approved` (Boolean). |
+| **Wix Payments** | Settings → Accept Payments | Required for live card checkout. See `PAYMENTS.md` for policy notes. |
 
 ---
 
