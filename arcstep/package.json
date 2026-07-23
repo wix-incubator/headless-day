@@ -1,0 +1,25 @@
+{
+  "name": "arcstep-audio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "wix preview",
+    "release": "wix release"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@wix/blog": "^1.0.620",
+    "@wix/cli": "^1.1.226",
+    "@wix/data": "^1.0.486",
+    "@wix/members": "^1.0.486",
+    "@wix/pricing-plans": "^1.0.346",
+    "@wix/redirects": "^1.0.119",
+    "@wix/ricos": "^11.6.2",
+    "@wix/sdk": "^1.21.13",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.3.1"
+  }
+}
