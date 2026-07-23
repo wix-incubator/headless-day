@@ -1,41 +1,141 @@
 # Uncle Johny's Tombstones
 
-🔗 Live site: [https://www.uncle-johny-tombstones.com/](https://www.uncle-johny-tombstones.com/)
+> **Live Site:** [www.uncle-johny-tombstones.com](https://www.uncle-johny-tombstones.com/)
 
-A horror-themed tombstone shop built with [Astro](https://astro.build) on [Wix Managed Headless](https://dev.wix.com/docs/go-headless). Browse the catalogue, add a tombstone to your cart, and check out through a Wix-hosted checkout — complete with an ambient soundtrack and a suitably grim success/failure flow.
+A horror-themed tombstone shop built with Astro on Wix Managed Headless. Browse the spooky catalogue, add a tombstone to your cart, and check out through a Wix-hosted checkout — complete with an ambient graveyard soundtrack and a suitably grim success/failure flow.
 
-## Stack
+## Technologies
 
-- [Astro](https://astro.build) (server output) + React for interactive islands
-- [Wix Headless](https://dev.wix.com/docs/go-headless) — Wix Stores (catalogue/cart) and Wix eCommerce (checkout redirects)
-- Deployed via the Wix CLI (`wix build` / `wix release`)
+- **Framework:** [Astro](https://astro.build) 5 (server output) + React for interactive islands
+- **Wix Integration:** Wix Managed Headless — [Wix Stores](https://support.wix.com/en/article/wix-stores-about-wix-stores) (catalogue & cart) + [Wix eCommerce](https://dev.wix.com/docs/rest/business-solutions/e-commerce/introduction) (checkout redirects)
+- **Styling:** Vanilla CSS with custom keyframe animations (no external CSS framework)
+- **Language:** TypeScript
+- **Deployment:** Wix CLI (`wix build` / `wix release`) — hosted on Wix's cloud infrastructure
 
-## Getting started
+## Project Structure
 
-1. Install dependencies:
+```
+uncle-johnys-tombstones/
+├── public/              # Static assets (images, audio, SVGs)
+├── src/
+│   ├── components/      # Page sections: Hero, Pitch, Testimonials, Welcome, footers
+│   ├── layouts/         # Shared Layout.astro (nav, cart badge, audio player)
+│   ├── lib/
+│   │   └── shop.ts      # Server-side helpers for Wix Stores catalogue & cart
+│   └── pages/
+│       ├── index.astro       # Landing page
+│       ├── shop.astro        # Product listing
+│       ├── product/[id].astro # Product detail
+│       ├── success.astro     # Post-checkout success
+│       ├── failure.astro     # Post-checkout failure / abandonment
+│       └── api/
+│           ├── cart.ts       # GET item count / POST add to cart
+│           └── checkout.ts   # Redirect to Wix-hosted checkout
+├── astro.config.mjs
+└── package.json
+```
+
+## How to Create This Yourself
+
+### Prerequisites
+
+- Node.js 18+
+- A [Wix account](https://manage.wix.com)
+- [Wix CLI](https://dev.wix.com/docs/build-apps/developer-tools/cli/get-started/install-the-wix-cli) installed globally:
+  ```bash
+  npm install -g @wix/cli
+  ```
+
+---
+
+### Option A: Download & Run This Project
+
+1. **Sparse-clone just this folder** from the monorepo:
+   ```bash
+   git clone --filter=blob:none --sparse https://github.com/wix-incubator/headless-day.git
+   cd headless-day
+   git sparse-checkout set uncle-johnys-tombstones
+   cd uncle-johnys-tombstones
    ```
+
+2. **Install dependencies:**
+   ```bash
    npm install
    ```
-2. Connect the project to your own Wix site with the [Wix CLI](https://dev.wix.com/docs/go-headless) (this generates a local `wix.config.json` — intentionally not included/committed here, since it's specific to a single site):
-   ```
+
+3. **Connect to your own Wix site:**
+   Run the Wix CLI init command — this generates a local `wix.config.json` that links the project to your site. The file is site-specific and is intentionally not committed to this repo.
+   ```bash
    wix init
    ```
-3. Run the local dev server:
-   ```
+   When prompted, select an existing Wix site or create a new one. Make sure **Wix Stores** is installed on the site (you can add it from the Wix App Market).
+
+4. **Run locally:**
+   ```bash
    npm run dev
    ```
-4. Build and release:
+   Open [http://localhost:3000](http://localhost:3000).
+
+5. **Build and deploy:**
+   ```bash
+   npm run build
+   npm run release
    ```
+   Your site will be live on Wix's infrastructure under your site's domain.
+
+---
+
+### Option B: Build It From Scratch
+
+1. **Create a new Wix Managed Headless project:**
+   ```bash
+   npm create @wix/app@latest
+   ```
+   Choose **Headless** as the project type and **Astro** as the framework. This scaffolds a new project connected to a Wix site.
+
+2. **Install Wix business solution packages:**
+   ```bash
+   npm install @wix/stores @wix/ecom @wix/redirects @wix/essentials
+   ```
+
+3. **Set up Wix Stores on your site:**
+   - Go to [manage.wix.com](https://manage.wix.com), open your site, and install **Wix Stores** from the App Market.
+   - Add products with images and prices in the Stores dashboard.
+
+4. **Configure Astro for server-side rendering:**
+   In `astro.config.mjs`, set `output: "server"` and add the `@wix/astro` and `@wix/astro-pages` integrations:
+   ```js
+   import wix from "@wix/astro";
+   import wixPages from "@wix/astro-pages";
+
+   export default defineConfig({
+     integrations: [wix(), wixPages()],
+     output: "server",
+   });
+   ```
+
+5. **Fetch products server-side** using the Wix Stores SDK (no API key needed — authentication is ambient in Managed Headless):
+   ```ts
+   import { productsV3 } from "@wix/stores";
+
+   const { items } = await productsV3.queryProducts().limit(100).find();
+   ```
+
+6. **Wire up cart and checkout** using `@wix/ecom`:
+   - `currentCart.addToCurrentCart(...)` to add items
+   - `currentCart.createCheckoutFromCurrentCart(...)` + `redirects.createRedirectSession(...)` to send the buyer to Wix-hosted checkout
+   - Handle `/success` and `/failure` callback pages
+
+7. **Deploy:**
+   ```bash
    npm run build
    npm run release
    ```
 
-## Project structure
-
-- `src/pages` — routes: landing page, `/shop`, `/product/[id]`, `/api/cart`, `/api/checkout`, `/success`, `/failure`
-- `src/lib/shop.ts` — server-side helpers for reading the Wix Stores catalogue
-- `src/components`, `src/layouts` — page sections and shared layout
+For full SDK reference, see the [Wix Headless docs](https://dev.wix.com/docs/go-headless).
 
 ---
 
-**Disclaimer:** This is a Wix Headless project created for demonstration purposes only. Cloning or copying this repo is encouraged, but is done on the responsibility of the user.
+## Disclaimer
+
+This is a Wix Headless project created for demonstration purposes only. Cloning or copying this repo is encouraged, but is done on the responsibility of the user.
