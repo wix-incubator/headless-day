@@ -1,0 +1,12 @@
+node_modules
+dist/
+.astro/
+.wix/
+wix.config.json
+
+# environment variables
+.env
+.env.local
+.env.production
+
+.DS_Store
