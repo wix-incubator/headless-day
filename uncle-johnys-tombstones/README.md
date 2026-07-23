@@ -39,9 +39,9 @@ uncle-johnys-tombstones/
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js v20.11.0+
 - A [Wix account](https://manage.wix.com)
-- [Wix CLI](https://dev.wix.com/docs/build-apps/developer-tools/cli/get-started/install-the-wix-cli) installed globally:
+- [Wix CLI](https://dev.wix.com/docs/wix-cli/guides/about-the-wix-cli) installed globally:
   ```bash
   npm install -g @wix/cli
   ```
@@ -49,6 +49,8 @@ uncle-johnys-tombstones/
 ---
 
 ### Option A: Download & Run This Project
+
+> **Important:** All commands below must be run from inside the `uncle-johnys-tombstones/` folder, **not** the monorepo root. The Wix CLI only works inside an individual project directory.
 
 1. **Sparse-clone just this folder** from the monorepo:
    ```bash
@@ -63,20 +65,22 @@ uncle-johnys-tombstones/
    npm install
    ```
 
-3. **Connect to your own Wix site:**
-   Run the Wix CLI init command — this generates a local `wix.config.json` that links the project to your site. The file is site-specific and is intentionally not committed to this repo.
+3. **Log in and connect to your Wix site:**
    ```bash
-   wix init
+   wix login
+   npm create @wix/new@latest init
    ```
-   When prompted, select an existing Wix site or create a new one. Make sure **Wix Stores** is installed on the site (you can add it from the Wix App Market).
+   This creates a new Wix site for your account and writes `wix.config.json` locally. That file is site-specific and is not committed to this repo.
 
-4. **Run locally:**
+4. **Install Wix Stores** on your new site from the App Market in [manage.wix.com](https://manage.wix.com), then add products in the Stores dashboard.
+
+5. **Run locally:**
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000).
+   Open the local URL shown in the terminal (typically [http://localhost:3000](http://localhost:3000)).
 
-5. **Build and deploy:**
+6. **Build and deploy:**
    ```bash
    npm run build
    npm run release
@@ -89,9 +93,9 @@ uncle-johnys-tombstones/
 
 1. **Create a new Wix Managed Headless project:**
    ```bash
-   npm create @wix/app@latest
+   npm create @wix/new@latest -- headless
    ```
-   Choose **Headless** as the project type and **Astro** as the framework. This scaffolds a new project connected to a Wix site.
+   Follow the prompts for business name, folder name, and site template. For a store like this one, choose the `commerce` template.
 
 2. **Install Wix business solution packages:**
    ```bash
@@ -132,7 +136,7 @@ uncle-johnys-tombstones/
    npm run release
    ```
 
-For full SDK reference, see the [Wix Headless docs](https://dev.wix.com/docs/go-headless).
+For full docs, see [Quick Start with the Wix CLI](https://dev.wix.com/docs/go-headless/get-started/quick-starts/wix-managed-headless/quick-start-with-the-wix-cli).
 
 ---
 
