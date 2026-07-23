@@ -1,0 +1,36 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ReviewList from "../components/ReviewList";
+import ReviewForm from "../components/ReviewForm";
+---
+
+<Layout
+  title="Reviews — Flowerenco"
+  description="Real reviews from real customers — see what people say about their hand-made character vases from Flowerenco."
+>
+  <section class="wrap reviews-page">
+
+    <div class="rev-intro">
+      <span class="pill" style="background: var(--mustard)">from happy humans</span>
+      <h1>Customer reviews</h1>
+      <p class="sub">Every review is confirmed real before it appears here. No fakes, no pressure.</p>
+    </div>
+
+    <ReviewList client:load />
+
+    <div class="rev-divider">
+      <span>Had a vase made? Share your experience.</span>
+    </div>
+
+    <ReviewForm client:load />
+
+  </section>
+
+  <style>
+    .reviews-page { padding: 2rem 0 3rem; display: grid; gap: 2.5rem; }
+    .rev-intro h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0.6rem 0 0.3rem; }
+    .rev-intro .sub { color: var(--ink-soft); font-size: 1.1rem; margin: 0; }
+    .rev-divider { display: flex; align-items: center; gap: 1rem; color: var(--ink-soft); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rev-divider::before, .rev-divider::after { content: ""; flex: 1; height: 2px; background: var(--ink); opacity: 0.15; }
+  </style>
+</Layout>

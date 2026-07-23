@@ -1,0 +1,79 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { projects as pfProjects, projectItems } from "@wix/portfolio";
+import { pfImg } from "../../lib/wix";
+
+const { slug } = Astro.params;
+
+let project: any = null;
+try {
+  const res = await pfProjects.listProjects();
+  project = (res.projects || []).find((p: any) => p.slug === slug) || null;
+} catch (e) {
+  project = null;
+}
+if (!project) return Astro.redirect("/gallery");
+
+let items: any[] = [];
+try {
+  const res = await projectItems.listProjectItems(project._id);
+  items = res.items || [];
+} catch (e) {
+  items = [];
+}
+
+const cover = pfImg(project.coverImage?.imageInfo, 1000, 1000);
+const details = Array.isArray(project.details) ? project.details : [];
+---
+
+<Layout title={`${project.title} — Flowerenco gallery`} description={project.description?.slice(0, 150)}>
+  <section class="wrap crumbs"><a href="/gallery">← Back to the gallery</a></section>
+
+  <section class="wrap detail">
+    <div class="media">
+      {cover ? <img src={cover} alt={project.title} /> : <div class="ph" />}
+    </div>
+    <div class="info">
+      <h1>{project.title}</h1>
+      {project.description && <p class="desc">{project.description}</p>}
+      {details.length > 0 && (
+        <ul class="details">
+          {details.map((d: any) => (
+            <li><span class="d-label">{d.label}</span><span class="d-text">{d.text}</span></li>
+          ))}
+        </ul>
+      )}
+      <a class="btn tomato" href="/shop">Make one like this</a>
+    </div>
+  </section>
+
+  {items.length > 1 && (
+    <section class="wrap more">
+      <h2>More angles</h2>
+      <div class="more-grid">
+        {items.map((it: any) => {
+          const src = pfImg(it.image?.imageInfo, 700, 700);
+          return src ? <img src={src} alt={it.title || project.title} /> : null;
+        })}
+      </div>
+    </section>
+  )}
+
+  <style>
+    .crumbs { padding-top: 1.2rem; }
+    .crumbs a { text-decoration: none; font-weight: 700; }
+    .detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; padding: 1rem 0 2rem; align-items: start; }
+    .media img, .ph { width: 100%; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); aspect-ratio: 1; object-fit: cover; }
+    .ph { background: linear-gradient(135deg, var(--blush-soft), #cfe6e2); }
+    .info h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin: 0 0 0.6rem; }
+    .desc { color: var(--ink-soft); font-size: 1.1rem; }
+    .details { list-style: none; padding: 0; margin: 1.2rem 0 1.6rem; display: grid; gap: 0.4rem; }
+    .details li { display: flex; gap: 0.8rem; border-bottom: 2px dotted var(--blush-soft); padding: 0.35rem 0; }
+    .d-label { font-weight: 800; min-width: 90px; }
+    .d-text { color: var(--ink-soft); }
+    .more { padding-bottom: 2rem; }
+    .more-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+    .more-grid img { width: 100%; border: var(--border); border-radius: var(--radius-sm); aspect-ratio: 1; object-fit: cover; }
+    @media (max-width: 780px) { .detail { grid-template-columns: 1fr; } .more-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</Layout>
