@@ -1,0 +1,99 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import MobileStickyBar from "../components/MobileStickyBar.astro";
+import { BUSINESS } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Extra page-specific JSON-LD objects (Service, ItemList, FAQPage, Event…) */
+  jsonLd?: Record<string, any>[];
+}
+
+const {
+  title = `${BUSINESS.name} — ${BUSINESS.tagline}`,
+  description = "A Portland workshop converting decommissioned transit buses into licensed tiny homes — titled as legal motorhomes through Oregon DMV. Tour a build in progress on an open-build Saturday.",
+  jsonLd = [],
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+
+// Sitewide AutomotiveBusiness schema
+const orgLd = {
+  "@context": "https://schema.org",
+  "@type": "AutomotiveBusiness",
+  name: BUSINESS.name,
+  description: "Custom bus conversion tiny home builder converting decommissioned transit buses into licensed motorhomes.",
+  address: { "@type": "PostalAddress", addressLocality: "Portland", addressRegion: "OR", addressCountry: "US" },
+  email: BUSINESS.email,
+  telephone: BUSINESS.phone,
+  priceRange: BUSINESS.priceRange,
+  foundingDate: BUSINESS.established,
+  areaServed: "Oregon",
+  openingHoursSpecification: [
+    { "@type": "OpeningHoursSpecification", dayOfWeek: ["Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "17:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "10:00", closes: "14:00" },
+  ],
+  sameAs: ["https://instagram.com/busconversions", "https://instagram.com/therollsign"],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={BUSINESS.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <ClientRouter />
+    <script is:inline>
+      // Enable motion only when the visitor hasn't asked to reduce it.
+      // Reveals stay hidden (and then animate in) only under .motion,
+      // so the page is fully visible if JS or motion is unavailable.
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("motion");
+      }
+    </script>
+
+    <Fragment set:html={`<script type="application/ld+json">${JSON.stringify(orgLd)}</script>`} />
+    {
+      jsonLd.map((obj) => (
+        <Fragment set:html={`<script type="application/ld+json">${JSON.stringify(obj)}</script>`} />
+      ))
+    }
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only"
+      style="position:absolute;left:8px;top:8px;z-index:100;background:var(--color-accent);color:var(--color-primary);padding:10px 16px;border-radius:4px;font-family:var(--font-display);font-weight:700;text-transform:uppercase;font-size:13px"
+      >Skip to content</a
+    >
+    <Nav />
+    <main id="main"><slot /></main>
+    <Footer />
+    <MobileStickyBar />
+    <script>
+      import "../scripts/motion.ts";
+    </script>
+  </body>
+</html>
