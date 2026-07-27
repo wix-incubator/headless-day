@@ -1,0 +1,8 @@
+{
+  "projectType": "Site",
+  "appId": "YOUR_OAUTH_CLIENT_ID_HERE",
+  "siteId": "YOUR_SITE_ID_HERE",
+  "site": {
+    "outputDirectory": "./wix-static"
+  }
+}
