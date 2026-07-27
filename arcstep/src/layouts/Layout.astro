@@ -1,0 +1,37 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  hasSeoTags?: boolean;
+}
+
+const {
+  title = 'ARCSTEP',
+  description = 'A browser-based music sketchpad and loop editor.',
+  hasSeoTags = false,
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111211" />
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" />
+    {!hasSeoTags && (
+      <>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+      </>
+    )}
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
