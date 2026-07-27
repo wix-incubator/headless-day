@@ -1,0 +1,31 @@
+---
+import RollSign from "./RollSign.tsx";
+interface Props { destination?: string; sub?: string; }
+const { destination = "Downtown", sub = "14 · Alberta" } = Astro.props;
+---
+<section style="background:var(--color-teal);color:var(--color-mint);position:relative;overflow:hidden">
+  <div
+    class="mx-auto grid items-center"
+    style="max-width:1180px;padding:clamp(54px,9vw,100px) clamp(16px,4vw,40px);grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:clamp(28px,5vw,60px)"
+  >
+    <div data-reveal>
+      <span class="eyebrow" style="letter-spacing:3px;color:var(--color-mint)">The detail we keep</span>
+      <h2 class="display" style="margin:14px 0 18px;line-height:.98;font-size:clamp(30px,5.5vw,58px);font-family:var(--font-display);font-weight:800">
+        Your kitchen still says Downtown.
+      </h2>
+      <p style="margin:0;max-width:48ch;font-size:clamp(16px,1.9vw,19px);line-height:1.6;color:var(--color-mint-soft)">
+        It felt wrong to throw away the part that told you where the bus was
+        going. So every build keeps its destination roll sign — rewired to glow
+        over a stove, a desk, a bed. Strangers at campgrounds still ask which line
+        it ran.
+      </p>
+    </div>
+    <div
+      class="flex flex-col items-center gap-3"
+      style="background:var(--color-teal-surface);border:1px solid rgba(160,255,232,.28);border-radius:10px;padding:clamp(30px,5vw,52px) clamp(24px,4vw,40px)"
+    >
+      <span class="eyebrow" style="font-size:11px;letter-spacing:2.5px;color:#6f93a3">Destination blind</span>
+      <RollSign client:visible text={destination} size="lg" sub={sub} />
+    </div>
+  </div>
+</section>

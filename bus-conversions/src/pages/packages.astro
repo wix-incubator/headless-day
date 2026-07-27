@@ -1,0 +1,66 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PackagesGrid from "../components/PackagesGrid.astro";
+import BuildConfigurator from "../components/BuildConfigurator.tsx";
+import CtaBand from "../components/CtaBand.astro";
+import { BUILD_LEVELS, INTERIOR_MODELS, BUSINESS } from "../data/site";
+
+const levels = BUILD_LEVELS.map(({ slug, name, priceLow, priceHigh, duration }) => ({ slug, name, priceLow, priceHigh, duration }));
+const models = INTERIOR_MODELS.map(({ slug, name, sleeps, blurb }) => ({ slug, name, sleeps, blurb }));
+
+const serviceLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Transit bus to tiny home conversion",
+  provider: { "@type": "AutomotiveBusiness", name: BUSINESS.name },
+  areaServed: "Oregon",
+  offers: BUILD_LEVELS.map((l) => ({
+    "@type": "Offer",
+    name: l.name,
+    priceCurrency: "USD",
+    priceSpecification: { "@type": "PriceSpecification", minPrice: l.priceLow, maxPrice: l.priceHigh, priceCurrency: "USD" },
+    description: l.blurb,
+  })),
+};
+---
+<Layout
+  title={`Conversion Packages — ${BUSINESS.name}`}
+  description="Three honest build levels for converting a transit bus into a licensed tiny home: Shell-Out ($35k–$55k), Road-Ready ($85k–$110k), and Full Home ($130k–$185k). Configure your build and book a tour."
+  jsonLd={[serviceLd]}
+>
+  <section style="background:var(--color-background)" class="rib-grid">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px) clamp(40px,6vw,64px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-accent);color:var(--color-primary);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Conversion Packages</div>
+        <h1 class="display" style="margin:0;line-height:1;font-size:clamp(32px,6vw,64px);max-width:18ch">
+          Three build levels. You pick where the bus stops being a bus.
+        </h1>
+        <p style="margin:0;max-width:54ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-text-muted)">
+          Honest price ranges, not counting the bus itself. We'll tell you which
+          level fits before you spend a dime.
+        </p>
+      </div>
+      <PackagesGrid />
+    </div>
+  </section>
+
+  <!-- CONFIGURE YOUR BUILD -->
+  <section style="background:var(--color-surface);border-top:1px solid var(--color-border)">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px)">
+      <div class="mb-10 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-primary);color:var(--color-accent);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">Configure your build</div>
+        <h2 class="display" style="margin:0;line-height:1;font-size:clamp(30px,5.5vw,56px);max-width:18ch">
+          Spec it out. We'll have one at that stage on Saturday.
+        </h2>
+        <p style="margin:0;max-width:56ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-text-muted)">
+          Pick a level, a length, a layout, and the systems you want — see a rough
+          estimate, then bring the spec to an open-build Saturday and walk through
+          a bus at exactly that stage.
+        </p>
+      </div>
+      <BuildConfigurator client:visible levels={levels} models={models} />
+    </div>
+  </section>
+
+  <CtaBand heading="Numbers on a screen only get you so far. Come stand in one." />
+</Layout>

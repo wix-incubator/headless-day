@@ -1,0 +1,67 @@
+---
+import Layout from "../layouts/Layout.astro";
+import PhotoFrame from "../components/PhotoFrame.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { BUSINESS } from "../data/site";
+import { getStory } from "../lib/cms";
+
+const story = await getStory();
+
+const teardownGlob = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/about/teardown.{png,webp,jpg,jpeg}",
+  { eager: true }
+);
+const teardown = Object.values(teardownGlob)[0]?.default ?? null;
+---
+<Layout
+  title={`The Shop — ${BUSINESS.name}`}
+  description="Why we convert decommissioned transit buses instead of vans, how we title every build as a legal motorhome through Oregon DMV, and why every bus keeps its destination roll sign."
+>
+  <!-- STORY -->
+  <section style="background:var(--color-background)">
+    <div class="mx-auto grid items-start gap-12" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px);grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+      <div data-reveal>
+        <div class="eyebrow mb-5" style="background:var(--color-accent);color:var(--color-primary);padding:7px 13px;border-radius:3px;letter-spacing:1.5px;display:inline-block">The Shop</div>
+        <h1 class="display" style="margin:0 0 22px;line-height:1;font-size:clamp(30px,5vw,52px)">
+          {story.heading}
+        </h1>
+        <p style="margin:0;font-size:clamp(16px,1.9vw,19px);line-height:1.65;color:var(--color-primary-soft)">
+          {story.body}
+        </p>
+      </div>
+      <div data-reveal="mask" style="--reveal-delay:120ms">
+        {teardown ? (
+          <img
+            src={teardown.src}
+            width={teardown.width}
+            height={teardown.height}
+            alt="The first Gillig, mid-teardown in the Portland shop"
+            style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:8px"
+          />
+        ) : (
+          <PhotoFrame label="The first Gillig, mid-teardown — Portland, 2018" tone="steel" rounded style="width:100%;aspect-ratio:4/5;min-height:320px" />
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- LICENSING -->
+  <section style="background:var(--color-surface);border-top:1px solid var(--color-border)">
+    <div class="mx-auto" style="max-width:920px;padding:clamp(54px,9vw,96px) clamp(16px,4vw,40px)">
+      <div class="eyebrow mb-4" style="color:var(--color-text)">The licensing story</div>
+      <h2 class="display" style="margin:0 0 18px;line-height:1.02;font-size:clamp(26px,4.5vw,44px)">
+        Every build leaves the shop road-legal and recognized as a dwelling.
+      </h2>
+      <p style="margin:0;font-size:clamp(16px,1.9vw,19px);line-height:1.65;color:var(--color-primary-soft)">
+        We title every conversion as a motorhome through Oregon DMV's RV conversion
+        process. That means inspection, paperwork, and plates are part of every full
+        build — you don't end up with a forty-foot vehicle nobody will register. We
+        walk every client through the realities of parking, zoning, and full-time
+        bus living before they commit, because the part people underestimate isn't
+        the build. It's where you'll put it.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand heading="The best way to understand us is to stand in the shop." />
+</Layout>

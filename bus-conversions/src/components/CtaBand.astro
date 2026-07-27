@@ -1,0 +1,30 @@
+---
+interface Props {
+  heading?: string;
+  cta?: string;
+  href?: string;
+}
+const {
+  heading = "Come walk through a half-finished bus before it's yours.",
+  cta = "Reserve your Saturday",
+  href = "/visit",
+} = Astro.props;
+const label = cta.replace(/→\s*$/, "").trim();
+---
+<section style="background:var(--color-accent);color:var(--color-primary)">
+  <div
+    class="mx-auto flex flex-wrap items-center justify-between gap-6"
+    style="max-width:1180px;padding:clamp(44px,7vw,76px) clamp(16px,4vw,40px)"
+  >
+    <h2 data-reveal class="display" style="margin:0;line-height:.98;font-size:clamp(28px,5vw,52px);max-width:18ch;font-family:var(--font-display);font-weight:800">
+      {heading}
+    </h2>
+    <a
+      href={href}
+      data-reveal="fade"
+      class="cta inline-flex items-center gap-2.5 whitespace-nowrap"
+      style="--reveal-delay:120ms;font-family:var(--font-display);font-weight:700;font-size:clamp(16px,2vw,20px);letter-spacing:1px;text-transform:uppercase;color:var(--color-accent);background:var(--color-primary);padding:17px 32px;border-radius:5px;text-decoration:none"
+      >{label} <span class="arrow">→</span></a
+    >
+  </div>
+</section>

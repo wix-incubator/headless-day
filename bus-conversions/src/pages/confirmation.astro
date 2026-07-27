@@ -1,0 +1,85 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { BUSINESS } from "../data/site";
+---
+<Layout
+  title={`You're on the list — ${BUSINESS.name}`}
+  description="Your open-build Saturday spot is reserved."
+>
+  <section style="background:var(--color-maroon);color:var(--color-on-dark)">
+    <div class="mx-auto" style="max-width:680px;padding:clamp(72px,12vw,130px) clamp(16px,4vw,40px)">
+      <div style="background:var(--color-surface);border-radius:12px;padding:clamp(28px,5vw,48px);color:var(--color-text);text-align:center">
+        <div
+          class="mx-auto mb-5 flex items-center justify-center"
+          style="width:64px;height:64px;border-radius:50%;background:var(--color-accent);color:var(--color-primary);font-family:var(--font-display);font-weight:700;font-size:34px"
+          aria-hidden="true"
+        >✓</div>
+        <h1 class="display" style="margin:0 0 14px;font-size:clamp(28px,5vw,42px);line-height:1">
+          You're on the list.
+        </h1>
+        <p style="margin:0 auto 26px;max-width:44ch;font-size:clamp(16px,2vw,18px);line-height:1.6;color:var(--color-text-muted)">
+          We'll confirm your Saturday by email and tell you which buses are
+          mid-build that week. Wear shoes you don't mind getting sawdust on.
+        </p>
+
+        <dl
+          id="booking-details"
+          class="mx-auto mb-8 text-left"
+          style="display:none;background:var(--color-background);border:1px solid var(--color-border);border-radius:10px;padding:clamp(18px,3vw,26px);max-width:420px"
+        >
+          <div class="detail-row" data-key="displayDate"><dt>When</dt><dd id="d-when"></dd></div>
+          <div class="detail-row" data-key="displayTime"><dt>Time</dt><dd id="d-time"></dd></div>
+          <div class="detail-row" data-key="name"><dt>Name</dt><dd id="d-name"></dd></div>
+          <div class="detail-row" data-key="partySize"><dt>Party</dt><dd id="d-party"></dd></div>
+          <div class="detail-row" data-key="buildLevel"><dt>Build level</dt><dd id="d-level"></dd></div>
+          <div class="detail-row" data-key="notes"><dt>You want to see</dt><dd id="d-notes"></dd></div>
+        </dl>
+
+        <div class="flex flex-col justify-center gap-3.5 sm:flex-row">
+          <a href="/" style="font-family:var(--font-display);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:15px;color:var(--color-primary);background:transparent;border:2px solid var(--color-primary);padding:13px 24px;border-radius:5px;text-decoration:none">
+            Back home
+          </a>
+          <a href="/builds" style="font-family:var(--font-display);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:15px;color:var(--color-primary);background:var(--color-accent);padding:13px 24px;border-radius:5px;text-decoration:none">
+            See finished builds →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  #booking-details dt {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  #booking-details dd { margin: 2px 0 0; font-size: 16px; color: var(--color-text); }
+  #booking-details .detail-row { padding: 8px 0; border-bottom: 1px solid var(--color-border); }
+  #booking-details .detail-row:last-child { border-bottom: none; }
+</style>
+
+<script>
+  import type { BookingData } from "../utils/booking-service";
+  const raw = sessionStorage.getItem("bookingData");
+  if (raw) {
+    const d = JSON.parse(raw) as BookingData;
+    const set = (id: string, val?: string) => {
+      const row = document.querySelector(`.detail-row [id="${id}"]`) as HTMLElement | null;
+      const wrap = row?.closest(".detail-row") as HTMLElement | null;
+      if (val && val.trim()) { if (row) row.textContent = val; }
+      else if (wrap) wrap.style.display = "none";
+    };
+    set("d-when", d.displayDate);
+    set("d-time", d.displayTime);
+    set("d-name", d.name);
+    set("d-party", d.partySize);
+    set("d-level", d.buildLevel && d.buildLevel !== "Not sure yet" ? d.buildLevel : "");
+    set("d-notes", d.notes);
+    const box = document.getElementById("booking-details");
+    if (box) box.style.display = "block";
+  }
+</script>

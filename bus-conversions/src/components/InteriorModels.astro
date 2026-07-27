@@ -1,0 +1,53 @@
+---
+import PhotoFrame from "./PhotoFrame.astro";
+import { INTERIOR_MODELS } from "../data/site";
+
+// Drop-in renders: put images at src/assets/models/<slug>.(png|webp|jpg)
+// — e.g. src/assets/models/the-studio.png — and they replace the
+// placeholder automatically. Until then, PhotoFrame stands in.
+const renders = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/models/*.{png,webp,jpg,jpeg}",
+  { eager: true }
+);
+const renderFor = (slug: string) => {
+  const key = Object.keys(renders).find((p) => p.includes(`/${slug}.`));
+  return key ? renders[key].default : null;
+};
+---
+<div
+  class="grid"
+  data-reveal-stagger
+  style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px,2.5vw,24px)"
+>
+  {
+    INTERIOR_MODELS.map((m) => {
+      const img = renderFor(m.slug);
+      return (
+        <article
+          class="lift zoom-frame flex flex-col overflow-hidden"
+          style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:10px"
+        >
+          {img ? (
+            <img
+              src={img.src}
+              width={img.width}
+              height={img.height}
+              alt={`Isometric render — ${m.name} layout`}
+              loading="lazy"
+              style="display:block;width:100%;aspect-ratio:1/1;object-fit:cover"
+            />
+          ) : (
+            <PhotoFrame label={`Isometric render — ${m.name}`} tone="warm" style="aspect-ratio:1/1;width:100%" />
+          )}
+          <div class="flex flex-1 flex-col" style="padding:18px 18px 20px">
+            <div class="flex items-center justify-between gap-2.5">
+              <h3 class="display" style="margin:0;font-size:23px;color:var(--color-text);font-family:var(--font-display);font-weight:800">{m.name}</h3>
+              <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#3a4416;background:var(--color-accent);padding:3px 8px;border-radius:3px">{m.sleeps}</span>
+            </div>
+            <p class="flex-1" style="margin:9px 0 0;font-size:14px;line-height:1.5;color:var(--color-text-muted)">{m.blurb}</p>
+          </div>
+        </article>
+      );
+    })
+  }
+</div>

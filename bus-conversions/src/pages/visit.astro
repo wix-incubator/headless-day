@@ -1,0 +1,75 @@
+---
+import Layout from "../layouts/Layout.astro";
+import TourBooking from "../components/TourBooking.tsx";
+import { BUSINESS } from "../data/site";
+
+const eventLd = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: "Open-Build Saturday",
+  description:
+    "Walk through decommissioned transit buses at every stage of conversion — from stripped-to-the-ribs to nearly finished — at the Bus Conversions shop in Portland.",
+  eventSchedule: {
+    "@type": "Schedule",
+    byDay: "https://schema.org/Saturday",
+    startTime: "10:00",
+    endTime: "14:00",
+    scheduleTimezone: "America/Los_Angeles",
+    repeatFrequency: "P1W",
+  },
+  eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  location: {
+    "@type": "Place",
+    name: `${BUSINESS.name} shop`,
+    address: { "@type": "PostalAddress", addressLocality: "Portland", addressRegion: "OR", addressCountry: "US" },
+  },
+  organizer: { "@type": "AutomotiveBusiness", name: BUSINESS.name },
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+  isAccessibleForFree: true,
+};
+---
+<Layout
+  title={`Open-Build Saturdays — ${BUSINESS.name}`}
+  description="Reserve a spot to tour works-in-progress at the Bus Conversions shop. Every Saturday, 10am–2pm. No deposit to tour — walk the shop and ask us anything before you commit to a build."
+  jsonLd={[eventLd]}
+>
+  <section style="background:var(--color-maroon);color:var(--color-on-dark)">
+    <div
+      class="mx-auto grid"
+      style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px);grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:clamp(30px,5vw,60px)"
+    >
+      <div data-reveal>
+        <div class="eyebrow mb-5 inline-block" style="background:var(--color-coral);color:var(--color-maroon);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">
+          Open-Build Saturdays
+        </div>
+        <h1 class="display" style="margin:0 0 18px;line-height:.98;font-size:clamp(32px,5.5vw,56px)">
+          Don't buy a bus on a screen. Stand inside one first.
+        </h1>
+        <p style="margin:0 0 24px;max-width:46ch;font-size:clamp(16px,1.9vw,19px);line-height:1.6;color:var(--color-maroon-soft)">
+          Every Saturday the shop doors are open. Walk through buses at every
+          stage — stripped to the ribs to nearly finished. Sawdust included.
+        </p>
+        <div class="flex flex-col gap-3.5">
+          <div class="flex items-start gap-3">
+            <span style="font-family:var(--font-display);font-weight:700;color:var(--color-coral);font-size:18px;line-height:1.3">↳</span>
+            <span style="font-size:15px;line-height:1.5;color:var(--color-maroon-soft)">
+              <strong style="color:var(--color-on-dark);font-weight:600">Saturdays, 10am–2pm.</strong>
+              Shop hours Tue–Fri 9–5; closed Sun–Mon.
+            </span>
+          </div>
+          <div class="flex items-start gap-3">
+            <span style="font-family:var(--font-display);font-weight:700;color:var(--color-coral);font-size:18px;line-height:1.3">↳</span>
+            <span style="font-size:15px;line-height:1.5;color:var(--color-maroon-soft)">
+              <strong style="color:var(--color-on-dark);font-weight:600">No deposit to tour.</strong>
+              Just show up, walk the shop, and ask us anything before you commit.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div data-reveal="fade" style="--reveal-delay:120ms;background:var(--color-surface);border-radius:10px;padding:clamp(22px,3.5vw,34px);color:var(--color-text)">
+        <TourBooking client:load />
+      </div>
+    </div>
+  </section>
+</Layout>

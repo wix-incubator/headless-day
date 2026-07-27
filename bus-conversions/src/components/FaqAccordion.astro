@@ -1,0 +1,38 @@
+---
+import { FAQS } from "../data/site";
+interface Props { items?: { q: string; a: string }[]; }
+const { items = FAQS } = Astro.props;
+---
+<div class="flex flex-col gap-3" data-reveal-stagger>
+  {
+    items.map((f, i) => (
+      <details
+        class="group overflow-hidden rounded-lg"
+        style="background:#fff;border:1px solid var(--color-border)"
+        open={i === 0}
+      >
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between gap-4"
+          style="padding:clamp(16px,2.6vw,22px) clamp(16px,3vw,26px)"
+        >
+          <span class="display" style="font-size:clamp(17px,2.3vw,22px);color:var(--color-text);line-height:1.1;font-weight:700">
+            {f.q}
+          </span>
+          <span
+            class="flex flex-none items-center justify-center transition-transform group-open:rotate-45"
+            style="width:30px;height:30px;border-radius:50%;background:var(--color-background);color:var(--color-text);font-size:20px;font-weight:700"
+            aria-hidden="true"
+          >+</span>
+        </summary>
+        <div style="padding:0 clamp(16px,3vw,26px) clamp(18px,2.6vw,24px)">
+          <p style="margin:0;font-size:clamp(15px,1.85vw,17px);line-height:1.6;color:var(--color-text-muted);max-width:70ch">
+            {f.a}
+          </p>
+        </div>
+      </details>
+    ))
+  }
+</div>
+<style>
+  summary::-webkit-details-marker { display: none; }
+</style>

@@ -1,0 +1,32 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FaqAccordion from "../components/FaqAccordion.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { BUSINESS, FAQS } from "../data/site";
+
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+---
+<Layout
+  title={`Questions — ${BUSINESS.name}`}
+  description="The weight, legality, cost, and timeline questions answered before you email: is a converted bus legal to live in and drive, what a conversion costs, how long it takes, and where you can park it."
+  jsonLd={[faqLd]}
+>
+  <section style="background:var(--color-surface)">
+    <div class="mx-auto" style="max-width:920px;padding:clamp(54px,9vw,96px) clamp(16px,4vw,40px)">
+      <h1 class="display" data-reveal style="margin:0 0 clamp(28px,4vw,44px);line-height:1;font-size:clamp(32px,6vw,56px)">
+        Questions, answered before you email.
+      </h1>
+      <FaqAccordion items={FAQS} />
+    </div>
+  </section>
+
+  <CtaBand heading="Still have a question? Ask us in person on a Saturday." />
+</Layout>

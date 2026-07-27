@@ -1,0 +1,171 @@
+/* momoamo's actual fonts: General Sans (body) + a free display stand-in for
+   the paid MD Nichrome (Clash Display). Archivo Narrow kept for the roll sign. */
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&f[]=clash-display@500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700&display=swap');
+@import 'tailwindcss';
+
+@plugin "tailwindcss-animate";
+
+/* ============================================================
+   Bus Conversions — design tokens
+   Industrial-craft: weld-shop steel + warm cabin, with a
+   transit destination-sign lime as the one bright accent.
+   ============================================================ */
+@theme {
+  --font-display: 'Clash Display', system-ui, sans-serif;
+  --font-sign: 'Archivo Narrow', 'Clash Display', sans-serif;
+  --font-body: 'General Sans', system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-background: #EFE5D8;   /* warm canvas */
+  --color-surface: #F8F1E4;      /* card paper */
+  --color-text: #292222;         /* near-black bark */
+  --color-text-muted: #6E665A;   /* muted clay */
+  --color-border: #D8D2BC;       /* dust line */
+
+  /* Brand */
+  --color-primary: #273B1F;      /* deep olive */
+  --color-primary-soft: #3a4030;
+  --color-accent: #DFFF4F;       /* destination-sign lime */
+  --color-accent-ink: #273B1F;   /* text on lime */
+  --color-dark: #1E2610;         /* nav / footer ground */
+  --color-on-dark: #EFE5D8;
+
+  /* Teal "why a bus" / route-sign band */
+  --color-teal: #162749;
+  --color-teal-surface: #0F1C36;
+  --color-mint: #A0FFE8;
+  --color-mint-soft: #bfe6dd;
+
+  /* Maroon "builds" / "visit" band */
+  --color-maroon: #602F30;
+  --color-maroon-card: #4E2526;
+  --color-coral: #FF6E4E;
+  --color-maroon-soft: #e8cfc8;
+
+  --radius-card: 10px;
+
+  --animate-flap: bscFlap .5s cubic-bezier(.2,.7,.2,1) both;
+  --animate-fade-up: bscFadeUp .7s cubic-bezier(.16,1,.3,1) both;
+  --animate-grid: bscGrid .8s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes bscFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes bscGrid   { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes bscFlap   { from { opacity: 0; transform: translateY(.5em); } to { opacity: 1; transform: none; } }
+
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -.01em;
+  }
+  ::selection { background: var(--color-accent); color: var(--color-primary); }
+  :focus-visible { outline: 3px solid var(--color-accent); outline-offset: 2px; border-radius: 2px; }
+}
+
+@layer utilities {
+  /* Heavy "bus floor rib" baseline grid that imagery breaks out of */
+  .rib-grid {
+    background-image: repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-text) 7%, transparent) 0 1px,
+      transparent 1px 64px
+    );
+  }
+  .display { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: -.01em; }
+  .eyebrow {
+    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+}
+
+/* ============================================================
+   Motion system — momoamo-style: smooth, unhurried, layered.
+   Reveals are JS-driven (IntersectionObserver, see scripts/motion.ts)
+   and only hidden once `.motion` is set on <html> by an inline gate,
+   so the page is fully visible if JS never runs or motion is reduced.
+   ============================================================ */
+:root {
+  --ease-expo: cubic-bezier(.16, 1, .3, 1);
+  --ease-soft: cubic-bezier(.22, .61, .36, 1);
+}
+
+/* Scroll reveals (gated on .motion so no-JS / reduced-motion shows all) */
+.motion .reveal,
+.motion [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .9s var(--ease-expo), transform .9s var(--ease-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.motion [data-reveal="fade"] { transform: none; }
+.motion [data-reveal="left"] { transform: translateX(-32px); }
+.motion [data-reveal="mask"] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 102% 0);
+  transition: clip-path 1.05s var(--ease-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.motion .reveal.is-visible,
+.motion [data-reveal].is-visible { opacity: 1; transform: none; }
+.motion [data-reveal="mask"].is-visible { clip-path: inset(0 0 0 0); }
+
+/* Hover / press micro-interactions */
+.lift { transition: transform .55s var(--ease-expo), box-shadow .55s var(--ease-expo); }
+.lift:hover { transform: translateY(-6px); box-shadow: 0 22px 48px -22px rgba(28, 34, 14, .5); }
+.zoom-frame { overflow: hidden; }
+.zoom-frame > :first-child { transition: transform .8s var(--ease-expo); will-change: transform; }
+.zoom-frame:hover > :first-child { transform: scale(1.07); }
+
+.cta { transition: transform .35s var(--ease-soft), background-color .25s ease, color .25s ease, border-color .25s ease; }
+.cta:hover { transform: translateY(-2px); }
+.cta:active { transform: translateY(0) scale(.98); }
+.cta .arrow { display: inline-block; transition: transform .35s var(--ease-expo); }
+.cta:hover .arrow { transform: translateX(6px); }
+a, button { -webkit-tap-highlight-color: transparent; }
+
+.ul-grow {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 2px; background-position: 0 100%; background-repeat: no-repeat;
+  transition: background-size .45s var(--ease-expo);
+}
+.ul-grow:hover { background-size: 100% 2px; }
+
+/* Roll-sign marquee — destinations scrolling like a moving blind */
+.marquee { overflow: hidden; }
+.marquee__track {
+  display: inline-flex; flex-wrap: nowrap; white-space: nowrap;
+  animation: bscMarquee var(--marquee-dur, 40s) linear infinite;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+@keyframes bscMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Sticky nav hide-on-scroll-down */
+.nav-shell { transition: transform .45s var(--ease-expo); }
+.nav-shell.nav-hidden { transform: translateY(-105%); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .marquee__track { animation: none !important; }
+  .nav-shell.nav-hidden { transform: none !important; }
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}

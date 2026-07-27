@@ -1,0 +1,88 @@
+---
+import PhotoFrame from "./PhotoFrame.astro";
+import { formatPrice, type FinishedBuild } from "../data/site";
+interface Props { builds: FinishedBuild[]; limit?: number; }
+const { builds, limit } = Astro.props;
+const list = limit ? builds.slice(0, limit) : builds;
+
+// Drop-in renders at src/assets/builds/<slug>.(jpg|png|webp)
+const renders = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/builds/*.{png,webp,jpg,jpeg}",
+  { eager: true }
+);
+const renderFor = (slug: string) => {
+  const key = Object.keys(renders).find((p) => p.includes(`/${slug}.`));
+  return key ? renders[key].default : null;
+};
+
+const badge = (lvl: string) =>
+  lvl === "Full Home"
+    ? "background:var(--color-coral);color:var(--color-maroon)"
+    : lvl === "Road-Ready"
+      ? "background:#7A3D3E;color:var(--color-on-dark)"
+      : "background:#3a4030;color:var(--color-accent)";
+---
+<div
+  class="grid"
+  data-reveal-stagger
+  style="grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:clamp(16px,2.5vw,26px)"
+>
+  {
+    list.map((b) => (
+      <article
+        class="lift build-card flex flex-col overflow-hidden"
+        style="background:var(--color-maroon-card);border:1px solid rgba(255,110,78,.2);border-radius:8px"
+      >
+        {renderFor(b.slug) ? (
+          <div
+            style="height:210px;display:flex;align-items:center;justify-content:center;padding:14px 18px;background:radial-gradient(120% 130% at 50% 18%, #FBF6EC 0%, #EFE6D5 100%)"
+          >
+            <img
+              src={renderFor(b.slug)!.src}
+              width={renderFor(b.slug)!.width}
+              height={renderFor(b.slug)!.height}
+              alt={`${b.busName} — converted ${b.busModelYear}, ${b.originalRoute}`}
+              loading="lazy"
+              style="display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(40,30,20,.18))"
+            />
+          </div>
+        ) : (
+          <PhotoFrame label={`${b.busName} — exterior`} tone="warm" style="width:100%;height:200px" />
+        )}
+        <div class="flex flex-1 flex-col" style="padding:22px 22px 24px">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="display" style="margin:0;font-size:28px;color:var(--color-on-dark);font-family:var(--font-display);font-weight:800">
+              {b.busName}
+            </h3>
+            <span style={`font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:3px;${badge(b.buildLevel)}`}>
+              {b.buildLevel}
+            </span>
+          </div>
+          <div class="eyebrow" style="font-size:13px;letter-spacing:1.5px;color:var(--color-coral);margin-top:7px">
+            {b.originalRoute}
+          </div>
+          <p class="flex-1" style="margin:14px 0 18px;font-size:15px;line-height:1.55;color:var(--color-maroon-soft)">
+            {b.ownerNote}
+          </p>
+          <div
+            class="flex flex-wrap"
+            style="gap:8px 18px;font-size:13px;color:#c49a92;border-top:1px solid rgba(255,110,78,.18);padding-top:14px"
+          >
+            <span><strong style="color:#f3e0d9;font-weight:600">{b.busModelYear.split(" ")[0]}</strong> {b.busModelYear.split(" ").slice(1).join(" ")}</span>
+            <span><strong style="color:#f3e0d9;font-weight:600">{b.lengthFeet} ft</strong> · sleeps {b.sleeps}</span>
+            <span style="color:var(--color-coral);font-weight:600">Built {formatPrice(b.priceBuilt)}</span>
+          </div>
+        </div>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .build-card img { transition: transform .6s cubic-bezier(.16,1,.3,1); will-change: transform; }
+  .build-card:hover img { transform: translateY(-4px) scale(1.05) rotate(-.6deg); }
+  @media (prefers-reduced-motion: reduce) {
+    .build-card img { transition: none; }
+    .build-card:hover img { transform: none; }
+  }
+</style>

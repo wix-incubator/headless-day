@@ -1,0 +1,41 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ProcessTimeline from "../components/ProcessTimeline.astro";
+import CtaBand from "../components/CtaBand.astro";
+import { BUSINESS, PROCESS_STEPS } from "../data/site";
+
+const howToLd = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  name: "How a transit bus becomes a titled tiny home",
+  step: PROCESS_STEPS.map((s, i) => ({
+    "@type": "HowToStep",
+    position: i + 1,
+    name: s.title,
+    text: s.body,
+  })),
+};
+---
+<Layout
+  title={`The Build Process — ${BUSINESS.name}`}
+  description="From auction lot to titled home in seven stages — teardown, insulation, systems, interior build, and titling as a motorhome through Oregon DMV. Posted on every project."
+  jsonLd={[howToLd]}
+>
+  <section style="background:var(--color-background)" class="rib-grid">
+    <div class="mx-auto" style="max-width:1180px;padding:clamp(56px,9vw,104px) clamp(16px,4vw,40px)">
+      <div class="mb-12 flex flex-col gap-4" data-reveal>
+        <div class="eyebrow self-start" style="background:var(--color-accent);color:var(--color-primary);padding:7px 13px;border-radius:3px;letter-spacing:1.5px">The Build Process</div>
+        <h1 class="display" style="margin:0;line-height:1;font-size:clamp(32px,6vw,64px);max-width:16ch">
+          From auction lot to titled home.
+        </h1>
+        <p style="margin:0;max-width:54ch;font-size:clamp(16px,1.9vw,19px);line-height:1.55;color:var(--color-text-muted)">
+          Seven stages, posted on every project so you always know what stage your
+          bus is in.
+        </p>
+      </div>
+      <ProcessTimeline />
+    </div>
+  </section>
+
+  <CtaBand heading="See what we'd build you. Walk the shop on a Saturday." cta="Reserve your Saturday →" />
+</Layout>
