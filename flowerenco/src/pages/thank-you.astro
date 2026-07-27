@@ -1,0 +1,60 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Thank you — Flowerenco">
+  <section class="wrap ty">
+    <div class="card box">
+      <h1 class="big">Thank you — order received! 🎉🌸</h1>
+
+      <p class="order-no" id="order-no" hidden>Your order number is <strong id="order-no-val"></strong></p>
+
+      <p>I'm so happy to be making something for you. Here's what happens next:</p>
+
+      <ul class="next">
+        <li>📞 <strong>I'll be in touch within 2 days</strong> to confirm all the details with you personally.</li>
+        <li>🏺 Your vase is hand-made to order — creating it usually takes <strong>2–3 weeks</strong>.</li>
+        <li>📦 <strong>Shipping is arranged separately</strong> — we'll sort out the details together.</li>
+      </ul>
+
+      <p class="soft">
+        Didn't get to add a reference photo, or want to tweak a detail? Just
+        <a href="/contact">message the studio</a> and mention your order number — it's only me, so it goes straight to me.
+      </p>
+
+      <div class="acts">
+        <a class="btn tomato" href="/gallery">Browse the gallery</a>
+        <a class="btn ghost" href="/">Back home</a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var id = new URLSearchParams(location.search).get("orderId");
+      if (!id) return;
+      fetch("/api/order-summary?orderId=" + encodeURIComponent(id))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.number != null && String(d.number) !== "0") {
+            var val = document.getElementById("order-no-val");
+            var line = document.getElementById("order-no");
+            if (val && line) { val.textContent = "#" + d.number; line.hidden = false; }
+          }
+        })
+        .catch(function () {});
+    })();
+  </script>
+
+  <style>
+    .ty { padding: 3rem 0; display: grid; place-items: center; }
+    .box { padding: 2.5rem; max-width: 600px; text-align: center; }
+    .big { font-family: "Fredoka", sans-serif; font-size: 1.8rem; margin: 0 0 0.8rem; }
+    .order-no { font-size: 1.15rem; background: #cfe6e2; border: 2px solid var(--ink); border-radius: 999px; display: inline-block; padding: 0.35rem 1.1rem; margin: 0 0 1.2rem; }
+    .box > p { color: var(--ink-soft); font-size: 1.1rem; }
+    .next { list-style: none; padding: 0; margin: 1.2rem auto 1.4rem; max-width: 460px; text-align: left; display: grid; gap: 0.7rem; }
+    .next li { background: var(--paper); border: 2px solid var(--ink); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; font-size: 1rem; line-height: 1.45; }
+    .soft a { font-weight: 800; color: var(--tomato); }
+    .acts { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; margin-top: 1.4rem; }
+  </style>
+</Layout>

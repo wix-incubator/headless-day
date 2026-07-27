@@ -1,0 +1,65 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { productsV3 } from "@wix/stores";
+import { imgSrc, money } from "../lib/wix";
+
+let products: any[] = [];
+try {
+  const res = await productsV3.queryProducts().limit(50).find();
+  products = res.items || [];
+} catch (e) {
+  products = [];
+}
+---
+
+<Layout title="Shop — Flowerenco">
+  <section class="wrap head">
+    <span class="pill" style="background: var(--teal); color:#fff">the shop</span>
+    <h1>Choose your character</h1>
+    <p class="lede">Every vase is made to order from your photo. Pick the one that fits — a person, a pet, or the two of them together — then tell me about them.</p>
+  </section>
+
+  <section class="wrap">
+    {products.length === 0 ? (
+      <p class="muted">The shelf is being restocked — check back in a moment.</p>
+    ) : (
+      <div class="grid">
+        {products.map((p) => (
+          <a class="prod card" href={`/product/${p.slug}`}>
+            <div class="prod-img">
+              {imgSrc(p.media?.main) ? (
+                <img src={imgSrc(p.media?.main, 640, 640)} alt={p.name} />
+              ) : (
+                <div class="ph" />
+              )}
+            </div>
+            <div class="prod-body">
+              <p class="prod-name">{p.name}</p>
+              <p class="prod-desc">{p.plainDescription?.slice(0, 90) || ""}{(p.plainDescription?.length || 0) > 90 ? "…" : ""}</p>
+              <p class="prod-price">from {money(p.actualPriceRange?.minValue?.amount)}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <style>
+    .head { padding: 1.5rem 0 1rem; }
+    .head h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0.8rem 0 0.4rem; }
+    .lede { color: var(--ink-soft); font-size: 1.15rem; max-width: 60ch; }
+    .muted { color: var(--ink-soft); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.3rem; }
+    .prod { text-decoration: none; display: block; transition: transform 0.1s; }
+    .prod:hover { transform: translateY(-4px) rotate(-0.5deg); }
+    .prod-img { aspect-ratio: 1; }
+    .prod-img img, .ph { width: 100%; height: 100%; object-fit: cover; }
+    .ph { background: linear-gradient(135deg, var(--blush-soft), #fbe6b0); }
+    .prod-body { padding: 1rem 1.15rem 1.15rem; }
+    .prod-name { font-family: "Fredoka", sans-serif; font-size: 1.25rem; margin: 0; }
+    .prod-desc { margin: 0.3rem 0; color: var(--ink-soft); font-size: 0.95rem; }
+    .prod-price { margin: 0.3rem 0 0; font-weight: 800; }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</Layout>

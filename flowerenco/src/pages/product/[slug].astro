@@ -1,0 +1,120 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { productsV3, readOnlyVariantsV3 } from "@wix/stores";
+import VaseOrder from "../../components/VaseOrder.tsx";
+import ProductGallery from "../../components/ProductGallery.tsx";
+import { imgSrc, money, scaledStatic } from "../../lib/wix";
+import { stylesForSlug } from "../../lib/styleImages";
+
+const { slug } = Astro.params;
+
+let product: any = null;
+try {
+  const res = await productsV3.queryProducts().eq("slug", slug).find();
+  product = res.items?.[0] || null;
+} catch (e) {
+  product = null;
+}
+
+if (!product) return Astro.redirect("/shop");
+
+// Resolve per-size options + prices from the product's variants.
+let sizes: { name: string; price?: string }[] = [];
+try {
+  const { items: variants } = await readOnlyVariantsV3
+    .queryVariants()
+    .eq("productData.productId", product._id)
+    .find();
+  const fallback = product.actualPriceRange?.minValue?.amount;
+  sizes = (variants || []).map((v: any) => {
+    const name =
+      v.optionChoices?.[0]?.optionChoiceNames?.choiceName ??
+      v.choices?.[0]?.optionChoiceNames?.choiceName ??
+      "One size";
+    const price =
+      v.price?.actualPrice?.amount ??
+      v.actualPriceRange?.minValue?.amount ??
+      fallback;
+    return { name, price };
+  });
+} catch (e) {
+  sizes = [];
+}
+// Fallback if variants didn't resolve: use the product option choices.
+if (sizes.length === 0) {
+  const choices = product.options?.[0]?.choicesSettings?.choices || [];
+  const price = product.actualPriceRange?.minValue?.amount;
+  sizes = choices.length
+    ? choices.map((c: any) => ({ name: c.name, price }))
+    : [{ name: "One size", price }];
+}
+
+const currency = product.currency || "USD";
+const heroImg = imgSrc(product.media?.main, 900, 900);
+
+// Subject-matched style examples for the carousel + style picker (person / pet / duo).
+// Route through Wix resizing (enc_auto WebP) so we don't ship the full-size PNGs.
+let gallery = stylesForSlug(slug).map((s) => ({ style: s.style, url: scaledStatic(s.url, 800, 800, 1024, 1024) }));
+if (gallery.length === 0 && heroImg) gallery = [{ style: "Flowerenco", url: heroImg }];
+---
+
+<Layout title={`${product.name} — Flowerenco`} description={product.plainDescription?.slice(0, 150)}>
+  <section class="wrap crumbs">
+    <a href="/shop">← Back to the shop</a>
+  </section>
+
+  <section class="wrap detail">
+    <div class="media">
+      {gallery.length > 0 ? (
+        <ProductGallery client:only="react" images={gallery} alt={product.name} />
+      ) : (
+        <div class="ph" />
+      )}
+      <p class="disclaimer">
+        ✋ These are <strong>examples</strong> of each style, not the actual piece. Every vase is hand-made to order
+        from your photo, so yours will be one-of-a-kind — and lovingly a little different.
+      </p>
+    </div>
+
+    <div class="info">
+      <h1>{product.name}</h1>
+      <p class="price">from {money(product.actualPriceRange?.minValue?.amount, currency)}</p>
+      {product.plainDescription && <p class="desc">{product.plainDescription}</p>}
+
+      <div class="order-box card">
+        <VaseOrder
+          client:only="react"
+          slug={slug}
+          productId={product._id}
+          productName={product.name}
+          sizes={sizes}
+          currency={currency}
+          styleImages={gallery.filter((g) => g.style !== "Flowerenco")}
+        />
+      </div>
+
+      <p class="reassure">🌿 Made to order over ~2–3 weeks · every piece one-of-a-kind · pay securely by card</p>
+      <p class="policy-note">
+        🚚 Shipping is paid when you collect your piece (not at checkout). ↩️ If you reject the finished
+        vase, 70% is refunded — the remaining 30% covers the made-to-order materials &amp; studio time.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .crumbs { padding-top: 1.2rem; }
+    .crumbs a { text-decoration: none; font-weight: 700; }
+    .detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; padding: 1rem 0 2rem; align-items: start; }
+    .media { position: sticky; top: 1rem; align-self: start; }
+    .media img, .ph { width: 100%; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); aspect-ratio: 1; object-fit: cover; position: sticky; top: 1rem; }
+    .ph { background: linear-gradient(135deg, var(--blush-soft), #cfe6e2); }
+    .disclaimer { margin: 0.9rem 0 0; font-size: 0.9rem; color: var(--ink-soft); background: var(--paper); border: 2px dashed var(--ink); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; line-height: 1.5; }
+    .info h1 { font-size: clamp(1.9rem, 4vw, 2.8rem); margin: 0 0 0.4rem; }
+    .price { font-family: "Fredoka", sans-serif; font-size: 1.4rem; margin: 0 0 1rem; color: var(--tomato); }
+    .desc { color: var(--ink-soft); font-size: 1.08rem; margin: 0 0 1.5rem; }
+    .order-box { padding: 1.5rem; }
+    .reassure { margin-top: 1.2rem; color: var(--ink-soft); font-size: 0.95rem; }
+    .policy-note { margin: 0.6rem 0 0; font-size: 0.88rem; line-height: 1.5; color: var(--ink); background: #cfe6e2; border: 2px solid var(--ink); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; }
+    @media (max-width: 780px) { .detail { grid-template-columns: 1fr; } .media { position: static; } }
+  </style>
+</Layout>

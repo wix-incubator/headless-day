@@ -1,0 +1,16 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CartView from "../components/CartView.tsx";
+---
+
+<Layout title="Your basket — Flowerenco">
+  <section class="wrap cart-wrap">
+    <h1>Your basket</h1>
+    <CartView client:only="react" />
+  </section>
+
+  <style>
+    .cart-wrap { padding: 2rem 0; max-width: 720px; }
+    .cart-wrap h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); margin: 0 0 1.2rem; }
+  </style>
+</Layout>

@@ -1,0 +1,159 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { productsV3 } from "@wix/stores";
+import { projects as pfProjects } from "@wix/portfolio";
+import { imgSrc, money, pfImg, scaledStatic } from "../lib/wix";
+
+const HERO = scaledStatic(
+  "https://static.wixstatic.com/media/237b05_6523829a7b9f4cec97522ea474face8f~mv2.png",
+  640, 400, 1376, 768, 64
+);
+
+let products: any[] = [];
+try {
+  const res = await productsV3.queryProducts().limit(3).find();
+  products = res.items || [];
+} catch (e) {
+  products = [];
+}
+
+let projects: any[] = [];
+try {
+  const res = await pfProjects.listProjects();
+  projects = (res.projects || []).filter((p: any) => !p.hidden).slice(0, 3);
+} catch (e) {
+  projects = [];
+}
+
+const steps = [
+  { n: "1", t: "Pick a size", d: "Small, medium or large — a stem holder or a proper statement piece." },
+  { n: "2", t: "Choose a style", d: "Matte Folk, Glossy Doodle or Blue Willow — the look and finish you love." },
+  { n: "3", t: "Send a photo", d: "A person, a pet, or the two of them together. I work from your snapshot." },
+  { n: "4", t: "Add your notes", d: "Colours, personality, the little details that make them, them." },
+  { n: "5", t: "I make it by hand", d: "Sculpted, painted and glazed just for you, then shipped to your door." },
+];
+---
+
+<Layout>
+  <link slot="head" rel="preload" as="image" href={HERO} fetchpriority="high" />
+  <section class="hero wrap">
+    <div class="hero-text">
+      <span class="pill" style="background: var(--mustard)">🌷 hand-made to order</span>
+      <h1>Little clay people & pets,<br />made just for you.</h1>
+      <p class="lede">
+        Flowerenco is a tiny one-person ceramic studio. Send me a photo of someone you love — a person, a pet, or both —
+        and I'll sculpt them into a wonky, joyful little bud vase, hand-painted with all their quirks.
+      </p>
+      <div class="hero-cta">
+        <a class="btn tomato" href="/shop">Make my vase</a>
+        <a class="btn ghost" href="/gallery">Peek at the gallery</a>
+      </div>
+    </div>
+    <div class="hero-img">
+      <img src={HERO} alt="A shelf of whimsical hand-painted character vases full of flowers" fetchpriority="high" width="640" height="400" />
+    </div>
+  </section>
+
+  <section class="wrap steps-sec">
+    <h2 class="center">How a Flowerenco vase happens</h2>
+    <div class="steps">
+      {steps.map((s) => (
+        <div class="step-card card">
+          <span class="step-n">{s.n}</span>
+          <p class="step-t">{s.t}</p>
+          <p class="step-d">{s.d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {products.length > 0 && (
+    <section class="wrap">
+      <div class="row-head">
+        <h2>Start your vase</h2>
+        <a class="see-all" href="/shop">See all →</a>
+      </div>
+      <div class="grid">
+        {products.map((p) => (
+          <a class="prod card" href={`/product/${p.slug}`}>
+            <div class="prod-img">
+              {imgSrc(p.media?.main) ? (
+                <img src={imgSrc(p.media?.main, 600, 600)} alt={p.name} />
+              ) : (
+                <div class="ph" />
+              )}
+            </div>
+            <div class="prod-body">
+              <p class="prod-name">{p.name}</p>
+              <p class="prod-price">from {money(p.actualPriceRange?.minValue?.amount)}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {projects.length > 0 && (
+    <section class="wrap">
+      <div class="row-head">
+        <h2>Recently out of the kiln</h2>
+        <a class="see-all" href="/gallery">The whole family →</a>
+      </div>
+      <div class="grid">
+        {projects.map((p) => (
+          <a class="prod card" href={`/gallery/${p.slug}`}>
+            <div class="prod-img">
+              {pfImg(p.coverImage?.imageInfo, 600, 600) ? (
+                <img src={pfImg(p.coverImage?.imageInfo, 600, 600)} alt={p.title} />
+              ) : (
+                <div class="ph" />
+              )}
+            </div>
+            <div class="prod-body">
+              <p class="prod-name">{p.title}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="wrap cta-band card">
+    <h2>Got a face in mind?</h2>
+    <p>Tell me about the person or pet you'd like immortalised in clay — I'd love to hear the story.</p>
+    <a class="btn tomato" href="/contact">Message the studio</a>
+  </section>
+
+  <style>
+    .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 2.5rem; align-items: center; padding-top: 1.5rem; padding-bottom: 2.5rem; }
+    .hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); margin: 1rem 0; }
+    .lede { font-size: 1.2rem; max-width: 46ch; color: var(--ink-soft); }
+    .hero-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.4rem; }
+    .hero-img img { width: 100%; border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); transform: rotate(1.5deg); aspect-ratio: 16/10; object-fit: cover; }
+    .center { text-align: center; }
+    .steps-sec { margin-top: 1.5rem; }
+    .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1.4rem; }
+    .step-card { padding: 1.3rem; }
+    .step-n { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--teal); color: #fff; border: 2px solid var(--ink); font-family: "Fredoka", sans-serif; font-weight: 700; }
+    .step-t { font-family: "Fredoka", sans-serif; font-size: 1.2rem; margin: 0.6rem 0 0.3rem; }
+    .step-d { margin: 0; color: var(--ink-soft); }
+    .row-head { display: flex; align-items: baseline; justify-content: space-between; margin: 2.5rem 0 1rem; }
+    .row-head h2 { font-size: 1.8rem; margin: 0; }
+    .see-all { font-weight: 800; text-decoration: none; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    .prod { text-decoration: none; display: block; transition: transform 0.1s; }
+    .prod:hover { transform: translateY(-4px); }
+    .prod-img { aspect-ratio: 1; }
+    .prod-img img, .ph { width: 100%; height: 100%; object-fit: cover; }
+    .ph { background: linear-gradient(135deg, var(--blush-soft), #cfe6e2); }
+    .prod-body { padding: 0.9rem 1.1rem; }
+    .prod-name { font-family: "Fredoka", sans-serif; font-size: 1.15rem; margin: 0; }
+    .prod-price { margin: 0.2rem 0 0; color: var(--ink-soft); font-weight: 700; }
+    .cta-band { text-align: center; padding: 2.5rem; margin-top: 3rem; background: var(--blush-soft); }
+    .cta-band h2 { font-size: 2rem; margin: 0 0 0.5rem; }
+    .cta-band p { margin: 0 auto 1.3rem; max-width: 44ch; color: var(--ink-soft); }
+    @media (max-width: 900px) { .steps { grid-template-columns: repeat(2, 1fr); } .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 720px) { .hero { grid-template-columns: 1fr; } .hero-img { order: -1; } }
+    @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</Layout>

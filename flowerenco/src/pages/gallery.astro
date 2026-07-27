@@ -1,0 +1,75 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { projects as pfProjects, collections as pfCollections } from "@wix/portfolio";
+import { pfImg } from "../lib/wix";
+
+let projects: any[] = [];
+let collectionTitle = "The Flowerenco Family";
+try {
+  const res = await pfProjects.listProjects();
+  projects = (res.projects || []).filter((p: any) => !p.hidden);
+} catch (e) {
+  projects = [];
+}
+try {
+  const c = await pfCollections.listCollections();
+  const first = (c.collections || []).filter((x: any) => !x.hidden)[0];
+  if (first?.title) collectionTitle = first.title;
+} catch (e) {}
+---
+
+<Layout title="Gallery — Flowerenco">
+  <section class="wrap head">
+    <span class="pill" style="background: var(--cobalt); color:#fff">the gallery</span>
+    <h1>{collectionTitle}</h1>
+    <p class="lede">A shelf of past commissions — every one started as a photo and a story. Yours could be next.</p>
+  </section>
+
+  <section class="wrap">
+    {projects.length === 0 ? (
+      <p class="muted">The gallery is warming up — pop back soon.</p>
+    ) : (
+      <div class="masonry">
+        {projects.map((p, i) => (
+          <a class="tile card" href={`/gallery/${p.slug}`} style={`--r: ${(i % 3) - 1}deg`}>
+            <div class="tile-img">
+              {pfImg(p.coverImage?.imageInfo, 700, 700) ? (
+                <img src={pfImg(p.coverImage?.imageInfo, 700, 700)} alt={p.title} />
+              ) : (
+                <div class="ph" />
+              )}
+            </div>
+            <div class="tile-body">
+              <p class="tile-name">{p.title}</p>
+              {p.description && <p class="tile-desc">{p.description.slice(0, 80)}{p.description.length > 80 ? "…" : ""}</p>}
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <section class="wrap cta-band card">
+    <h2>Want one of your own?</h2>
+    <a class="btn tomato" href="/shop">Start your vase</a>
+  </section>
+
+  <style>
+    .head { padding: 1.5rem 0 1rem; }
+    .head h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0.8rem 0 0.4rem; }
+    .lede { color: var(--ink-soft); font-size: 1.15rem; max-width: 56ch; }
+    .muted { color: var(--ink-soft); }
+    .masonry { columns: 3; column-gap: 1.3rem; }
+    .tile { display: inline-block; width: 100%; margin: 0 0 1.3rem; text-decoration: none; break-inside: avoid; transform: rotate(var(--r, 0deg)); transition: transform 0.12s; }
+    .tile:hover { transform: rotate(0deg) translateY(-4px); }
+    .tile-img img, .ph { width: 100%; display: block; }
+    .ph { aspect-ratio: 1; background: linear-gradient(135deg, var(--blush-soft), #fbe6b0); }
+    .tile-body { padding: 0.9rem 1.1rem 1.1rem; }
+    .tile-name { font-family: "Fredoka", sans-serif; font-size: 1.2rem; margin: 0; }
+    .tile-desc { margin: 0.25rem 0 0; color: var(--ink-soft); font-size: 0.92rem; }
+    .cta-band { text-align: center; padding: 2.2rem; margin-top: 2rem; background: #cfe6e2; }
+    .cta-band h2 { font-size: 1.8rem; margin: 0 0 1rem; }
+    @media (max-width: 900px) { .masonry { columns: 2; } }
+    @media (max-width: 560px) { .masonry { columns: 1; } }
+  </style>
+</Layout>
