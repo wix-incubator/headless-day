@@ -58,23 +58,39 @@ public/
   frames/zone1/{desktop,mobile}/   # 120 WebP frames each
   gallery/                         # optimized gallery photos
 astro.config.mjs       # Wix integrations (do not remove wixPages/checkOrigin)
-wix.config.json        # Wix site link (siteId / appId)
 ```
 
 `index.astro` is intentionally self-contained (inline styles + script): the page is a single crafted experience, not a component library.
 
-## Development
+## Run locally
 
-Requires Node ≥ 20.11 and a Wix CLI login (`npx @wix/cli login`).
+> All commands below must be run from inside the `villa-serena/` folder, not the monorepo root.
+
+Requires Node ≥ 20.11.
 
 ```bash
 npm install --ignore-scripts   # --ignore-scripts skips sharp's optional native build
-npm run dev                    # wix dev → http://localhost:4321
-npm run build                  # wix build
-npm run release                # publish to Wix hosting
+npx @wix/cli login
+npm create @wix/new@latest init
 ```
 
-Authentication is ambient on Wix-managed Astro — no client, no OAuth setup; `import { items } from "@wix/data"` just works, in SSR and API routes.
+This provisions a new Wix site and writes a local `wix.config.json` (git-ignored). Then:
+
+```bash
+cp .env.example .env.local     # set WIX_INQUIRY_FORM_ID for the booking form
+npm run dev                    # wix dev → http://localhost:4321
+```
+
+Install **Wix CMS** and create collections `amenities`, `villa-sections`, and `villa-stats` to replace the built-in fallback copy. Create an inquiry form with fields matching `src/pages/api/inquiry.ts`, then paste its ID into `WIX_INQUIRY_FORM_ID`.
+
+Authentication is ambient on Wix-managed Astro — no OAuth client setup; `import { items } from "@wix/data"` works in SSR and API routes once linked to your site.
+
+## Build & deploy
+
+```bash
+npm run build      # wix build
+npm run release    # publish to Wix hosting
+```
 
 ### Tuning the animation
 
