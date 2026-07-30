@@ -41,13 +41,14 @@ Built as a **Wix Headless** site (Astro SSR + `@wix/sdk`), deployed on Wix hosti
 ```bash
 npm install
 npx @wix/cli@latest login
-npx @wix/cli@latest dev       # local dev
-npx @wix/cli@latest build     # production build
-npx @wix/cli@latest release   # publish
+npm create @wix/new@latest init
+npm run dev                   # local dev
+npm run build                 # production build
+npm run release               # publish
 ```
 
-`.env.local` (git-ignored) holds `WIX_CLIENT_ID` (from `wix env pull`). SMS is
-enabled by setting `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`.
+Optional waitlist SMS: set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` in
+`.env.local` (see `.env.example`).
 
 ## Backend seed scripts
 One-off scripts under `scripts-seed/` documented the catalog/CMS setup (products,
