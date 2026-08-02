@@ -18,7 +18,7 @@ const sec = (key: string, fallback: SectionRow): SectionRow =>
   sections[key] && (sections[key].title || sections[key].body) ? sections[key] : fallback;
 
 const hero = sec("hero", {
-  overline: "A Private Mediterranean Estate",
+  overline: "A Private Mediterranean Villa · To Rent",
   title: "Villa Serena",
   body: "Where the hillside meets the sea. Ten guests, five suites, and a horizon that never ends.",
 });
@@ -49,7 +49,6 @@ if (!stats.length) {
     { label: "Suites", value: "5" },
     { label: "Baths", value: "6" },
     { label: "Pool", value: "18m" },
-    { label: "Estate", value: "8 acres" },
   ];
 }
 if (!amenities.length) {
@@ -208,6 +207,17 @@ const galleryImages = [
       <div class="loader-line" aria-hidden="true"></div>
     </div>
 
+    <!-- top header -->
+    <header class="site-header" id="site-header">
+      <nav class="site-nav" aria-label="Primary">
+        <a class="nav-brand" href="#zone1" data-scroll="zone1" aria-label="The Villa — back to top">The Villa</a>
+        <a href="#amenities" data-scroll="amenities">Amenities</a>
+        <a href="#gallery" data-scroll="gallery">Gallery</a>
+        <a href="#faq" data-scroll="faq">FAQ</a>
+        <a href="#reserve" data-scroll="reserve">Inquire</a>
+      </nav>
+    </header>
+
     <!-- chapter markers -->
     <nav id="chapters" aria-label="Page sections">
       <button data-target="zone1" data-label="Arrival" aria-label="Go to Arrival"><span></span></button>
@@ -226,7 +236,15 @@ const galleryImages = [
         <div class="stage-grad-bottom" aria-hidden="true"></div>
 
         <div class="overlay overlay-left" data-show="0.00" data-hide="0.14">
-          <div class="overline">{hero.overline}</div>
+          <div class="overline">
+            {hero.overline.includes("·") ? (
+              <>
+                <span>{hero.overline.split("·")[0].trim()}</span>
+                <span class="overline-sep"> · </span>
+                <span class="overline-tag">{hero.overline.split("·").slice(1).join("·").trim()}</span>
+              </>
+            ) : hero.overline}
+          </div>
           <h1 class="hero-title">
             <span data-split>{hero.title}</span>
             <span class="sr-only">— a private luxury villa rental on the Mediterranean coast</span>
@@ -396,6 +414,9 @@ const galleryImages = [
         overflow-x: clip;
         cursor: none;
       }
+      /* avoid single-word last lines (orphans) in copy, and balance headings */
+      p, .hero-tag, .section-body, .amenity-desc, .lede, .faq-item p { text-wrap: pretty; }
+      h1, h2, h3, .section-title, .amenity-title { text-wrap: balance; }
       @media (hover: none), (max-width: 900px) {
         body { cursor: auto; }
         #cursor-dot, #cursor-ring { display: none; }
@@ -451,6 +472,31 @@ const galleryImages = [
       .loader-bar { width: 140px; height: 1px; background: rgba(244, 240, 234, 0.12); overflow: hidden; }
       .loader-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--sunset-pink)); transition: width 0.2s ease; }
       .loader-pct { font-size: 10px; letter-spacing: 0.2em; color: var(--concrete-dim); font-variant-numeric: tabular-nums; }
+
+      /* top header */
+      .site-header {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+        display: flex; align-items: center; justify-content: flex-end;
+        padding: 26px 48px;
+        background: linear-gradient(to bottom, rgba(14, 13, 12, 0.55), rgba(14, 13, 12, 0));
+        pointer-events: none;
+      }
+      .site-header a { pointer-events: auto; }
+      .site-nav { display: flex; align-items: center; gap: 42px; }
+      .site-nav a {
+        font-family: var(--body); font-size: 11px; font-weight: 500;
+        letter-spacing: 0.26em; text-transform: uppercase;
+        color: var(--warm-white-dim); text-decoration: none;
+        text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+        transition: color 0.3s ease;
+      }
+      .site-nav a:hover { color: var(--accent); }
+      .site-nav .nav-brand { color: var(--warm-white); font-weight: 600; }
+      @media (max-width: 900px) {
+        .site-header { padding: 18px 22px; }
+        .site-nav { gap: 0; }
+        .site-nav a:not(.nav-brand) { display: none; }
+      }
 
       /* chapters */
       #chapters {
@@ -674,6 +720,8 @@ const galleryImages = [
       /* mobile readability: the tracked micro-labels are too small on phones */
       @media (max-width: 900px) {
         .overline { font-size: 12px; letter-spacing: 0.22em; }
+        .overline .overline-sep { display: none; }
+        .overline .overline-tag { display: block; white-space: nowrap; }
         .hero-tag { font-size: 16px; }
         .section-body { font-size: 16px; }
         .stat-label { font-size: 10px; letter-spacing: 0.18em; }
@@ -1092,6 +1140,18 @@ const galleryImages = [
         window.addEventListener("scroll", updateChapters, { passive: true });
         updateChapters();
       }
+
+      // ---- top header nav ----
+      document.querySelectorAll<HTMLAnchorElement>(".site-header [data-scroll]").forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const id = a.dataset.scroll!;
+          const el = id === "zone1" ? zone1El : document.getElementById(id);
+          if (!el) return;
+          e.preventDefault();
+          const top = id === "zone1" ? 0 : el.offsetTop - 80;
+          window.scrollTo({ top, behavior: REDUCED ? "auto" : "smooth" });
+        });
+      });
 
       // ---- reveal on scroll + gallery parallax ----
       const revealObs = new IntersectionObserver(

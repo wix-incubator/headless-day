@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { submissions } from "@wix/forms";
 
-const FORM_ID = "5be341d6-9b50-4a9c-adfb-aac954b4920c";
+const FORM_ID = process.env.WIX_INQUIRY_FORM_ID?.trim() || "";
 const TARGETS = [
   "first_name",
   "last_name",
@@ -38,6 +38,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   for (const required of ["first_name", "last_name", "email", "check_in", "check_out", "guests"]) {
     if (!values[required]) return json({ ok: false, error: `Missing field: ${required}` }, 400);
+  }
+
+  if (!FORM_ID) {
+    return json({ ok: false, error: "Inquiry form is not configured." }, 503);
   }
 
   try {
