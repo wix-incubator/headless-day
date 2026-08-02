@@ -38,7 +38,13 @@ function config() {
 // this so it can fall back to its built-in mock cart until Wix is configured.
 function isConfigured() {
   const c = config();
-  return !!(c && c.clientId && c.products && Object.keys(c.products).length);
+  if (!c || !c.clientId || !c.products || !Object.keys(c.products).length) return false;
+  if (String(c.clientId).startsWith('YOUR_')) return false;
+  for (const entry of Object.values(c.products)) {
+    const productId = typeof entry === 'string' ? entry : entry?.productId;
+    if (!productId || String(productId).startsWith('YOUR_')) return false;
+  }
+  return true;
 }
 
 function client() {

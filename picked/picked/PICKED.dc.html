@@ -101,19 +101,17 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/DecalGeometry.js"></script>
 <script src="./image-slot.js"></script>
-<!-- Wix eCommerce cart bridge. WIX_CART_CONFIG holds PUBLIC ids only (the OAuth
-     clientId is not a secret; real payment happens on Wix's hosted checkout).
-     Fill these in from the Wix dashboard; until then the site uses its built-in
-     mock cart (window.wixCart.isConfigured() stays false). -->
+<!-- Wix eCommerce cart bridge. Uncomment and fill WIX_CART_CONFIG below to enable
+     real Wix Stores checkout (see README). Until then the built-in mock cart is used. -->
 <script>
-  window.WIX_CART_CONFIG = {
-    clientId: '0c74f106-c1d2-470c-bd82-aba4270644d5',   // OAuth app Client ID (visitor auth)
-    products: {             // basket size -> Wix Stores product id + "Every week" subscription option id
-      small:  { productId: 'fd6d5459-caba-409a-9b27-ad378fb3586d', subscriptionOptionId: 'ff50cea2-094f-4054-bca3-0151caf98a81' },
-      medium: { productId: '3d7d6e53-82c0-454f-b9a0-6823d777dda5', subscriptionOptionId: '3716b383-bbab-464b-80b6-d8e4a943cedd' },
-      large:  { productId: '3cd978e8-bff9-4829-831f-d19c7e40381b', subscriptionOptionId: '8c6e6dc5-bab9-44b0-883d-32bd2755a096' }
-    }
-  };
+  // window.WIX_CART_CONFIG = {
+  //   clientId: 'YOUR_WIX_CLIENT_ID',
+  //   products: {
+  //     small:  { productId: 'YOUR_SMALL_PRODUCT_ID', subscriptionOptionId: 'YOUR_SMALL_SUBSCRIPTION_OPTION_ID' },
+  //     medium: { productId: 'YOUR_MEDIUM_PRODUCT_ID', subscriptionOptionId: 'YOUR_MEDIUM_SUBSCRIPTION_OPTION_ID' },
+  //     large:  { productId: 'YOUR_LARGE_PRODUCT_ID', subscriptionOptionId: 'YOUR_LARGE_SUBSCRIPTION_OPTION_ID' }
+  //   }
+  // };
 </script>
 <script src="./wix-cart.js"></script>
 </helmet>
