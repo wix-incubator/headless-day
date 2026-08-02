@@ -1,0 +1,96 @@
+# Brickify — Research & Build Plan
+
+*A cited research report for building a LEGO-style product site in Astro + Three.js: a scroll-driven animated landing page plus an in-browser 3D brick builder that outputs a buyable parts pack.*
+
+---
+
+## TL;DR — recommended approach
+
+Build a **static Astro shell** (zero JS) with the heavy WebGL isolated into one or two hydrated "islands." Use **GSAP ScrollTrigger + Lenis** for a scroll-scrubbed, "brick-by-brick" animated landing page, and a **react-three-fiber builder** (mounted `client:only`) where users assemble a model on a stud grid. Render bricks with **InstancedMesh** (one draw call for thousands of identical bricks), represent the build as a **logical stud grid** (so every model is buildable by construction and the parts list is trivial to compute), and export the finished build as a **BrickLink Wanted List** keyed on `(BrickLink Part ID + Color ID)`. Keep the whole identity **100% your own brand** — use "LEGO®" only as a sparing descriptive adjective with a disclaimer, never in your name, logo, or domain.
+
+---
+
+## 1. Styling & design system
+
+**Use a three-tier token system in plain CSS.** Design tokens are named visual attributes (color, type, spacing, radius, shadow) that live in the browser as CSS custom properties. Structure them as **primitive → semantic → component**: primitives hold raw values (`--brick-red: #E3000B`), semantic tokens carry intent (`--color-accent`, `--text-on-accent`), and components reference only semantics. A component should never point directly at a primitive — that indirection is exactly what lets you re-theme later. ([figma.com](https://www.figma.com/resource-library/design-tokens/), [euleinstitute.com](https://euleinstitute.com/en/blog/design-tokens/))
+
+**Keep the cascade under control with `@layer`.** Wrap the stylesheet in ordered cascade layers (`reset, tokens, base, components, utilities`) so specificity stays predictable without heavy BEM — a lightweight ITCSS/CUBE ordering that suits a small plain-CSS Astro build. ([css-tricks.com](https://css-tricks.com/css-cascade-layers/), [handoff.design](https://handoff.design/css-architecture/cube-css-intro.html))
+
+**Color: bright primaries as accents, never as large text backgrounds.** LEGO's brand hues sit near 100% saturation and ~50% luminance — the exact range that fatigues the eye at scale, which is why they work as accents, not surfaces. ([bricknerd.com](https://bricknerd.com/home/the-lego-color-palette-2023-edition-1-24-23)) Contrast is the real hazard: pure red is only ~4:1 on white (fails the 4.5:1 AA body-text minimum) and yellow fails badly against white. ([webaim.org](https://webaim.org/articles/contrast/), [w3.org](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)) Define explicit `text-on-color` tokens (dark text on yellow; white text only on sufficiently dark red/blue; a darkened "ink" red for red text) and verify each combination against AA (4.5:1 body / 3:1 large).
+
+**Typography: a chunky rounded display face + a calm rounded body face.** Pair **Fredoka** or **Baloo 2** (headings — bold, rounded, toy-like) with **Nunito** (body — rounded but lighter and highly screen-legible), scaled in `rem`. ([fontfoundryhub.com](https://fontfoundryhub.com/best-baloo-2-font-pairings-alternatives/), [fonts.google.com](https://fonts.google.com/specimen/Fredoka)) Use the display face **sparingly** — LEGO's own 2024 identity leans image-led and uses its custom type in short bursts. ([creativereview.co.uk](https://www.creativereview.co.uk/lego-design-system/))
+
+**Evoke the brick aesthetic as a construction grammar, not decoration.** LEGO's official system builds UI shapes, buttons and illustrations from ~130 brick glyphs — the brick drives the geometry rather than being pasted on top. ([madtechmag.com](https://madtechmag.com/2024/04/09/building-beyond-the-bricks-the-lego-group-launches-its-first-full-set-of-design-elements-to-evolve-its-brand-identity/)) Practically: derive your spacing grid and corner radii from stud geometry, and apply tactile "raised-brick" shadows (paired light+dark shadows on a uniform surface — "Neumorphism 2.0") to **only a few components** (buttons, toggles, cards). The classic failure of that soft style is low contrast, so always pair it with bold text or high-contrast borders. ([ecommercewebdesign.agency](https://ecommercewebdesign.agency/the-rise-of-neumorphism-2-0-soft-shadows-and-skeuomorphism-in-2025-designs/), [tailwindthememaker.com](https://tailwindthememaker.com/articles/soft-ui-neumorphism-accessibility))
+
+**Accessibility with a loud palette.** Ship `prefers-reduced-motion: reduce` as the baseline and progressively enhance; when you disable a motion cue, keep a non-motion state (color/border/shadow) so feedback isn't lost. ([mdn](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), [smashingmagazine.com](https://www.smashingmagazine.com/2021/10/respecting-users-motion-preferences/)) Define a single high-contrast focus ring token and test it against white, yellow, red, and blue surfaces — a bright ring on a same-colored button is invisible. ([section508.gov](https://www.section508.gov/create/making-color-usage-accessible/))
+
+## 2. Scroll-driven animated landing page
+
+**Core engine: GSAP + ScrollTrigger — and it's now free.** Webflow acquired GreenSock (Oct 2024) and as of April 2025 GSAP is 100% free including commercial use, with all former Club plugins (ScrollTrigger, ScrollSmoother, SplitText, etc.). ([webflow.com](https://webflow.com/blog/gsap-becomes-free), [gsap.com](https://gsap.com/pricing/)) ScrollTrigger binds a timeline's playhead to scroll position; use `scrub: true` for direct scroll-tied progress and `pin: true` to lock a section for a scroll range. Best practice: one timeline controlled by one ScrollTrigger rather than many. ([gsap.com](https://gsap.com/docs/v3/Plugins/ScrollTrigger/))
+
+**Add Lenis for subtle smooth scroll**, synced to GSAP via `gsap.ticker` + `ScrollTrigger.update`. Use the `lenis` package (the old `@studio-freight/*` packages are deprecated) and disable smoothing under reduced-motion. ([github.com/darkroomengineering/lenis](https://github.com/darkroomengineering/lenis), [lenis.dev](https://www.lenis.dev/))
+
+**Use the cheapest tool that works for each job.** For simple "fade/slide in when visible," **IntersectionObserver** (or GSAP `.batch()`) is the right primitive — it fires only at threshold crossings instead of 60+×/sec on the main thread like scroll listeners. ([itnext.io](https://itnext.io/1v1-scroll-listener-vs-intersection-observers-469a26ab9eb6)) **Native CSS scroll-driven animations** (`animation-timeline: view()/scroll()`) run off the main thread and are ideal for reveals/progress bars — but Safari doesn't support them yet, so treat them as progressive enhancement with a polyfill/fallback. ([mdn](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Scroll-driven_animations), [developer.chrome.com](https://developer.chrome.com/docs/css-ui/scroll-driven-animations)) Use **Lottie/dotLottie** for small playful vector accents (bricks snapping, a character waving), lazy-loaded. ([lottiefiles.com](https://lottiefiles.com/blog/working-with-lottie-animations/lottie-advantage))
+
+**Signature pattern — the "brick-by-brick" build hero.** Pin a `<canvas>` (`position: sticky; top: 0`) inside a tall scroll container and scrub scroll progress so a model assembles piece-by-piece and rewinds on scroll-up — the same technique behind Apple's product pages. ([css-tricks.com](https://css-tricks.com/lets-make-one-of-those-fancy-scrolling-animations-used-on-apple-product-pages/), [builder.io](https://www.builder.io/blog/webgl-scroll-animation)) Other patterns: snap-together card reveals, a studded scroll-progress bar, parallax brick layers (flattened under reduced-motion), and a color-pop scrub (grey brick → colored).
+
+**Performance & accessibility guardrails.** Animate **only `transform` and `opacity`** (the compositor-friendly properties); avoid width/height/top/left. ([keycdn.com](https://www.keycdn.com/blog/animation-performance)) Use `will-change` sparingly and clear it after. Honor `prefers-reduced-motion` (parallax is a known vestibular trigger), **don't scrolljack**, and never gate real content behind an animation — keyboard/reduced-motion users must get everything. ([smashingmagazine.com](https://www.smashingmagazine.com/2021/10/respecting-users-motion-preferences/), [webflow.com](https://webflow.com/accessibility/checklist/task/avoid-scrolljacking)) On mobile, reduce or disable heavy scroll effects and the 3D. ([brad-holmes.co.uk](https://www.brad-holmes.co.uk/web-performance-ux/build-scroll-animations/))
+
+## 3. Astro + Three.js integration
+
+**Astro ships zero JS by default; only `client:*` islands hydrate.** ([docs.astro.build](https://docs.astro.build/en/concepts/islands/)) Directive picks for this project:
+
+- **The interactive builder → `client:only="react"`.** WebGL needs `window`/WebGL context that don't exist server-side, so skip SSR entirely; render a placeholder to avoid layout shift. Use **react-three-fiber + Drei** here — a builder needs lots of interactive controls, model loading and state, where R3F's declarative scene graph pays off. ([threejsresources.com](https://threejsresources.com/frameworks/three-js-astro), [docs.astro.build](https://docs.astro.build/en/reference/directives-reference/))
+- **The scroll hero → vanilla Three.js in a client script**, hydrated `client:load` (above fold) or `client:visible` (defer the WebGL cost until scrolled into view). A single choreographed scene doesn't need React overhead. ([threejsresources.com](https://threejsresources.com/frameworks/three-js-astro))
+
+**Sticky-canvas + ScrollTrigger(`scrub`) + Lenis** is the established scroll-3D recipe: map normalized scroll progress into camera position / brick-assembly / animation-mixer time. ([tympanus.net](https://tympanus.net/codrops/2026/03/02/sticky-grid-scroll-building-a-scroll-driven-animated-grid/), [medium.com](https://medium.com/@pablobandinopla/scroll-driven-presentation-in-threejs-with-gsap-a2be523e430a))
+
+**Performance is mostly about draw calls.** Target **<100 draw calls/frame** (500+ struggles even on strong GPUs). ([threejsroadmap.com](https://threejsroadmap.com/blog/draw-calls-the-silent-killer)) **InstancedMesh** renders thousands of identical bricks in one draw call (one demo cut 9,000 → 300). ([threejs.org InstancedMesh](https://threejs.org/docs/pages/InstancedMesh.html), [tympanus.net](https://tympanus.net/codrops/2025/07/10/three-js-instances-rendering-multiple-objects-simultaneously/)) Caveats: instancing bypasses per-object frustum culling and has no built-in LOD, so allocate max capacity but set `count` to visible bricks and add manual culling/LOD as models grow. ([vrmeup.com](https://vrmeup.com/devlog/devlog_10_threejs_instancedmesh_performance_optimizations.html)) Also: reuse one material+geometry, cap `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))`, `dispose()` GPU resources on teardown, and pause the render loop via IntersectionObserver when offscreen. ([utsubo.com](https://www.utsubo.com/blog/threejs-best-practices-100-tips))
+
+## 4. In-browser 3D builder UX
+
+**Core loop: face-based click-to-place on a stud grid.** Raycast to the hit cell + face normal and place the adjacent brick (the three.js voxel-painter convention); disambiguate click-vs-drag on one button by only placing if the pointer moved <~5px, otherwise orbit. ([threejs.org voxel manual](https://threejs.org/manual/en/voxel-geometry.html)) Snapping is *attraction* (studs to anti-studs), separate from grid alignment, with a modifier key to override for free placement. ([bricklink Snap](https://studiohelp.bricklink.com/hc/en-us/articles/5412087360919-Snap), [bricklink Grid](https://studiohelp.bricklink.com/hc/en-us/articles/5411879028375-Grid))
+
+**Represent the build as a logical stud grid, not free transforms, and enforce validity.** Snapping-by-construction + collision rejection guarantees every model is physically buildable (LDD's key property) and makes the parts list trivial. ([rebrickable LDD guide](https://rebrickable.com/help/guide-to-lego-digital-designer/)) For picking, walk the logical grid with the **Amanatides & Woo DDA** voxel-traversal algorithm — O(ray length), independent of brick count — instead of raycasting thousands of meshes. ([DDA paper](http://www.cse.yorku.ca/~amana/research/grid.pdf))
+
+**Beat blank-canvas intimidation.** Start every user on a baseplate with **starter templates** and a short guided first build — never an empty scene (Build with Chrome gave everyone a baseplate + "Build Academy"; Tinkercad ships Design Starters "so learners intimidated by a blank canvas can start"). ([web.dev Build with Chrome](https://web.dev/case-studies/buildwithchrome), [tinkercad](https://www.tinkercad.com/blog/tinkercad-shapes-panel)) Progressive-disclose the palette: a handful of common bricks and a **small fixed swatch of real colors** up front, with search/categories behind a "more" affordance — never a 24-bit color wheel. ([magicavoxel palette](https://magicavoxel.fandom.com/wiki/Color_palette_(interface))) A brick-count meter (as Build with Chrome used) both simplifies creativity and protects the render budget. ([web.dev](https://web.dev/case-studies/buildwithchrome))
+
+**Forgiving camera.** OrbitControls with a fixed centered target, a corner ViewCube for preset views, a "frame all" reset key, and full touch gestures through one unified input loop (consider locking phones to landscape). ([discoverthreejs](https://discoverthreejs.com/book/first-steps/camera-controls/), [tinkercad shortcuts](https://www.tinkercad.com/blog/keyboard-shortcuts-for-the-3d-editor), [web.dev](https://web.dev/case-studies/buildwithchrome)) Standard undo/redo bindings (Ctrl+Z / Ctrl+Y). ([magicavoxel shortcuts](https://magicavoxel.fandom.com/wiki/Shortcuts))
+
+**Build → parts pack → purchase.** Compute the parts pack live from the grid, keyed on **`(BrickLink Part ID + BrickLink Color ID)`** — that pair is the durable purchasing identifier (a single part+color can carry up to 10 Element IDs). ([rebrickable part numbering](https://rebrickable.com/help/part-numbering/), [bricklink](https://www.bricklink.com/help.asp?helpID=1916)) Surface **cost/availability inside the palette** (Studio badges colors by price tier and greys out unavailable part+color combos) so users self-select buildable, affordable models. ([bricklink prices](https://studiohelp.bricklink.com/hc/en-us/articles/5705572363159-Parts-prices-and-availability)) Export a **BrickLink Wanted List**, then hand off to BrickLink **Easy Buy**, which compares prices + shipping across stores to minimize total cost. ([bricklink Wanted List](https://studiohelp.bricklink.com/hc/en-us/articles/5705925898135-Upload-as-a-Wanted-List), [bricklink Easy Buy](https://help.bricklink.com/hc/en-us/articles/360036172113-Easy-Buy)) Keep a color cross-reference table, since LEGO/BrickLink/LDraw color IDs all differ. ([mecabricks color chart](https://www.mecabricks.com/docs/colour_chart.pdf))
+
+## 5. Trademark & brand safety
+
+*General information, not legal advice — get an IP attorney to clear your brand name and launch copy before going commercial.*
+
+The good news: **the brick itself is free.** LEGO's core patents expired decades ago, and top courts on both sides of the Atlantic refused to let trademark law monopolize the functional brick shape (EU: *Lego Juris v OHIM*, C-48/09, 2010; Canada: *Kirkbi v Ritvik*, 2005). ([lexology](https://www.lexology.com/library/detail.aspx?g=6ae5a8e2-21ed-4e32-9240-747340ec00e3), [wikipedia](https://en.wikipedia.org/wiki/Lego_clone)) That's why Mega Bloks, Cobi, etc. exist.
+
+The risk is **almost entirely in branding and wording**, and LEGO enforces aggressively there (it won trade-dress/copyright claims against Zuru and huge damages against Lepin — all about copying marks, packaging, set designs, and the **minifigure**, not the studs). ([bloomberglaw](https://news.bloomberglaw.com/ip-law/lego-wins-copyright-trademark-claims-over-minifigure-competitor), [lego.com Lepin](https://www.lego.com/en-us/aboutus/news/2020/january/lepin-case)) LEGO's own "Fair Play" policy: use "LEGO" only as an **adjective**, never a noun/plural ("models built of LEGO® bricks," never "Legos"), never use the logo on an unofficial site, and never put "LEGO" in your domain. ([lego.com Fair Play](https://www.lego.com/en-us/legal/notices-and-policies/fair-play)) Note their Fair Play permissions are framed for **non-commercial** use, so a commercial site relies on trademark law's *nominative fair use* (use only as much of the mark as necessary, no implied sponsorship) rather than LEGO's blessing. ([nolo](https://www.nolo.com/legal-encyclopedia/when-you-need-permission-use-trademarks.html))
+
+**Do:** pick a distinctive house brand with no LEGO reference; lead with generic terms ("building bricks," "brick-compatible"); use "compatible with LEGO®" only sparingly in plain text with ®; add a persistent footer disclaimer (*"LEGO® is a trademark of the LEGO Group, which does not sponsor, authorize or endorse this site. [Brand] is not affiliated with the LEGO Group."*). **Don't:** reproduce the minifigure or any minifig-shaped character, copy official set designs / box art, use LEGO's logo/font/color-logo, or imply partnership. Don't model your compliance on BrickLink — it's been LEGO-owned since 2019. ([lego.com Fair Play](https://www.lego.com/en-us/legal/notices-and-policies/fair-play), [rebrickable trademarks](https://rebrickable.com/help/mocs-trademarked-terms/))
+
+---
+
+## Recommended stack (concrete)
+
+| Layer | Choice |
+|---|---|
+| Site framework | **Astro** — static shell, zero JS by default |
+| Styling | **Plain CSS** with 3-tier design tokens + `@layer` ordering |
+| Fonts | **Fredoka/Baloo 2** (display) + **Nunito** (body) |
+| Scroll/animation | **GSAP ScrollTrigger + Lenis**; IntersectionObserver + CSS `view()` for cheap reveals; Lottie accents |
+| Landing 3D hero | **Vanilla Three.js** client script, `client:load`/`client:visible`, sticky-canvas scrub |
+| Builder | **react-three-fiber + Drei**, `client:only="react"` |
+| Rendering | **InstancedMesh** per (shape×color), logical stud grid, DDA picking, <100 draw calls |
+| Commerce | **Wix Stores** cart + **BrickLink Wanted List / Easy Buy** export, keyed on (Part ID + Color ID) |
+| Brand | Own name/logo/domain; "LEGO®" adjective-only + disclaimer; no minifigure |
+
+## Suggested build order
+
+1. **Landing page first** (static Astro + tokens + GSAP scroll hero) — fastest to something impressive and shareable, low risk.
+2. **Builder MVP** — baseplate + 4–6 brick shapes + fixed color swatch, click-to-place on stud grid, InstancedMesh rendering, orbit camera, undo.
+3. **Live parts pack** from the grid, with price/availability badges.
+4. **Checkout** — Wix Store cart and/or BrickLink Wanted List export.
+5. **Onboarding polish** — starter templates, guided first build, mobile tuning.
+
+*Sources are linked inline throughout. Confidence is high on the technical claims (GSAP-free status, Astro directives, InstancedMesh, stud-grid/DDA) and on the trademark fundamentals; the legal section is orientation, not a substitute for counsel.*

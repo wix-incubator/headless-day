@@ -1,0 +1,819 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base>
+  <!-- fixed studded baseplate behind everything -->
+  <div class="baseplate" aria-hidden="true"></div>
+
+  <!-- scroll progress -->
+  <div id="progress" aria-hidden="true"></div>
+
+  <!-- floating controls only (no header bar) -->
+  <header class="topbar">
+    <nav class="nav container">
+      <a class="brand" href="/">🧱 <span>Brickify</span></a>
+      <div class="nav-links">
+        <button id="theme-toggle" class="theme-toggle" type="button" title="Glow / night mode" aria-label="Toggle glow mode">🌙</button>
+        <a class="btn btn--red" href="/builder">Start building →</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- hero: interactive building assembles on load, reacts to cursor + scroll -->
+  <section class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="floaties" aria-hidden="true">
+      <span class="fl" style="--c:var(--brick-red);left:6%;top:22%;--d:0s;--s:1.1"></span>
+      <span class="fl" style="--c:var(--brick-yellow);left:16%;top:64%;--d:1.2s;--s:.8"></span>
+      <span class="fl" style="--c:var(--brick-blue);left:40%;top:14%;--d:.6s;--s:.7"></span>
+      <span class="fl" style="--c:var(--brick-green);left:86%;top:70%;--d:1.8s;--s:1"></span>
+      <span class="fl" style="--c:var(--brick-yellow);left:92%;top:26%;--d:.9s;--s:.75"></span>
+      <span class="fl" style="--c:var(--brick-red);left:70%;top:82%;--d:2.2s;--s:.9"></span>
+    </div>
+    <div id="hero-canvas"></div>
+    <div class="hero-copy container">
+      <span class="badge pop">Design → Pack → Build</span>
+      <h1>Build your own.<br><span class="hl">Brick&nbsp;by&nbsp;brick.</span></h1>
+      <p class="lede">Design any model in 3D — bricks, slopes, arches, domes and more — and we turn it into a buildable pack of real, brick&#8209;compatible parts, shipped to your door.</p>
+      <div class="hero-cta">
+        <a class="btn btn--red btn--lg" href="/builder">Open the 3D builder →</a>
+        <a class="btn btn--lg ghost" href="#how">See how it works</a>
+      </div>
+      <div class="themes" id="themes">
+        <span class="tlabel">🎨 Theme</span>
+        <button class="theme on" type="button" data-i="0" style="--a:#A6442F;--b:#414A5B" title="Brownstone" aria-label="Brownstone colour theme"></button>
+        <button class="theme" type="button" data-i="1" style="--a:#6E8B5E;--b:#B0563A" title="Sage" aria-label="Sage colour theme"></button>
+        <button class="theme" type="button" data-i="2" style="--a:#4E6E8C;--b:#2C3A4C" title="Harbour" aria-label="Harbour colour theme"></button>
+        <button class="theme" type="button" data-i="3" style="--a:#E0A32E;--b:#C0392B" title="Sunshine" aria-label="Sunshine colour theme"></button>
+        <button class="theme" type="button" data-i="4" style="--a:#7C5CA6;--b:#3E2E5C" title="Amethyst" aria-label="Amethyst colour theme"></button>
+        <button id="wheel" class="wheel" type="button" title="Mix your own wall colour" aria-label="Mix your own wall colour"></button>
+      </div>
+    </div>
+    <div class="cue" aria-hidden="true">drag / scroll ↓</div>
+  </section>
+
+  <!-- marquee ticker -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>BRICKS</span><b>●</b><span>PLATES</span><b>●</b><span>TILES</span><b>●</b><span>SLOPES</span><b>●</b><span>ARCHES</span><b>●</b><span>DOMES</span><b>●</b><span>CONES</span><b>●</b><span>ROUND</span><b>●</b>
+      <span>BRICKS</span><b>●</b><span>PLATES</span><b>●</b><span>TILES</span><b>●</b><span>SLOPES</span><b>●</b><span>ARCHES</span><b>●</b><span>DOMES</span><b>●</b><span>CONES</span><b>●</b><span>ROUND</span><b>●</b>
+    </div>
+  </div>
+
+  <!-- how it works: full-screen scroll story (one big panel at a time) -->
+  <section id="how">
+    <div class="how-pin">
+      <span class="how-eyebrow">How it works</span>
+      <div class="slides" id="flow">
+        <div class="slide">
+          <div class="stage-art art-build" aria-hidden="true">
+            <span class="fb b1"></span><span class="fb b2"></span><span class="fb b3"></span><span class="fb b4"></span>
+            <span class="fb door"></span><span class="fb roof"></span>
+          </div>
+          <h2>Design &amp; build</h2>
+          <p class="muted">Snap bricks together in the 3D builder — walls, slopes, arches, a roof — until it's exactly your creation.</p>
+        </div>
+        <div class="slide">
+          <div class="stage-art art-cart" aria-hidden="true">
+            <span class="e drop">🏠</span><span class="e cart">🛒</span><span class="e card">💳</span>
+            <span class="e receipt">🧾</span><span class="e chk">✅</span>
+          </div>
+          <h2>Checkout</h2>
+          <p class="muted">We turn your model into an exact pack of real parts and you check out securely — every brick priced from live inventory.</p>
+        </div>
+        <div class="slide">
+          <div class="stage-art art-box" aria-hidden="true">
+            <span class="e truck">🚚</span><span class="e box">📦</span><span class="e gift">🎁</span>
+            <span class="spark s1">✨</span><span class="spark s2">🎉</span><span class="spark s3">✨</span>
+          </div>
+          <h2>Get your pack</h2>
+          <p class="muted">Your unique brick pack ships to your door — open it up and build your model for real.</p>
+        </div>
+      </div>
+      <div class="how-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  </section>
+
+  <!-- builder feature -->
+  <section class="feature">
+    <div class="gears" aria-hidden="true">
+      <svg class="gear" viewBox="-50 -50 100 100" width="90" height="90">
+        <g fill="#0057A6">
+          <rect x="-7" y="-48" width="14" height="20" rx="3"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(45)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(90)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(135)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(180)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(225)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(270)"></rect>
+          <rect x="-7" y="-48" width="14" height="20" rx="3" transform="rotate(315)"></rect>
+        </g>
+        <circle r="35" fill="#0057A6"></circle><circle r="14" fill="#F7F4EC"></circle>
+      </svg>
+      <svg class="gear g2" viewBox="-50 -50 100 100" width="64" height="64">
+        <g fill="#FDC400">
+          <rect x="-8" y="-48" width="16" height="20" rx="3"></rect>
+          <rect x="-8" y="-48" width="16" height="20" rx="3" transform="rotate(60)"></rect>
+          <rect x="-8" y="-48" width="16" height="20" rx="3" transform="rotate(120)"></rect>
+          <rect x="-8" y="-48" width="16" height="20" rx="3" transform="rotate(180)"></rect>
+          <rect x="-8" y="-48" width="16" height="20" rx="3" transform="rotate(240)"></rect>
+          <rect x="-8" y="-48" width="16" height="20" rx="3" transform="rotate(300)"></rect>
+        </g>
+        <circle r="35" fill="#FDC400"></circle><circle r="13" fill="#F7F4EC"></circle>
+      </svg>
+    </div>
+    <div class="container feature-grid">
+      <div class="reveal">
+        <span class="badge" style="background:var(--brick-blue);color:#fff;border-color:var(--brick-blue-ink)">The builder</span>
+        <h2>A builder anyone can use.</h2>
+        <p class="muted">Click to place. Choose from dozens of piece types, snap them to the grid, and watch your parts pack update live as you go. Hover the wall →</p>
+        <a class="btn btn--yellow btn--lg" href="/builder">Try the builder →</a>
+      </div>
+      <div class="feature-art reveal" aria-hidden="true">
+        <div class="brickwall">
+          <span style="--_c:var(--brick-red)"></span><span style="--_c:var(--brick-yellow)"></span><span style="--_c:var(--brick-blue)"></span>
+          <span style="--_c:var(--brick-blue)"></span><span style="--_c:var(--brick-green)"></span><span style="--_c:var(--brick-red)"></span>
+          <span style="--_c:var(--brick-yellow)"></span><span style="--_c:var(--brick-red)"></span><span style="--_c:var(--brick-green)"></span>
+          <span style="--_c:var(--brick-green)"></span><span style="--_c:var(--brick-blue)"></span><span style="--_c:var(--brick-yellow)"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stud-strip" style="--_c:var(--brick-blue)"></div>
+
+  <!-- pieces showcase -->
+  <section class="section container center" id="pieces">
+    <span class="badge center-badge reveal">Many kinds of pieces</span>
+    <h2 class="reveal" style="margin-top:.6rem">Not just bricks.</h2>
+    <p class="muted reveal" style="max-width:56ch;margin-inline:auto">Build with real brick-compatible parts — each a genuine part with a real part number.</p>
+    <div class="piece-grid">
+      <div class="piece-card reveal" style="--i:0"><div class="ico"><i class="ico-brick"></i></div><div class="lbl">Brick</div></div>
+      <div class="piece-card reveal" style="--i:1"><div class="ico"><i class="ico-plate"></i></div><div class="lbl">Plate</div></div>
+      <div class="piece-card reveal" style="--i:2"><div class="ico"><i class="ico-tile"></i></div><div class="lbl">Tile</div></div>
+      <div class="piece-card reveal" style="--i:3"><div class="ico"><i class="ico-round"></i></div><div class="lbl">Round</div></div>
+      <div class="piece-card reveal" style="--i:4"><div class="ico"><i class="ico-slope"></i></div><div class="lbl">Slope</div></div>
+      <div class="piece-card reveal" style="--i:5"><div class="ico"><i class="ico-cone"></i></div><div class="lbl">Cone</div></div>
+      <div class="piece-card reveal" style="--i:6"><div class="ico"><i class="ico-dome"></i></div><div class="lbl">Dome</div></div>
+      <div class="piece-card reveal" style="--i:7"><div class="ico"><i class="ico-arch"></i></div><div class="lbl">Arch</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat reveal"><b data-count="50">50</b><span>part designs</span></div>
+      <div class="stat reveal"><b data-count="28">28</b><span>colours</span></div>
+      <div class="stat reveal"><b>∞</b><span>builds</span></div>
+    </div>
+  </section>
+
+  <div class="stud-strip" style="--_c:var(--brick-green)"></div>
+
+  <!-- real parts -->
+  <section class="section container center">
+    <h2 class="reveal">Real colours. Real bricks.</h2>
+    <p class="muted reveal" style="max-width:60ch;margin-inline:auto">Every model maps to genuine brick-compatible parts. What you design is what arrives in the box — nothing you can't build.</p>
+    <div class="swatches reveal">
+      <span style="background:var(--brick-red)"></span>
+      <span style="background:var(--brick-yellow)"></span>
+      <span style="background:var(--brick-blue)"></span>
+      <span style="background:var(--brick-green)"></span>
+      <span style="background:#F2F3F2"></span>
+      <span style="background:#1B1B1B"></span>
+      <span style="background:#E4CD9E"></span>
+      <span style="background:#8FC0EE"></span>
+    </div>
+  </section>
+
+  <div class="stud-strip" style="--_c:var(--brick-red)"></div>
+
+  <!-- stud-mosaic: any picture, rebuilt from studs -->
+  <section class="section container center" id="mosaic-sec">
+    <span class="badge center-badge reveal">Anything, in bricks</span>
+    <h2 class="reveal" style="margin-top:.6rem">Turn any picture into a build.</h2>
+    <p class="muted reveal" style="max-width:56ch;margin-inline:auto">Upload a photo and we rebuild it stud&#8209;by&#8209;stud. Here's one drawn entirely from 1×1 round tiles.</p>
+    <canvas id="mosaic" class="mosaic reveal" width="640" height="464" aria-label="A picture rendered from LEGO studs"></canvas>
+  </section>
+
+  <!-- final CTA -->
+  <section class="cta studs" style="--_stud:var(--brick-yellow-ink)">
+    <div class="container center stack">
+      <div class="tileword reveal" role="img" aria-label="Build">
+        <span style="--c:var(--brick-yellow);--r:-4deg;color:#141310">B</span>
+        <span style="--c:#F2F3F2;--r:3deg;color:#141310">U</span>
+        <span style="--c:var(--brick-blue);--r:-2deg">I</span>
+        <span style="--c:var(--brick-green);--r:4deg">L</span>
+        <span style="--c:var(--brick-yellow);--r:-3deg;color:#141310">D</span>
+        <span style="--c:#141310;--r:5deg">!</span>
+      </div>
+      <h2 style="color:#fff">Ready to build something?</h2>
+      <p style="color:var(--brick-yellow);max-width:52ch;margin-inline:auto">Start from a blank baseplate or a template. Your first brick is one click away.</p>
+      <a class="btn btn--yellow btn--lg" href="/builder">Start building →</a>
+    </div>
+  </section>
+
+  <!-- scripts -->
+  <script is:inline>
+  (function(){
+    /* ---- scroll progress ---- */
+    var prog=document.getElementById('progress');
+    var pTick=false;
+    function paintProg(){pTick=false;var h=document.documentElement;var sc=h.scrollTop/(h.scrollHeight-h.clientHeight||1);if(prog)prog.style.transform='scaleX('+sc+')';}
+    function onScroll(){if(!pTick){pTick=true;requestAnimationFrame(paintProg);}}
+    addEventListener('scroll',onScroll,{passive:true});paintProg();
+
+    /* ---- reveals (staggered) ---- */
+    /* split headings into letters + paragraphs into words so they "build" from bricks */
+    function splitChars(el){el.setAttribute('aria-label',el.textContent);var t=el.textContent,f=document.createDocumentFragment(),i=0;
+      for(var n=0;n<t.length;n++){var s=document.createElement('span');s.className='ch';s.style.setProperty('--k',i++);
+        s.textContent=(t[n]===' '?' ':t[n]);s.setAttribute('aria-hidden','true');f.appendChild(s);}
+      el.textContent='';el.appendChild(f);el.classList.add('built');}
+    function splitWords(el){el.setAttribute('aria-label',el.textContent);var t=el.textContent.split(' '),f=document.createDocumentFragment(),i=0;
+      for(var n=0;n<t.length;n++){var s=document.createElement('span');s.className='wd';s.style.setProperty('--k',i++);
+        s.textContent=t[n];s.setAttribute('aria-hidden','true');f.appendChild(s);f.appendChild(document.createTextNode(' '));}
+      el.textContent='';el.appendChild(f);el.classList.add('built');}
+    document.querySelectorAll('.section h2, .feature h2, .cta h2').forEach(function(el){el.classList.add('reveal');splitChars(el);});
+    document.querySelectorAll('.hero-copy .lede, .section > p.muted').forEach(function(el){el.classList.add('reveal');splitWords(el);});
+    /* sequence every element in a section so they appear one-by-one */
+    document.querySelectorAll('.section, .feature, .cta').forEach(function(sec){var i=0;
+      sec.querySelectorAll('.reveal').forEach(function(el){el.style.setProperty('--i',i++);});});
+
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('in',e.isIntersecting);});},{threshold:0.14});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+    /* ---- count-up ---- */
+    var cUp=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(!e.isIntersecting)return;var el=e.target,to=+el.getAttribute('data-count'),t0=null;
+      function step(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/1100);el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step);}
+      requestAnimationFrame(step);cUp.unobserve(el);});},{threshold:0.6});
+    document.querySelectorAll('[data-count]').forEach(function(el){cUp.observe(el);});
+
+    /* glow / night-mode toggle */
+    document.body.classList.add('night');   /* dark by default */
+    var tt=document.getElementById('theme-toggle');
+    if(tt){tt.textContent='☀️';tt.addEventListener('click',function(){var n=document.body.classList.toggle('night');tt.textContent=n?'☀️':'🌙';});}
+    /* brick colour mixer wheel */
+    function hslHex(h,s,l){s/=100;l/=100;var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2,r,g,b;
+      if(h<60){r=c;g=x;b=0;}else if(h<120){r=x;g=c;b=0;}else if(h<180){r=0;g=c;b=x;}
+      else if(h<240){r=0;g=x;b=c;}else if(h<300){r=x;g=0;b=c;}else{r=c;g=0;b=x;}
+      return (Math.round((r+m)*255)<<16)|(Math.round((g+m)*255)<<8)|Math.round((b+m)*255);}
+    var wheel=document.getElementById('wheel');
+    if(wheel)wheel.addEventListener('click',function(e){var r=wheel.getBoundingClientRect();
+      var dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+      var hue=(Math.atan2(dy,dx)*180/Math.PI+360)%360;
+      if(window.brickify)window.brickify.setWall(hslHex(hue,62,52));});
+
+    /* stud-mosaic — render a picture from studs, popping in on scroll */
+    (function(){var cv=document.getElementById('mosaic');if(!cv)return;var ctx=cv.getContext('2d');
+      var W=cv.width,H=cv.height,cell=16,cols=Math.floor(W/cell),rows=Math.floor(H/cell);
+      var off=document.createElement('canvas');off.width=cols;off.height=rows;var o=off.getContext('2d');
+      var g=o.createLinearGradient(0,0,0,rows);g.addColorStop(0,'#a9d8ff');g.addColorStop(1,'#e7f4ff');o.fillStyle=g;o.fillRect(0,0,cols,rows);
+      o.fillStyle='#FDC400';o.beginPath();o.arc(cols*0.82,rows*0.2,rows*0.12,0,7);o.fill();
+      o.fillStyle='#2FA84F';o.fillRect(0,Math.floor(rows*0.72),cols,rows);
+      o.fillStyle='#C7CAC5';o.fillRect(Math.floor(cols*0.28),Math.floor(rows*0.44),Math.floor(cols*0.34),Math.floor(rows*0.28));
+      o.fillStyle='#B01A1C';o.beginPath();o.moveTo(cols*0.24,rows*0.45);o.lineTo(cols*0.45,rows*0.28);o.lineTo(cols*0.66,rows*0.45);o.closePath();o.fill();
+      o.fillStyle='#5a3a22';o.fillRect(Math.floor(cols*0.41),Math.floor(rows*0.58),Math.floor(cols*0.08),Math.floor(rows*0.14));
+      o.fillStyle='#8FC0EE';o.fillRect(Math.floor(cols*0.52),Math.floor(rows*0.5),Math.floor(cols*0.07),Math.floor(rows*0.07));
+      var data=o.getImageData(0,0,cols,rows).data;
+      var order=[];for(var y=0;y<rows;y++)for(var x=0;x<cols;x++)order.push([x,y]);
+      var t0=null,DUR=1500,started=false;
+      function frame(ts){if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/DUR),shown=Math.floor((1-Math.pow(1-p,3))*order.length);
+        ctx.clearRect(0,0,W,H);
+        for(var k=0;k<shown;k++){var x=order[k][0],y=order[k][1],i=(y*cols+x)*4,cx=x*cell+cell/2,cy=y*cell+cell/2,rad=cell*0.44;
+          ctx.fillStyle='rgb('+data[i]+','+data[i+1]+','+data[i+2]+')';ctx.beginPath();ctx.arc(cx,cy,rad,0,7);ctx.fill();
+          ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.arc(cx-rad*0.3,cy-rad*0.3,rad*0.42,0,7);ctx.fill();}
+        if(p<1)requestAnimationFrame(frame);}
+      var mio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&!started){started=true;requestAnimationFrame(frame);mio.disconnect();}});},{threshold:0.25});
+      mio.observe(cv);})();
+
+    /* full-screen "how it works": one big panel at a time, replacing as you scroll */
+    (function(){var how=document.getElementById('how');if(!how)return;
+      var sl=how.querySelectorAll('.slide'),dt=how.querySelectorAll('.how-dots span');
+      if(matchMedia('(max-width:820px)').matches){sl.forEach(function(s){s.classList.add('active');});return;}
+      /* cache layout reads to avoid forced reflow on every scroll */
+      var span=1,lastIdx=-1,ticking=false;
+      function measure(){span=(how.offsetHeight-window.innerHeight)||1;}
+      function apply(){ticking=false;
+        var p=Math.min(.999,Math.max(0,(-how.getBoundingClientRect().top)/span));
+        var idx=Math.min(sl.length-1,Math.floor(p*sl.length));
+        if(idx===lastIdx)return;lastIdx=idx;
+        sl.forEach(function(s,i){s.classList.toggle('active',i===idx);});
+        dt.forEach(function(d,i){d.classList.toggle('on',i===idx);});}
+      function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(apply);}}
+      measure();apply();
+      addEventListener('scroll',onScroll,{passive:true});
+      addEventListener('resize',function(){measure();lastIdx=-1;apply();},{passive:true});})();
+
+    /* --- 3D hero: desktop only, loaded lazily so it never blocks the phone --- */
+    var MOBILE = matchMedia('(max-width:820px)').matches || (navigator.hardwareConcurrency||8) <= 4;
+    if(MOBILE){ var tc=document.getElementById('themes'); if(tc)tc.style.display='none'; return; }
+    function loadThree(cb){var s=document.createElement('script');s.async=true;
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=cb;document.head.appendChild(s);}
+    /* Defer the heavy 3D work (three.js parse + ~1,500-mesh build) until the first
+       user interaction OR ~2.5s idle — this moves it past Time-to-Interactive so it
+       no longer counts toward Total Blocking Time. Above-the-fold copy already paints. */
+    function boot(){
+      var started=false, evts=['pointerdown','keydown','wheel','touchstart','scroll'];
+      function start(){ if(started)return; started=true;
+        evts.forEach(function(e){removeEventListener(e,start);});
+        loadThree(function(){if(window.THREE)init3D();});
+      }
+      evts.forEach(function(e){addEventListener(e,start,{passive:true});});
+      setTimeout(function(){(window.requestIdleCallback||function(f){return setTimeout(f,1);})(start,{timeout:1200});},2500);
+    }
+    if(document.readyState==='complete')boot(); else window.addEventListener('load',boot);
+
+    function init3D(){
+    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- refined "limestone manor" palette ---- */
+    /* brownstone: brick-red walls, ivory limestone trim, dark slate roof — pops on cream */
+    var PAL={sand:0xA6442F,ivory:0xF2ECDD,slate:0x414A5B,slateDk:0x333A48,gold:0xD7A63F,wood:0x5A3A22,glass:0x5E7C99,lawn:0x74BC67,stone:0x8E3A29};
+    var BH=1.2,SH=0.34,SR=0.3;
+    var SB={SX:15,SZ:9};
+
+    /* ---- elegant symmetric "Limestone Manor" ---- */
+    function mansionPieces(){
+      var W=15,D=9,fh=5,floors=2,wallTop=floors*fh,cx=7;
+      var P=[];
+      function add(x,y,z,w,d,color,type,rot){P.push({x:x,y:y,z:z,w:w||1,d:d||1,color:color,type:type||'brick',rot:rot||0});}
+      var cell={};
+      function K(x,y,z){return x+'|'+y+'|'+z;}
+      function put(x,y,z,color,type){cell[K(x,y,z)]={x:x,y:y,z:z,w:1,d:1,color:color,type:type||'brick',rot:0};}
+      function del(x,y,z){delete cell[K(x,y,z)];}
+      function onB(x,z){return x===0||x===W-1||z===0||z===D-1;}
+      /* manicured lawn */
+      add(-1,0,-2,W+2,D+3,'lawn','tile');
+      /* limestone shell — solid walls, ivory plinth + cornice band */
+      for(var Y=1;Y<=wallTop;Y++){
+        for(var x=0;x<W;x++)for(var z=0;z<D;z++){ if(!onB(x,z))continue;
+          var c='sand';
+          if(Y===1||Y===wallTop)c='ivory';
+          put(x,Y,z,c,'brick'); }}
+      /* tall white-framed windows, symmetric on both floors */
+      function tallWin(x,z){[0,1].forEach(function(f){var b=f*fh+2;put(x,b,z,'glass','brick');put(x,b+1,z,'glass','brick');put(x,b+2,z,'glass','brick');put(x,f*fh+1,z,'ivory','brick');});}
+      [2,4,10,12].forEach(function(x){tallWin(x,0);tallWin(x,D-1);});
+      [2,4,6].forEach(function(z){tallWin(0,z);tallWin(W-1,z);});
+      /* grand entrance: wood double door + fanlight arch */
+      [6,7,8].forEach(function(x){put(x,1,0,'wood','brick');put(x,2,0,'wood','brick');put(x,3,0,'wood','brick');});
+      del(6,4,0);del(7,4,0);del(8,4,0);
+      /* emit shell */
+      for(var kk in cell)P.push(cell[kk]);
+      add(6,4,0,3,1,'ivory','arch');
+      /* portico — 4 columns + entablature + pediment, projecting at z=-1 */
+      [5,6,8,9].forEach(function(x){
+        for(var Y=2;Y<=wallTop-2;Y++)add(x,Y,-1,1,1,'ivory','round');
+        add(x,1,-1,1,1,'ivory','brick');            /* base */
+        add(x,wallTop-1,-1,1,1,'ivory','round');    /* capital */
+      });
+      for(var ex=4;ex<=10;ex++){add(ex,wallTop-1,-1,1,1,'ivory','tile');add(ex,wallTop,-1,1,1,'ivory','tile');} /* entablature */
+      /* stepped pediment */
+      var pB=wallTop+1;
+      [[4,10],[5,9],[6,8],[7,7]].forEach(function(r,i){for(var x=r[0];x<=r[1];x++)add(x,pB+i,-1,1,1,(i===3?'gold':'ivory'),'brick');});
+      /* front steps */
+      for(var s=0;s<2;s++)for(var x=5;x<=9;x++)add(x,0,-1-s,1,1,'ivory','plate');
+      /* slate hipped roof + parapet balustrade */
+      var mB=wallTop+1;
+      for(var x2=-1;x2<=W;x2++){add(x2,wallTop+1,-1,1,1,'ivory','tile');add(x2,wallTop+1,D,1,1,'ivory','tile');}
+      for(var z2=0;z2<D;z2++){add(-1,wallTop+1,z2,1,1,'ivory','tile');add(W,wallTop+1,z2,1,1,'ivory','tile');}
+      for(var L=0;L<4;L++){var Y=mB+L,ins=L,x0=ins,x1=W-1-ins,z0=ins,z1=D-1-ins;
+        for(var x=x0;x<=x1;x++)for(var z=z0;z<=z1;z++){var edge=(x===x0||x===x1||z===z0||z===z1);if(!edge)continue;
+          var col=(L>=2?'slateDk':'slate');
+          if(z===z0)add(x,Y,z,1,1,col,'slope',0);
+          else if(z===z1)add(x,Y,z,1,1,col,'slope',2);
+          else if(x===x0)add(x,Y,z,1,1,col,'slope',1);
+          else add(x,Y,z,1,1,col,'slope',3);
+        }}
+      /* slate cap closing the roof peak, then a contiguous spire (no gaps) */
+      var dz=Math.floor(D/2);
+      for(var xt=cx-1;xt<=cx+1;xt++)for(var zt=dz-1;zt<=dz+1;zt++)add(xt,mB+3,zt,1,1,'slateDk','tile');
+      add(cx,mB+4,dz,1,1,'ivory','brick');
+      add(cx,mB+5,dz,1,1,'ivory','round');
+      add(cx,mB+6,dz,1,1,'gold','cone');
+      /* chimneys attached to the back wall */
+      [3,W-4].forEach(function(x){add(x,mB,D-1,1,1,'ivory','brick');add(x,mB+1,D-1,1,1,'slateDk','tile');});
+      return P;
+    }
+
+    function wedgeGeom(){var H=BH*0.96,p=[0,0,0,1,0,0,1,0,1, 0,0,0,1,0,1,0,0,1, 0,0,1,1,0,1,1,H,1, 0,0,1,1,H,1,0,H,1, 0,0,0,1,H,1,1,0,0, 0,0,0,0,H,1,1,H,1, 0,0,0,0,0,1,0,H,1, 1,0,0,1,H,1,1,0,1];
+      var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.computeVertexNormals();return g;}
+    function buildGroup(type,x,z,y,w,d,hex,rot){
+      var g=new THREE.Group();var wx=x-SB.SX/2,wy=y*BH,wz=z-SB.SZ/2;
+      function mat(){return new THREE.MeshLambertMaterial({color:hex});}
+      function addStud(cx,cz,topY){var s=new THREE.Mesh(new THREE.CylinderGeometry(SR,SR,SH,10),mat());s.position.set(cx,topY+SH/2,cz);g.add(s);}
+      if(type==='brick'||type==='tile'||type==='plate'){var h=type==='plate'?BH*0.36:BH*0.96;var cy=type==='plate'?wy+h/2:wy+BH/2;
+        var box=new THREE.Mesh(new THREE.BoxGeometry(w*0.96,h,d*0.96),mat());box.position.set(wx+w/2,cy,wz+d/2);g.add(box);
+        if(type!=='tile'){var topY=type==='plate'?wy+h:wy+BH;for(var i=0;i<w;i++)for(var j=0;j<d;j++)addStud(wx+i+0.5,wz+j+0.5,topY);}
+      }else if(type==='round'){var cyl=new THREE.Mesh(new THREE.CylinderGeometry(0.47,0.47,BH*0.96,16),mat());cyl.position.set(wx+0.5,wy+BH/2,wz+0.5);g.add(cyl);addStud(wx+0.5,wz+0.5,wy+BH);
+      }else if(type==='cone'){var cn=new THREE.Mesh(new THREE.ConeGeometry(0.6,BH*1.5,18),mat());cn.position.set(wx+0.5,wy+BH*0.75,wz+0.5);g.add(cn);
+      }else if(type==='dome'){var sph=new THREE.Mesh(new THREE.SphereGeometry(0.52,16,12),mat());sph.position.set(wx+0.5,wy+BH*0.4,wz+0.5);g.add(sph);
+      }else if(type==='slope'){var sub=new THREE.Group();var wedge=new THREE.Mesh(wedgeGeom(),new THREE.MeshLambertMaterial({color:hex,side:THREE.DoubleSide}));wedge.position.set(-0.5,0,-0.5);sub.add(wedge);sub.position.set(wx+0.5,wy,wz+0.5);sub.rotation.y=(rot||0)*Math.PI/2;g.add(sub);
+      }else if(type==='arch'){var legL=new THREE.Mesh(new THREE.BoxGeometry(0.96,BH*0.96,d*0.96),mat());legL.position.set(wx+0.5,wy+BH/2,wz+d/2);g.add(legL);var legR=new THREE.Mesh(new THREE.BoxGeometry(0.96,BH*0.96,d*0.96),mat());legR.position.set(wx+2.5,wy+BH/2,wz+d/2);g.add(legR);var lint=new THREE.Mesh(new THREE.BoxGeometry(3*0.96,BH*0.42,d*0.96),mat());lint.position.set(wx+1.5,wy+BH*0.79,wz+d/2);g.add(lint);}
+      return g;}
+
+    /* standalone tumbling brick (reel-style scattered bricks) */
+    function makeBrick(w,d,hex){
+      var g=new THREE.Group(),u=2.9,h=u*1.15,m=new THREE.MeshLambertMaterial({color:hex});
+      var box=new THREE.Mesh(new THREE.BoxGeometry(w*u,h,d*u),m);g.add(box);
+      var sr=u*0.29,sh=u*0.26;
+      for(var i=0;i<w;i++)for(var j=0;j<d;j++){var s=new THREE.Mesh(new THREE.CylinderGeometry(sr,sr,sh,12),m);
+        s.position.set((i-(w-1)/2)*u,h/2+sh/2,(j-(d-1)/2)*u);g.add(s);}
+      return g;
+    }
+
+    var wrap=document.getElementById('hero-canvas');
+    var scene=new THREE.Scene();
+    var camera=new THREE.PerspectiveCamera(40,1,0.1,1000);
+    var renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+    wrap.appendChild(renderer.domElement);
+    scene.add(new THREE.AmbientLight(0xffffff,0.86));
+    var dl=new THREE.DirectionalLight(0xffffff,0.9);dl.position.set(16,26,14);scene.add(dl);
+    var dl2=new THREE.DirectionalLight(0xbcd4ff,0.32);dl2.position.set(-14,10,-12);scene.add(dl2);
+    var rim=new THREE.DirectionalLight(0xffd98a,0.25);rim.position.set(-6,4,18);scene.add(rim);
+
+    var pivot=new THREE.Group();scene.add(pivot);
+    var pieces=mansionPieces(),total=pieces.length;
+    var MATS=[];
+    var groups=[];
+    /* --- Recolour system (inspired by the LEGO recolour engine): reskin every brick --- */
+    var PALS=[PAL,
+      {sand:0x6E8B5E,ivory:0xF2ECDD,slate:0xB0563A,slateDk:0x8E4531,gold:0xE0B24A,wood:0x4A3320,glass:0xCFE0D8,lawn:0x74BC67,stone:0x5C7650},
+      {sand:0x4E6E8C,ivory:0xEFF3F5,slate:0x2C3A4C,slateDk:0x222D3B,gold:0xE0B24A,wood:0x3A4A58,glass:0xBFD9EA,lawn:0x74BC67,stone:0x3F5B74},
+      {sand:0xE0A32E,ivory:0xFFFFFF,slate:0xC0392B,slateDk:0x9E2E22,gold:0xF4D03F,wood:0x7A5230,glass:0xBFE0F2,lawn:0x74BC67,stone:0xC98A22},
+      {sand:0x7C5CA6,ivory:0xF3EEF7,slate:0x3E2E5C,slateDk:0x2E2246,gold:0xF4D03F,wood:0x4A3A5E,glass:0xD8C8EC,lawn:0x74BC67,stone:0x5E4886}];
+    var palI=0;
+    function setTheme(i){palI=i;var np=PALS[i];MATS.forEach(function(m){var hex=np[m.userData.role];if(hex!=null)m.color.setHex(hex);});}
+    window.brickify={setWall:function(hex){MATS.forEach(function(m){if(m.userData.role==='sand')m.color.setHex(hex);});}};
+
+    /* auto-fit framing on the real building bounds (robust to any size) */
+    var CEN=new THREE.Vector3(),R=12,DIR=new THREE.Vector3(0.6,0.42,1).normalize();
+    /* scattered tumbling bricks around the mansion */
+    var BC=[0xD01012,0xFDC400,0x0057A6,0x2FA84F,0xF0541E,0x8E44AD,0x00A6A0,0xFDC400];
+    var BSPEC=[[2,4],[2,2],[1,3],[2,3],[1,4],[2,2],[1,2],[2,4]];
+    var bricks3d=[];
+    function buildBricks(){
+      var scx=CEN.x-R*1.85;   /* approximate on-screen centre after the pan */
+      for(var bi=0;bi<8;bi++){var sp=BSPEC[bi],br=makeBrick(sp[0],sp[1],BC[bi]);
+        var frac=bi/7;
+        br.position.set(scx-R*(1.5+frac*1.7), CEN.y+Math.sin(bi*2.5+0.6)*R*1.5, CEN.z+(bi%2?11:-5));
+        br.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);
+        br.userData={sx:(Math.random()-0.5)*0.012,sy:(Math.random()-0.5)*0.014,sz:(Math.random()-0.5)*0.01,bob:Math.random()*6.28,by:br.position.y};
+        scene.add(br);bricks3d.push(br);}
+    }
+    function place(mx,my,sp){
+      var vfov=camera.fov*Math.PI/180;
+      var mf=2*Math.atan(Math.tan(vfov/2)*Math.min(1,camera.aspect||1));
+      var dist=(R/Math.sin(mf/2))*1.7;   /* zoom out so the whole mansion fits */
+      var panX=R*1.85;   /* on the right, but fully in frame (not clipped) */
+      camera.position.copy(CEN).addScaledVector(DIR,dist);
+      camera.position.x+=-panX+mx*R*0.16; camera.position.y+=my*R*0.10 - sp*R*0.22;
+      camera.lookAt(CEN.x-panX, CEN.y-sp*R*0.18, CEN.z);
+    }
+    function resize(){var w=wrap.clientWidth,h=wrap.clientHeight||1;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}
+
+    /* Build the ~1,500 mansion meshes in short time-sliced batches so no single
+       task blocks the main thread >50ms (keeps TBT low / no long tasks). */
+    var _gi=0;
+    function buildChunk(){
+      var t0=(performance.now?performance.now():Date.now());
+      while(_gi<pieces.length && ((performance.now?performance.now():Date.now())-t0)<22){
+        var p=pieces[_gi];
+        var g=buildGroup(p.type,p.x,p.z,p.y,p.w,p.d,PAL[p.color],p.rot);
+        g.traverse(function(o){if(o.material){o.material.userData=o.material.userData||{};o.material.userData.role=p.color;MATS.push(o.material);}});
+        g.visible=false;pivot.add(g);groups.push(g);_gi++;
+      }
+      if(_gi<pieces.length)requestAnimationFrame(buildChunk);
+      else finishSetup();
+    }
+    function finishSetup(){
+      (function(){var box=new THREE.Box3().setFromObject(pivot);var s=box.getBoundingSphere(new THREE.Sphere());CEN.copy(s.center);R=s.radius;})();
+      buildBricks();
+      resize();addEventListener('resize',resize);
+      ready=true;
+      pivot.rotation.set(0,baseRot+0.4,0);place(0,0,0);renderer.render(scene,camera);
+      if(reduce){for(var k=0;k<groups.length;k++)groups[k].visible=true;}
+      else{running=true;requestAnimationFrame(frame);}
+    }
+
+    var tmx=0,tmy=0,mx=0,my=0,scrollY=0;
+    /* render-on-demand: after the intro the loop STOPS so the page can reach
+       idle (otherwise a perpetual rAF pins the main thread → huge TBT). Any
+       interaction wakes it for a short, self-settling burst. */
+    var running=false,settleUntil=0,ready=false;
+    function wake(ms){settleUntil=Math.max(settleUntil,(performance.now()||Date.now())+(ms||480));
+      if(ready&&!running){running=true;requestAnimationFrame(frame);}}
+    addEventListener('pointermove',function(e){tmx=(e.clientX/innerWidth)*2-1;tmy=(e.clientY/innerHeight)*2-1;wake(480);});
+    addEventListener('scroll',function(){scrollY=window.scrollY||0;wake(480);},{passive:true});
+
+    var DUR=3400,start=null,baseRot=-0.5;
+    function frame(now){
+      if(start===null)start=now;
+      var t=Math.min(1,(now-start)/DUR),ease=1-Math.pow(1-t,3),f=reduce?total:ease*total;
+      var intro=t<1;
+      for(var i=0;i<groups.length;i++){
+        if(i>f){groups[i].visible=false;continue;}
+        groups[i].visible=true;
+        var drop=Math.max(0,Math.min(1,1-(f-i)));
+        groups[i].position.y=drop*12;
+      }
+      mx+=(tmx-mx)*0.06;my+=(tmy-my)*0.06;
+      var sp=Math.min(1,scrollY/700);
+      pivot.rotation.y=baseRot+ease*0.4+mx*0.5;
+      pivot.rotation.x=my*0.09;
+      for(var bi=0;bi<bricks3d.length;bi++){var b=bricks3d[bi],u=b.userData;
+        b.rotation.x+=u.sx;b.rotation.y+=u.sy;b.rotation.z+=u.sz;
+        b.position.y=u.by+Math.sin(now*0.001+u.bob)*1.3;}
+      place(mx,my,sp);
+      renderer.render(scene,camera);
+      if(intro||now<settleUntil){requestAnimationFrame(frame);}
+      else{running=false;}   /* idle → stop; page can settle, TBT stays low */
+    }
+    /* kick off the time-sliced build; finishSetup() does the first render + starts the loop */
+    buildChunk();
+    /* re-render (not re-loop) when returning to a backgrounded tab */
+    document.addEventListener('visibilitychange',function(){if(!document.hidden&&!reduce)wake(200);});
+    var tbtns=document.querySelectorAll('#themes .theme');
+    tbtns.forEach(function(b){b.addEventListener('click',function(){setTheme(+b.getAttribute('data-i'));tbtns.forEach(function(x){x.classList.remove('on');});b.classList.add('on');});});
+    } /* end init3D */
+  })();
+  </script>
+</Base>
+
+<style>
+  /* ---------- scroll progress ---------- */
+  #progress{position:fixed;top:0;left:0;right:0;height:4px;z-index:60;transform:scaleX(0);transform-origin:0 50%;
+    background:linear-gradient(90deg,var(--brick-red),var(--brick-yellow),var(--brick-green),var(--brick-blue));}
+
+  /* ---------- nav ---------- */
+  /* realistic raised-stud baseplate */
+  .baseplate{position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(circle at 44% 40%, rgba(255,255,255,.55) 0 3px, transparent 4px) 0 0/40px 40px,
+      radial-gradient(circle at 50% 54%, rgba(255,255,255,.16) 0 11px, transparent 12px) 0 0/40px 40px,
+      radial-gradient(circle at 50% 68%, rgba(0,0,0,.14) 0 12px, transparent 13px) 0 0/40px 40px,
+      #C7C9CC;}
+  :global(body.night) .baseplate{
+    background:
+      radial-gradient(circle at 44% 40%, rgba(255,255,255,.10) 0 3px, transparent 4px) 0 0/40px 40px,
+      radial-gradient(circle at 50% 54%, rgba(255,255,255,.05) 0 11px, transparent 12px) 0 0/40px 40px,
+      radial-gradient(circle at 50% 68%, rgba(0,0,0,.55) 0 12px, transparent 13px) 0 0/40px 40px,
+      #1b2230;}
+  .topbar{position:absolute;top:0;left:0;right:0;z-index:20;background:none;border:0;box-shadow:none;}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 0;position:relative;z-index:20;}
+  .brand{font-family:var(--font-display);font-weight:700;font-size:1.5rem;}
+  .brand span{color:var(--brick-red);}
+  .nav-links{display:flex;align-items:center;gap:1.4rem;}
+  .nav-links a{font-family:var(--font-display);font-weight:600;color:var(--color-muted);transition:color .15s;}
+  .nav-links a:hover{color:var(--color-ink);}
+  .nav-links .btn{color:#fff;}
+  @media(max-width:720px){.nav-links a:not(.btn){display:none;}}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;}
+  .hero-bg{position:absolute;inset:-14%;z-index:0;opacity:.9;will-change:transform;transform:translateZ(0);
+    background:radial-gradient(120% 90% at 78% 30%, #FFE9A8 0%, rgba(255,233,168,0) 55%),
+      radial-gradient(90% 80% at 12% 80%, #BFE3FF 0%, rgba(191,227,255,0) 60%),
+      radial-gradient(100% 100% at 90% 90%, #CDEFD5 0%, rgba(205,239,213,0) 55%),
+      var(--color-bg);
+    animation:drift 18s ease-in-out infinite;}
+  /* transform-only so the browser can composite it (no background-position paint) */
+  @keyframes drift{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(2.5%,2%,0) scale(1.04)}}
+  #hero-canvas{position:absolute;inset:0;z-index:1;}
+  .floaties{position:absolute;inset:0;z-index:1;pointer-events:none;}
+  .fl{position:absolute;width:calc(34px*var(--s,1));height:calc(20px*var(--s,1));background:var(--c);border-radius:5px;
+    border:2px solid rgba(0,0,0,.22);box-shadow:inset 0 -6px 0 rgba(0,0,0,.18);opacity:.5;
+    animation:floaty 7s ease-in-out infinite;animation-delay:var(--d,0s);}
+  .fl::after{content:"";position:absolute;top:4px;left:8px;right:8px;height:7px;background:radial-gradient(circle at 6px 3px,rgba(255,255,255,.5) 4px,transparent 4.5px) 0 0/16px 7px;}
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-24px) rotate(6deg)}}
+  .hero-copy{position:relative;z-index:3;max-width:600px;}
+  .hero-copy h1{margin-top:.5rem;font-size:clamp(2.8rem,6.5vw,5.2rem);text-shadow:0 2px 0 rgba(255,255,255,.55);}
+  .hl{background:linear-gradient(100deg,var(--brick-red),#F0541E 60%,var(--brick-yellow));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero-copy .lede{font-size:var(--fs-lg);color:var(--color-muted);margin:1.1rem 0 1.7rem;max-width:38ch;}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;}
+  .ghost{background:var(--color-surface);color:var(--color-ink);border:1px solid var(--color-line);box-shadow:0 4px 16px rgba(0,0,0,.16);}
+  .themes{margin-top:1.1rem;display:flex;align-items:center;gap:.6rem;}
+  .themes .tlabel{font-family:var(--font-display);font-weight:600;font-size:.85rem;color:var(--color-muted);}
+  .theme{width:34px;height:34px;border-radius:10px;cursor:pointer;padding:0;position:relative;
+    border:2px solid var(--n-900);background:linear-gradient(135deg,var(--a) 0 50%,var(--b) 50% 100%);
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,.22),2px 2px 0 rgba(0,0,0,.14);
+    transition:transform .12s ease, box-shadow .12s ease;}
+  .theme::after{content:"";position:absolute;top:5px;left:7px;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.55);}
+  .theme:hover{transform:translateY(-3px) rotate(-4deg);}
+  .theme.on{outline:3px solid var(--brick-blue);outline-offset:2px;}
+  .wheel{width:34px;height:34px;border-radius:50%;cursor:pointer;padding:0;appearance:none;-webkit-appearance:none;border:2px solid var(--n-900);
+    background:conic-gradient(red,#ff8000,gold,#7CFC00,#00E5A0,#00BFFF,#0057A6,#8E44AD,magenta,red);
+    box-shadow:2px 2px 0 rgba(0,0,0,.14);transition:transform .12s ease;}
+  .wheel:hover{transform:scale(1.12) rotate(20deg);}
+  .theme-toggle{background:none;border:0;cursor:pointer;font-size:1.2rem;line-height:1;padding:.2em;border-radius:8px;transition:transform .12s ease;}
+  .theme-toggle:hover{transform:scale(1.2) rotate(-10deg);}
+  .pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+  .cue{position:absolute;bottom:1.3rem;left:50%;transform:translateX(-50%);z-index:3;
+    font-family:var(--font-display);color:var(--color-muted);font-size:var(--fs-sm);animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+
+  /* ---------- marquee ---------- */
+  .marquee{background:var(--n-900);color:#fff;overflow:hidden;padding:.7rem 0;border-block:3px solid var(--brick-yellow);}
+  .marquee-track{display:flex;gap:1.6rem;align-items:center;white-space:nowrap;width:max-content;animation:slide 26s linear infinite;
+    font-family:var(--font-display);font-weight:600;letter-spacing:.14em;font-size:.95rem;}
+  .marquee-track b{color:var(--brick-yellow);}
+  @keyframes slide{to{transform:translateX(-50%)}}
+
+  /* ---------- sections ---------- */
+  .section{padding:var(--space-12) 0;}
+  .center-badge{display:block;width:max-content;margin:0 auto .8rem;}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-top:var(--space-6);}
+  .step{transition:transform .18s ease, box-shadow .18s ease;}
+  .step:hover{transform:translateY(-6px) rotate(-.6deg);box-shadow:0 16px 30px rgba(20,19,16,.16);}
+  .step-n{width:54px;height:54px;border-radius:13px;background:var(--_c);color:#fff;
+    display:grid;place-items:center;font-family:var(--font-display);font-weight:700;font-size:1.6rem;
+    box-shadow:inset 0 -5px 0 rgba(0,0,0,.2);margin-bottom:.8rem;}
+  .step h3{margin-bottom:.3rem;}
+
+  /* full-screen scroll story */
+  #how{position:relative;min-height:360vh;}
+  .how-pin{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .how-eyebrow{position:absolute;top:9vh;font-family:var(--font-display);font-weight:700;font-size:.9rem;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--color-muted);}
+  .slides{position:relative;width:100%;height:100%;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:2rem;gap:1.2rem;opacity:0;transform:scale(.88) translateY(40px);pointer-events:none;
+    transition:opacity .6s ease, transform .8s cubic-bezier(.2,.9,.2,1);}
+  .slide.active{opacity:1;transform:none;}
+  .slide h2{font-size:clamp(2.2rem,6vw,4rem);margin:0;}
+  .slide p{max-width:46ch;font-size:var(--fs-lg);}
+  .slide .stage-art{height:170px;width:340px;transform:scale(1.7);transform-origin:center;margin:0 0 3.5rem;}
+  .how-dots{position:absolute;bottom:7vh;display:flex;gap:.7rem;}
+  .how-dots span{width:12px;height:12px;border-radius:50%;background:var(--color-line);transition:transform .3s ease, background .3s ease;}
+  .how-dots span.on{background:var(--brick-yellow);transform:scale(1.4);}
+  .stage-art{height:150px;width:100%;position:relative;margin-bottom:.4rem;perspective:600px;}
+  .flow-arrow{align-self:center;font-family:var(--font-display);font-size:2.2rem;color:var(--brick-yellow);
+    animation:arrowpulse 1.2s ease-in-out infinite;}
+  @keyframes arrowpulse{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(8px);opacity:1}}
+
+  /* ---- BUILD: bricks fly in from all sides + assemble a house (heavy) ---- */
+  .art-build .fb{position:absolute;width:54px;height:24px;border-radius:5px;border:2px solid rgba(0,0,0,.32);
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.22);transform-origin:center;}
+  .art-build .b1{left:calc(50% - 54px);bottom:26px;background:var(--brick-red);animation:flyL 4.4s cubic-bezier(.2,1.3,.3,1) infinite 0s;}
+  .art-build .b2{left:50%;bottom:26px;background:var(--brick-blue);animation:flyR 4.4s cubic-bezier(.2,1.3,.3,1) infinite .18s;}
+  .art-build .b3{left:calc(50% - 54px);bottom:50px;background:var(--brick-green);animation:flyTL 4.4s cubic-bezier(.2,1.3,.3,1) infinite .36s;}
+  .art-build .b4{left:50%;bottom:50px;background:var(--brick-yellow);animation:flyTR 4.4s cubic-bezier(.2,1.3,.3,1) infinite .54s;}
+  .art-build .door{left:calc(50% - 10px);bottom:26px;width:20px;height:24px;background:var(--brick-blue);border-color:var(--brick-blue-ink);box-shadow:none;animation:flyUp 4.4s cubic-bezier(.2,1.3,.3,1) infinite .72s;}
+  .art-build .roof{left:50%;transform:translateX(-50%);bottom:74px;width:0;height:0;border:none;border-radius:0;box-shadow:none;background:none;
+    border-left:58px solid transparent;border-right:58px solid transparent;border-bottom:28px solid var(--brick-red);
+    animation:flyRoof 4.4s cubic-bezier(.2,1.3,.3,1) infinite .9s;}
+  @keyframes flyL{0%{opacity:0;transform:translate(-140px,10px) rotate(-120deg)}22%,86%{opacity:1;transform:none}100%{opacity:0}}
+  @keyframes flyR{0%{opacity:0;transform:translate(140px,-20px) rotate(120deg)}22%,86%{opacity:1;transform:none}100%{opacity:0}}
+  @keyframes flyTL{0%{opacity:0;transform:translate(-120px,-90px) rotate(-80deg)}26%,86%{opacity:1;transform:none}100%{opacity:0}}
+  @keyframes flyTR{0%{opacity:0;transform:translate(120px,-110px) rotate(90deg)}30%,86%{opacity:1;transform:none}100%{opacity:0}}
+  @keyframes flyUp{0%{opacity:0;transform:translateY(-120px) rotate(200deg)}34%,86%{opacity:1;transform:none}100%{opacity:0}}
+  @keyframes flyRoof{0%{opacity:0;transform:translate(-50%,-130px) rotate(30deg)}40%,86%{opacity:1;transform:translateX(-50%)}100%{opacity:0}}
+
+  /* ---- CHECKOUT: house drops into a rolling cart, card taps, receipt + check ---- */
+  .art-cart .e{position:absolute;left:50%;top:50%;}
+  .art-cart .cart{font-size:3.8rem;margin:-2.2rem 0 0 -2.4rem;animation:cartroll 4.4s ease-in-out infinite;}
+  .art-cart .drop{font-size:2.2rem;margin:-4.4rem 0 0 -1.2rem;opacity:0;animation:housedrop 4.4s ease-in-out infinite;}
+  .art-cart .card{font-size:2rem;margin:-3rem 0 0 .6rem;opacity:0;animation:cardtap 4.4s ease-in-out infinite 1.6s;}
+  .art-cart .receipt{font-size:1.9rem;margin:-.4rem 0 0 1rem;opacity:0;animation:receipt 4.4s ease-in-out infinite 2.2s;}
+  .art-cart .chk{font-size:2rem;margin:.6rem 0 0 -1rem;opacity:0;transform:scale(0);animation:pop 4.4s ease-in-out infinite 2.6s;}
+  @keyframes cartroll{0%{opacity:0;transform:translateX(-90px) rotate(-8deg)}18%{opacity:1;transform:translateX(0)}24%{transform:translateX(6px)}30%,90%{transform:translateX(0);opacity:1}100%{opacity:0}}
+  @keyframes housedrop{0%,20%{opacity:0;transform:translateY(-70px) scale(.6)}34%{opacity:1;transform:translateY(6px) scale(1)}42%,90%{opacity:1;transform:translateY(14px) scale(.9)}100%{opacity:0}}
+  @keyframes cardtap{0%{opacity:0;transform:translateX(60px) rotate(20deg)}30%{opacity:1;transform:translateX(0) rotate(0)}40%{transform:translateX(-6px)}50%,88%{opacity:1;transform:translateX(0)}100%{opacity:0}}
+  @keyframes receipt{0%,10%{opacity:0;transform:translateY(20px)}40%{opacity:1;transform:translateY(-6px)}80%{opacity:1;transform:translateY(-6px)}100%{opacity:0}}
+  @keyframes pop{0%,30%{opacity:0;transform:scale(0)}45%{opacity:1;transform:scale(1.4)}60%,88%{opacity:1;transform:scale(1)}100%{opacity:0}}
+
+  /* ---- DELIVER: truck drives across, drops box, gift bursts with confetti ---- */
+  .art-box .e,.art-box .spark{position:absolute;left:50%;top:50%;}
+  .art-box .truck{font-size:3rem;margin:-2.4rem 0 0 -1.6rem;animation:drive 4.4s ease-in-out infinite;}
+  .art-box .box{font-size:3.6rem;margin:-1.8rem 0 0 -1.8rem;opacity:0;animation:landbox 4.4s ease-in-out infinite;}
+  .art-box .gift{font-size:3.4rem;margin:-1.8rem 0 0 -1.7rem;opacity:0;transform:scale(0);animation:giftpop 4.4s ease-in-out infinite 2.7s;}
+  .art-box .spark{font-size:1.5rem;opacity:0;}
+  .art-box .s1{margin:-4rem 0 0 -3rem;animation:twinkle 4.4s ease-in-out infinite 2.9s;}
+  .art-box .s2{margin:-4rem 0 0 1.6rem;animation:twinkle 4.4s ease-in-out infinite 3.1s;}
+  .art-box .s3{margin:1.2rem 0 0 2.2rem;animation:twinkle 4.4s ease-in-out infinite 3.3s;}
+  @keyframes drive{0%{opacity:0;transform:translateX(-120px)}10%{opacity:1}26%{transform:translateX(0)}34%{transform:translateX(6px)}46%{opacity:1;transform:translateX(150px)}52%,100%{opacity:0;transform:translateX(150px)}}
+  @keyframes landbox{0%{opacity:0;transform:translateY(-18px) scale(.7)}12%{opacity:1;transform:translateY(6px) scale(1)}18%{transform:translateY(0)}94%{opacity:1;transform:translateY(0)}100%{opacity:0}}
+  @keyframes giftpop{0%,55%{opacity:0;transform:scale(0) rotate(-10deg)}66%{opacity:1;transform:scale(1.25) rotate(0)}78%,95%{opacity:1;transform:scale(1)}100%{opacity:0}}
+  @keyframes twinkle{0%,55%{opacity:0;transform:scale(.3)}70%{opacity:1;transform:scale(1.2)}90%{opacity:.8;transform:scale(1)}100%{opacity:0}}
+
+  /* phones: keep it simple + light (no fly-ins) */
+  @media(max-width:820px){
+    .stage-art *{animation:none!important;opacity:1!important;transform:none!important;position:static!important;margin:0!important;}
+    .stage-art{display:flex;align-items:center;justify-content:center;height:96px;}
+    .art-build .fb{display:none;}
+    .art-build::before{content:"🧱";font-size:3rem;}
+    .art-cart .drop,.art-cart .card,.art-cart .receipt,.art-cart .chk{display:none;}
+    .art-box .truck,.art-box .gift,.art-box .spark{display:none;}
+    .art-box .box{font-size:3rem;}
+    .art-cart .cart{font-size:3rem;}
+  }
+  @media(prefers-reduced-motion:reduce){.stage-art *{animation:none!important;opacity:1!important;}}
+
+  .feature{background:var(--n-100);padding:var(--space-12) 0;border-block:2px solid var(--color-line);position:relative;overflow:hidden;}
+  .feature-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--space-6);align-items:center;position:relative;z-index:1;}
+  .gears{position:absolute;top:-26px;left:-26px;z-index:0;opacity:.85;}
+  .gears .gear{filter:drop-shadow(2px 3px 0 rgba(0,0,0,.14));animation:spin 9s linear infinite;transform-origin:50% 50%;}
+  .gears .g2{position:absolute;left:60px;top:52px;animation:spin 6s linear infinite reverse;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:820px){.gears{display:none;}}
+  .feature h2{margin:.6rem 0 .8rem;}
+  .feature .muted{margin-bottom:1.4rem;}
+  .brickwall{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;transform:rotate(-4deg);}
+  .brickwall span{aspect-ratio:2/1;border-radius:9px;background:var(--_c);border:2px solid rgba(0,0,0,.35);
+    box-shadow:inset 0 -8px 0 rgba(0,0,0,.18), var(--shadow-sm);position:relative;
+    transition:transform .16s ease, filter .16s ease;}
+  .brickwall span::after{content:"";position:absolute;top:8px;left:14px;right:14px;height:10px;
+    background:radial-gradient(circle at 8px 5px, rgba(255,255,255,.45) 5px, transparent 6px) 0 0/22px 10px;}
+  .brickwall span:hover{transform:translateY(-6px) scale(1.05);filter:saturate(1.4) brightness(1.08);}
+
+  /* piece cards + stats hover */
+  .piece-card{transition:transform .16s ease, box-shadow .16s ease;}
+  .piece-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:var(--shadow-md);}
+  .stat{transition:transform .16s ease;}
+  .stat:hover{transform:translateY(-4px);}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:var(--space-4);}
+  .swatches span{width:48px;height:48px;border-radius:11px;border:2px solid rgba(0,0,0,.35);
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.18);transition:transform .16s ease;}
+  .swatches span:hover{transform:translateY(-6px) rotate(6deg) scale(1.08);}
+
+  .cta{background:var(--brick-red);padding:var(--space-12) 0;margin-top:var(--space-8);}
+  .tileword{display:flex;gap:.55rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.1rem;}
+  .tileword span{font-family:var(--font-display);font-weight:700;font-size:clamp(2rem,5vw,3.2rem);
+    width:1.5em;height:1.55em;display:grid;place-items:center;color:#fff;background:var(--c);
+    border:3px solid rgba(0,0,0,.26);border-radius:13px;position:relative;
+    box-shadow:inset 0 -9px 0 rgba(0,0,0,.22),0 7px 0 rgba(0,0,0,.28);
+    transform:rotate(var(--r,0deg));transition:transform .16s cubic-bezier(.2,1.3,.4,1);}
+  .tileword span::before{content:"";position:absolute;top:7px;left:24%;right:24%;height:12px;
+    background:radial-gradient(circle at 8px 5px,rgba(255,255,255,.55) 5px,transparent 5.6px) 0 0/22px 12px;opacity:.7;}
+  .tileword span:hover{transform:translateY(-8px) rotate(0);}
+
+  /* ---------- reveal (staggered) ---------- */
+  /* brick-snap assembly: drop in and click into place */
+  .reveal{opacity:0;transform:translateY(-44px) rotate(-5deg) scale(.92);}
+  .reveal.in{opacity:1;transform:none;
+    transition:opacity .45s ease var(--_d,0s), transform .6s cubic-bezier(.22,1.4,.34,1) var(--_d,0s);}
+  .reveal[style*="--i"]{--_d:calc(var(--i,0)*150ms);}
+  /* text built from bricks: letters/words pop into place, after this element's turn */
+  .built{opacity:1 !important;transform:none !important;}
+  .ch,.wd{display:inline-block;opacity:0;transform:translateY(-24px) scale(.3) rotate(-9deg);}
+  .ch{will-change:transform,opacity;white-space:pre;}
+  .reveal.in .ch{opacity:1;transform:none;
+    transition:opacity .3s ease, transform .5s cubic-bezier(.22,1.55,.34,1);transition-delay:calc(var(--_d,0s) + var(--k,0)*26ms);}
+  .reveal.in .wd{opacity:1;transform:none;
+    transition:opacity .3s ease, transform .46s cubic-bezier(.22,1.4,.4,1);transition-delay:calc(var(--_d,0s) + var(--k,0)*40ms);}
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{opacity:1 !important;transform:none !important;}
+    .fl,.marquee-track,.hero-bg,.cue,.pop{animation:none !important;}
+  }
+
+  /* stud-mosaic */
+  .mosaic{max-width:640px;width:100%;height:auto;margin:2rem auto 0;display:block;
+    border-radius:16px;border:3px solid var(--n-900);box-shadow:var(--shadow-md);background:#0e121a;}
+  /* brick UI kit */
+  .uikit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);}
+  .uikit-grid .card{display:flex;flex-direction:column;}
+  .tile-lbl{align-self:flex-start;font-family:var(--font-display);font-weight:700;font-size:.72rem;letter-spacing:.06em;
+    color:#fff;background:var(--brick-yellow);color:#141310;border:2px solid var(--brick-yellow-ink);border-radius:7px;
+    padding:.28em .6em;margin-bottom:.5rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.16);}
+  .brick-input{font-family:var(--font-body);font-size:var(--fs-md);padding:.7em .8em;border-radius:10px;
+    border:2px solid var(--n-900);background:var(--color-surface);box-shadow:inset 0 3px 0 rgba(0,0,0,.08);width:100%;}
+  .brick-input:focus{outline:3px solid var(--brick-blue);}
+  .brick-range{-webkit-appearance:none;appearance:none;width:100%;height:16px;border-radius:10px;margin:.3rem 0;
+    background:repeating-linear-gradient(90deg,var(--n-200) 0 18px,var(--n-100) 18px 20px);border:2px solid var(--n-900);}
+  .brick-range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:7px;cursor:pointer;
+    background:var(--brick-red);border:2px solid var(--brick-red-ink);box-shadow:inset 0 -5px 0 rgba(0,0,0,.22);}
+  .brick-range::-moz-range-thumb{width:26px;height:26px;border-radius:7px;cursor:pointer;
+    background:var(--brick-red);border:2px solid var(--brick-red-ink);}
+  .studchecks{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .studcheck{font-family:var(--font-display);font-weight:600;font-size:.85rem;cursor:pointer;padding:.4em .7em;
+    border-radius:9px;border:2px solid var(--n-900);background:var(--color-surface);position:relative;padding-left:1.7em;
+    box-shadow:2px 2px 0 rgba(0,0,0,.14);}
+  .studcheck::before{content:"";position:absolute;left:.5em;top:50%;transform:translateY(-50%);width:14px;height:14px;
+    border-radius:4px;border:2px solid var(--n-900);background:#fff;}
+  .studcheck.on{background:var(--brick-green);color:#fff;border-color:var(--brick-green-ink);}
+  .studcheck.on::before{background:var(--brick-yellow);}
+  .brick-select{font-family:var(--font-display);font-weight:600;cursor:pointer;padding:.6em .8em;border-radius:10px;
+    border:2px solid var(--n-900);background:var(--brick-blue);color:#fff;box-shadow:inset 0 -5px 0 rgba(0,0,0,.2);}
+
+  @media (max-width:820px){
+    .steps{grid-template-columns:1fr;}
+    .feature-grid{grid-template-columns:1fr;}
+    /* phones: no 3D — light CSS hero (fast) */
+    #hero-canvas{display:none;}
+    .hero{min-height:78vh;padding:5rem 0 3rem;text-align:center;}
+    .hero-copy{margin:0 auto;max-width:none;}
+    .hero-copy h1{font-size:clamp(2.4rem,10vw,3.4rem);}
+    .hero-cta{justify-content:center;}
+    .themes{display:none;}
+    .cue{display:none;}
+    .fl{width:calc(50px*var(--s,1));height:calc(30px*var(--s,1));opacity:.7;}
+    /* phones: no scroll-pin — stack the journey panels */
+    #how{min-height:auto;}
+    .how-pin{position:static;height:auto;display:block;padding:2rem 0;overflow:visible;}
+    .how-eyebrow{position:static;display:block;text-align:center;margin-bottom:.5rem;}
+    .slides{height:auto;}
+    #how .slide{position:static;opacity:1!important;transform:none!important;padding:2.5rem 1rem;}
+    #how .slide .stage-art{transform:scale(1.15);margin:0 auto 2.5rem;}
+    .how-dots{display:none;}
+  }
+</style>

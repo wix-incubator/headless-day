@@ -1,0 +1,38 @@
+---
+import globalCss from '../styles/global.css?raw';
+interface Props { title?: string; description?: string; }
+const { title = 'Brickify — build your own, brick by brick', description = 'Design your own brick model in 3D and get a buildable pack of real, brick-compatible parts.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="preconnect" href="https://www.wixapis.com" crossorigin />
+  <link rel="preconnect" href="https://static.parastorage.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" /></noscript>
+  <!-- inline the design system so first paint never waits on a CSS request -->
+  <style set:html={globalCss}></style>
+</head>
+<body>
+  <slot />
+
+  <footer class="site-footer">
+    <div class="container">
+      <strong style="font-family:var(--font-display);font-size:var(--fs-lg)">🧱 Brickify</strong>
+      <p style="margin-top:.4rem;color:var(--n-100)">Design it. We pack it. You build it.</p>
+      <p class="disclaimer">
+        Brickify is an independent product and is <strong>not affiliated with, sponsored by, or endorsed by</strong> the LEGO Group.
+        LEGO® is a trademark of the LEGO Group of companies, which does not sponsor, authorize or endorse this site.
+        Bricks are compatible with major building-brick systems.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
