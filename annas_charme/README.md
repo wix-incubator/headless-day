@@ -18,6 +18,7 @@ A full-featured fashion e-commerce storefront built on **Wix Headless** (Astro, 
 ## Pages
 
 - `/` — hero + featured product grid
+- `/build` — DIY bracelet kit builder (single & multi-strand, colors, letter personalization)
 - `/search` — full product search with collection and sort filters
 - `/search/[collection]` — filtered collection view
 - `/product/[slug]` — product detail: images, variants, add-to-cart, related items
@@ -40,7 +41,7 @@ Then initialise your own Wix site:
 npm create @wix/new@latest init
 ```
 
-This generates `wix.config.json` (git-ignored) with your `appId` and `siteId`. Install **Wix Stores** from the dashboard to populate the catalogue.
+This generates `wix.config.json` (git-ignored) with your `appId` and `siteId`. Install **Wix Stores** from the dashboard and add a product with slug `diy-bracelet-kit` to power the `/build` flow.
 
 ## Build & deploy
 

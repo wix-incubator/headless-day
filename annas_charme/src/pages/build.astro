@@ -35,19 +35,10 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
           </div>
           <!-- Single-strand color section -->
           <div id="single-color-section">
-            <div class="flex flex-col lg:flex-row gap-6 mb-5">
-              <div class="flex-1 min-w-0">
-                <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Choose up to 5 bead colors for your design.</p>
-                <div id="color-category-filters" class="flex flex-wrap gap-2 mb-4"></div>
-                <div id="color-grid" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1 sm:gap-2"></div>
-              </div>
-              <div class="lg:w-52 shrink-0 rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/50 dark:bg-rose-950/20 p-4 h-fit">
-                <p class="text-sm font-medium mb-3">Your selected colors (<span id="color-count">0</span>/5)</p>
-                <div id="selected-color-slots" class="flex flex-wrap gap-2 min-h-[3.5rem]"></div>
-                <p class="text-xs text-neutral-400 mt-3">Pick up to 5 colors.</p>
-              </div>
-            </div>
-            <div class="rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-4">Choose up to 5 bead colors for your design.</p>
+            <div id="color-category-filters" class="flex flex-wrap gap-2 mb-4"></div>
+            <div id="color-grid" class="bead-color-grid"></div>
+            <div class="rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 px-4 py-3 text-sm text-neutral-600 dark:text-neutral-400 mt-5">
               💡 Tip: Click on a bead to add it to your selection. You can pick up to 5 colors.
             </div>
           </div>
@@ -66,13 +57,13 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
             <div class="mb-5">
               <div class="flex items-center gap-3 mb-3">
                 <p class="text-sm font-medium">Color</p>
-                <span id="active-color-dot" class="inline-flex h-10 w-10 items-center justify-center flex-shrink-0">
-                  <img id="active-color-img" src="/beads/red.png" alt="Active color" class="h-9 w-9 object-contain drop-shadow-sm" />
+                <span id="active-color-dot" class="inline-flex h-8 w-8 items-center justify-center flex-shrink-0 overflow-visible">
+                  <img id="active-color-img" src="/beads/red.png" alt="" class="max-h-full max-w-full object-contain" />
                 </span>
                 <button id="erase-btn" class="text-xs px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none">Erase</button>
                 <button id="clear-all-btn" class="text-xs px-3 py-1 rounded-full border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none ml-auto">Clear all</button>
               </div>
-              <div id="multi-color-grid" class="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-1 sm:gap-2 max-h-64 overflow-y-auto pr-1"></div>
+              <div id="multi-color-grid" class="bead-color-grid"></div>
             </div>
             <div class="mb-2">
               <p class="text-sm font-medium mb-2">Pattern <span class="font-normal text-neutral-400 text-xs ml-1">10 beads × <span id="row-count-label">5</span> strands — click or drag to paint</span></p>
@@ -88,7 +79,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
               </label>
               <div id="default-fill-picker" class="hidden mt-3 pl-7">
                 <p class="text-xs font-medium text-neutral-400 mb-2">Default bead color</p>
-                <div id="default-fill-color-grid" class="flex flex-wrap gap-1.5"></div>
+                <div id="default-fill-color-grid" class="bead-color-grid"></div>
               </div>
             </div>
           </div>
@@ -122,7 +113,12 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
                 placeholder="e.g. ANNA"
                 class="w-full max-w-xs px-4 py-3 rounded-xl border-2 border-neutral-200 dark:border-neutral-700 bg-transparent text-base focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-400 transition"
               />
-              <p class="text-xs text-neutral-400 mt-2 mb-6"><span id="letters-chars">0</span>/10</p>
+              <p class="text-xs text-neutral-400 mt-2 mb-3"><span id="letters-chars">0</span>/10</p>
+
+              <p class="text-xs text-neutral-500 mb-2">Letters are placed on your bracelet from left to right:</p>
+              <div id="letters-ltr-preview" class="letters-ltr-preview mb-6" aria-live="polite">
+                <span class="text-xs text-neutral-400 italic">Type letters above to preview →</span>
+              </div>
 
               <p class="text-sm font-medium mb-3">Bead color</p>
               <div class="flex gap-3 flex-wrap mb-8">
@@ -216,6 +212,117 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   <Footer />
 </RootLayout>
 
+<style is:global>
+  .bead-color-grid {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    column-gap: 0.125rem;
+    row-gap: 0.75rem;
+    max-width: 42rem;
+    padding-top: 1.5rem;
+    overflow: visible;
+  }
+  @media (min-width: 640px) {
+    .bead-color-grid {
+      column-gap: 0.25rem;
+    }
+  }
+  .bead-picker-btn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0.125rem;
+    border-radius: 0.5rem;
+    min-width: 0;
+    width: 100%;
+    outline: none;
+    border: none;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bead-picker-btn:hover,
+  .bead-picker-btn:focus,
+  .bead-picker-btn:focus-visible,
+  .bead-picker-btn:active,
+  .bead-picker-btn.is-selected,
+  .bead-picker-btn.is-active {
+    background: transparent;
+  }
+  .bead-picker-btn .bead-thumb {
+    transition: transform 0.2s ease-out;
+  }
+  .bead-picker-btn.is-selected,
+  .bead-picker-btn.is-active {
+    z-index: 10;
+  }
+  .bead-picker-btn.is-selected .bead-thumb,
+  .bead-picker-btn.is-active .bead-thumb {
+    transform: scale(1.25) translateY(-10px);
+  }
+  .bead-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+  }
+  .bead-thumb img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  .bead-thumb--mini {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .letters-ltr-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    background: rgb(250 250 250);
+    border: 1px solid rgb(229 229 229);
+  }
+  .letters-ltr-track {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .letters-ltr-bead {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: sans-serif;
+    line-height: 1;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.12);
+    animation: letterLtrIn 0.22s ease-out both;
+  }
+  .letters-ltr-arrow {
+    font-size: 0.75rem;
+    color: rgb(163 163 163);
+    flex-shrink: 0;
+    user-select: none;
+  }
+  @keyframes letterLtrIn {
+    from { opacity: 0; transform: translateX(-8px) scale(0.85); }
+    to { opacity: 1; transform: none; }
+  }
+</style>
+
 <style>
   @reference "../styles/global.css";
   .step-panel { animation: fadeUp 0.22s ease both; }
@@ -228,21 +335,6 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   }
   .btn-secondary {
     @apply px-6 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-600 text-sm font-medium transition-all hover:bg-neutral-100 dark:hover:bg-neutral-700;
-  }
-  .bead-picker-btn {
-    @apply flex flex-col items-center gap-0.5 p-1 rounded-xl transition-all duration-150 hover:scale-105 focus:outline-none;
-  }
-  .bead-picker-btn.is-selected {
-    @apply ring-2 ring-rose-400 ring-offset-2 dark:ring-offset-neutral-900;
-  }
-  .bead-picker-btn.is-active {
-    @apply ring-2 ring-neutral-900 dark:ring-white ring-offset-2 dark:ring-offset-neutral-900;
-  }
-  .bead-picker-btn--compact img {
-    @apply h-8 w-8;
-  }
-  .bead-picker-btn--mini img {
-    @apply h-7 w-7;
   }
 </style>
 
@@ -368,8 +460,9 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   const hide = (id: string) => { const el = $(id); el.style.display = 'none'; el.classList.add('hidden'); };
 
   /* ---------- bead image helpers ---------- */
-  function beadImg(color: { name: string; image: string }, imgClass = 'h-14 w-14 object-contain drop-shadow-sm pointer-events-none'): string {
-    return `<img src="${color.image}" alt="${color.name}" class="${imgClass}" loading="lazy" />`;
+  function beadImg(color: { name: string; image: string }, size: 'default' | 'mini' = 'default'): string {
+    const thumbClass = size === 'mini' ? 'bead-thumb bead-thumb--mini' : 'bead-thumb';
+    return `<span class="${thumbClass}"><img src="${color.image}" alt="" loading="lazy" /></span>`;
   }
 
   function setActiveColorDot(hex: string) {
@@ -377,31 +470,14 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
     const img = $('active-color-img') as HTMLImageElement;
     const bead = beadByHex(hex);
     if (bead) {
-      dot.className = 'inline-flex h-10 w-10 items-center justify-center flex-shrink-0';
+      dot.className = 'inline-flex h-8 w-8 items-center justify-center flex-shrink-0';
       img.src = bead.image;
-      img.alt = bead.name;
+      img.alt = '';
       img.classList.remove('hidden');
     } else {
-      dot.className = 'inline-flex h-10 w-10 items-center justify-center flex-shrink-0 rounded-full border-2 border-dashed border-neutral-400';
+      dot.className = 'inline-flex h-8 w-8 items-center justify-center flex-shrink-0 rounded-full border-2 border-dashed border-neutral-400';
       img.classList.add('hidden');
     }
-  }
-
-  function renderSelectedColorSlots() {
-    const slots = $('selected-color-slots');
-    slots.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const hex = s.colors[i];
-      const bead = hex ? beadByHex(hex) : null;
-      const slot = document.createElement('div');
-      slot.className = 'h-12 w-12 rounded-full border-2 border-dashed border-rose-200 dark:border-rose-800/50 flex items-center justify-center overflow-hidden';
-      if (bead) {
-        slot.className = 'h-12 w-12 flex items-center justify-center';
-        slot.innerHTML = beadImg(bead, 'h-11 w-11 object-contain drop-shadow-sm');
-      }
-      slots.appendChild(slot);
-    }
-    ($('color-count') as HTMLElement).textContent = String(s.colors.length);
   }
 
   function syncBeadPickerButtons() {
@@ -448,24 +524,13 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   function createBeadButton(
     color: typeof COLORS[number],
     mode: 'multi-select' | 'single-select' | 'fill-select',
-    opts: { showLabel?: boolean; compact?: boolean; mini?: boolean } = {},
   ): HTMLButtonElement {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.hex = color.hex;
     btn.dataset.mode = mode;
-    btn.title = color.name;
     btn.className = 'bead-picker-btn focus:outline-none';
-    if (opts.compact) btn.classList.add('bead-picker-btn--compact');
-    if (opts.mini) btn.classList.add('bead-picker-btn--mini');
-
-    const imgClass = opts.mini ? 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none'
-      : opts.compact ? 'h-8 w-8 object-contain drop-shadow-sm pointer-events-none'
-      : 'h-14 w-14 sm:h-16 sm:w-16 object-contain drop-shadow-sm pointer-events-none';
-
-    btn.innerHTML = opts.showLabel === false
-      ? beadImg(color, imgClass)
-      : `${beadImg(color, imgClass)}<span class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 leading-tight text-center">${color.name}</span>`;
+    btn.innerHTML = beadImg(color);
 
     btn.addEventListener('click', () => {
       if (mode === 'multi-select') toggleColor(color.hex);
@@ -493,7 +558,6 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
     } else {
       s.colors.splice(idx, 1);
     }
-    renderSelectedColorSlots();
     syncBeadPickerButtons();
     updateNext2();
     renderSummary();
@@ -515,7 +579,6 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
 
   renderColorCategoryFilters();
   renderSingleColorGrid();
-  renderSelectedColorSlots();
 
   function getMultiCellColor(row: number, col: number): string {
     const painted = s.pattern[row]?.[col] ?? '';
@@ -554,14 +617,14 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
 
     const wrap = $('pattern-grid-editor') as HTMLElement;
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:inline-grid;grid-template-columns:repeat(10,34px);gap:3px;';
+    grid.style.cssText = 'display:inline-grid;grid-template-columns:repeat(10,2rem);gap:3px;';
 
     for (let row = 0; row < s.strandCount; row++) {
       for (let col = 0; col < 10; col++) {
         const { bg, border } = patternCellStyle(row, col);
         const cell = document.createElement('button');
         cell.className = 'focus:outline-none';
-        cell.style.cssText = `width:34px;height:34px;background:${bg};border:${border};border-radius:6px;cursor:crosshair;transition:background 0.05s;`;
+        cell.style.cssText = `width:2rem;height:2rem;background:${bg};border:${border};border-radius:6px;cursor:crosshair;transition:background 0.05s;`;
         cell.dataset.row = String(row);
         cell.dataset.col = String(col);
         cell.addEventListener('mousedown', e => { e.preventDefault(); paintCell(row, col); });
@@ -652,14 +715,14 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
               <p class="text-xs font-medium text-neutral-400 mb-2">Petal color</p>
               <div class="flex flex-wrap gap-1.5">${COLORS.map(c =>
                 `<button type="button" class="bead-picker-btn bead-picker-btn--mini fc-btn flex-shrink-0 transition-all hover:scale-110 focus:outline-none ${cfg.petal === c.hex ? 'is-active' : ''}"
-                  data-role="petal" data-idx="${idx}" data-hex="${c.hex}" title="${c.name}">${beadImg(c, 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none')}</button>`
+                  data-role="petal" data-idx="${idx}" data-hex="${c.hex}">${beadImg(c, 'mini')}</button>`
               ).join('')}</div>
             </div>
             <div>
               <p class="text-xs font-medium text-neutral-400 mb-2">Center color</p>
               <div class="flex flex-wrap gap-1.5">${COLORS.map(c =>
                 `<button type="button" class="bead-picker-btn bead-picker-btn--mini fc-btn flex-shrink-0 transition-all hover:scale-110 focus:outline-none ${cfg.center === c.hex ? 'is-active' : ''}"
-                  data-role="center" data-idx="${idx}" data-hex="${c.hex}" title="${c.name}">${beadImg(c, 'h-7 w-7 object-contain drop-shadow-sm pointer-events-none')}</button>`
+                  data-role="center" data-idx="${idx}" data-hex="${c.hex}">${beadImg(c, 'mini')}</button>`
               ).join('')}</div>
             </div>
           </div>
@@ -704,7 +767,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   /* ---------- multi-strand UI ---------- */
   const multiColorGrid = $('multi-color-grid');
   COLORS.forEach(color => {
-    multiColorGrid.appendChild(createBeadButton(color, 'single-select', { compact: true, showLabel: false }));
+    multiColorGrid.appendChild(createBeadButton(color, 'single-select'));
   });
   setActiveColorDot(s.activeColor);
 
@@ -725,7 +788,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
     const grid = $('default-fill-color-grid');
     grid.innerHTML = '';
     COLORS.forEach(color => {
-      grid.appendChild(createBeadButton(color, 'fill-select', { mini: true, showLabel: false }));
+      grid.appendChild(createBeadButton(color, 'fill-select'));
     });
     syncBeadPickerButtons();
   }
@@ -828,7 +891,6 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
     colorCategory = 'all';
     renderColorCategoryFilters();
     renderSingleColorGrid();
-    renderSelectedColorSlots();
 
     // clear personal / pattern
     s.personal     = null;
@@ -940,6 +1002,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
     s.beadPattern = null;
     hide('flower-customizer');
     s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style: s.personal?.style ?? 'colorful', decoration: s.personal?.decoration ?? 'none' };
+    renderLettersLtrPreview();
     renderSummary();
   });
 
@@ -952,10 +1015,46 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
   });
 
   /* ---------- letter beads input + style + decoration ---------- */
+  const LETTER_PREVIEW_COLORS = ['#f43f5e','#a78bfa','#38bdf8','#14b8a6','#fbbf24','#fb923c','#ec4899','#6ee7b7'];
+
+  function letterPreviewBeadStyle(style: 'colorful' | 'black' | 'white' | 'clear', idx: number): { bg: string; color: string; border: string } {
+    if (style === 'black') return { bg: '#111111', color: '#ffffff', border: 'rgba(255,255,255,0.15)' };
+    if (style === 'white') return { bg: '#f4f4f5', color: '#1a1a1a', border: 'rgba(0,0,0,0.12)' };
+    if (style === 'clear') return { bg: 'rgba(186,230,255,0.35)', color: '#1a1a1a', border: 'rgba(100,180,255,0.45)' };
+    return { bg: LETTER_PREVIEW_COLORS[idx % LETTER_PREVIEW_COLORS.length], color: '#ffffff', border: 'rgba(0,0,0,0.08)' };
+  }
+
+  function renderLettersLtrPreview() {
+    const el = $('letters-ltr-preview');
+    const lp = s.personal?.kind === 'letters' ? s.personal : null;
+    if (!lp) {
+      el.innerHTML = '<span class="text-xs text-neutral-400 italic">Type letters above to preview →</span>';
+      return;
+    }
+
+    const decoChars: string[] = [];
+    if (lp.decoration === 'heart' || lp.decoration === 'both') decoChars.push('♥');
+    if (lp.decoration === 'star' || lp.decoration === 'both') decoChars.push('★');
+    const chars = [...decoChars, ...lp.value.toUpperCase().split('').filter(Boolean)];
+
+    if (chars.length === 0) {
+      el.innerHTML = '<span class="text-xs text-neutral-400 italic">Type letters above to preview →</span>';
+      return;
+    }
+
+    const beads = chars.map((ch, i) => {
+      const { bg, color, border } = letterPreviewBeadStyle(lp.style, i);
+      return `<span class="letters-ltr-bead" style="background:${bg};color:${color};border:1.5px solid ${border};animation-delay:${(i * 0.05).toFixed(2)}s">${ch}</span>`;
+    }).join('');
+
+    el.innerHTML = `<span class="letters-ltr-arrow" aria-hidden="true">←</span><div class="letters-ltr-track">${beads}</div><span class="letters-ltr-arrow" aria-hidden="true">→</span>`;
+  }
+
   $('letters-input').addEventListener('input', (e) => {
     const val = (e.target as HTMLInputElement).value;
     ($('letters-chars') as HTMLElement).textContent = String(val.length);
     s.personal = { kind: 'letters', value: val, style: s.personal?.style ?? 'colorful', decoration: s.personal?.decoration ?? 'none' };
+    renderLettersLtrPreview();
     renderSummary();
   });
 
@@ -969,6 +1068,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
       btn.classList.add('bg-neutral-900','dark:bg-white','text-white','dark:text-black','border-neutral-900','dark:border-white');
       const style = btn.dataset.style as 'colorful' | 'black' | 'white' | 'clear';
       s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style, decoration: s.personal?.decoration ?? 'none' };
+      renderLettersLtrPreview();
       renderSummary();
     });
   });
@@ -987,6 +1087,7 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
       const starOn  = ($('deco-star')  as HTMLElement).classList.contains('text-white');
       const decoration: 'none'|'heart'|'star'|'both' = heartOn && starOn ? 'both' : heartOn ? 'heart' : starOn ? 'star' : 'none';
       s.personal = { kind: 'letters', value: ($('letters-input') as HTMLInputElement).value, style: s.personal?.style ?? 'colorful', decoration };
+      renderLettersLtrPreview();
       renderSummary();
     });
   });
@@ -1096,13 +1197,25 @@ const kitPrices = { single: 40, multi3: 65, multi5: 80, multi7: 95, multi9: 110 
       if (lp!.decoration === 'star'  || lp!.decoration === 'both') decoChars.push('★');
       const allBeads = [...decoChars, ...lp!.value.toUpperCase().split('').filter(Boolean)];
       if (allBeads.length > 0) {
-        const centerPos = Math.floor(totalPos / 2);
-        const startPos  = ((centerPos - Math.floor(allBeads.length / 2)) % totalPos + totalPos) % totalPos;
+        const available: number[] = [];
+        for (let i = 0; i < totalPos; i++) {
+          if (!charmSlots.has(i)) available.push(i);
+        }
+        const bottomSlots = available
+          .filter(i => {
+            const a = (i / totalPos) * Math.PI * 2 - Math.PI / 2;
+            return Math.sin(a) > 0.25;
+          })
+          .sort((a, b) => {
+            const ax = cx + r * Math.cos((a / totalPos) * Math.PI * 2 - Math.PI / 2);
+            const bx = cx + r * Math.cos((b / totalPos) * Math.PI * 2 - Math.PI / 2);
+            return ax - bx;
+          });
+        const slots = bottomSlots.length >= allBeads.length
+          ? bottomSlots.slice(Math.floor((bottomSlots.length - allBeads.length) / 2), Math.floor((bottomSlots.length - allBeads.length) / 2) + allBeads.length)
+          : available.slice(Math.max(0, Math.floor((available.length - allBeads.length) / 2)), Math.max(0, Math.floor((available.length - allBeads.length) / 2)) + allBeads.length);
         allBeads.forEach((ch, i) => {
-          let pos = (startPos + i) % totalPos;
-          let tries = 0;
-          while (charmSlots.has(pos) && tries < totalPos) { pos = (pos + 1) % totalPos; tries++; }
-          letterSlots.set(pos, ch);
+          if (slots[i] !== undefined) letterSlots.set(slots[i], ch);
         });
       }
     }

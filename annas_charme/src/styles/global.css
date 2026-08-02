@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-display:
     "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
@@ -15,22 +17,17 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+html {
+  color-scheme: light only;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @supports (font: -apple-system-body) and (-webkit-appearance: none) {
   img[loading='lazy'] {
     clip-path: inset(0.6px);
   }
-}
-
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -51,14 +48,6 @@ input:focus-visible,
 button:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px rgb(23 23 23 / 1), 0 0 0 4px rgb(250 250 250 / 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  a:focus-visible,
-  input:focus-visible,
-  button:focus-visible {
-    box-shadow: 0 0 0 2px rgb(250 250 250 / 1), 0 0 0 4px rgb(23 23 23 / 1);
-  }
 }
 
 /* Editorial section eyebrow */
