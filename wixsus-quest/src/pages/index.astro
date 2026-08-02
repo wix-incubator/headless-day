@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WixikQuest from '../game/WixikQuest';
+import '../game/game.css';
+import { items } from '@wix/data';
+import {
+  FALLBACK_LEVELS,
+  FALLBACK_QUESTIONS,
+  type Level,
+  type Question,
+  type QuestOption,
+} from '../game/quest';
+
+let levels: Level[] = FALLBACK_LEVELS;
+let questions: Question[] = FALLBACK_QUESTIONS;
+let source: 'cms' | 'fallback' = 'fallback';
+
+try {
+  const [lvlRes, qRes] = await Promise.all([
+    items.query('quest-levels').ascending('levelNumber').limit(50).find(),
+    items.query('quest-questions').ascending('order').limit(200).find(),
+  ]);
+
+  const parseTranslations = (raw: unknown) => {
+    if (!raw) return undefined;
+    try {
+      const t = JSON.parse(String(raw));
+      return t && (t.en || t.he) ? t : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const cmsLevels = lvlRes.items
+    .map((it: any): Level => ({
+      levelNumber: Number(it.levelNumber),
+      slug: String(it.slug),
+      title: String(it.title),
+      intro: String(it.intro),
+      sitePart: String(it.sitePart),
+      bossName: String(it.bossName),
+      bossIntro: String(it.bossIntro),
+      bossImage: it.bossImage ? String(it.bossImage) : undefined,
+      translations: parseTranslations(it.translations),
+    }))
+    .filter((l) => l.slug && l.title)
+    .sort((a, b) => a.levelNumber - b.levelNumber);
+
+  const cmsQuestions = qRes.items
+    .map((it: any): Question | null => {
+      let options: QuestOption[] = [];
+      try {
+        options = JSON.parse(it.options);
+      } catch {
+        return null;
+      }
+      if (!Array.isArray(options) || options.length === 0) return null;
+      return {
+        levelSlug: String(it.levelSlug),
+        order: Number(it.order),
+        kind: it.kind,
+        question: String(it.question),
+        options,
+        effectKey: it.effectKey || undefined,
+        explain: it.explain || undefined,
+        translations: parseTranslations(it.translations),
+      };
+    })
+    .filter((q): q is Question => q !== null);
+
+  if (cmsLevels.length >= 5 && cmsQuestions.length >= cmsLevels.length * 3) {
+    levels = cmsLevels;
+    questions = cmsQuestions;
+    source = 'cms';
+  }
+} catch (err) {
+  console.error('CMS read failed, using fallback quest data:', err);
+}
+---
+
+<Layout>
+	<WixikQuest client:only="react" levels={levels} questions={questions} source={source} />
+</Layout>

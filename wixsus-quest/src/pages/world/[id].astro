@@ -1,0 +1,121 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SitePreview from '../../game/SitePreview';
+import '../../game/game.css';
+import { items } from '@wix/data';
+import type { DesignTokens, SitePart } from '../../game/design';
+
+const { id } = Astro.params;
+
+let world: {
+  playerName: string;
+  score: number;
+  progress: number;
+  tokens: DesignTokens;
+} | null = null;
+
+try {
+  const res = await items.query('player-worlds').eq('_id', id).limit(1).find();
+  const row: any = res.items[0];
+  if (row) {
+    let tokens: DesignTokens = {};
+    try {
+      tokens = JSON.parse(row.designTokens);
+    } catch {
+      tokens = {};
+    }
+    world = {
+      playerName: String(row.playerName ?? 'Творець'),
+      score: Number(row.score ?? 0),
+      progress: Number(row.progress ?? 0),
+      tokens,
+    };
+  }
+} catch (err) {
+  console.error('world read failed:', err);
+}
+
+const parts: SitePart[] = ['hero', 'about', 'gallery', 'services', 'features'];
+const siteTitle = world ? `Сайт гравця ${world.playerName} — Wixsus create your site world!` : 'Світ не знайдено — Wixsus create your site world!';
+---
+
+<Layout title={siteTitle}>
+	<div class="wq-world-page">
+		{
+			world ? (
+				<>
+					<header class="wq-world-head">
+						<a class="wq-back" href="/">← До гри</a>
+						<div>
+							<h1>Світ гравця «{world.playerName}»</h1>
+							<p>
+								Зібрано у грі «Wixsus create your site world!» · {world.score} очок · {world.progress}/5 частин
+							</p>
+						</div>
+					</header>
+					<div class="wq-world-frame">
+						<SitePreview client:load tokens={world.tokens} parts={parts} />
+					</div>
+					<a class="wq-btn wq-btn-primary wq-world-cta" href="/">🎮 Зіграти й зібрати свій світ</a>
+				</>
+			) : (
+				<div class="wq-world-missing">
+					<h1>Такого світу немає 🤔</h1>
+					<p>Можливо, посилання застаріле. Але ти завжди можеш зібрати власний!</p>
+					<a class="wq-btn wq-btn-primary" href="/">🎮 Почати гру</a>
+				</div>
+			)
+		}
+	</div>
+</Layout>
+
+<style>
+	.wq-world-page {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: clamp(20px, 4vw, 48px) clamp(16px, 4vw, 32px);
+		font-family: 'Nunito', system-ui, sans-serif;
+		color: #1b1730;
+	}
+	.wq-world-head {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		margin-bottom: 22px;
+		flex-wrap: wrap;
+	}
+	.wq-back {
+		text-decoration: none;
+		font-weight: 800;
+		color: #6c4bd8;
+		background: #efeafc;
+		padding: 10px 16px;
+		border-radius: 12px;
+		white-space: nowrap;
+	}
+	.wq-world-head h1 {
+		font-size: clamp(22px, 4vw, 30px);
+		margin: 0 0 4px;
+		letter-spacing: -0.02em;
+	}
+	.wq-world-head p {
+		margin: 0;
+		color: #7a719c;
+		font-weight: 700;
+		font-size: 14px;
+	}
+	.wq-world-frame {
+		margin-bottom: 24px;
+	}
+	.wq-world-cta {
+		display: inline-flex;
+	}
+	.wq-world-missing {
+		text-align: center;
+		padding: 60px 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 16px;
+	}
+</style>
