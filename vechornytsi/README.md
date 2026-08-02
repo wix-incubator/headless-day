@@ -15,25 +15,43 @@ solutions, and key decisions).
 - Tailwind CSS v4
 - Wix hosting (`wix build` / `wix release`)
 
-## Getting started
+## Run locally
+
+> All commands below must be run from inside the `vechornytsi/` folder, not the monorepo root.
+
 ```bash
 npm install
-npx @wix/cli@latest login
-npx @wix/cli@latest dev        # http://localhost:4321
+npx @wix/cli login
+npm create @wix/new@latest init
+npm run dev                    # wix dev → http://localhost:4321
 ```
+
+`npm create @wix/new@latest init` provisions a new Wix site and writes a local
+`wix.config.json` (git-ignored). Install **Wix Stores**, **Wix CMS**, and **Wix Forms**
+on your site, then seed dinners/products/collections (see `scripts-seed/` and `SPEC.md`).
+
+Authentication is ambient on Wix-managed Astro — no OAuth client setup; SDK calls work
+in SSR pages, API routes, and React islands once linked to your site.
 
 ## Build & deploy
+
 ```bash
-npx @wix/cli@latest build
-npx @wix/cli@latest release
+npm run build      # wix build
+npm run release    # publish to Wix hosting
 ```
 
-## Environment
-Copy your Wix client id into `.env.local` (git-ignored):
-```bash
-npx @wix/cli@latest env pull --json   # writes WIX_CLIENT_ID
+## Optional environment
+
+Waitlist SMS notifications (`src/lib/notify.ts`) activate when these are set in
+`.env.local` (git-ignored):
+
 ```
-Optional (waitlist SMS): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`.
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM=
+```
+
+Without Twilio configured, waitlist signups are stored in CMS and SMS is stub-logged only.
 
 ## Project layout
 ```
