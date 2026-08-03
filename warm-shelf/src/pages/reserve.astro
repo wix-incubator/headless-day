@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const params = Astro.url.searchParams;
+const book = params.get('book') ?? '';
+const ok = params.get('ok') === '1';
+const failed = params.get('error') === '1';
+---
+
+<Layout>
+	<main class="container section" style="max-width: 640px;">
+		<span class="eyebrow">Book crossing</span>
+		<h1>Reserve a shelf book</h1>
+
+		{ok ? (
+			<div>
+				<p class="notice notice-ok">
+					Your reservation{book ? ` for “${book}”` : ''} is in — we'll set the book aside at the counter.
+					It waits for you for 3 days.
+				</p>
+				<a class="btn btn-primary" href="/book-crossing" style="margin-top: 1rem;">Back to the shelf</a>
+			</div>
+		) : (
+			<div>
+				<p class="intro">
+					Tell us who you are and which book to set aside — it's free.
+					We'll keep it at the counter for you.
+				</p>
+				{failed && (
+					<p class="notice notice-err">Something went wrong sending your reservation — please try again.</p>
+				)}
+				<form method="POST" action="/api/reserve">
+					<div class="field">
+						<label for="full_name">Full name *</label>
+						<input id="full_name" name="full_name" required autocomplete="name" />
+					</div>
+					<div class="field">
+						<label for="email">Email *</label>
+						<input id="email" name="email" type="email" required autocomplete="email" />
+					</div>
+					<div class="field">
+						<label for="phone">Phone</label>
+						<input id="phone" name="phone" type="tel" autocomplete="tel" />
+					</div>
+					<div class="field">
+						<label for="book_title">Book title *</label>
+						<input id="book_title" name="book_title" required value={book} />
+					</div>
+					<div class="field">
+						<label for="pickup_date">Preferred pickup date</label>
+						<input id="pickup_date" name="pickup_date" type="date" />
+					</div>
+					<div class="field">
+						<label for="note">Note</label>
+						<textarea id="note" name="note" rows="3" placeholder="Anything we should know?"></textarea>
+					</div>
+					<button class="btn btn-primary" type="submit">Reserve the book</button>
+				</form>
+			</div>
+		)}
+	</main>
+</Layout>
+
+<style>
+	.intro { color: var(--ink-soft); }
+	form { margin-top: 1.5rem; }
+</style>

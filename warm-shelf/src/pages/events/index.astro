@@ -1,0 +1,134 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { wixEventsV2 } from '@wix/events';
+import { imgSrc } from '../../lib/media';
+import { EVENTS_BANNER, EVENT_GALLERY, galleryFor } from '../../lib/images';
+
+let events: any[] = [];
+try {
+	const res = await wixEventsV2.queryEvents({
+		filter: { status: { $in: ['UPCOMING', 'STARTED'] } },
+		sort: [{ fieldName: 'dateAndTimeSettings.startDate', order: 'ASC' }],
+		paging: { limit: 100 },
+	});
+	events = res.events ?? [];
+} catch {}
+
+function dateParts(e: any) {
+	const d = e?.dateAndTimeSettings?.startDate;
+	if (!d) return null;
+	const dt = new Date(d);
+	return {
+		day: new Intl.DateTimeFormat('en', { day: 'numeric', timeZone: 'Europe/Kyiv' }).format(dt),
+		month: new Intl.DateTimeFormat('en', { month: 'short', timeZone: 'Europe/Kyiv' }).format(dt),
+		weekday: new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: 'Europe/Kyiv' }).format(dt),
+		time: new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Kyiv' }).format(dt),
+	};
+}
+
+function heroFor(e: any) {
+	const backend = imgSrc(e.mainImage, 900, 600);
+	return backend || galleryFor(e.slug ?? e._id, EVENT_GALLERY, 1)[0];
+}
+
+const [lead, ...rest] = events;
+---
+
+<Layout>
+	<main>
+		<section class="parallax ev-banner" style={`background-image: url(${EVENTS_BANNER})`}>
+			<div class="container ev-banner-inner reveal">
+				<span class="eyebrow" style="color: var(--amber-soft);">What's on</span>
+				<h1>Evenings that smell of coffee and paper</h1>
+				<p>Author readings, poetry on the terrace, and a book club with fresh pastries. All free — just RSVP.</p>
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="container">
+				{events.length === 0 ? (
+					<p class="notice notice-ok">Nothing scheduled right now — new events are announced here first.</p>
+				) : (
+					<>
+						{lead && (() => {
+							const parts = dateParts(lead);
+							return (
+								<a class="lead-event reveal" href={`/events/${lead.slug}`}>
+									<div class="lead-media">
+										<img src={heroFor(lead)} alt={lead.title} loading="eager" />
+										<div class="lead-scrim"></div>
+									</div>
+									<div class="lead-copy">
+										<span class="chip chip-amber">Next up · Free · RSVP</span>
+										<h2>{lead.title}</h2>
+										<p class="lead-when">{parts?.weekday}, {parts?.day} {parts?.month} · {parts?.time}</p>
+										<p class="lead-where">{lead.location?.name}</p>
+										{lead.shortDescription && <p class="lead-desc">{lead.shortDescription}</p>}
+										<span class="btn btn-accent">Reserve your seat</span>
+									</div>
+								</a>
+							);
+						})()}
+
+						{rest.length > 0 && (
+							<div class="grid grid-3" style="margin-top: 2.5rem;">
+								{rest.map((e: any, i: number) => {
+									const parts = dateParts(e);
+									return (
+										<a class={`photo-tile ev-tile reveal d${i % 3}`} href={`/events/${e.slug}`} style="aspect-ratio: 3/2;">
+											<img src={heroFor(e)} alt={e.title} loading="lazy" />
+											<div class="tile-text">
+												<span class="ev-badge"><b>{parts?.day}</b> {parts?.month}</span>
+												<h3>{e.title}</h3>
+												<p>{parts?.time} · {e.location?.name}</p>
+											</div>
+										</a>
+									);
+								})}
+							</div>
+						)}
+					</>
+				)}
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.ev-banner { padding: clamp(4rem, 11vw, 8.5rem) 0; color: var(--cream); }
+	.ev-banner-inner { color: var(--cream); }
+	.ev-banner-inner h1 { color: var(--cream); max-width: 18ch; }
+	.ev-banner-inner p { color: rgba(250,246,238,0.9); max-width: 50ch; font-size: 1.1rem; }
+
+	.lead-event {
+		display: grid;
+		grid-template-columns: 1.3fr 1fr;
+		border-radius: var(--radius);
+		overflow: hidden;
+		border: 1px solid var(--line);
+		background: #fffdf8;
+		text-decoration: none;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
+	.lead-event:hover { transform: translateY(-4px); box-shadow: 0 22px 44px -26px rgba(59,50,38,0.5); }
+	.lead-media { position: relative; min-height: 320px; }
+	.lead-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+	.lead-scrim { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43,35,22,0.25), rgba(43,35,22,0)); }
+	.lead-copy { padding: clamp(1.5rem, 3vw, 2.6rem); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+	.lead-copy h2 { margin: 0.7rem 0 0.4rem; }
+	.lead-when { font-weight: 600; margin: 0; }
+	.lead-where { color: var(--ink-soft); margin: 0 0 0.8rem; }
+	.lead-desc { color: var(--ink-soft); margin: 0 0 1.3rem; }
+
+	.ev-tile .ev-badge {
+		display: inline-flex; align-items: baseline; gap: 0.3rem;
+		background: var(--amber); color: #3b2a06;
+		padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem;
+	}
+	.ev-tile .ev-badge b { font-size: 1rem; }
+
+	@media (max-width: 760px) {
+		.lead-event { grid-template-columns: 1fr; }
+		.lead-media { min-height: 220px; }
+	}
+</style>

@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BookCrossingFlow from '../components/BookCrossingFlow.astro';
+import { items } from '@wix/data';
+import { imgSrc } from '../lib/media';
+import { TERRACE } from '../lib/images';
+
+let shelf: any[] = [];
+try {
+	shelf = (await items.query('BookCrossingShelf').ascending('title').limit(100).find()).items ?? [];
+} catch {}
+
+const available = shelf.filter((r: any) => r.status !== 'Reserved').length;
+---
+
+<Layout>
+	<main>
+		<section class="parallax bx-hero" style={`background-image: url(${TERRACE})`}>
+			<div class="container bx-hero-inner reveal">
+				<span class="eyebrow" style="color: var(--amber-soft);">Free community library</span>
+				<h1>The book-crossing shelf</h1>
+				<p>
+					Every book here is free to borrow. Reserve one online, pick it up at the counter, and
+					pass it on when you're done — no deadlines, no fees, ever.
+				</p>
+				{available > 0 && <span class="bx-count">{available} books available right now</span>}
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="container">
+				<div class="section-head reveal">
+					<div>
+						<span class="eyebrow">How it works</span>
+						<h2>Borrow, read, pass it on</h2>
+						<p>A little circle of kindness that keeps our shelf alive.</p>
+					</div>
+				</div>
+				<BookCrossingFlow />
+			</div>
+		</section>
+
+		<section class="section on-shelf">
+			<div class="container">
+				<div class="section-head reveal">
+					<div>
+						<span class="eyebrow">On the shelf</span>
+						<h2>What's here today</h2>
+						<p>Reserve a copy and we'll set it aside at the counter.</p>
+					</div>
+				</div>
+
+				{shelf.length === 0 ? (
+					<p class="notice notice-ok">The shelf is being restocked — drop by soon.</p>
+				) : (
+					<div class="grid grid-3">
+						{shelf.map((row: any, i: number) => {
+							const src = imgSrc(row.cover, 460, 600);
+							const reserved = row.status === 'Reserved';
+							return (
+								<div class={`card shelf-card reveal d${i % 3}`}>
+									<div class="shelf-cover">
+										{src ? (
+											<img src={src} alt={row.title} loading="lazy" />
+										) : (
+											<div class="themed-block" style="aspect-ratio: 3/4;">{row.title}</div>
+										)}
+										<span class={`shelf-status ${reserved ? 'is-reserved' : ''}`}>{reserved ? 'Reserved' : 'Available'}</span>
+									</div>
+									<div class="card-body">
+										<h3>{row.title}</h3>
+										<p class="meta">{row.author}</p>
+										<p class="meta small">{[row.genre, row.condition].filter(Boolean).join(' · ')}</p>
+										{row.notes && <p class="notes">“{row.notes}”</p>}
+										{reserved ? (
+											<button class="btn btn-outline" disabled>Reserved</button>
+										) : (
+											<a class="btn btn-primary" href={`/reserve?book=${encodeURIComponent(row.title)}`}>Reserve</a>
+										)}
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				)}
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.bx-hero { padding: clamp(4rem, 11vw, 8.5rem) 0; color: var(--cream); }
+	.bx-hero-inner { color: var(--cream); }
+	.bx-hero-inner h1 { color: var(--cream); max-width: 16ch; }
+	.bx-hero-inner p { color: rgba(250,246,238,0.9); max-width: 54ch; font-size: 1.1rem; }
+	.bx-count {
+		display: inline-block; margin-top: 0.6rem;
+		background: var(--sage-soft); color: var(--olive-deep);
+		padding: 0.35rem 0.9rem; border-radius: 999px; font-size: 0.9rem; font-weight: 500;
+	}
+
+	.on-shelf {
+		background: linear-gradient(to bottom,
+			rgba(250,246,238,0) 0%, var(--sage-soft) 110px,
+			var(--sage-soft) calc(100% - 110px), rgba(250,246,238,0) 100%);
+	}
+
+	.shelf-card { display: flex; flex-direction: column; }
+	.shelf-cover { position: relative; }
+	.shelf-cover img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+	.shelf-status {
+		position: absolute; top: 0.8rem; left: 0.8rem;
+		background: var(--sage-soft); color: var(--olive-deep);
+		padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+	}
+	.shelf-status.is-reserved { background: var(--terracotta-soft); color: var(--terracotta); }
+
+	.card-body { padding: 1.1rem 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start; }
+	.card-body h3 { margin: 0; }
+	.meta { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+	.meta.small { font-size: 0.82rem; }
+	.notes { margin: 0.3rem 0 0.7rem; font-style: italic; color: var(--ink-soft); font-size: 0.9rem; }
+</style>

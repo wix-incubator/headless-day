@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { services } from '@wix/bookings';
+import { imgSrc, formatPrice } from '../../lib/media';
+import { INTERIOR } from '../../lib/images';
+
+const BOOKING_APP_ID = '13d21c63-b5ec-5912-8397-c3a5ddb27a97';
+
+let serviceList: any[] = [];
+try {
+	const res = await services
+		.queryServices({ conditionalFields: ['STAFF_MEMBER_DETAILS'] })
+		.eq('appId', BOOKING_APP_ID)
+		.limit(100)
+		.find();
+	serviceList = (res.items ?? []).filter((s: any) => !s.hidden);
+} catch {}
+---
+
+<Layout>
+	<main>
+		<section class="parallax sv-hero" style={`background-image: url(${INTERIOR})`}>
+			<div class="container sv-hero-inner reveal">
+				<span class="eyebrow" style="color: var(--amber-soft);">Book personalization</span>
+				<h1>Make a book truly yours</h1>
+				<p>A personal ex libris to mark your library, and hand-painted edges that turn a favourite into an heirloom — over coffee at our craft table.</p>
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="container">
+				{serviceList.length === 0 ? (
+					<p class="notice notice-ok">Services are being set up — check back soon.</p>
+				) : (
+					<div class="grid grid-2">
+						{serviceList.map((s: any, i: number) => {
+							const src = imgSrc(s.media?.mainMedia?.image, 900, 620);
+							const duration = s.schedule?.availabilityConstraints?.sessionDurations?.[0];
+							const price = s.payment?.fixed?.price;
+							return (
+								<a class={`photo-tile sv-tile reveal d${i}`} href={`/services/${s.mainSlug?.name}`} style="aspect-ratio: 3/2;">
+									{src ? <img src={src} alt={s.name} loading="lazy" /> : <div class="tile-fallback"></div>}
+									<div class="tile-text">
+										<h3>{s.name}</h3>
+										<p>{s.tagLine ?? ''}</p>
+										<div class="sv-meta">
+											<span class="chip chip-olive">{duration ? `${duration} min` : 'Session'}</span>
+											<span class="sv-price">{formatPrice(price?.value, price?.currency)}</span>
+										</div>
+									</div>
+								</a>
+							);
+						})}
+					</div>
+				)}
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<style>
+	.sv-hero { padding: clamp(4rem, 11vw, 8.5rem) 0; color: var(--cream); }
+	.sv-hero-inner { color: var(--cream); }
+	.sv-hero-inner h1 { color: var(--cream); max-width: 16ch; }
+	.sv-hero-inner p { color: rgba(250,246,238,0.9); max-width: 52ch; font-size: 1.1rem; }
+
+	.tile-fallback { position: absolute; inset: 0; background: linear-gradient(145deg, var(--sage-soft), var(--sand)); }
+	.sv-tile .tile-text p { margin-bottom: 0.6rem; }
+	.sv-meta { display: flex; align-items: center; gap: 0.8rem; }
+	.sv-price { font-weight: 600; color: var(--cream); }
+</style>
