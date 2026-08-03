@@ -1,0 +1,2169 @@
+@import "tailwindcss";
+
+/* The arcade is always open after dark: `dark:` variants key off the .dark class
+   pinned on <html>, not the OS setting, so islands styled light+dark render dark. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Arcade display face — headings, labels, buttons. Body copy stays on the sans stack. */
+  --font-display: "Press Start 2P", "Courier New", monospace;
+
+  /* Deep "arcade at night" backgrounds. Accents use stock Tailwind neons
+     (cyan-400, fuchsia-400, emerald-400, amber-300) — no custom accent tokens needed. */
+  --color-night-950: #060610;
+  --color-night-900: #0b0b1a;
+  --color-night-800: #131328;
+  --color-night-700: #1d1d3a;
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-blink: blink 1.1s steps(2, jump-none) infinite;
+  --animate-float: float 5s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+html {
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-feature-settings: "ss01", "cv11";
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+a,
+button {
+  cursor: pointer;
+}
+
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #060610,
+    0 0 0 4px #22d3ee;
+}
+
+/* The pixel face has no lowercase worth reading — everything set in it goes caps. */
+.font-display {
+  text-transform: uppercase;
+}
+
+/* Tiny pixel section label, e.g. "CHOOSE YOUR GAME". */
+.eyebrow {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+}
+
+/* Soft neon glow taken from the current text color. */
+.neon {
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 32px color-mix(in oklab, currentColor 55%, transparent);
+}
+
+/* Full-viewport CRT dressing: faint scanlines + corner vignette. Sits above content,
+   ignores the pointer, and is subtle enough to keep text crisp. */
+.crt::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.07) 0px,
+    rgb(0 0 0 / 0.07) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.crt::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 68%,
+    rgb(0 0 0 / 0.24) 100%
+  );
+}
+
+/* Faint blueprint grid for hero/CTA panels. */
+.pixel-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* A wider, more cinematic grid in the hero keeps the texture from competing
+   with the headline and gameplay image. */
+.hero-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+}
+
+.game-preview {
+  isolation: isolate;
+}
+
+/* Chunky arcade button: pixel face + hard offset shadow that flattens on press. */
+.arcade-btn {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.9em 1.4em;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: #060610;
+  background: #22d3ee;
+  border: 2px solid #060610;
+  box-shadow:
+    4px 4px 0 0 rgb(34 211 238 / 0.35),
+    4px 4px 0 2px #060610;
+  transition:
+    transform 120ms,
+    box-shadow 120ms,
+    background-color 120ms;
+}
+
+.arcade-btn:hover {
+  background: #67e8f9;
+}
+
+.arcade-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 transparent;
+}
+
+.arcade-btn-ghost {
+  color: #e5e5e5;
+  background: transparent;
+  border-color: rgb(255 255 255 / 0.3);
+  box-shadow:
+    4px 4px 0 0 rgb(255 255 255 / 0.12),
+    4px 4px 0 2px rgb(255 255 255 / 0.25);
+}
+
+.arcade-btn-ghost:hover {
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-blink,
+  .animate-float {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Game-specific waiting rooms
+   -------------------------------------------------------------------------- */
+
+/* Road Madness · glTF inspection garage ----------------------------------- */
+.road-garage-stage {
+  position: relative;
+  min-height: 390px;
+  overflow: hidden;
+  isolation: isolate;
+  perspective: 850px;
+  border: 1px solid rgb(251 191 36 / 0.24);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(
+      circle at 50% 22%,
+      rgb(255 248 205 / 0.14),
+      transparent 23%
+    ),
+    linear-gradient(180deg, #12161a 0 47%, #090b0e 100%);
+  box-shadow: inset 0 0 70px rgb(0 0 0 / 0.72);
+}
+
+.road-garage-ceiling {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 50px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 8px solid #22272c;
+  background: repeating-linear-gradient(
+    90deg,
+    #15191d 0 72px,
+    #272d33 72px 80px
+  );
+  z-index: 10;
+}
+
+.road-garage-ceiling span {
+  width: 92px;
+  height: 7px;
+  margin-top: 16px;
+  border-radius: 999px;
+  background: #fff7c2;
+  box-shadow:
+    0 0 12px #fff4a8,
+    0 0 40px rgb(255 241 141 / 0.55);
+}
+
+.road-garage-beam {
+  position: absolute;
+  z-index: 6;
+  top: 25px;
+  left: 50%;
+  width: 350px;
+  height: 270px;
+  transform: translateX(-50%);
+  clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+  background: linear-gradient(
+    180deg,
+    rgb(255 249 203 / 0.17),
+    rgb(255 243 150 / 0.015)
+  );
+  pointer-events: none;
+}
+
+.road-garage-backwall {
+  position: absolute;
+  inset: 48px 0 44%;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px),
+    #14191d;
+  background-size:
+    100% 38px,
+    48px 100%,
+    auto;
+  box-shadow: inset 0 -18px 28px rgb(0 0 0 / 0.5);
+}
+
+.road-garage-door {
+  position: absolute;
+  bottom: 0;
+  width: 128px;
+  height: 118px;
+  border: 6px solid #252b30;
+  background: repeating-linear-gradient(
+    180deg,
+    #0e1114 0 12px,
+    #171c20 12px 14px
+  );
+}
+
+.road-garage-door--left {
+  left: 5%;
+}
+.road-garage-door--right {
+  right: 5%;
+}
+
+.road-garage-sign {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 9px;
+  border: 1px solid rgb(251 191 36 / 0.35);
+  color: #fbbf24;
+  background: #080a0c;
+  font-family: var(--font-display);
+  font-size: 0.48rem;
+  letter-spacing: 0.18em;
+  box-shadow: 0 0 14px rgb(251 191 36 / 0.14);
+}
+
+.road-garage-floor {
+  position: absolute;
+  z-index: 1;
+  inset: 47% -12% -48%;
+  transform: rotateX(62deg);
+  transform-origin: top;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px), #101317;
+  background-size: 54px 54px;
+  box-shadow: inset 0 80px 100px rgb(0 0 0 / 0.68);
+}
+
+.road-garage-podium {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 24px;
+  width: 390px;
+  height: 142px;
+  transform: translateX(-50%) rotateX(67deg);
+  transform-style: preserve-3d;
+  border: 5px solid #313840;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #242a30 0 38%,
+    #11161a 39% 60%,
+    #242a30 61% 100%
+  );
+  box-shadow:
+    0 0 0 7px #080a0c,
+    0 14px 20px rgb(0 0 0 / 0.8);
+}
+
+.road-garage-podium__ring,
+.road-garage-podium__core {
+  position: absolute;
+  inset: 10%;
+  border: 2px solid rgb(34 211 238 / 0.5);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 25px rgb(34 211 238 / 0.12),
+    0 0 12px rgb(34 211 238 / 0.18);
+}
+
+.road-garage-podium__core {
+  inset: 28%;
+  border-color: rgb(251 191 36 / 0.34);
+}
+
+.road-car-model-shell {
+  position: absolute;
+  z-index: 7;
+  left: calc(50% + 36px);
+  bottom: -12px;
+  width: min(560px, 76%);
+  height: 320px;
+  transform: translateX(-50%) perspective(820px) rotateX(4deg);
+  transform-origin: 50% 78%;
+  filter:
+    drop-shadow(0 26px 18px rgb(0 0 0 / 0.72))
+    drop-shadow(0 0 24px rgb(34 211 238 / 0.13));
+}
+
+.road-car-model-viewer {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  background: transparent;
+  transform-origin: 50% 76%;
+  --poster-color: transparent;
+  --progress-bar-color: #22d3ee;
+  --progress-bar-height: 2px;
+}
+
+.road-car-model-viewer--derby {
+  transform: translateY(10px) rotateZ(-2deg) scale(1.03);
+}
+
+.road-car-model-viewer--monster {
+  transform: translateY(-2px) rotateZ(-1deg) scale(1.06);
+}
+
+.road-car-model-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation: road-model-load 1.2s steps(2) infinite;
+}
+
+@keyframes road-model-load {
+  50% { opacity: 0.45; }
+}
+
+.road-madness-canvas-tilt {
+  transform: perspective(1200px) rotateX(2.6deg) scale(1.018);
+  transform-origin: 50% 58%;
+}
+
+.road-madness-canvas-tilt canvas {
+  border-radius: inherit;
+}
+
+.road-garage-workbench {
+  position: absolute;
+  z-index: 4;
+  top: 82px;
+  left: 2.5%;
+  width: 205px;
+  height: 175px;
+  filter: drop-shadow(7px 11px 9px rgb(0 0 0 / 0.55));
+}
+
+.road-garage-pegboard {
+  position: absolute;
+  inset: 0 0 47px;
+  border: 7px solid #252d33;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 0.16) 1px, transparent 1.5px) 0 0 / 12px 12px,
+    linear-gradient(145deg, #344047, #1b2227);
+  box-shadow: inset 0 0 24px rgb(0 0 0 / 0.55);
+}
+
+.road-garage-bench-top {
+  position: absolute;
+  right: -5px;
+  bottom: 37px;
+  left: -5px;
+  height: 15px;
+  border-top: 3px solid #a56933;
+  background: linear-gradient(#75441f, #382313);
+}
+
+.road-garage-bench-leg {
+  position: absolute;
+  bottom: 0;
+  width: 13px;
+  height: 40px;
+  background: linear-gradient(90deg, #161a1d, #4b545a, #15191c);
+}
+.road-garage-bench-leg--left { left: 13px; }
+.road-garage-bench-leg--right { right: 13px; }
+
+.road-garage-tool {
+  position: absolute;
+  display: block;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #7c858b, #e5e7eb 48%, #525b61);
+  box-shadow: 2px 3px 3px rgb(0 0 0 / 0.65);
+}
+.road-garage-tool--wrench {
+  top: 17px;
+  left: 27px;
+  width: 9px;
+  height: 72px;
+  transform: rotate(16deg);
+}
+.road-garage-tool--wrench::before,
+.road-garage-tool--wrench::after {
+  content: "";
+  position: absolute;
+  left: -5px;
+  width: 19px;
+  height: 19px;
+  border: 5px solid #aab1b5;
+  border-radius: 50%;
+  background: #263037;
+}
+.road-garage-tool--wrench::before { top: -9px; clip-path: polygon(0 0, 100% 0, 100% 38%, 0 76%); }
+.road-garage-tool--wrench::after { bottom: -7px; }
+.road-garage-tool--hammer {
+  top: 30px;
+  left: 80px;
+  width: 8px;
+  height: 66px;
+  transform: rotate(-9deg);
+  background: #875127;
+}
+.road-garage-tool--hammer::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: -15px;
+  width: 39px;
+  height: 13px;
+  border-radius: 3px;
+  background: linear-gradient(#a8b0b5, #414a50);
+}
+.road-garage-tool--driver {
+  top: 20px;
+  left: 126px;
+  width: 6px;
+  height: 72px;
+  background: linear-gradient(#cbd5e1 0 55%, #f97316 56%);
+}
+.road-garage-tool--pliers {
+  top: 34px;
+  left: 162px;
+  width: 20px;
+  height: 58px;
+  clip-path: polygon(8% 0, 42% 0, 54% 35%, 68% 0, 100% 3%, 68% 48%, 90% 100%, 59% 100%, 48% 58%, 38% 100%, 8% 100%, 33% 47%);
+  background: linear-gradient(#b7c0c5 0 50%, #dc2626 51%);
+}
+
+.road-garage-oil-can {
+  position: absolute;
+  right: 15px;
+  bottom: 51px;
+  width: 26px;
+  height: 31px;
+  border: 2px solid #111;
+  border-radius: 4px 4px 7px 7px;
+  background: linear-gradient(90deg, #7f1d1d, #ef4444 48%, #450a0a);
+}
+.road-garage-oil-can::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  right: -13px;
+  width: 25px;
+  border-top: 4px solid #9ca3af;
+  transform: rotate(-32deg);
+}
+
+.road-garage-equipment {
+  position: absolute;
+  z-index: 4;
+  top: 91px;
+  right: 2.5%;
+  width: 205px;
+  height: 205px;
+  filter: drop-shadow(-7px 11px 9px rgb(0 0 0 / 0.55));
+}
+
+.road-garage-toolbox {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 92px;
+  height: 112px;
+  padding: 17px 9px 8px;
+  border: 5px solid #2b1717;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #7f1d1d, #dc2626 45%, #631515);
+}
+.road-garage-toolbox::before {
+  content: "TOOLS";
+  position: absolute;
+  top: 4px;
+  left: 9px;
+  color: #fecaca;
+  font: 7px var(--font-display);
+}
+.road-garage-toolbox i {
+  display: block;
+  height: 14px;
+  margin-bottom: 5px;
+  border: 1px solid rgb(0 0 0 / 0.45);
+  background: #991b1b;
+  box-shadow: inset 0 2px rgb(255 255 255 / 0.08);
+}
+.road-garage-toolbox i::after {
+  content: "";
+  display: block;
+  width: 25px;
+  margin: 5px auto 0;
+  border-top: 2px solid #d1d5db;
+}
+
+.road-garage-crate {
+  position: absolute;
+  width: 62px;
+  height: 51px;
+  border: 5px solid #452b17;
+  background:
+    linear-gradient(35deg, transparent 43%, #53351d 44% 53%, transparent 54%),
+    linear-gradient(-35deg, transparent 43%, #53351d 44% 53%, transparent 54%),
+    #8a572e;
+  box-shadow: inset 0 0 0 3px rgb(255 255 255 / 0.05);
+}
+.road-garage-crate--one { right: 103px; bottom: 3px; }
+.road-garage-crate--two { right: 52px; bottom: 3px; transform: scale(0.82); transform-origin: bottom; }
+
+.road-garage-tires {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  width: 54px;
+  height: 79px;
+}
+.road-garage-tires i {
+  position: absolute;
+  right: 0;
+  width: 50px;
+  height: 22px;
+  border: 6px solid #090a0b;
+  border-radius: 50%;
+  background: #252a2d;
+  box-shadow: inset 0 0 0 3px #51575b;
+}
+.road-garage-tires i:nth-child(1) { bottom: 0; }
+.road-garage-tires i:nth-child(2) { bottom: 22px; }
+.road-garage-tires i:nth-child(3) { bottom: 44px; }
+
+.road-garage-jack {
+  position: absolute;
+  left: 8px;
+  bottom: 58px;
+  width: 68px;
+  height: 12px;
+  transform: skewX(-28deg);
+  border-radius: 6px;
+  background: #eab308;
+  box-shadow: 7px 7px 0 -3px #111;
+}
+
+.road-car-model {
+  --car-color: #22d3ee;
+  --car-dark: #075985;
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  bottom: 112px;
+  width: 230px;
+  height: 100px;
+  transform-style: preserve-3d;
+  transform-origin: 50% 66%;
+  animation: road-car-turntable 12s linear infinite;
+  filter: drop-shadow(0 18px 13px rgb(0 0 0 / 0.65));
+}
+
+@keyframes road-car-turntable {
+  from {
+    transform: translateX(-50%) rotateX(-10deg) rotateY(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotateX(-10deg) rotateY(360deg);
+  }
+}
+
+.road-car-box {
+  position: absolute;
+  width: var(--box-w);
+  height: var(--box-h);
+  transform-style: preserve-3d;
+}
+
+.road-car-box__face {
+  position: absolute;
+  display: block;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  backface-visibility: visible;
+}
+
+.road-car-box__face--front,
+.road-car-box__face--back {
+  width: var(--box-w);
+  height: var(--box-h);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--car-color) 88%, white),
+    var(--car-dark)
+  );
+}
+
+.road-car-box__face--front {
+  transform: translateZ(calc(var(--box-d) / 2));
+}
+.road-car-box__face--back {
+  transform: rotateY(180deg) translateZ(calc(var(--box-d) / 2));
+}
+
+.road-car-box__face--left,
+.road-car-box__face--right {
+  left: calc((var(--box-w) - var(--box-d)) / 2);
+  width: var(--box-d);
+  height: var(--box-h);
+  background: linear-gradient(180deg, var(--car-color), var(--car-dark));
+}
+
+.road-car-box__face--right {
+  transform: rotateY(90deg) translateZ(calc(var(--box-w) / 2));
+}
+.road-car-box__face--left {
+  transform: rotateY(-90deg) translateZ(calc(var(--box-w) / 2));
+}
+
+.road-car-box__face--top,
+.road-car-box__face--bottom {
+  top: calc((var(--box-h) - var(--box-d)) / 2);
+  width: var(--box-w);
+  height: var(--box-d);
+  background: linear-gradient(
+    90deg,
+    var(--car-dark),
+    color-mix(in srgb, var(--car-color) 82%, white),
+    var(--car-dark)
+  );
+}
+
+.road-car-box__face--top {
+  transform: rotateX(90deg) translateZ(calc(var(--box-h) / 2));
+}
+.road-car-box__face--bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--box-h) / 2));
+  background: #111827;
+}
+
+.road-car-chassis {
+  --box-w: 214px;
+  --box-h: 42px;
+  --box-d: 82px;
+  left: 8px;
+  top: 43px;
+}
+
+.road-car-cabin {
+  --box-w: 106px;
+  --box-h: 32px;
+  --box-d: 66px;
+  left: 66px;
+  top: 12px;
+}
+
+.road-car-cabin .road-car-box__face {
+  border-color: rgb(125 211 252 / 0.38);
+  background: linear-gradient(145deg, #25364a, #07121f 70%);
+}
+
+.road-car-bumper {
+  --box-w: 8px;
+  --box-h: 15px;
+  --box-d: 88px;
+  top: 61px;
+}
+
+.road-car-bumper .road-car-box__face {
+  background: linear-gradient(135deg, #e5e7eb, #52525b);
+}
+.road-car-bumper--front {
+  left: 222px;
+}
+.road-car-bumper--rear {
+  left: 0;
+}
+
+.road-car-wheel {
+  position: absolute;
+  width: 38px;
+  height: 34px;
+  top: 60px;
+  border: 7px solid #07090b;
+  border-radius: 48%;
+  background: radial-gradient(
+    circle,
+    #a1a1aa 0 18%,
+    #252a30 19% 43%,
+    #050607 44% 100%
+  );
+  box-shadow: 0 0 0 2px #181b20;
+}
+
+.road-car-wheel--front-near {
+  left: 168px;
+  transform: translateZ(49px);
+}
+.road-car-wheel--rear-near {
+  left: 25px;
+  transform: translateZ(49px);
+}
+.road-car-wheel--front-far {
+  left: 168px;
+  transform: translateZ(-49px) rotateY(180deg);
+}
+.road-car-wheel--rear-far {
+  left: 25px;
+  transform: translateZ(-49px) rotateY(180deg);
+}
+
+.road-car-headlight {
+  position: absolute;
+  left: 226px;
+  width: 5px;
+  height: 10px;
+  border-radius: 3px;
+  background: #fef9c3;
+  box-shadow: 0 0 10px #fef08a;
+}
+.road-car-headlight--one {
+  top: 57px;
+  transform: translateZ(27px);
+}
+.road-car-headlight--two {
+  top: 57px;
+  transform: translateZ(-27px);
+}
+
+.road-car-model--monster .road-car-chassis {
+  --box-w: 192px;
+  --box-h: 55px;
+  --box-d: 100px;
+  left: 19px;
+  top: 30px;
+}
+.road-car-model--monster .road-car-cabin {
+  --box-w: 98px;
+  --box-h: 38px;
+  --box-d: 80px;
+  left: 67px;
+  top: -7px;
+}
+.road-car-model--monster .road-car-bumper--front {
+  left: 211px;
+}
+.road-car-model--monster .road-car-bumper--rear {
+  left: 11px;
+}
+.road-car-model--monster .road-car-wheel {
+  width: 48px;
+  height: 46px;
+  top: 53px;
+  border-width: 9px;
+}
+.road-car-model--monster .road-car-wheel--front-near {
+  left: 154px;
+  transform: translateZ(59px);
+}
+.road-car-model--monster .road-car-wheel--rear-near {
+  left: 25px;
+  transform: translateZ(59px);
+}
+.road-car-model--monster .road-car-wheel--front-far {
+  left: 154px;
+  transform: translateZ(-59px) rotateY(180deg);
+}
+.road-car-model--monster .road-car-wheel--rear-far {
+  left: 25px;
+  transform: translateZ(-59px) rotateY(180deg);
+}
+.road-car-model--monster .road-car-headlight {
+  left: 213px;
+  top: 50px;
+}
+.road-car-model--monster .road-car-headlight--one {
+  transform: translateZ(34px);
+}
+.road-car-model--monster .road-car-headlight--two {
+  transform: translateZ(-34px);
+}
+
+.road-garage-readout,
+.road-garage-status {
+  position: absolute;
+  z-index: 12;
+  display: flex;
+}
+
+.road-garage-readout {
+  left: 16px;
+  bottom: 14px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 12px;
+  border-left: 2px solid #fbbf24;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.82), transparent);
+}
+
+.road-garage-status {
+  top: 66px;
+  right: 14px;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  border: 1px solid rgb(34 211 238 / 0.25);
+  background: rgb(0 0 0 / 0.55);
+}
+
+.road-garage-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 8px #22d3ee;
+}
+
+/* Arena · colosseum undercroft --------------------------------------------- */
+.arena-waiting-room {
+  position: relative;
+  min-height: 680px;
+  isolation: isolate;
+}
+
+.arena-waiting-room > .arena-ready-stage {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 auto;
+  height: 540px;
+  min-height: 0;
+  border-bottom: 0;
+}
+
+.arena-waiting-controls {
+  position: relative;
+  z-index: 20;
+  width: min(760px, 70%);
+  min-height: 540px;
+  background: linear-gradient(
+    90deg,
+    rgb(13 10 8 / 0.97) 0,
+    rgb(13 10 8 / 0.92) 82%,
+    rgb(13 10 8 / 0.42) 94%,
+    transparent 100%
+  );
+  backdrop-filter: blur(2px);
+}
+
+.arena-waiting-room .arena-ready-copy {
+  display: none;
+}
+
+.arena-ready-stage {
+  position: relative;
+  min-height: 430px;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid rgb(251 191 36 / 0.22);
+  background: linear-gradient(180deg, #17100b 0 56%, #080706 56% 100%);
+  box-shadow: inset 0 -65px 85px #000;
+}
+
+.arena-ready-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  left: -10%;
+  right: -10%;
+  bottom: -72px;
+  height: 245px;
+  transform: perspective(360px) rotateX(55deg);
+  transform-origin: 50% 100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 82px,
+      rgb(251 191 36 / 0.08) 83px 85px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 48px,
+      rgb(251 191 36 / 0.06) 49px 51px
+    ),
+    linear-gradient(180deg, #251b13, #080605 78%);
+  box-shadow: inset 0 28px 42px rgb(0 0 0 / 0.62);
+}
+
+.arena-stonework {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+        90deg,
+        transparent 49%,
+        rgb(0 0 0 / 0.28) 50%,
+        transparent 51%
+      )
+      0 0 / 88px 42px,
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px) 0 0 / 100%
+      42px,
+    linear-gradient(105deg, #2d241d, #15110e 60%, #33271d);
+  opacity: 0.92;
+}
+
+.arena-arch {
+  position: absolute;
+  z-index: 2;
+  top: 58px;
+  width: 220px;
+  height: 360px;
+  border: 25px solid #3c3025;
+  border-bottom: 0;
+  border-radius: 120px 120px 0 0;
+  box-shadow:
+    inset 0 0 24px #000,
+    0 0 0 4px rgb(0 0 0 / 0.24);
+}
+.arena-arch--left {
+  left: -80px;
+}
+.arena-arch--right {
+  right: -80px;
+}
+
+.arena-daylight {
+  position: absolute;
+  z-index: 1;
+  top: 22px;
+  left: 50%;
+  width: 330px;
+  height: 375px;
+  transform: translateX(-50%);
+  border-radius: 52% 52% 12px 12px;
+  background: radial-gradient(
+    ellipse at 50% 5%,
+    #b9e6ff,
+    #3276a0 30%,
+    #0a1520 68%,
+    #020304 100%
+  );
+  box-shadow: 0 0 70px rgb(56 189 248 / 0.2);
+}
+
+.arena-gate {
+  position: absolute;
+  z-index: 4;
+  top: 46px;
+  left: 50%;
+  width: 270px;
+  height: 350px;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-around;
+  overflow: hidden;
+  border: 13px solid #504233;
+  border-bottom: 0;
+  border-radius: 145px 145px 0 0;
+  box-shadow:
+    inset 0 0 25px #000,
+    0 0 0 5px #18120e;
+}
+
+.arena-gate i {
+  width: 9px;
+  height: 105%;
+  background: linear-gradient(90deg, #342b23, #9c8262 45%, #292019);
+  box-shadow: 5px 0 8px rgb(0 0 0 / 0.5);
+}
+
+.arena-torch {
+  position: absolute;
+  z-index: 12;
+  top: 89px;
+  width: 8px;
+  height: 72px;
+  transform: rotate(8deg);
+  background: linear-gradient(90deg, #3f2b20, #a66b35, #302018);
+  box-shadow: 0 0 5px #000;
+}
+.arena-torch--left {
+  left: 17%;
+}
+.arena-torch--right {
+  right: 17%;
+  transform: rotate(-8deg);
+}
+.arena-torch i {
+  position: absolute;
+  left: 50%;
+  top: -31px;
+  width: 27px;
+  height: 40px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(
+    circle at 50% 70%,
+    #fff7ad 0 15%,
+    #fb923c 30%,
+    #dc2626 62%,
+    transparent 65%
+  );
+  filter: drop-shadow(0 0 16px #fb923c);
+  animation: arena-torch-flicker 0.9s ease-in-out infinite alternate;
+}
+@keyframes arena-torch-flicker {
+  from {
+    transform: translateX(-50%) rotate(-4deg) scale(0.92, 1.05);
+    opacity: 0.82;
+  }
+  to {
+    transform: translateX(-50%) rotate(5deg) scale(1.08, 0.94);
+    opacity: 1;
+  }
+}
+
+.arena-weapon-rack {
+  position: absolute;
+  z-index: 7;
+  right: auto;
+  left: 27%;
+  bottom: 64px;
+  width: 145px;
+  height: 92px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 7px;
+  border-bottom: 11px solid #5a3d25;
+}
+.arena-weapon-rack::before,
+.arena-weapon-rack::after {
+  content: "";
+  position: absolute;
+  bottom: -30px;
+  width: 10px;
+  height: 32px;
+  background: #3f2b1d;
+}
+.arena-weapon-rack::before {
+  left: 10px;
+}
+.arena-weapon-rack::after {
+  right: 10px;
+}
+.arena-weapon-rack img {
+  width: 30px;
+  max-height: 100px;
+  object-fit: contain;
+  filter: sepia(0.25) drop-shadow(3px 5px 2px #000);
+}
+
+.arena-bench {
+  position: absolute;
+  z-index: 7;
+  left: 4%;
+  bottom: 62px;
+  width: 160px;
+  height: 17px;
+  background: linear-gradient(#755135, #352215);
+  box-shadow: 0 6px 0 #160f0b;
+}
+.arena-bench::before,
+.arena-bench::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  width: 12px;
+  height: 32px;
+  background: #3e2818;
+}
+.arena-bench::before {
+  left: 20px;
+}
+.arena-bench::after {
+  right: 20px;
+}
+
+.arena-ready-party {
+  position: absolute;
+  z-index: 10;
+  right: 1.5%;
+  bottom: 10px;
+  width: 405px;
+  height: 340px;
+  display: flex;
+  flex-flow: row-reverse wrap-reverse;
+  /* The first/local slot stays on the right edge of the front floor row. */
+  align-content: flex-start;
+  align-items: flex-end;
+  justify-content: flex-start;
+  column-gap: 12px;
+  row-gap: 20px;
+  pointer-events: none;
+}
+
+.arena-ready-warrior {
+  position: relative;
+  width: 82px;
+  height: 150px;
+  flex: 0 0 82px;
+  pointer-events: auto;
+  animation: arena-ready-breathe 3.5s ease-in-out infinite;
+}
+.arena-ready-warrior:nth-child(2) {
+  animation-delay: -0.8s;
+}
+.arena-ready-warrior:nth-child(3) {
+  animation-delay: -1.7s;
+}
+.arena-ready-warrior:nth-child(4) {
+  animation-delay: -2.6s;
+}
+.arena-ready-warrior:nth-child(5) {
+  animation-delay: -0.4s;
+}
+.arena-ready-warrior:nth-child(6) {
+  animation-delay: -1.3s;
+}
+.arena-ready-warrior:nth-child(7) {
+  animation-delay: -2.2s;
+}
+.arena-ready-warrior:nth-child(8) {
+  animation-delay: -3.1s;
+}
+.arena-ready-warrior:nth-child(n + 5) {
+  top: 90px;
+  right: 36px;
+  opacity: 0.78;
+}
+@keyframes arena-ready-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.arena-ready-warrior__figure {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.4);
+  transform-origin: 50% 100%;
+}
+.arena-ready-warrior:nth-child(n + 5) .arena-ready-warrior__figure {
+  transform: scale(1.13);
+}
+.arena-ready-warrior__body {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  filter: drop-shadow(0 12px 8px rgb(0 0 0 / 0.85));
+}
+.arena-ready-warrior__weapon {
+  position: absolute;
+  z-index: 3;
+  right: -27px;
+  top: 53px;
+  width: 82px;
+  height: 88px;
+  object-fit: contain;
+  translate: 0 28px;
+  transform: rotate(-26deg);
+  filter: drop-shadow(0 4px 3px #000);
+}
+.arena-ready-warrior__weapon--spear {
+  right: -39px;
+  top: 39px;
+  width: 104px;
+  transform: rotate(-34deg);
+}
+.arena-ready-warrior__weapon--knife {
+  right: -18px;
+  top: 68px;
+  width: 62px;
+  transform: rotate(-25deg);
+}
+.arena-ready-warrior__weapon--bow {
+  right: -24px;
+  top: 45px;
+  width: 88px;
+  transform: rotate(-68deg);
+}
+.arena-ready-warrior__weapon--katana {
+  right: -35px;
+  top: 54px;
+  width: 104px;
+  transform: rotate(-30deg);
+}
+.arena-ready-warrior__weapon--solar-hammer {
+  right: -30px;
+  top: 44px;
+  width: 96px;
+  height: 96px;
+  transform: rotate(-34deg);
+}
+.arena-ready-warrior__shadow {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 4px;
+  height: 13px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--party-color) 54%, #000);
+  box-shadow: 0 0 11px color-mix(in srgb, var(--party-color) 65%, transparent);
+  filter: blur(3px);
+}
+
+.arena-ready-warrior--local::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 20% 2% 0;
+  border-radius: 45% 45% 24% 24%;
+  background: radial-gradient(
+    ellipse at bottom,
+    rgb(251 191 36 / 0.2),
+    transparent 70%
+  );
+  filter: blur(6px);
+}
+
+.arena-ready-warrior__nameplate {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: -24px;
+  min-width: 82px;
+  max-width: 132px;
+  min-height: 21px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 5px;
+  border: 1px solid color-mix(in srgb, var(--party-color) 54%, transparent);
+  background: rgb(14 9 5 / 0.92);
+  box-shadow: 0 5px 10px rgb(0 0 0 / 0.55);
+  white-space: nowrap;
+}
+.arena-ready-warrior__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--party-color);
+  font-family: var(--font-display);
+  font-size: 0.42rem;
+  text-overflow: ellipsis;
+}
+.arena-ready-warrior__name small {
+  margin-left: 4px;
+  color: #fbbf24;
+  font-family: monospace;
+  font-size: 0.5rem;
+}
+.arena-ready-warrior__actions {
+  display: flex;
+  gap: 2px;
+}
+.arena-ready-warrior__actions button {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  color: #fbbf24;
+  background: #1a110a;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+.arena-ready-warrior__actions button:last-child {
+  color: #f87171;
+}
+.arena-ready-warrior__actions button:hover {
+  background: #362416;
+}
+
+.arena-ready-copy,
+.arena-crowd-meter {
+  position: absolute;
+  z-index: 14;
+  display: flex;
+  background: rgb(5 4 3 / 0.76);
+  backdrop-filter: blur(4px);
+}
+.arena-ready-copy {
+  left: 16px;
+  bottom: 14px;
+  max-width: 300px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 13px;
+  border-left: 2px solid #f59e0b;
+}
+.arena-crowd-meter {
+  top: 14px;
+  right: 14px;
+  padding: 7px 9px;
+  border: 1px solid rgb(125 211 252 / 0.22);
+}
+
+/* Overrun · tactical staging room ------------------------------------------ */
+.overrun-ready-stage {
+  position: relative;
+  min-height: 430px;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid rgb(239 68 68 / 0.22);
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px) 0 0 /
+      44px 100%,
+    linear-gradient(180deg, #182019 0 53%, #090d0a 53% 100%);
+  box-shadow: inset 0 -65px 80px #020403;
+}
+
+.overrun-ready-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 49% -12% -56%;
+  transform: perspective(390px) rotateX(58deg);
+  transform-origin: 50% 0;
+  background:
+    linear-gradient(90deg, rgb(134 239 172 / 0.065) 1px, transparent 1px),
+    linear-gradient(rgb(134 239 172 / 0.065) 1px, transparent 1px), #0b100c;
+  background-size: 52px 52px;
+  box-shadow: inset 0 80px 90px rgb(0 0 0 / 0.5);
+}
+
+.overrun-ready-ceiling {
+  position: absolute;
+  z-index: 12;
+  inset: 0 0 auto;
+  height: 42px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 8px solid #252d26;
+  background: repeating-linear-gradient(
+    90deg,
+    #111612 0 86px,
+    #2a332b 86px 94px
+  );
+}
+.overrun-ready-ceiling i {
+  width: 120px;
+  height: 6px;
+  margin-top: 13px;
+  background: #d9f99d;
+  box-shadow:
+    0 0 12px #bef264,
+    0 20px 60px rgb(163 230 53 / 0.22);
+}
+
+.overrun-ready-pegboard {
+  position: absolute;
+  z-index: 3;
+  left: 3%;
+  top: 64px;
+  width: 285px;
+  height: 172px;
+  border: 9px solid #29332b;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 0.18) 1px, transparent 1.5px) 0
+      0 / 12px 12px,
+    #172019;
+  box-shadow:
+    inset 0 0 24px #050706,
+    8px 12px 18px rgb(0 0 0 / 0.32);
+}
+
+.overrun-gear {
+  position: absolute;
+  display: block;
+}
+.overrun-gear--helmet {
+  left: 24px;
+  top: 25px;
+  width: 56px;
+  height: 43px;
+  border: 6px solid #566451;
+  border-bottom-width: 10px;
+  border-radius: 35px 35px 10px 10px;
+  background: #2e3a2c;
+}
+.overrun-gear--vest {
+  left: 29px;
+  bottom: 20px;
+  width: 54px;
+  height: 57px;
+  clip-path: polygon(
+    17% 0,
+    38% 8%,
+    62% 8%,
+    83% 0,
+    100% 23%,
+    82% 35%,
+    86% 100%,
+    14% 100%,
+    18% 35%,
+    0 23%
+  );
+  background: repeating-linear-gradient(
+    180deg,
+    #53614d 0 10px,
+    #344030 10px 15px
+  );
+  box-shadow: inset 0 0 0 3px #222b21;
+}
+
+.overrun-gear-weapon {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(3px 5px 3px #000);
+}
+.overrun-gear-weapon--pistol {
+  left: 107px;
+  top: 24px;
+  width: 62px;
+  height: 45px;
+}
+.overrun-gear-weapon--shotgun {
+  right: 12px;
+  top: 26px;
+  width: 100px;
+  height: 44px;
+}
+.overrun-gear-weapon--rifle {
+  left: 100px;
+  bottom: 25px;
+  width: 140px;
+  height: 54px;
+}
+.overrun-gear-weapon--fallback {
+  height: 13px;
+  border: 3px solid #111;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #252a25 0 75%, #66705f 76%);
+}
+.overrun-gear-weapon--fallback::after {
+  content: "";
+  position: absolute;
+  right: 15%;
+  top: 8px;
+  width: 14px;
+  height: 18px;
+  transform: skewX(-12deg);
+  background: #30352f;
+}
+
+.overrun-ready-lockers {
+  position: absolute;
+  z-index: 2;
+  right: 2%;
+  top: 48px;
+  width: 195px;
+  height: 300px;
+  display: flex;
+  border: 7px solid #252e27;
+  background: #111712;
+}
+.overrun-ready-lockers i {
+  position: relative;
+  flex: 1;
+  border-right: 2px solid #090c0a;
+  background: linear-gradient(90deg, #303a32, #1c241e);
+}
+.overrun-ready-lockers i::before {
+  content: "";
+  position: absolute;
+  top: 35px;
+  left: 20%;
+  right: 20%;
+  height: 22px;
+  background: repeating-linear-gradient(
+    180deg,
+    #090c0a 0 2px,
+    transparent 2px 6px
+  );
+}
+.overrun-ready-lockers i::after {
+  content: "";
+  position: absolute;
+  top: 92px;
+  right: 8px;
+  width: 4px;
+  height: 24px;
+  border-radius: 4px;
+  background: #778274;
+}
+
+.overrun-ready-table {
+  position: absolute;
+  z-index: 8;
+  left: 23%;
+  bottom: 34px;
+  width: 310px;
+  height: 95px;
+  transform: translateX(-50%) skewX(-8deg);
+  border: 7px solid #1f2921;
+  background: linear-gradient(135deg, #334137, #172019);
+  box-shadow:
+    0 18px 0 -6px #0a0e0b,
+    0 25px 24px #000;
+}
+.overrun-ready-map {
+  position: absolute;
+  inset: 12px 90px 11px 17px;
+  transform: skewX(8deg) rotate(-2deg);
+  border: 1px solid #879c82;
+  background:
+    linear-gradient(90deg, rgb(20 83 45 / 0.35) 1px, transparent 1px),
+    linear-gradient(rgb(20 83 45 / 0.35) 1px, transparent 1px), #c1c9ad;
+  background-size: 16px 16px;
+}
+.overrun-ready-map::after {
+  content: "";
+  position: absolute;
+  left: 45%;
+  top: 34%;
+  width: 42%;
+  border-top: 3px dashed #dc2626;
+  transform: rotate(-19deg);
+}
+.overrun-ready-radio {
+  position: absolute;
+  right: 20px;
+  top: 18px;
+  width: 48px;
+  height: 52px;
+  transform: skewX(8deg);
+  border: 4px solid #111;
+  background: linear-gradient(#2f3a31 0 48%, #090c0a 49%);
+}
+.overrun-ready-radio::before {
+  content: "";
+  position: absolute;
+  right: 4px;
+  top: -34px;
+  width: 3px;
+  height: 33px;
+  background: #647064;
+  transform: rotate(8deg);
+}
+.overrun-ready-medkit {
+  position: absolute;
+  right: 74px;
+  bottom: 12px;
+  width: 34px;
+  height: 30px;
+  transform: skewX(8deg);
+  display: grid;
+  place-items: center;
+  color: white;
+  background: #b91c1c;
+  font-weight: 900;
+}
+
+.overrun-ready-crates {
+  position: absolute;
+  z-index: 5;
+  right: auto;
+  left: 40%;
+  bottom: 28px;
+}
+.overrun-ready-crates i {
+  display: inline-block;
+  width: 56px;
+  height: 48px;
+  margin-left: -10px;
+  border: 4px solid #1d271e;
+  background: repeating-linear-gradient(45deg, #45533f 0 7px, #344030 7px 14px);
+  box-shadow: 6px 7px 8px rgb(0 0 0 / 0.45);
+}
+
+.overrun-ready-monitor {
+  position: absolute;
+  z-index: 6;
+  top: 61px;
+  left: 38%;
+  width: 150px;
+  height: 72px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 14px;
+  border: 6px solid #1d251f;
+  color: #86efac;
+  background: #031007;
+  font-family: monospace;
+  font-size: 0.6rem;
+  box-shadow: 0 0 24px rgb(34 197 94 / 0.14);
+}
+.overrun-ready-monitor strong {
+  color: #f87171;
+  font-size: 0.65rem;
+}
+.overrun-ready-monitor i {
+  width: 70%;
+  border-top: 2px dashed #22c55e;
+  animation: overrun-monitor-pulse 1.6s steps(4) infinite;
+}
+@keyframes overrun-monitor-pulse {
+  50% {
+    width: 100%;
+    opacity: 0.45;
+  }
+}
+
+.overrun-ready-squad {
+  position: absolute;
+  z-index: 10;
+  right: 1.5%;
+  bottom: 12px;
+  width: 390px;
+  height: 330px;
+  display: flex;
+  flex-flow: row-reverse wrap-reverse;
+  /* With wrap-reverse, cross-start is the floor: the first/local row stays low. */
+  align-content: flex-start;
+  align-items: flex-end;
+  justify-content: flex-start;
+  column-gap: 8px;
+  row-gap: 20px;
+  pointer-events: none;
+}
+.overrun-ready-soldier {
+  position: relative;
+  width: 76px;
+  height: 135px;
+  flex: 0 0 76px;
+  pointer-events: auto;
+  animation: overrun-ready-check 3.8s ease-in-out infinite;
+}
+.overrun-ready-soldier:nth-child(2) {
+  animation-delay: -1.1s;
+}
+.overrun-ready-soldier:nth-child(3) {
+  animation-delay: -2.2s;
+}
+.overrun-ready-soldier:nth-child(4) {
+  animation-delay: -3.1s;
+}
+.overrun-ready-soldier:nth-child(5) {
+  animation-delay: -0.6s;
+}
+.overrun-ready-soldier:nth-child(6) {
+  animation-delay: -1.7s;
+}
+.overrun-ready-soldier:nth-child(7) {
+  animation-delay: -2.8s;
+}
+.overrun-ready-soldier:nth-child(8) {
+  animation-delay: -3.5s;
+}
+.overrun-ready-soldier:nth-child(n + 5) {
+  top: 70px;
+  right: 34px;
+  opacity: 0.86;
+}
+@keyframes overrun-ready-check {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.overrun-ready-soldier > img {
+  width: 100%;
+  height: 100%;
+  transform: scale(2.15);
+  transform-origin: 50% 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  translate: 0 24px;
+  filter: drop-shadow(0 10px 6px #000);
+}
+.overrun-ready-soldier:nth-child(n + 5) > img {
+  transform: scale(1.78);
+}
+.overrun-ready-soldier:nth-child(n + 5) .overrun-ready-soldier__fallback {
+  transform: scale(0.82);
+  transform-origin: 50% 100%;
+}
+.overrun-ready-soldier::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 4px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--squad-color);
+  box-shadow: 0 0 10px var(--squad-color);
+}
+.overrun-ready-soldier--local::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 22% 6% 1%;
+  border-radius: 45% 45% 24% 24%;
+  background: radial-gradient(
+    ellipse at bottom,
+    rgb(248 250 252 / 0.17),
+    transparent 68%
+  );
+  filter: blur(5px);
+}
+.overrun-ready-soldier__fallback {
+  position: absolute;
+  inset: 0;
+  translate: 0 18px;
+}
+.overrun-ready-soldier__head {
+  position: absolute;
+  left: 27px;
+  top: 12px;
+  width: 28px;
+  height: 28px;
+  border: 5px solid #1f291f;
+  border-radius: 50% 50% 38% 38%;
+  background: #53624d;
+}
+.overrun-ready-soldier__body {
+  position: absolute;
+  left: 18px;
+  top: 41px;
+  width: 45px;
+  height: 72px;
+  clip-path: polygon(
+    18% 0,
+    82% 0,
+    100% 26%,
+    77% 42%,
+    87% 100%,
+    13% 100%,
+    23% 42%,
+    0 26%
+  );
+  background: repeating-linear-gradient(
+    180deg,
+    #41503d 0 18px,
+    #2f3b2d 18px 23px
+  );
+}
+.overrun-ready-soldier__rifle {
+  position: absolute;
+  left: 12px;
+  top: 67px;
+  width: 66px;
+  height: 10px;
+  transform: rotate(-20deg);
+  border-radius: 3px;
+  background: linear-gradient(90deg, #111 0 72%, #596354 73%);
+}
+.overrun-ready-soldier__nameplate {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  top: -24px;
+  min-width: 76px;
+  max-width: 126px;
+  min-height: 21px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 5px;
+  border: 1px solid color-mix(in srgb, var(--squad-color) 45%, transparent);
+  background: rgb(2 7 3 / 0.9);
+  box-shadow: 0 5px 10px rgb(0 0 0 / 0.5);
+  white-space: nowrap;
+}
+.overrun-ready-soldier__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--squad-color);
+  font-family: var(--font-display);
+  font-size: 0.42rem;
+  text-overflow: ellipsis;
+}
+.overrun-ready-soldier__name small {
+  margin-left: 4px;
+  color: #fbbf24;
+  font-family: monospace;
+  font-size: 0.5rem;
+}
+.overrun-ready-soldier__actions {
+  display: flex;
+  gap: 2px;
+}
+.overrun-ready-soldier__actions button {
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  color: #fbbf24;
+  background: #111712;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+.overrun-ready-soldier__actions button:last-child {
+  color: #f87171;
+}
+.overrun-ready-soldier__actions button:hover {
+  background: #263128;
+}
+
+.overrun-ready-copy,
+.overrun-ready-status {
+  position: absolute;
+  z-index: 14;
+  display: flex;
+  background: rgb(2 7 3 / 0.8);
+  backdrop-filter: blur(4px);
+}
+.overrun-ready-copy {
+  left: 15px;
+  bottom: 13px;
+  max-width: 335px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 13px;
+  border-left: 2px solid #ef4444;
+}
+.overrun-ready-status {
+  top: 53px;
+  right: 14px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  border: 1px solid rgb(74 222 128 / 0.2);
+}
+.overrun-ready-status span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+@media (max-width: 700px) {
+  .road-garage-stage {
+    min-height: 350px;
+  }
+  .arena-ready-stage,
+  .overrun-ready-stage {
+    min-height: 420px;
+  }
+  .arena-waiting-room {
+    min-height: 720px;
+  }
+  .arena-waiting-room > .arena-ready-stage {
+    height: 480px;
+    min-height: 0;
+  }
+  .arena-waiting-controls {
+    width: 100%;
+    min-height: 480px;
+    background: linear-gradient(
+      180deg,
+      rgb(13 10 8 / 0.84) 0 430px,
+      #0d0a08 520px
+    );
+    backdrop-filter: blur(1px);
+  }
+  .road-garage-door {
+    width: 88px;
+  }
+  .road-garage-podium {
+    width: 310px;
+  }
+  .road-car-model-shell {
+    left: calc(50% + 16px);
+    bottom: -8px;
+    width: min(420px, 90%);
+    height: 250px;
+  }
+  .road-car-model-viewer--derby {
+    transform: translateY(12px) rotateZ(-2deg) scale(1.02);
+  }
+  .road-car-model-viewer--monster {
+    transform: translateY(6px) rotateZ(-1deg) scale(1.02);
+  }
+  .road-garage-workbench,
+  .road-garage-equipment {
+    top: 92px;
+    scale: 0.72;
+    opacity: 0.5;
+  }
+  .road-garage-workbench {
+    left: -35px;
+    transform-origin: left center;
+  }
+  .road-garage-equipment {
+    right: -40px;
+    transform-origin: right center;
+  }
+  .road-garage-status {
+    display: none;
+  }
+  .arena-weapon-rack,
+  .arena-bench,
+  .overrun-ready-pegboard,
+  .overrun-ready-lockers,
+  .overrun-ready-crates {
+    opacity: 0.34;
+  }
+  .arena-ready-copy span:last-child,
+  .overrun-ready-copy span:last-child {
+    display: none;
+  }
+  .arena-ready-party {
+    right: 1%;
+    bottom: 8px;
+    width: 98%;
+    height: 315px;
+    column-gap: 4px;
+    row-gap: 18px;
+  }
+  .arena-ready-warrior {
+    width: 64px;
+    height: 128px;
+    flex-basis: 64px;
+  }
+  .arena-ready-warrior__nameplate {
+    min-width: 64px;
+  }
+  .overrun-ready-squad {
+    right: 1%;
+    bottom: 10px;
+    width: 98%;
+    height: 305px;
+    column-gap: 4px;
+    row-gap: 18px;
+  }
+  .overrun-ready-soldier {
+    width: 62px;
+    height: 122px;
+    flex-basis: 62px;
+  }
+  .overrun-ready-table {
+    width: 260px;
+  }
+  .overrun-ready-copy {
+    top: 55px;
+    bottom: auto;
+    max-width: 230px;
+  }
+  .overrun-ready-status {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .road-car-model-loading,
+  .road-car-model,
+  .arena-torch i,
+  .arena-ready-warrior,
+  .overrun-ready-monitor i,
+  .overrun-ready-soldier {
+    animation: none;
+  }
+  .road-car-model {
+    transform: translateX(-50%) rotateX(-10deg) rotateY(-24deg);
+  }
+}
+
+/* --- Insert-coin start plate (shared by every game's warm-up room) ---------- */
+.coin-slot {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.7rem 0.9rem;
+  min-width: 8.5rem;
+  background: #131328;
+  border: 3px solid #060610;
+  border-radius: 12px;
+  box-shadow:
+    4px 4px 0 0 rgb(34 211 238 / 0.35),
+    4px 4px 0 3px #060610;
+  overflow: hidden;
+  transition:
+    transform 120ms,
+    box-shadow 120ms,
+    filter 120ms;
+}
+.coin-slot-live {
+  cursor: pointer;
+}
+.coin-slot-live:hover {
+  filter: brightness(1.15);
+}
+.coin-slot-live:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 0 transparent;
+}
+.coin-slot-idle {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.coin-slot-hole {
+  width: 3.4rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #060610;
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 0.85),
+    0 0 0 2px rgb(255 255 255 / 0.08);
+}
+.coin-slot-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: #22d3ee;
+  text-shadow: 0 0 10px currentColor;
+}
+.coin-slot-live .coin-slot-label {
+  color: #fcd34d; /* actionable → coin gold */
+}
+
+.coin-slot-coin {
+  position: absolute;
+  top: 0.55rem;
+  left: 50%;
+  width: 1.45rem;
+  height: 1.45rem;
+  margin-left: -0.725rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 2px solid #78350f;
+  background: radial-gradient(circle at 35% 30%, #fde68a, #f59e0b 70%, #b45309);
+  color: #78350f;
+  font-weight: 800;
+  font-size: 0.72rem;
+  opacity: 0;
+  transform: translateY(-2.6rem);
+}
+.coin-slot[data-inserting] .coin-slot-coin {
+  animation: coin-drop 1s ease-in forwards;
+}
+
+@keyframes coin-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-2.6rem) rotate(0deg) scaleX(1);
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0) rotate(360deg) scaleX(1);
+  }
+  86% {
+    opacity: 1;
+    transform: translateY(0.15rem) rotate(430deg) scaleX(0.18);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0.45rem) rotate(500deg) scaleX(0.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-slot[data-inserting] .coin-slot-coin {
+    animation: none;
+    opacity: 0;
+  }
+}

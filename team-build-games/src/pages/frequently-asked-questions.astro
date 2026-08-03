@@ -1,0 +1,81 @@
+---
+import Footer from "../components/layout/footer.astro";
+import Layout from "../components/layout/layout.astro";
+
+const faqs = [
+  {
+    q: "Do I need an account to play?",
+    a: "No. Everyone can play anonymously — pick a name and fighter in the lobby and you're in. Signing in is optional and only unlocks extras: a custom face photo and saved progress across games.",
+  },
+  {
+    q: "How many people can play at once?",
+    a: "Up to 8 players per room. Bigger team? Split into several rooms and run it as a tournament — losers' room, winners' room, grand final.",
+  },
+  {
+    q: "How do my colleagues join a game?",
+    a: "One person opens a game and becomes the host — the lobby shows a room link. Copy it, paste it into your team chat, and anyone who opens it lands in the same warm-up room. When everyone's in, the host presses Start.",
+  },
+  {
+    q: "Do we need to install anything?",
+    a: "Nothing. The games run entirely in the browser — Chrome, Firefox, or Safari on any laptop. A keyboard and a mouse are all you need.",
+  },
+  {
+    q: "Will it work on the office network or VPN?",
+    a: "Usually yes. Matches connect peer-to-peer over WebRTC, with a relay fallback for strict networks. If someone can't connect, the usual fix is hopping off the VPN or switching networks.",
+  },
+  {
+    q: "What happens if the host closes their laptop mid-game?",
+    a: "The match survives. Hosting migrates automatically to another player and the simulation continues from the last synced state — rage-quitting won't save anyone from losing.",
+  },
+  {
+    q: "Can I practice alone first?",
+    a: "Yes — Arena has a practice mode against bots, so you can learn to move, dash, and aim before embarrassing yourself in front of the team.",
+  },
+  {
+    q: "I can't hear any sound?",
+    a: "Browsers block audio until you interact with the page — click anywhere or press a key and the chiptune bleeps will kick in.",
+  },
+];
+---
+
+<Layout
+  title="FAQ — TeamBuild Games"
+  description="Accounts, room links, player counts, VPNs, host migration — everything you need to run a game night."
+>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16">
+    <p class="eyebrow text-amber-300">Select a question</p>
+    <h1 class="mt-3 font-display text-2xl text-white sm:text-3xl">FAQ</h1>
+
+    <div class="mt-10 space-y-3">
+      {
+        faqs.map((faq) => (
+          <details class="group rounded-xl border border-white/10 bg-night-900 open:border-cyan-400/40">
+            <summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+              <span
+                class="font-display text-[10px] text-cyan-400 transition group-open:rotate-90"
+                aria-hidden="true"
+              >
+                ▶
+              </span>
+              <span class="font-display text-[10px] leading-relaxed text-neutral-200">
+                {faq.q}
+              </span>
+            </summary>
+            <p class="px-5 pb-5 pl-12 text-sm leading-relaxed text-neutral-400">
+              {faq.a}
+            </p>
+          </details>
+        ))
+      }
+    </div>
+
+    <p class="mt-10 text-sm text-neutral-500">
+      Something else broken or missing?
+      <a href="/about" class="text-cyan-300 hover:underline">
+        Read the player's manual
+      </a>
+      — or just start a game and find out.
+    </p>
+  </div>
+  <Footer />
+</Layout>

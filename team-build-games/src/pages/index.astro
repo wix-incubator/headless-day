@@ -1,0 +1,375 @@
+---
+import Footer from "../components/layout/footer.astro";
+import RootLayout from "../components/layout/layout.astro";
+import HeroGameDeck from "../components/games/HeroGameDeck.astro";
+import LikeButton from "../components/games/LikeButton.astro";
+import { ARCADE_GAMES, GAME_SLUGS } from "../lib/games/registry";
+import { getLikeCounts, getMemberLikedSet } from "../lib/wix/gameLikes";
+import { getSessionMember } from "../lib/wix/members";
+
+// Likes rank the cabinets — most-liked first; ties keep the curated registry
+// order (stable sort). Reads are best-effort, so the page renders even if
+// Wix Data is down (all counts 0 → curated order).
+const member = await getSessionMember();
+const likeCounts = await getLikeCounts(GAME_SLUGS);
+const likedSet = member ? await getMemberLikedSet(member.id) : new Set<string>();
+const games = [...ARCADE_GAMES].sort(
+  (a, b) => (likeCounts[b.slug] ?? 0) - (likeCounts[a.slug] ?? 0),
+);
+
+const steps = [
+  {
+    n: "01",
+    title: "Open a room",
+    text: "Pick a game and hit start — you get a shareable room link instantly. No accounts, no downloads, no IT ticket.",
+  },
+  {
+    n: "02",
+    title: "Rally the team",
+    text: "Drop the link in your team chat. Everyone joins from the browser on a work laptop — up to 8 players per room.",
+  },
+  {
+    n: "03",
+    title: "Talk trash",
+    text: "Play a few rounds and settle the important questions. Loser schedules the next meeting, winner picks lunch.",
+  },
+];
+
+const features = [
+  {
+    glyph: "◆",
+    color: "text-cyan-400",
+    title: "Instant rooms",
+    text: "A room is just a link. Open it, share it, play — joining takes seconds, not setup meetings.",
+  },
+  {
+    glyph: "●",
+    color: "text-emerald-400",
+    title: "Peer-to-peer",
+    text: "Matches run over WebRTC directly between players, so the action stays fast and low-latency.",
+  },
+  {
+    glyph: "▲",
+    color: "text-fuchsia-400",
+    title: "Play anonymous",
+    text: "No account needed to play. Sign in only if you want a custom character photo and saved progress.",
+  },
+  {
+    glyph: "■",
+    color: "text-amber-300",
+    title: "Any laptop",
+    text: "Runs in the browser — Chrome, Firefox, Safari. If it can open a spreadsheet, it can join a battle.",
+  },
+];
+---
+
+<RootLayout>
+  {/* ============ HERO — pitch first, gameplay immediately visible ============ */}
+  <section class="pixel-grid hero-grid relative overflow-hidden border-b border-white/10">
+    <div
+      class="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-cyan-500/12 blur-3xl"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="pointer-events-none absolute -right-28 bottom-0 h-96 w-96 rounded-full bg-fuchsia-500/12 blur-3xl"
+      aria-hidden="true"
+    ></div>
+
+    <span
+      class="animate-float absolute left-[3%] top-20 hidden h-3.5 w-3.5 rounded-full bg-cyan-400/80 shadow-[0_0_16px_rgb(34_211_238/0.8)] xl:block"
+      aria-hidden="true"></span>
+    <span
+      class="animate-float absolute bottom-14 right-[4%] hidden h-4 w-4 rotate-45 bg-fuchsia-400/80 shadow-[0_0_16px_rgb(232_121_249/0.8)] [animation-delay:-1.6s] xl:block"
+      aria-hidden="true"></span>
+
+    <div
+      class="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14 lg:px-6 lg:py-14"
+    >
+      <div class="max-w-xl text-center lg:text-left">
+        <p class="eyebrow text-cyan-400">* The 5-minute office arcade *</p>
+        <h1
+          class="mt-5 font-display text-[2rem] leading-[1.35] text-white sm:text-[2.55rem] lg:text-[2.75rem]"
+        >
+          Turn your next team call into a
+          <span class="neon text-fuchsia-400">boss battle.</span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-lg text-base leading-relaxed text-neutral-300 sm:text-lg lg:mx-0">
+          Tiny multiplayer games that replace awkward icebreakers with actual
+          fun. Open a room, share one link, and start playing together.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+          <a href="#hero-game-picker" class="arcade-btn">▶ Pick a game</a>
+          <a href="#games" class="arcade-btn arcade-btn-ghost">Explore games</a>
+        </div>
+
+        <ul
+          class="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-3 text-xs font-medium text-neutral-300 lg:justify-start"
+          aria-label="Game night benefits"
+        >
+          <li class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgb(34_211_238/0.9)]" aria-hidden="true"></span>
+            Up to 8 players
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgb(52_211_153/0.9)]" aria-hidden="true"></span>
+            Starts in seconds
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-fuchsia-400 shadow-[0_0_8px_rgb(232_121_249/0.9)]" aria-hidden="true"></span>
+            No installs
+          </li>
+        </ul>
+      </div>
+
+      <HeroGameDeck />
+    </div>
+  </section>
+
+  {/* ============ GAME ROSTER — the cabinets ============ */}
+  <section id="games" class="scroll-mt-24 border-t border-white/10">
+    <div class="mx-auto w-full max-w-6xl px-4 py-14 lg:px-6">
+      <div class="mb-10 flex items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow text-fuchsia-400">Insert coin</p>
+          <h2 class="mt-3 font-display text-xl text-white sm:text-2xl">
+            Choose your game
+          </h2>
+        </div>
+        <p class="hidden max-w-xs text-right text-sm text-neutral-500 sm:block">
+          Ranked by team votes — the <span class="text-red-400">♥</span> decides
+          what gets built next.
+        </p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2">
+        {
+          games.map((game) => {
+            const live = game.status === "live";
+            const frame = live
+              ? "border-cyan-400/40 hover:-translate-y-1 hover:border-cyan-400 hover:shadow-[0_0_32px_rgb(34_211_238/0.25)]"
+              : game.status === "mystery"
+                ? "border-amber-300/30 hover:-translate-y-1 hover:border-amber-300/80 hover:shadow-[0_0_32px_rgb(252_211_77/0.18)]"
+                : "border-white/10 hover:border-white/25";
+            const card = (
+              <article
+                class={`group relative flex h-full flex-col overflow-hidden rounded-xl border bg-night-900 transition ${frame}`}
+              >
+                {/* cabinet screen */}
+                <div class="pixel-grid relative h-40 overflow-hidden border-b border-white/10 bg-night-950">
+                  {game.slug === "arena" && (
+                    <img
+                      src="/assets/arena/arena-screenshot.png"
+                      alt="Arena gameplay — two warriors facing off"
+                      class="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                    />
+                  )}
+                  {game.slug === "overrun" && (
+                    <img
+                      src="/assets/overrun/overrun-screenshot.png"
+                      alt="Overrun gameplay — two players firing at a monster horde"
+                      class="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                    />
+                  )}
+                  {game.slug === "squid" && (
+                    <img
+                      src="/assets/squid/squid-screenshot.png"
+                      alt="Squid gameplay — the team walking toward the finish arch"
+                      class="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                    />
+                  )}
+                  {game.slug === "survival" && (
+                    <div class="absolute inset-0">
+                      <span class="absolute left-[46%] top-[42%] h-4 w-4 rounded-full bg-emerald-400 shadow-[0_0_14px_rgb(52_211_153/0.9)]" />
+                      <span class="absolute left-[54%] top-[50%] h-4 w-4 rounded-full bg-emerald-300 shadow-[0_0_14px_rgb(110_231_183/0.9)]" />
+                      {[
+                        "left-[12%] top-[24%]",
+                        "left-[18%] top-[64%]",
+                        "right-[14%] top-[20%]",
+                        "right-[10%] top-[58%]",
+                        "left-[38%] top-[12%]",
+                        "right-[34%] top-[74%]",
+                      ].map((pos) => (
+                        <span
+                          class={`absolute ${pos} h-3 w-3 rotate-180 bg-red-500/80 [clip-path:polygon(50%_0,100%_100%,0_100%)]`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  {game.slug === "road-madness" && (
+                    <img
+                      src="/assets/road-madness/road-madness-screenshot.webp"
+                      alt="Road Madness gameplay — two demolition cars drifting and sparking in a neon derby pit"
+                      class="absolute inset-0 h-full w-full object-cover object-center"
+                      loading="lazy"
+                    />
+                  )}
+                  {game.slug === "tactics" && (
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="grid grid-cols-4 border border-white/20">
+                        {Array.from({ length: 16 }, (_, i) => (
+                          <span
+                            class={`flex h-7 w-7 items-center justify-center ${
+                              (i + ((i / 4) | 0)) % 2 ? "bg-white/10" : "bg-transparent"
+                            }`}
+                          >
+                            {i === 5 && (
+                              <span class="h-3 w-3 rotate-45 bg-fuchsia-400 shadow-[0_0_10px_rgb(232_121_249/0.9)]" />
+                            )}
+                            {i === 10 && (
+                              <span class="h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_10px_rgb(34_211_238/0.9)]" />
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {game.slug === "mystery" && (
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="animate-blink font-display text-4xl text-amber-300/80">
+                        ?
+                      </span>
+                    </div>
+                  )}
+                  {live && (
+                    <span class="absolute left-3 top-3 flex items-center gap-1.5 rounded-sm bg-night-950/80 px-2 py-1 font-display text-[8px] text-emerald-400">
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                      Live
+                    </span>
+                  )}
+                </div>
+
+                {/* cabinet label */}
+                <div class="flex flex-1 flex-col p-6">
+                  <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+                    <span class={`border px-2 py-1 ${game.chip}`}>
+                      {game.kind}
+                    </span>
+                    <span class="border border-white/15 px-2 py-1 text-neutral-400">
+                      {game.players}
+                    </span>
+                  </div>
+                  <h3 class="mt-4 font-display text-base text-white">{game.name}</h3>
+                  <p class="mt-3 flex-1 text-sm leading-relaxed text-neutral-400">
+                    {game.blurb}
+                  </p>
+                  <span
+                    class={`mt-5 inline-flex w-fit items-center gap-2 font-display text-[10px] ${
+                      live
+                        ? "text-cyan-300 group-hover:gap-3"
+                        : game.status === "mystery"
+                          ? "text-amber-300 group-hover:gap-3"
+                          : "text-neutral-500"
+                    }`}
+                  >
+                    {live
+                      ? "Play now >"
+                      : game.status === "mystery"
+                        ? "Pitch a game >"
+                        : "🔒 Coming soon"}
+                  </span>
+                </div>
+              </article>
+            );
+
+            return (
+              <div class="relative h-full">
+                <a href={game.href} class="block h-full no-underline">
+                  {card}
+                </a>
+                {/* floated over the cabinet screen, outside the <a> so voting doesn't navigate */}
+                <div class="absolute right-3 top-3 z-10">
+                  <LikeButton
+                    gameId={game.slug}
+                    count={likeCounts[game.slug] ?? 0}
+                    liked={likedSet.has(game.slug)}
+                    authed={!!member}
+                  />
+                </div>
+              </div>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ============ HOW A GAME NIGHT WORKS ============ */}
+  <section id="how" class="scroll-mt-24 border-t border-white/10 bg-night-900/40">
+    <div class="mx-auto w-full max-w-6xl px-4 py-16">
+      <p class="eyebrow text-emerald-400">Quest log</p>
+      <h2 class="mt-3 font-display text-xl text-white sm:text-2xl">
+        How a game night works
+      </h2>
+
+      <ol class="mt-10 grid gap-6 md:grid-cols-3">
+        {
+          steps.map((step) => (
+            <li class="relative rounded-xl border border-white/10 bg-night-900 p-6">
+              <span class="neon font-display text-2xl text-emerald-400">
+                {step.n}
+              </span>
+              <h3 class="mt-4 font-display text-xs text-white">{step.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-neutral-400">
+                {step.text}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* ============ BUILT FOR OFFICE PLAY ============ */}
+  <section class="border-t border-white/10">
+    <div class="mx-auto w-full max-w-6xl px-4 py-16">
+      <p class="eyebrow text-amber-300">Loadout</p>
+      <h2 class="mt-3 font-display text-xl text-white sm:text-2xl">
+        Built for office play
+      </h2>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          features.map((f) => (
+            <div class="rounded-xl border border-white/10 bg-night-900 p-6">
+              <span class={`neon text-xl ${f.color}`} aria-hidden="true">
+                {f.glyph}
+              </span>
+              <h3 class="mt-4 font-display text-[10px] text-white">{f.title}</h3>
+              <p class="mt-3 text-sm leading-relaxed text-neutral-400">{f.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* ============ FINAL CTA ============ */}
+  <section class="border-t border-white/10">
+    <div class="mx-auto w-full max-w-6xl px-4 py-20">
+      <div
+        class="pixel-grid relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-night-900 px-6 py-16 text-center shadow-[0_0_60px_rgb(34_211_238/0.12)]"
+      >
+        <p class="eyebrow text-cyan-400">Ready player one?</p>
+        <h2 class="neon mt-4 font-display text-lg text-white sm:text-2xl">
+          Your next teambuilding<br />is one link away
+        </h2>
+        <p class="mx-auto mt-6 max-w-xl text-neutral-400">
+          Start an Arena room, paste the link in your team channel, and give
+          everyone two minutes to learn the controls. That's the whole plan.
+        </p>
+        <div class="mt-8 flex justify-center">
+          <a href="/games/arena" class="arcade-btn">▶ Start Arena</a>
+        </div>
+        <p class="animate-blink mt-8 font-display text-[9px] text-neutral-500">
+          insert colleague to continue_
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</RootLayout>
