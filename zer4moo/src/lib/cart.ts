@@ -1,4 +1,4 @@
-// Client-side cart (localStorage). The "send" flow is theatrical — no real payment.
+// Client-side cart (localStorage). Checkout uses custom line items via /api/checkout.
 export type CartLine = {
   id: string;
   bouquetName: string;
