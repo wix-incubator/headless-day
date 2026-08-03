@@ -1,0 +1,2028 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Code Before AI</title>
+    <meta
+      name="description"
+      content="Windows XP-style events where old programmers tell stories about writing code before AI."
+    />
+    <style>
+      :root {
+        --xp-blue: #245edb;
+        --xp-blue-dark: #1746a2;
+        --xp-green: #39a939;
+        --xp-green-dark: #177a17;
+        --xp-cream: #ece9d8;
+        --xp-border: #003c9e;
+        --xp-window: #f3f1e8;
+        --xp-highlight: #fff8c6;
+        --xp-text: #111;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        color: var(--xp-text);
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+        font-size: 13px;
+      }
+
+      button,
+      input,
+      a {
+        font: inherit;
+      }
+
+      .xp-screen {
+        background:
+          radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.45), transparent 18%),
+          linear-gradient(140deg, #2368cf 0%, #2b8eea 38%, #78bd38 39%, #3b941f 100%);
+        min-height: 100svh;
+        overflow-x: hidden;
+        padding: 22px 22px 74px 112px;
+        position: relative;
+      }
+
+      .xp-screen::before {
+        background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.55), transparent 62%);
+        border-radius: 50%;
+        content: "";
+        height: 360px;
+        left: 48%;
+        opacity: 0.45;
+        position: fixed;
+        top: 10%;
+        transform: rotate(-10deg);
+        width: 520px;
+      }
+
+      .desktop-icons {
+        display: grid;
+        gap: 18px;
+        left: 18px;
+        position: fixed;
+        top: 22px;
+        width: 72px;
+        z-index: 4;
+      }
+
+      .desktop-icon {
+        background: transparent;
+        border: 0;
+        color: #fff;
+        display: grid;
+        gap: 5px;
+        justify-items: center;
+        min-height: 72px;
+        padding: 2px;
+        text-shadow: 1px 1px 2px #12346e;
+      }
+
+      .desktop-icon span {
+        align-items: center;
+        background: linear-gradient(135deg, #fff, #cfdcff);
+        border: 1px solid #163f8f;
+        border-radius: 3px;
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.25);
+        display: flex;
+        font-size: 27px;
+        height: 38px;
+        justify-content: center;
+        text-shadow: none;
+        width: 38px;
+      }
+
+      .xp-window {
+        background: var(--xp-window);
+        border: 2px solid var(--xp-border);
+        border-radius: 8px 8px 3px 3px;
+        box-shadow:
+          inset 1px 1px 0 rgba(255, 255, 255, 0.9),
+          8px 12px 22px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+        position: relative;
+        z-index: 2;
+      }
+
+      .main-window {
+        margin: 0 auto;
+        max-width: 1180px;
+      }
+
+      .main-window.is-minimized {
+        display: none;
+      }
+
+      .xp-titlebar {
+        align-items: center;
+        background: linear-gradient(180deg, #66a7ff 0%, var(--xp-blue) 18%, var(--xp-blue-dark) 100%);
+        color: #fff;
+        display: flex;
+        font-weight: 700;
+        justify-content: space-between;
+        min-height: 32px;
+        padding: 5px 6px 5px 10px;
+        text-shadow: 1px 1px 0 #08276f;
+      }
+
+      .floating-window .xp-titlebar,
+      .main-window .xp-titlebar {
+        cursor: move;
+        touch-action: none;
+        user-select: none;
+      }
+
+      .floating-window.is-front,
+      .main-window.is-front {
+        z-index: 22;
+      }
+
+      .main-window.is-dragged {
+        margin: 0;
+        max-width: none;
+        position: fixed;
+      }
+
+      .main-window.is-maximized {
+        bottom: 48px;
+        left: 8px !important;
+        margin: 0;
+        max-width: none;
+        position: fixed;
+        right: 8px !important;
+        top: 8px !important;
+        transform: none !important;
+        width: auto !important;
+        z-index: 24;
+      }
+
+      .window-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .window-actions span,
+      .window-actions button {
+        align-items: center;
+        background: linear-gradient(180deg, #fff, #8cb9ff 48%, #245edb);
+        border: 1px solid #fff;
+        border-radius: 3px;
+        box-shadow: inset -1px -1px 0 #0d3b9b;
+        color: #fff;
+        display: flex;
+        font-weight: 900;
+        height: 21px;
+        justify-content: center;
+        padding: 0;
+        text-shadow: 1px 1px 0 #08276f;
+        width: 23px;
+      }
+
+      .window-actions button:last-child {
+        background: linear-gradient(180deg, #ffb4a4, #e04720 48%, #a51b0b);
+      }
+
+      .xp-menubar,
+      .xp-toolbar {
+        background: var(--xp-cream);
+        border-bottom: 1px solid #aca899;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        min-height: 26px;
+        padding: 7px 10px;
+      }
+
+      .xp-toolbar {
+        background: linear-gradient(180deg, #fbfaf2, var(--xp-cream));
+        gap: 7px;
+      }
+
+      .xp-menubar button {
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+        min-height: 18px;
+        padding: 0 2px;
+      }
+
+      .xp-menubar button:hover,
+      .xp-menubar button:focus-visible {
+        background: #316ac5;
+        color: #fff;
+        outline: none;
+      }
+
+      .xp-button,
+      .xp-link-button,
+      .start-button,
+      .task-button {
+        background: linear-gradient(180deg, #fff, #ece9d8);
+        border: 1px solid #003c74;
+        border-radius: 3px;
+        box-shadow:
+          inset 1px 1px 0 #fff,
+          inset -1px -1px 0 #aca899;
+        color: #000;
+        cursor: pointer;
+        min-height: 28px;
+        min-width: 78px;
+        padding: 5px 12px;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      .connection-status {
+        background: #fff;
+        border: 1px inset #aca899;
+        color: #1746a2;
+        font-weight: 700;
+        margin-left: auto;
+        padding: 5px 8px;
+      }
+
+      .xp-window-body {
+        padding: 12px;
+      }
+
+      .explorer-layout {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 230px minmax(0, 1fr);
+      }
+
+      .folder-pane {
+        align-content: start;
+        background: linear-gradient(180deg, #7ba2e7, #d7e5ff);
+        border: 1px solid #6d8dce;
+        border-radius: 4px;
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .folder-pane h2 {
+        color: #163f8f;
+        font-size: 17px;
+        margin: 0 0 4px;
+      }
+
+      .folder {
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid #9db7ea;
+        border-radius: 4px;
+        cursor: pointer;
+        min-height: 34px;
+        padding: 7px 9px;
+        text-align: left;
+      }
+
+      .folder.active {
+        background: #fff8c6;
+        border-color: #d6a600;
+      }
+
+      .event-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+      }
+
+      .no-events-card {
+        min-height: 220px;
+      }
+
+      .xp-card {
+        background: #fff;
+        border: 1px solid #aca899;
+        box-shadow: inset 1px 1px 0 #fff;
+        display: grid;
+        grid-template-rows: 138px minmax(0, 1fr);
+        min-height: 486px;
+      }
+
+      .event-image {
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.72), transparent 38%),
+          repeating-linear-gradient(90deg, #b7d5ff 0 16px, #99c0ff 16px 32px);
+        border-bottom: 1px solid #aca899;
+        display: grid;
+        place-items: center;
+      }
+
+      .event-image span {
+        align-items: center;
+        background: linear-gradient(180deg, #fffdf2, #d6e4ff);
+        border: 2px solid #245edb;
+        border-radius: 5px;
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.22);
+        display: flex;
+        font-size: 54px;
+        height: 86px;
+        justify-content: center;
+        width: 86px;
+      }
+
+      .event-copy {
+        display: grid;
+        gap: 9px;
+        padding: 12px;
+      }
+
+      .file-label {
+        background: var(--xp-highlight);
+        border: 1px solid #d6a600;
+        color: #5c4a00;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 700;
+        justify-self: start;
+        margin: 0;
+        padding: 3px 7px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1,
+      h2 {
+        color: #0b3d91;
+        line-height: 1.1;
+      }
+
+      .event-copy h2 {
+        font-size: 21px;
+      }
+
+      .event-copy p,
+      .details-window p,
+      .xp-popup p {
+        line-height: 1.45;
+      }
+
+      .event-copy dl {
+        display: grid;
+        gap: 7px;
+        margin: 0;
+      }
+
+      .event-copy dt {
+        color: #565656;
+        font-weight: 700;
+      }
+
+      .event-copy dd {
+        margin: 0;
+      }
+
+      .button-row {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: auto;
+      }
+
+      .button-row.right {
+        justify-content: flex-end;
+      }
+
+      .floating-window {
+        position: fixed;
+        z-index: 8;
+      }
+
+      .details-window {
+        display: none;
+        max-width: min(560px, calc(100vw - 28px));
+        right: 28px;
+        top: 96px;
+      }
+
+      .success-alert-window {
+        display: none;
+        left: 50%;
+        max-width: min(420px, calc(100vw - 28px));
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 420px;
+        z-index: 19;
+      }
+
+      .details-window.is-opening {
+        animation: open-program 0.28s ease-out;
+      }
+
+      .details-window .xp-window-body,
+      .success-alert-window .xp-window-body {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 70px minmax(0, 1fr);
+      }
+
+      .success-alert-window .xp-window-body {
+        background: #ece9d8;
+      }
+
+      .success-alert-window h2 {
+        color: #111;
+        font-size: 18px;
+        margin-bottom: 7px;
+      }
+
+      .success-alert-window p {
+        line-height: 1.4;
+      }
+
+      .dialog-icon {
+        align-items: center;
+        background: linear-gradient(180deg, #fff, #d7e5ff);
+        border: 2px solid #245edb;
+        border-radius: 5px;
+        display: flex;
+        font-size: 42px;
+        height: 62px;
+        justify-content: center;
+        width: 62px;
+      }
+
+      .details-list {
+        background: #fff;
+        border: 1px inset #aca899;
+        display: grid;
+        gap: 6px;
+        margin: 12px 0;
+        padding: 9px;
+      }
+
+      .loading-window {
+        left: 50%;
+        max-width: min(520px, calc(100vw - 28px));
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 520px;
+        z-index: 18;
+      }
+
+      .loading-window.is-hidden {
+        display: none;
+      }
+
+      .transfer-body {
+        display: grid;
+        gap: 14px;
+      }
+
+      .transfer-copy {
+        display: grid;
+        gap: 5px;
+      }
+
+      .transfer-copy h2 {
+        color: #0b3d91;
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .transfer-copy p {
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      .transfer-animation {
+        align-items: center;
+        background: linear-gradient(180deg, #fff, #f3f1e8);
+        border: 1px inset #aca899;
+        display: grid;
+        grid-template-columns: 78px minmax(0, 1fr) 78px;
+        min-height: 96px;
+        overflow: hidden;
+        padding: 13px;
+        position: relative;
+      }
+
+      .transfer-folder {
+        align-items: center;
+        color: #0b3d91;
+        display: grid;
+        font-size: 42px;
+        justify-items: center;
+        line-height: 1;
+        position: relative;
+        z-index: 2;
+      }
+
+      .transfer-folder small {
+        color: #333;
+        font-size: 11px;
+        line-height: 1.1;
+        margin-top: 4px;
+        text-align: center;
+      }
+
+      .paper-lane {
+        height: 70px;
+        position: relative;
+      }
+
+      .flying-paper {
+        animation: fly-paper 1.45s linear infinite;
+        background: #fff;
+        border: 1px solid #245edb;
+        box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        height: 30px;
+        left: -18px;
+        position: absolute;
+        top: 18px;
+        width: 24px;
+      }
+
+      .flying-paper::before {
+        border-left: 8px solid transparent;
+        border-top: 8px solid #cfe0ff;
+        content: "";
+        height: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 0;
+      }
+
+      .flying-paper:nth-child(2) {
+        animation-delay: 0.36s;
+        top: 6px;
+      }
+
+      .flying-paper:nth-child(3) {
+        animation-delay: 0.72s;
+        top: 32px;
+      }
+
+      .flying-paper:nth-child(4) {
+        animation-delay: 1.08s;
+        top: 20px;
+      }
+
+      .progress-shell {
+        background: #fff;
+        border: 2px inset #d4d0c8;
+        height: 22px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        animation: xp-progress 1s steps(18) infinite;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            #245edb 0 10px,
+            #6fa4ff 10px 18px,
+            transparent 18px 24px
+          );
+        height: 100%;
+        width: 180%;
+      }
+
+      .loading-status {
+        background: #fff;
+        border: 1px inset #aca899;
+        color: #1746a2;
+        font-weight: 700;
+        padding: 7px 8px;
+      }
+
+      @keyframes fly-paper {
+        0% {
+          opacity: 0;
+          transform: translateX(0) translateY(8px) rotate(-8deg);
+        }
+
+        12%,
+        72% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+          transform: translateX(250px) translateY(-6px) rotate(12deg);
+        }
+      }
+
+      @keyframes xp-progress {
+        from {
+          transform: translateX(-80px);
+        }
+
+        to {
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes open-program {
+        from {
+          opacity: 0;
+          transform: scale(0.86) translateY(18px);
+        }
+
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .rsvp-window {
+        display: none;
+        left: 50%;
+        max-width: min(620px, calc(100vw - 28px));
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 620px;
+      }
+
+      .wizard-body {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 160px minmax(0, 1fr);
+        min-height: 310px;
+        padding: 0;
+      }
+
+      .wizard-sidebar {
+        background:
+          radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.78), transparent 26%),
+          linear-gradient(180deg, #245edb, #163f8f);
+        color: #fff;
+        display: grid;
+        gap: 10px;
+        place-content: center;
+        text-align: center;
+      }
+
+      .wizard-sidebar span {
+        font-size: 58px;
+      }
+
+      .xp-form {
+        display: grid;
+        gap: 13px;
+        padding: 18px;
+      }
+
+      .xp-form label {
+        display: grid;
+        font-weight: 700;
+        gap: 5px;
+      }
+
+      .xp-form input {
+        background: #fff;
+        border: 2px inset #d4d0c8;
+        min-height: 30px;
+        padding: 4px 6px;
+      }
+
+      .xp-form button:disabled {
+        color: #777;
+        cursor: wait;
+      }
+
+      .selected-rsvp-event,
+      .rsvp-status {
+        background: #fff;
+        border: 1px inset #aca899;
+        padding: 8px;
+      }
+
+      .selected-rsvp-event {
+        color: #0b3d91;
+        font-weight: 700;
+      }
+
+      .rsvp-status {
+        display: none;
+      }
+
+      .rsvp-status.pending {
+        color: #1746a2;
+        display: block;
+      }
+
+      .rsvp-status.success {
+        background: #e4ffd6;
+        color: #176b17;
+        display: block;
+      }
+
+      .rsvp-status.error {
+        background: #ffe1d6;
+        color: #9b1d0d;
+        display: block;
+      }
+
+      .xp-popup {
+        background: #fff7bd;
+        border: 1px solid #6f5b00;
+        border-radius: 0 8px 8px;
+        bottom: 62px;
+        box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.24);
+        max-width: min(360px, calc(100vw - 28px));
+        padding: 11px;
+        position: fixed;
+        right: 18px;
+        z-index: 10;
+      }
+
+      .popup-title {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .xp-taskbar {
+        align-items: center;
+        background: linear-gradient(180deg, #4f8cff 0%, var(--xp-blue) 22%, var(--xp-blue-dark) 100%);
+        bottom: 0;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        display: flex;
+        gap: 7px;
+        height: 40px;
+        left: 0;
+        padding: 4px;
+        position: fixed;
+        right: 0;
+        z-index: 30;
+      }
+
+      .start-button {
+        background:
+          radial-gradient(circle at 22% 22%, rgba(255, 255, 255, 0.55), transparent 32%),
+          linear-gradient(180deg, #6bd45d, var(--xp-green) 48%, var(--xp-green-dark));
+        border: 1px solid #0d5f0d;
+        border-radius: 16px 8px 8px 16px;
+        color: #fff;
+        font-size: 18px;
+        font-style: italic;
+        font-weight: 700;
+        height: 32px;
+        min-width: 92px;
+        text-shadow: 1px 1px 0 #0b4a0b;
+      }
+
+      .start-button.is-active {
+        box-shadow:
+          inset 2px 2px 2px rgba(0, 0, 0, 0.35),
+          inset -1px -1px 0 rgba(255, 255, 255, 0.55);
+        transform: translateY(1px);
+      }
+
+      .start-menu {
+        background: #fff;
+        border: 2px solid var(--xp-blue);
+        border-bottom: 0;
+        border-radius: 8px 8px 0 0;
+        bottom: 40px;
+        box-shadow: 8px 8px 24px rgba(0, 0, 0, 0.36);
+        display: none;
+        left: 0;
+        overflow: hidden;
+        position: fixed;
+        width: min(520px, calc(100vw - 12px));
+        z-index: 45;
+      }
+
+      .start-menu.is-open {
+        display: block;
+      }
+
+      .start-header {
+        align-items: center;
+        background: linear-gradient(180deg, #66a7ff, #245edb 42%, #1746a2);
+        color: #fff;
+        display: flex;
+        gap: 10px;
+        min-height: 62px;
+        padding: 10px 12px;
+        text-shadow: 1px 1px 0 #08276f;
+      }
+
+      .start-avatar {
+        align-items: center;
+        background: linear-gradient(180deg, #fff, #d7e5ff);
+        border: 2px solid #fff;
+        border-radius: 6px;
+        color: #0b3d91;
+        display: flex;
+        font-size: 30px;
+        height: 44px;
+        justify-content: center;
+        text-shadow: none;
+        width: 44px;
+      }
+
+      .start-header strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .start-header small {
+        display: block;
+        font-size: 12px;
+        opacity: 0.9;
+      }
+
+      .start-columns {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 190px;
+        min-height: 300px;
+      }
+
+      .start-programs,
+      .start-system {
+        display: grid;
+        gap: 5px;
+        align-content: start;
+        padding: 10px;
+      }
+
+      .start-programs {
+        background: #fff;
+      }
+
+      .start-system {
+        background: linear-gradient(180deg, #d7e5ff, #b9d2ff);
+        border-left: 1px solid #9db7ea;
+      }
+
+      .start-section-title {
+        color: #565656;
+        font-size: 11px;
+        font-weight: 700;
+        margin: 4px 2px;
+        text-transform: uppercase;
+      }
+
+      .start-item {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 3px;
+        color: #111;
+        cursor: pointer;
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 34px minmax(0, 1fr);
+        min-height: 42px;
+        padding: 5px 7px;
+        text-align: left;
+        width: 100%;
+      }
+
+      .start-item:hover,
+      .start-item:focus-visible {
+        background: #316ac5;
+        color: #fff;
+        outline: none;
+      }
+
+      .start-item-icon {
+        align-items: center;
+        background: linear-gradient(180deg, #fff, #d7e5ff);
+        border: 1px solid #6d8dce;
+        border-radius: 4px;
+        display: flex;
+        font-size: 20px;
+        height: 30px;
+        justify-content: center;
+        width: 30px;
+      }
+
+      .start-item:hover .start-item-icon,
+      .start-item:focus-visible .start-item-icon {
+        color: #0b3d91;
+      }
+
+      .start-item strong,
+      .start-item small {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .start-item strong {
+        font-size: 13px;
+      }
+
+      .start-item small {
+        font-size: 11px;
+        opacity: 0.78;
+      }
+
+      .start-footer {
+        align-items: center;
+        background: linear-gradient(180deg, #245edb, #1746a2);
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        padding: 8px;
+      }
+
+      .start-footer button {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        color: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        gap: 6px;
+        min-height: 28px;
+        padding: 4px 8px;
+        text-shadow: 1px 1px 0 #08276f;
+      }
+
+      .start-footer button:hover {
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .task-button {
+        background: linear-gradient(180deg, #71a8ff, #2f69d8);
+        border: 1px solid #0d3b9b;
+        color: #fff;
+        height: 30px;
+        max-width: 230px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .task-button.active {
+        background: linear-gradient(180deg, #1f55bd, #123f9e);
+      }
+
+      .tray {
+        align-items: center;
+        background: rgba(100, 180, 255, 0.42);
+        border-left: 1px solid rgba(255, 255, 255, 0.45);
+        color: #fff;
+        display: flex;
+        gap: 9px;
+        height: 32px;
+        margin-left: auto;
+        padding: 0 10px;
+      }
+
+      .tray button {
+        background: transparent;
+        border: 0;
+        color: inherit;
+        cursor: pointer;
+        font: inherit;
+        padding: 0;
+      }
+
+      .bsod-screen {
+        align-content: center;
+        background: #0000aa;
+        color: #fff;
+        display: none;
+        font-family: "Lucida Console", "Courier New", monospace;
+        inset: 0;
+        justify-items: center;
+        padding: 36px;
+        position: fixed;
+        text-align: left;
+        z-index: 80;
+      }
+
+      .bsod-screen.is-visible {
+        display: grid;
+      }
+
+      .bsod-panel {
+        max-width: 820px;
+        width: min(820px, 100%);
+      }
+
+      .bsod-label {
+        background: #bfbfbf;
+        color: #0000aa;
+        display: inline-block;
+        font-weight: 700;
+        margin-bottom: 24px;
+        padding: 2px 10px;
+      }
+
+      .bsod-screen h2 {
+        color: #fff;
+        font-size: 18px;
+        line-height: 1.45;
+        margin: 0 0 18px;
+      }
+
+      .bsod-screen p {
+        line-height: 1.55;
+        margin: 0 0 16px;
+      }
+
+      .bsod-button {
+        background: transparent;
+        border: 1px solid #fff;
+        color: #fff;
+        cursor: pointer;
+        font: inherit;
+        margin-top: 12px;
+        padding: 8px 12px;
+      }
+
+      @media (max-width: 900px) {
+        .xp-screen {
+          padding: 16px 12px 74px;
+        }
+
+        .desktop-icons {
+          display: none;
+        }
+
+        .explorer-layout,
+        .details-window .xp-window-body,
+        .success-alert-window .xp-window-body,
+        .wizard-body {
+          grid-template-columns: 1fr;
+        }
+
+        .details-window {
+          bottom: 58px;
+          left: 12px;
+          right: 12px;
+          top: auto;
+        }
+
+        .loading-window {
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: auto;
+        }
+
+        .transfer-animation {
+          grid-template-columns: 58px minmax(0, 1fr) 58px;
+          padding: 10px;
+        }
+
+        .transfer-folder {
+          font-size: 32px;
+        }
+
+        .rsvp-window {
+          bottom: 58px;
+          left: 12px;
+          top: auto;
+          transform: none;
+          width: auto;
+        }
+
+        .success-alert-window {
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: auto;
+        }
+
+        .wizard-sidebar {
+          min-height: 110px;
+        }
+
+        .connection-status {
+          margin-left: 0;
+        }
+
+        .task-button {
+          max-width: 110px;
+        }
+
+        .start-columns {
+          grid-template-columns: 1fr;
+        }
+
+        .start-system {
+          border-left: 0;
+          border-top: 1px solid #9db7ea;
+        }
+
+        .bsod-screen {
+          padding: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="xp-screen">
+      <section class="desktop-icons" aria-label="Desktop shortcuts">
+        <button class="desktop-icon" data-event-index="0"><span>💾</span><small>Before AI</small></button>
+        <button class="desktop-icon" data-event-index="1"><span>🖥</span><small>Anti AI</small></button>
+        <button class="desktop-icon" data-event-index="2"><span>📘</span><small>StackOverflow</small></button>
+      </section>
+
+      <section class="xp-window main-window" aria-labelledby="main-window-title">
+        <div class="xp-titlebar">
+          <span id="main-window-title">Code Before AI - Event Explorer</span>
+          <div class="window-actions">
+            <button id="main-minimize" type="button" aria-label="Minimize Event Explorer">_</button>
+            <button id="main-maximize" type="button" aria-label="Maximize Event Explorer">□</button>
+            <button id="main-close" type="button" aria-label="Close Event Explorer">×</button>
+          </div>
+        </div>
+        <div class="xp-menubar" aria-label="Application menu">
+          <button id="menu-file" type="button">File</button>
+          <button id="menu-events" type="button">Events</button>
+          <button id="menu-stories" type="button">Stories</button>
+          <button id="menu-help" type="button">Help</button>
+        </div>
+        <div class="xp-toolbar">
+          <button class="xp-button" id="featured-rsvp">Featured RSVP</button>
+          <button class="xp-button" data-event-index="0">Open First Story</button>
+          <span class="connection-status" id="connection-status">Wix Events: loading</span>
+        </div>
+        <div class="xp-window-body explorer-layout">
+          <aside class="folder-pane">
+            <h2>Event Folders</h2>
+            <button class="folder active" data-folder-filter="all" type="button">📁 All Stories</button>
+            <button class="folder" data-folder-filter="learning" type="button">📁 Learning Before AI</button>
+            <button class="folder" data-folder-filter="circle" type="button">📁 Circle Talks</button>
+            <button class="folder" data-folder-filter="internet" type="button">📁 Internet Lore</button>
+          </aside>
+          <section class="event-grid" aria-label="Upcoming events" id="event-grid"></section>
+        </div>
+      </section>
+
+      <section class="xp-window floating-window loading-window" aria-live="polite" id="loading-window">
+        <div class="xp-titlebar">
+          <span id="transfer-title">Copying Event Files</span>
+          <div class="window-actions" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+        </div>
+        <div class="xp-window-body transfer-body">
+          <div class="transfer-copy">
+            <h2 id="transfer-heading">Downloading stories from Wix Events...</h2>
+            <p id="transfer-message">Please wait while Setup Wizard copies the latest event files to your desktop.</p>
+          </div>
+          <div class="transfer-animation" aria-hidden="true">
+            <div class="transfer-folder">📁<small id="transfer-source">Wix Events</small></div>
+            <div class="paper-lane">
+              <span class="flying-paper"></span>
+              <span class="flying-paper"></span>
+              <span class="flying-paper"></span>
+              <span class="flying-paper"></span>
+            </div>
+            <div class="transfer-folder">💾<small id="transfer-target">XP Site</small></div>
+          </div>
+          <div class="progress-shell" aria-hidden="true"><div class="progress-bar"></div></div>
+          <div class="loading-status" id="loading-status">Contacting Wix Events...</div>
+        </div>
+      </section>
+
+      <section class="xp-window floating-window details-window" aria-label="Event details" id="details-window">
+        <div class="xp-titlebar">
+          <span id="details-title">story.exe</span>
+          <div class="window-actions">
+            <span>_</span><span>□</span><button type="button" id="close-details" aria-label="Close details window">×</button>
+          </div>
+        </div>
+        <div class="xp-window-body">
+          <div class="dialog-icon" id="details-icon">💾</div>
+          <div>
+            <p class="file-label">Opening story archive</p>
+            <h1 id="details-heading">Code Before AI</h1>
+            <p id="details-story"></p>
+            <div class="details-list">
+              <span id="details-date"></span>
+              <span id="details-time"></span>
+              <span id="details-venue"></span>
+            </div>
+            <div class="button-row right">
+              <button class="xp-button" id="details-rsvp" type="button">Run RSVP Wizard</button>
+              <button class="xp-button" type="button" id="details-ok">OK</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="xp-window floating-window rsvp-window" aria-label="RSVP wizard" id="rsvp-window">
+        <div class="xp-titlebar">
+          <span>RSVP Wizard</span>
+          <div class="window-actions">
+            <button type="button" id="close-rsvp" aria-label="Close RSVP wizard">×</button>
+          </div>
+        </div>
+        <div class="xp-window-body wizard-body">
+          <div class="wizard-sidebar">
+            <span>✓</span>
+            <p>Wix RSVP</p>
+          </div>
+          <form class="xp-form" id="rsvp-form">
+            <h2>Reserve a chair and a story</h2>
+            <p class="selected-rsvp-event" id="selected-rsvp-event">Loading events...</p>
+            <label>
+              First name
+              <input autocomplete="given-name" id="first-name" placeholder="Ada" required />
+            </label>
+            <label>
+              Last name
+              <input autocomplete="family-name" id="last-name" placeholder="Lovelace" required />
+            </label>
+            <label>
+              Email
+              <input autocomplete="email" id="email" placeholder="ada@example.com" required type="email" />
+            </label>
+            <p class="rsvp-status" id="rsvp-status"></p>
+            <div class="button-row right">
+              <button class="xp-button" type="button" id="cancel-rsvp">Cancel</button>
+              <button class="xp-button" id="submit-rsvp" type="submit">Finish</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="xp-window floating-window success-alert-window" aria-live="polite" aria-label="Registration success" id="success-alert-window">
+        <div class="xp-titlebar">
+          <span>Registration Complete</span>
+          <div class="window-actions">
+            <button type="button" id="close-success-alert" aria-label="Close registration success alert">×</button>
+          </div>
+        </div>
+        <div class="xp-window-body">
+          <div class="dialog-icon">i</div>
+          <div>
+            <h2>Registration successful</h2>
+            <p id="success-alert-message">Your RSVP was saved in Wix Events.</p>
+            <div class="button-row right">
+              <button class="xp-button" id="success-alert-ok" type="button">OK</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="xp-popup" role="note">
+        <div class="popup-title">
+          <strong>Windows XP vibe enabled</strong>
+        </div>
+        <p>Pick an event, then RSVP here. The form talks to Wix Events as a site visitor.</p>
+      </aside>
+
+      <section class="bsod-screen" id="bsod-screen" aria-label="System error">
+        <div class="bsod-panel">
+          <span class="bsod-label">Windows</span>
+          <h2>A problem has been detected and Event Explorer has been shut down to prevent damage to your nostalgia.</h2>
+          <p>BEFORE_AI_STACK_OVERFLOW_NOT_FOUND</p>
+          <p>
+            If this is the first time you've seen this Stop error screen,
+            restart Event Explorer. If this screen appears again, ask an old
+            programmer how they debugged without autocomplete.
+          </p>
+          <p>Technical information:</p>
+          <p>*** STOP: 0x000000AI (MANUAL_MEMORY, COFFEE_OVERFLOW, DIALUP_TIMEOUT)</p>
+          <button class="bsod-button" id="reboot-bsod" type="button">Reboot Event Explorer</button>
+        </div>
+      </section>
+
+      <section class="start-menu" id="start-menu" aria-label="Start menu">
+        <div class="start-header">
+          <span class="start-avatar">💾</span>
+          <div>
+            <strong>Code Before AI</strong>
+            <small>Logged in as Old Programmer</small>
+          </div>
+        </div>
+        <div class="start-columns">
+          <div class="start-programs">
+            <div class="start-section-title">Pinned programs</div>
+            <button class="start-item" id="start-open-explorer" type="button">
+              <span class="start-item-icon">🪟</span>
+              <span><strong>Event Explorer</strong><small>Open the current story archive</small></span>
+            </button>
+            <button class="start-item" id="start-rsvp" type="button">
+              <span class="start-item-icon">✓</span>
+              <span><strong>RSVP Wizard</strong><small>Reserve a chair for the selected event</small></span>
+            </button>
+            <div class="start-section-title">Upcoming events</div>
+            <div id="start-event-list">
+              <button class="start-item" type="button" disabled>
+                <span class="start-item-icon">⏳</span>
+                <span><strong>Loading events...</strong><small>Contacting Wix Events</small></span>
+              </button>
+            </div>
+          </div>
+          <div class="start-system">
+            <div class="start-section-title">System</div>
+            <button class="start-item" id="start-refresh" type="button">
+              <span class="start-item-icon">🔄</span>
+              <span><strong>Refresh Events</strong><small>Copy fresh files from Wix</small></span>
+            </button>
+            <button class="start-item" id="start-bsod" type="button">
+              <span class="start-item-icon">💥</span>
+              <span><strong>Crash Test</strong><small>Run the blue-screen easter egg</small></span>
+            </button>
+            <button class="start-item" id="start-about" type="button">
+              <span class="start-item-icon">❔</span>
+              <span><strong>About</strong><small>Show the yellow XP note</small></span>
+            </button>
+          </div>
+        </div>
+        <div class="start-footer">
+          <button id="start-log-off" type="button">🔑 Log Off</button>
+          <button id="start-shutdown" type="button">⏻ Turn Off Computer</button>
+        </div>
+      </section>
+
+      <footer class="xp-taskbar">
+        <button class="start-button" id="start-button" type="button">start</button>
+        <button class="task-button active" id="main-task-button" type="button">Code Before AI</button>
+        <button class="task-button" id="task-title">story.exe</button>
+        <div class="tray"><span>🔊</span><button id="lan-trigger" type="button">LAN</button><time>7:42 PM</time></div>
+      </footer>
+    </main>
+
+    <script type="module">
+      import { createClient, OAuthStrategy } from "https://esm.sh/@wix/sdk@1.21.13";
+      import { rsvpV2, wixEventsV2 } from "https://esm.sh/@wix/events@1.0.803";
+
+      const client = createClient({
+        modules: { wixEventsV2, rsvpV2 },
+        auth: OAuthStrategy({ clientId: "YOUR_WIX_APP_ID" }),
+      });
+
+      const eventIcons = ["💾", "🖥", "📘", "💿", "☎", "🧰", "🪟", "⌨"];
+      let events = [];
+      let selectedEventIndex = 0;
+      let currentFolderFilter = "all";
+
+      const mainWindow = document.querySelector(".main-window");
+      const grid = document.querySelector("#event-grid");
+      const connectionStatus = document.querySelector("#connection-status");
+      const folderButtons = document.querySelectorAll("[data-folder-filter]");
+      const loadingWindow = document.querySelector("#loading-window");
+      const transferTitle = document.querySelector("#transfer-title");
+      const transferHeading = document.querySelector("#transfer-heading");
+      const transferMessage = document.querySelector("#transfer-message");
+      const transferSource = document.querySelector("#transfer-source");
+      const transferTarget = document.querySelector("#transfer-target");
+      const loadingStatus = document.querySelector("#loading-status");
+      const detailsWindow = document.querySelector("#details-window");
+      const detailsTitle = document.querySelector("#details-title");
+      const detailsIcon = document.querySelector("#details-icon");
+      const detailsHeading = document.querySelector("#details-heading");
+      const detailsStory = document.querySelector("#details-story");
+      const detailsDate = document.querySelector("#details-date");
+      const detailsTime = document.querySelector("#details-time");
+      const detailsVenue = document.querySelector("#details-venue");
+      const detailsRsvp = document.querySelector("#details-rsvp");
+      const rsvpWindow = document.querySelector("#rsvp-window");
+      const rsvpForm = document.querySelector("#rsvp-form");
+      const selectedRsvpEvent = document.querySelector("#selected-rsvp-event");
+      const firstName = document.querySelector("#first-name");
+      const lastName = document.querySelector("#last-name");
+      const email = document.querySelector("#email");
+      const rsvpStatus = document.querySelector("#rsvp-status");
+      const submitRsvp = document.querySelector("#submit-rsvp");
+      const successAlertWindow = document.querySelector("#success-alert-window");
+      const successAlertMessage = document.querySelector("#success-alert-message");
+      const taskTitle = document.querySelector("#task-title");
+      const bsodScreen = document.querySelector("#bsod-screen");
+      const lanTrigger = document.querySelector("#lan-trigger");
+      const startButton = document.querySelector("#start-button");
+      const startMenu = document.querySelector("#start-menu");
+      const startEventList = document.querySelector("#start-event-list");
+      const mainTaskButton = document.querySelector("#main-task-button");
+      const xpPopup = document.querySelector(".xp-popup");
+      let topWindowZIndex = 22;
+      const eventLoadTimeoutMs = 10000;
+      const rsvpTransferMinimumMs = 2000;
+
+      function openEvent(index) {
+        if (!events[index]) {
+          return;
+        }
+
+        selectedEventIndex = index;
+        const event = events[index];
+        bringToFront(detailsWindow);
+        detailsWindow.style.display = "block";
+        detailsWindow.classList.remove("is-opening");
+        void detailsWindow.offsetWidth;
+        detailsWindow.classList.add("is-opening");
+        detailsTitle.textContent = `${event.title}.exe`;
+        detailsIcon.textContent = event.icon;
+        detailsHeading.textContent = event.title;
+        detailsStory.textContent = event.story;
+        detailsDate.textContent = event.date;
+        detailsTime.textContent = event.time;
+        detailsVenue.textContent = event.venue;
+        taskTitle.textContent = event.title;
+      }
+
+      function openRsvp(index = selectedEventIndex) {
+        if (!events[index]) {
+          return;
+        }
+
+        selectedEventIndex = index;
+        selectedRsvpEvent.textContent = events[index].title;
+        rsvpStatus.className = "rsvp-status";
+        rsvpStatus.textContent = "";
+        bringToFront(rsvpWindow);
+        rsvpWindow.style.display = "block";
+      }
+
+      function showRsvpSuccessAlert(eventTitle) {
+        successAlertMessage.textContent = `Your RSVP for "${eventTitle}" was saved in Wix Events.`;
+        successAlertWindow.style.display = "block";
+        bringToFront(successAlertWindow);
+      }
+
+      function renderEvents() {
+        const visibleEvents = getFilteredEvents();
+
+        if (!visibleEvents.length) {
+          grid.innerHTML = `
+            <article class="xp-card no-events-card">
+              <div class="event-copy">
+                <p class="file-label">Empty folder</p>
+                <h2>No matching stories</h2>
+                <p>This folder has no event files yet. Try All Stories or create a matching Wix event.</p>
+              </div>
+            </article>
+          `;
+          return;
+        }
+
+        grid.innerHTML = visibleEvents
+        .map(
+          (event) => {
+            const eventIndex = events.findIndex((item) => item.id === event.id);
+
+            return `
+            <article class="xp-card">
+              <button class="event-image" type="button" data-event-index="${eventIndex}">
+                <span>${event.icon}</span>
+              </button>
+              <div class="event-copy">
+                <p class="file-label">${event.status}</p>
+                <h2>${event.title}</h2>
+                <p>${event.summary}</p>
+                <dl>
+                  <div><dt>Date</dt><dd>${event.date}</dd></div>
+                  <div><dt>Time</dt><dd>${event.time}</dd></div>
+                  <div><dt>Venue</dt><dd>${event.venue}</dd></div>
+                </dl>
+                <div class="button-row">
+                  <button class="xp-button" type="button" data-event-index="${eventIndex}">Open</button>
+                  <button class="xp-button" type="button" data-rsvp-index="${eventIndex}">RSVP</button>
+                </div>
+              </div>
+            </article>
+          `;
+          },
+        )
+        .join("");
+
+        grid.querySelectorAll("[data-event-index]").forEach((node) => {
+          node.addEventListener("click", () => openEvent(Number(node.dataset.eventIndex)));
+        });
+        grid.querySelectorAll("[data-rsvp-index]").forEach((node) => {
+          node.addEventListener("click", () => openRsvp(Number(node.dataset.rsvpIndex)));
+        });
+      }
+
+      function getFilteredEvents() {
+        if (currentFolderFilter === "all") {
+          return events;
+        }
+
+        return events.filter((event) => {
+          const text = `${event.title} ${event.summary} ${event.story}`.toLowerCase();
+
+          if (currentFolderFilter === "learning") {
+            return text.includes("learn") || text.includes("book") || text.includes("code before ai");
+          }
+
+          if (currentFolderFilter === "circle") {
+            return text.includes("anti") || text.includes("circle");
+          }
+
+          if (currentFolderFilter === "internet") {
+            return text.includes("stack") || text.includes("overflow") || text.includes("internet");
+          }
+
+          return false;
+        });
+      }
+
+      function setFolderFilter(filter) {
+        currentFolderFilter = filter;
+        folderButtons.forEach((button) => {
+          button.classList.toggle("active", button.dataset.folderFilter === filter);
+        });
+        renderEvents();
+
+        const firstVisibleEvent = getFilteredEvents()[0];
+
+        if (firstVisibleEvent) {
+          openEvent(events.findIndex((event) => event.id === firstVisibleEvent.id));
+        }
+      }
+
+      async function loadEvents() {
+        try {
+          const result = await withTimeout(
+            client.wixEventsV2.queryEvents(
+              {
+                filter: { status: { $in: ["UPCOMING", "STARTED"] } },
+                sort: [{ fieldName: "dateAndTimeSettings.startDate", order: "ASC" }],
+                paging: { limit: 20 },
+              },
+              { fields: ["DETAILS", "REGISTRATION", "URLS"] },
+            ),
+            eventLoadTimeoutMs,
+            "Wix Events did not respond in 10 seconds.",
+          );
+
+          events = (result.events || [])
+            .filter((event) => event._id && event.registration?.initialType === "RSVP")
+            .map((event, index) => ({
+              id: event._id,
+              title: event.title || "Untitled event",
+              date: event.dateAndTimeSettings?.formatted?.startDate || "Date TBA",
+              time: event.dateAndTimeSettings?.formatted?.startTime || "Time TBA",
+              venue: formatVenue(event),
+              icon: eventIcons[index % eventIcons.length],
+              status: formatStatus(event),
+              summary:
+                event.shortDescription?.trim() ||
+                "A live story from programmers who shipped software before AI copilots joined the room.",
+              story:
+                event.shortDescription?.trim() ||
+                "A live story from programmers who shipped software before AI copilots joined the room.",
+            }));
+
+          if (!events.length) {
+            connectionStatus.textContent = "Wix Events: no RSVP events";
+            loadingStatus.textContent = "No event files found.";
+            grid.innerHTML = `<article class="xp-card"><div class="event-copy"><p class="file-label">No files</p><h2>No upcoming RSVP events yet</h2><p>Create RSVP events in Wix and refresh this page.</p></div></article>`;
+            renderStartEvents();
+            detailsWindow.style.display = "none";
+            window.setTimeout(finishLoading, 900);
+            return;
+          }
+
+          connectionStatus.textContent = "Wix Events: live";
+          loadingStatus.textContent = "Opening event explorer...";
+          renderEvents();
+          renderStartEvents();
+          updateDesktopIcons();
+          openEvent(0);
+          finishLoading();
+        } catch (error) {
+          console.error("Failed to load Wix Events", error);
+          const isTimeout = error?.message?.includes("did not respond");
+          connectionStatus.textContent = isTimeout ? "Wix Events: timeout" : "Wix Events: offline";
+          loadingStatus.textContent = isTimeout
+            ? "Connection timed out. Showing recovery message."
+            : "Copy failed. Showing recovery message.";
+          events = [];
+          renderStartEvents();
+          grid.innerHTML = `<article class="xp-card"><div class="event-copy"><p class="file-label">Connection error</p><h2>Could not load events</h2><p>${escapeHtml(error?.message || "Refresh the page after the Wix Events app is ready.")}</p></div></article>`;
+          window.setTimeout(finishLoading, 1200);
+        }
+      }
+
+      function withTimeout(task, ms, message) {
+        let timeoutId;
+        const timeout = new Promise((_, reject) => {
+          timeoutId = window.setTimeout(() => {
+            reject(new Error(message));
+          }, ms);
+        });
+
+        return Promise.race([task, timeout]).finally(() => {
+          window.clearTimeout(timeoutId);
+        });
+      }
+
+      function delay(ms) {
+        return new Promise((resolve) => {
+          window.setTimeout(resolve, ms);
+        });
+      }
+
+      function showTransferDialog({
+        title = "Copying Event Files",
+        heading = "Downloading stories from Wix Events...",
+        message = "Please wait while Setup Wizard copies the latest event files to your desktop.",
+        status = "Contacting Wix Events...",
+        source = "Wix Events",
+        target = "XP Site",
+      } = {}) {
+        transferTitle.textContent = title;
+        transferHeading.textContent = heading;
+        transferMessage.textContent = message;
+        transferSource.textContent = source;
+        transferTarget.textContent = target;
+        loadingStatus.textContent = status;
+        loadingWindow.classList.remove("is-hidden");
+        bringToFront(loadingWindow);
+      }
+
+      function finishLoading() {
+        loadingWindow.classList.add("is-hidden");
+      }
+
+      function showMainWindow() {
+        mainWindow.classList.remove("is-minimized");
+        bringToFront(mainWindow);
+      }
+
+      function minimizeMainWindow() {
+        mainWindow.classList.add("is-minimized");
+      }
+
+      function toggleMainWindowMaximize() {
+        showMainWindow();
+        mainWindow.classList.toggle("is-maximized");
+        mainWindow.classList.toggle("is-dragged", mainWindow.classList.contains("is-maximized"));
+      }
+
+      function openStartMenu() {
+        startMenu.classList.add("is-open");
+        startButton.classList.add("is-active");
+      }
+
+      function closeStartMenu() {
+        startMenu.classList.remove("is-open");
+        startButton.classList.remove("is-active");
+      }
+
+      function toggleStartMenu() {
+        if (startMenu.classList.contains("is-open")) {
+          closeStartMenu();
+        } else {
+          openStartMenu();
+        }
+      }
+
+      function runStartAction(action) {
+        closeStartMenu();
+        action();
+      }
+
+      function renderStartEvents() {
+        if (!events.length) {
+          startEventList.innerHTML = `
+            <button class="start-item" type="button" disabled>
+              <span class="start-item-icon">📭</span>
+              <span><strong>No event files</strong><small>Create RSVP events in Wix</small></span>
+            </button>
+          `;
+          return;
+        }
+
+        startEventList.innerHTML = events
+          .slice(0, 5)
+          .map(
+            (event, index) => `
+              <button class="start-item" data-start-event-index="${index}" type="button">
+                <span class="start-item-icon">${event.icon}</span>
+                <span><strong>${escapeHtml(event.title)}</strong><small>${escapeHtml(event.date)} · ${escapeHtml(event.time)}</small></span>
+              </button>
+            `,
+          )
+          .join("");
+
+        document.querySelectorAll("[data-start-event-index]").forEach((node) => {
+          node.addEventListener("click", () => {
+            runStartAction(() => openEvent(Number(node.dataset.startEventIndex)));
+          });
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function refreshEventsFromStart() {
+        closeStartMenu();
+        showTransferDialog({
+          status: "Refreshing event files...",
+        });
+        connectionStatus.textContent = "Wix Events: loading";
+        await loadEvents();
+      }
+
+      function bringToFront(windowElement) {
+        topWindowZIndex += 1;
+        document.querySelectorAll(".floating-window, .main-window").forEach((element) => {
+          element.classList.remove("is-front");
+        });
+        windowElement.classList.add("is-front");
+        windowElement.style.zIndex = String(topWindowZIndex);
+      }
+
+      function makeWindowDraggable(windowElement) {
+        const titlebar = windowElement.querySelector(".xp-titlebar");
+
+        if (!titlebar) {
+          return;
+        }
+
+        let dragState = null;
+
+        const startDrag = (clientX, clientY, pointerId = "mouse") => {
+          bringToFront(windowElement);
+          const rect = windowElement.getBoundingClientRect();
+          const isMainWindow = windowElement.classList.contains("main-window");
+          dragState = {
+            pointerId,
+            offsetX: clientX - rect.left,
+            offsetY: clientY - rect.top,
+          };
+          if (isMainWindow) {
+            windowElement.classList.remove("is-maximized");
+            windowElement.classList.add("is-dragged");
+            windowElement.style.width = `${rect.width}px`;
+          }
+          windowElement.style.left = `${rect.left}px`;
+          windowElement.style.top = `${rect.top}px`;
+          windowElement.style.right = "auto";
+          windowElement.style.bottom = "auto";
+          windowElement.style.transform = "none";
+        };
+
+        const moveDrag = (clientX, clientY) => {
+          const maxLeft = window.innerWidth - Math.min(120, windowElement.offsetWidth);
+          const maxTop = window.innerHeight - 72;
+          const nextLeft = Math.min(Math.max(clientX - dragState.offsetX, 0), maxLeft);
+          const nextTop = Math.min(Math.max(clientY - dragState.offsetY, 0), maxTop);
+          windowElement.style.left = `${nextLeft}px`;
+          windowElement.style.top = `${nextTop}px`;
+        };
+
+        const isActionButton = (target) =>
+          target instanceof Element && Boolean(target.closest("button"));
+
+        titlebar.addEventListener("pointerdown", (event) => {
+          if (isActionButton(event.target)) {
+            return;
+          }
+
+          startDrag(event.clientX, event.clientY, event.pointerId);
+          titlebar.setPointerCapture(event.pointerId);
+        });
+
+        titlebar.addEventListener("pointermove", (event) => {
+          if (!dragState || dragState.pointerId !== event.pointerId) {
+            return;
+          }
+
+          moveDrag(event.clientX, event.clientY);
+        });
+
+        titlebar.addEventListener("pointerup", (event) => {
+          if (dragState?.pointerId === event.pointerId) {
+            dragState = null;
+            titlebar.releasePointerCapture(event.pointerId);
+          }
+        });
+
+        titlebar.addEventListener("pointercancel", () => {
+          dragState = null;
+        });
+
+        titlebar.addEventListener("mousedown", (event) => {
+          if (event.button !== 0 || dragState || isActionButton(event.target)) {
+            return;
+          }
+
+          event.preventDefault();
+          startDrag(event.clientX, event.clientY);
+        });
+
+        window.addEventListener("mousemove", (event) => {
+          if (!dragState || dragState.pointerId !== "mouse") {
+            return;
+          }
+
+          moveDrag(event.clientX, event.clientY);
+        });
+
+        window.addEventListener("mouseup", () => {
+          if (dragState?.pointerId === "mouse") {
+            dragState = null;
+          }
+        });
+      }
+
+      function showBsod() {
+        closeStartMenu();
+        bsodScreen.classList.add("is-visible");
+      }
+
+      function hideBsod() {
+        bsodScreen.classList.remove("is-visible");
+      }
+
+      function updateDesktopIcons() {
+        document.querySelectorAll(".desktop-icon").forEach((node, index) => {
+          const event = events[index];
+
+          if (!event) {
+            node.style.display = "none";
+            return;
+          }
+
+          node.style.display = "grid";
+          node.querySelector("span").textContent = event.icon;
+          node.querySelector("small").textContent = event.title;
+        });
+      }
+
+      function formatVenue(event) {
+        if (event.location?.name) {
+          return event.location.name;
+        }
+
+        if (event.location?.locationTbd) {
+          return "Location is TBD";
+        }
+
+        if (event.location?.type === "ONLINE") {
+          return "Online";
+        }
+
+        return "Location is TBD";
+      }
+
+      function formatStatus(event) {
+        return event.registration?.status?.replaceAll("_", " ").toLowerCase() || "open rsvp";
+      }
+
+      rsvpForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const selectedEvent = events[selectedEventIndex];
+
+        if (!selectedEvent) {
+          return;
+        }
+
+        submitRsvp.disabled = true;
+        submitRsvp.textContent = "Sending...";
+        rsvpStatus.className = "rsvp-status pending";
+        rsvpStatus.textContent = "Dialing Wix Events...";
+        showTransferDialog({
+          title: "Sending RSVP",
+          heading: "Sending RSVP card to Wix Events...",
+          message: "Please wait while RSVP Wizard transfers your reservation through the old network pipes.",
+          status: "Copying RSVP card...",
+          source: "RSVP Wizard",
+          target: "Wix Events",
+        });
+        const minimumTransferTime = delay(rsvpTransferMinimumMs);
+
+        try {
+          await client.rsvpV2.createRsvp({
+            eventId: selectedEvent.id,
+            firstName: firstName.value.trim(),
+            lastName: lastName.value.trim(),
+            email: email.value.trim(),
+            status: "YES",
+          });
+          await minimumTransferTime;
+
+          rsvpStatus.className = "rsvp-status success";
+          rsvpStatus.textContent = "RSVP saved in Wix Events.";
+          rsvpForm.reset();
+          rsvpWindow.style.display = "none";
+          showRsvpSuccessAlert(selectedEvent.title);
+        } catch (error) {
+          await minimumTransferTime;
+          console.error("Failed to create RSVP", error);
+          rsvpStatus.className = "rsvp-status error";
+          rsvpStatus.textContent =
+            error?.message || "Wix Events could not accept this RSVP yet.";
+        } finally {
+          finishLoading();
+          submitRsvp.disabled = false;
+          submitRsvp.textContent = "Finish";
+        }
+      });
+
+      document.querySelector("#details-ok").addEventListener("click", () => {
+        detailsWindow.style.display = "none";
+      });
+      document.querySelector("#close-details").addEventListener("click", () => {
+        detailsWindow.style.display = "none";
+      });
+      detailsRsvp.addEventListener("click", () => openRsvp());
+      document.querySelector("#featured-rsvp").addEventListener("click", () => openRsvp(0));
+      document.querySelector("#cancel-rsvp").addEventListener("click", () => {
+        rsvpWindow.style.display = "none";
+      });
+      document.querySelector("#close-rsvp").addEventListener("click", () => {
+        rsvpWindow.style.display = "none";
+      });
+      document.querySelector("#success-alert-ok").addEventListener("click", () => {
+        successAlertWindow.style.display = "none";
+      });
+      document.querySelector("#close-success-alert").addEventListener("click", () => {
+        successAlertWindow.style.display = "none";
+      });
+      document.querySelector("#main-minimize").addEventListener("click", minimizeMainWindow);
+      document.querySelector("#main-maximize").addEventListener("click", toggleMainWindowMaximize);
+      document.querySelector("#main-close").addEventListener("click", showBsod);
+      document.querySelector("#menu-file").addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleStartMenu();
+      });
+      document.querySelector("#menu-events").addEventListener("click", () => {
+        showMainWindow();
+        setFolderFilter("all");
+      });
+      document.querySelector("#menu-stories").addEventListener("click", () => {
+        showMainWindow();
+        openEvent(selectedEventIndex);
+      });
+      document.querySelector("#menu-help").addEventListener("click", () => {
+        xpPopup.style.display = "block";
+      });
+      folderButtons.forEach((button) => {
+        button.addEventListener("click", () => setFolderFilter(button.dataset.folderFilter));
+      });
+      mainTaskButton.addEventListener("click", showMainWindow);
+      document.querySelectorAll(".desktop-icon, .xp-toolbar [data-event-index]").forEach((node) => {
+        node.addEventListener("click", () => openEvent(Number(node.dataset.eventIndex)));
+      });
+      startButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleStartMenu();
+      });
+      startMenu.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+      document.querySelector("#start-open-explorer").addEventListener("click", () => {
+        runStartAction(() => {
+          showMainWindow();
+          openEvent(selectedEventIndex);
+        });
+      });
+      document.querySelector("#start-rsvp").addEventListener("click", () => {
+        runStartAction(() => openRsvp());
+      });
+      document.querySelector("#start-refresh").addEventListener("click", refreshEventsFromStart);
+      document.querySelector("#start-bsod").addEventListener("click", showBsod);
+      document.querySelector("#start-about").addEventListener("click", () => {
+        runStartAction(() => {
+          xpPopup.style.display = "block";
+        });
+      });
+      document.querySelector("#start-log-off").addEventListener("click", closeStartMenu);
+      document.querySelector("#start-shutdown").addEventListener("click", showBsod);
+      document.addEventListener("click", closeStartMenu);
+      lanTrigger.addEventListener("click", showBsod);
+      document.querySelector("#reboot-bsod").addEventListener("click", hideBsod);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeStartMenu();
+
+          if (bsodScreen.classList.contains("is-visible")) {
+            hideBsod();
+          }
+        }
+
+        if (event.ctrlKey && event.altKey && event.key.toLowerCase() === "b") {
+          showBsod();
+        }
+      });
+      [mainWindow, detailsWindow, rsvpWindow, loadingWindow, successAlertWindow].forEach(makeWindowDraggable);
+
+      loadEvents();
+    </script>
+  </body>
+</html>
