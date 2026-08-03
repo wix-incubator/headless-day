@@ -1,0 +1,125 @@
+---
+// src/pages/book.astro — SSR session catalog for Dice & Drizzle.
+// Adapted from the bookings services/index.astro template. Route is /book (not /services).
+// Single-location site — location selector is skipped. Category filter bar
+// auto-skips when ≤1 category exists (a fresh site has one default).
+import Layout from "../layouts/Layout.astro";
+import ServiceCard from "../components/ServiceCard.astro";
+import { services, categoriesV2 } from "@wix/bookings";
+import { auth } from "@wix/essentials";
+
+// Wix Bookings app id — the base filter must scope queryServices to it.
+const BOOKING_APP_ID = "13d21c63-b5ec-5912-8397-c3a5ddb27a97";
+
+const reqUrl = new URL(Astro.request.url);
+const selectedCategory = reqUrl.searchParams.get("category") ?? "";
+
+// ── Services filter (appId + optional category) ──────────────────────────────
+const filter: Record<string, any> = { appId: BOOKING_APP_ID };
+if (selectedCategory) filter["category.id"] = { $eq: selectedCategory };
+
+// ── Catalog reads — two INDEPENDENT queries, fetched concurrently ─────────────
+// queryServices + queryCategories don't depend on each other — one round-trip's
+// latency, not two. Each is individually non-fatal.
+const [servicesResult, catResult] = await Promise.all([
+  auth
+    .elevate(services.queryServices)({ query: { filter, paging: { limit: 100 } }, conditionalFields: ["STAFF_MEMBER_DETAILS"] })
+    .find()
+    .catch((err: any) => { console.error("[book] listing query failed:", err); return null; }),
+  auth.elevate(categoriesV2.queryCategories)().find().catch((err: any) => { console.error("[book] queryCategories failed:", err); return null; }),
+]);
+
+const ORDER = ["solo", "duo", "group"];
+const serviceList: any[] = (servicesResult?.items ?? [])
+  .filter((s: any) => !s.hidden)
+  .sort((a: any, b: any) => {
+    const ai = ORDER.findIndex(k => (a.name ?? "").toLowerCase().includes(k));
+    const bi = ORDER.findIndex(k => (b.name ?? "").toLowerCase().includes(k));
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+
+// Categories — non-fatal; show the bar only when >1 (a fresh site has one default).
+const categories: any[] = catResult?.items ?? [];
+const showCategoryBar = categories.length > 1;
+
+// Build a /book href preserving the current selection, applying overrides.
+// Pass null to clear a param.
+const hrefWith = (patch: Record<string, string | null>): string => {
+  const p = new URLSearchParams();
+  if (selectedCategory) p.set("category", selectedCategory);
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === null) p.delete(k);
+    else p.set(k, v);
+  }
+  const qs = p.toString();
+  return qs ? `/book?${qs}` : "/book";
+};
+
+// Is a filter narrowing the list right now? Drives the empty-state copy.
+const filterActive = Boolean(selectedCategory);
+
+const getSlug = (s: any): string => s.mainSlug?.name ?? s.supportedSlugs?.[0]?.name ?? s._id;
+const formatPrice = (s: any): string | undefined => {
+  const p = s.payment;
+  if (!p || p.rateType === "NO_FEE") return undefined;
+  if (p.rateType === "FIXED" && p.fixed?.price) {
+    const { value, currency } = p.fixed.price;
+    if (!value) return undefined;
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency ?? "EUR" }).format(Number(value));
+  }
+  return undefined;
+};
+const getDuration = (s: any): number => s.schedule?.availabilityConstraints?.sessionDurations?.[0] ?? 60;
+---
+
+<Layout title="Book a Table">
+  <section class="max-w-6xl mx-auto px-6 py-24">
+    <header class="flex flex-col gap-4 max-w-prose mb-16">
+      <hr class="editorial-rule w-16 ml-0" />
+      <h1 class="font-display text-4xl md:text-5xl leading-tight">Book a table</h1>
+      <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-mute); line-height: 1.6;">Three session types. Pay by the hour. One hot drink per player, included.</p>
+      <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-mute); line-height: 1.6;">No deposit required. Cancel anytime up to two hours before your slot.</p>
+    </header>
+
+    {
+      showCategoryBar && (
+        <nav class="booking-filter-bar" aria-label="Filter by category">
+          <a href={hrefWith({ category: null })} class={`booking-filter-chip${selectedCategory ? "" : " booking-filter-chip--active"}`}>All</a>
+          {categories.map((cat: any) => (
+            <a
+              href={hrefWith({ category: cat._id })}
+              class={`booking-filter-chip${selectedCategory === cat._id ? " booking-filter-chip--active" : ""}`}
+            >
+              {cat.name ?? "Category"}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    {
+      serviceList.length === 0 ? (
+        <p class="text-mute">
+          {filterActive
+            ? "No sessions match your selection — try a different filter."
+            : "Sessions coming soon — check back shortly."}
+        </p>
+      ) : (
+        <div class="service-grid">
+          {serviceList.map((s) => (
+            <ServiceCard
+              id={s._id}
+              slug={getSlug(s)}
+              name={s.name ?? "Untitled"}
+              tagLine={s.tagLine ?? s.description}
+              durationMinutes={getDuration(s)}
+              price={formatPrice(s)}
+              imageUrl={s.media?.mainMedia?.image?.url ?? s.media?.items?.[0]?.image?.url}
+              type={s.type ?? "APPOINTMENT"}
+            />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</Layout>

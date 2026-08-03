@@ -1,0 +1,104 @@
+/* src/styles/components-forms.css
+ *
+ * Forms-pack component CSS. Pre-copied by the orchestrator before the build wave.
+ * Uses var(--token) only — brand-agnostic, same token vocabulary as global.css.
+ */
+
+/* ── Contact form wrapper ─────────────────────────────────────────────────── */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: var(--container-prose, 65ch);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-family: var(--font-body, "Outfit", sans-serif);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink, #2A2118);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-body, "Outfit", sans-serif);
+  font-size: 1rem;
+  color: var(--color-ink, #2A2118);
+  background: var(--color-paper-warm, var(--color-cream, #FDFAF5));
+  border: 1px solid var(--color-rule, #D9CFC2);
+  border-radius: var(--radius-md, 8px);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--color-accent, #E8A87C);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #E8A87C) 15%, transparent);
+}
+
+.form-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-submit-btn {
+  align-self: flex-start;
+  padding: 0.875rem 2rem;
+  font-family: var(--font-body, "Outfit", sans-serif);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-on-dark, var(--color-paper, #F5F0E8));
+  background: var(--color-ink, #2A2118);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.form-submit-btn:hover {
+  background: var(--color-mute, #6B5D52);
+}
+
+.form-submit-btn:active {
+  transform: translateY(1px);
+}
+
+.form-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Success / error states ───────────────────────────────────────────────── */
+.form-success {
+  padding: 1.25rem 1.5rem;
+  background: color-mix(in srgb, var(--color-accent, #E8A87C) 12%, transparent);
+  border: 1px solid var(--color-accent, #E8A87C);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-body, "Outfit", sans-serif);
+  color: var(--color-ink, #2A2118);
+}
+
+.form-error {
+  padding: 1.25rem 1.5rem;
+  background: color-mix(in srgb, var(--color-error, #C0392B) 8%, transparent);
+  border: 1px solid var(--color-error, #C0392B);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-body, "Outfit", sans-serif);
+  color: var(--color-error, #C0392B);
+  font-size: 0.875rem;
+}

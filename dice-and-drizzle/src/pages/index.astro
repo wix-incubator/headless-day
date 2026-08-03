@@ -1,0 +1,389 @@
+---
+import Layout from '../layouts/Layout.astro';
+import HeroBackground from '../components/HeroBackground.astro';
+import { items } from '@wix/data';
+import { auth } from '@wix/essentials';
+
+const elevatedQuery = auth.elevate(items.query);
+
+// Fetch pricing tiers
+const { items: pricingResults } = await elevatedQuery("Pricing").limit(10).find();
+const pricingItems = pricingResults;
+
+// Fetch 3 staff-pick games
+const { items: gamesResults } = await elevatedQuery("Games").eq('staffPick', true).limit(3).find();
+const featuredGames = gamesResults;
+
+// Fetch testimonials
+const { items: testimonialsResults } = await elevatedQuery("Testimonials").limit(3).find();
+const testimonials = testimonialsResults;
+---
+
+<Layout description="Dice & Drizzle is Reykjavik's board game cafe. 1,200+ games, hot chocolate from scratch, no rush.">
+
+  <HeroBackground />
+
+  <!-- Section 1 — Hero -->
+  <section class="hero-section relative overflow-hidden" style="min-height: 90vh; position: relative; z-index: 1;">
+    <!-- left-side text readability gradient -->
+    <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(8,6,18,0.72) 0%, rgba(8,6,18,0.55) 40%, rgba(8,6,18,0.10) 65%, transparent 80%); z-index: 2; pointer-events: none;"></div>
+    <div class="relative z-10 max-w-6xl mx-auto px-6 flex flex-col justify-center" style="min-height: 90vh; padding-top: 8rem; padding-bottom: 6rem;">
+      <p class="hero-kicker" style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 1.5rem;">Board game cafe · Reykjavik, Iceland</p>
+      <h1 style="font-family: var(--font-display); font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 700; color: var(--color-ink); line-height: 1.05; letter-spacing: 0.02em; max-width: 14ch; margin-bottom: 2rem;">1,200 games, unlimited hot chocolate, no rush</h1>
+      <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 3rem;">
+        <a href="/book" class="btn-primary" style="background: var(--color-accent); color: var(--color-paper); font-weight: 600; padding: 1rem 2.5rem; border-radius: var(--radius-md);">Book a table</a>
+        <a href="/games" class="btn-ghost" style="color: var(--color-ink); border: 1px solid rgba(237,232,218,0.35); padding: 1rem 2.5rem; border-radius: var(--radius-md);">Browse the library</a>
+      </div>
+      <!-- Pricing pill badges -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+        {pricingItems.length > 0 ? pricingItems.map((tier: any) => (
+          <span style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-ink); background: rgba(237,232,218,0.10); border: 1px solid rgba(237,232,218,0.22); border-radius: 100px; padding: 0.375rem 1rem;">
+            {tier.tier ?? tier.name} · {typeof tier.pricePerHour === 'number' ? tier.pricePerHour.toLocaleString() : tier.pricePerHour} ISK/hr
+          </span>
+        )) : (
+          <>
+            <span style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-ink); background: rgba(237,232,218,0.10); border: 1px solid rgba(237,232,218,0.22); border-radius: 100px; padding: 0.375rem 1rem;">Solo · 1,200 ISK/hr</span>
+            <span style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-ink); background: rgba(237,232,218,0.10); border: 1px solid rgba(237,232,218,0.22); border-radius: 100px; padding: 0.375rem 1rem;">Duo · 2,000 ISK/hr</span>
+            <span style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-ink); background: rgba(237,232,218,0.10); border: 1px solid rgba(237,232,218,0.22); border-radius: 100px; padding: 0.375rem 1rem;">Group · 2,800 ISK/hr</span>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- home:bookings -->
+
+  <section style="position: relative; z-index: 1; background: rgba(33,29,56,0.65); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5rem 1.5rem; border-top: 1px solid var(--color-rule);">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem;">
+        <div>
+          <hr class="editorial-rule" style="width: 3rem; margin-bottom: 1rem;" />
+          <h2 style="font-family: var(--font-display); font-size: 2.25rem; line-height: 1.15;">Book a table</h2>
+          <p style="color: var(--color-mute); margin-top: 0.5rem;">Pay by the hour. One hot drink per player, included.</p>
+        </div>
+        <a href="/book" style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px;">See all sessions →</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+        <a href="/book/solo-game-session" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem; background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); text-decoration: none; transition: box-shadow 0.2s ease;" onmouseover="this.style.boxShadow='0 4px 20px rgba(56,181,114,0.18)'" onmouseout="this.style.boxShadow='none'">
+          <div style="width: 100%; height: 120px; border-radius: 6px; overflow: hidden; margin-bottom: 0.25rem; background: rgba(56,181,114,0.08); display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 120 120" width="90" height="90" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 12px rgba(56,181,114,0.4));">
+              <!-- Single die isometric -->
+              <polygon points="60,15 100,37 100,83 60,105 20,83 20,37" fill="#2a2548" stroke="#38b572" stroke-width="1.5"/>
+              <!-- top face -->
+              <polygon points="60,15 100,37 60,58 20,37" fill="#38b572" opacity="0.25"/>
+              <!-- front face -->
+              <polygon points="20,37 60,58 60,105 20,83" fill="#38b572" opacity="0.12"/>
+              <!-- right face -->
+              <polygon points="100,37 100,83 60,105 60,58" fill="#38b572" opacity="0.18"/>
+              <!-- pip — top center -->
+              <circle cx="60" cy="36" r="5" fill="#38b572"/>
+            </svg>
+          </div>
+          <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent);">Solo</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--color-ink);">Solo Game Session</h3>
+          <p style="font-size: 0.9375rem; color: var(--color-mute); flex: 1;">One player, one table, unlimited access to 1,200+ games and one hot drink.</p>
+          <p style="font-size: 0.875rem; color: var(--color-ink-soft);">60 min · per session</p>
+        </a>
+        <a href="/book/duo-game-session" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem; background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); text-decoration: none; transition: box-shadow 0.2s ease;" onmouseover="this.style.boxShadow='0 4px 20px rgba(56,181,114,0.18)'" onmouseout="this.style.boxShadow='none'">
+          <div style="width: 100%; height: 120px; border-radius: 6px; overflow: hidden; margin-bottom: 0.25rem; background: rgba(160,100,200,0.08); display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 220 120" width="160" height="90" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 12px rgba(160,100,200,0.4));">
+              <!-- Die 1 (left) -->
+              <polygon points="55,12 90,30 90,68 55,86 20,68 20,30" fill="#2a2548" stroke="#9060c8" stroke-width="1.5"/>
+              <polygon points="55,12 90,30 55,48 20,30" fill="#9060c8" opacity="0.25"/>
+              <polygon points="20,30 55,48 55,86 20,68" fill="#9060c8" opacity="0.12"/>
+              <polygon points="90,30 90,68 55,86 55,48" fill="#9060c8" opacity="0.18"/>
+              <circle cx="64" cy="26" r="4" fill="#9060c8"/>
+              <circle cx="46" cy="34" r="4" fill="#9060c8"/>
+              <!-- Die 2 (right) -->
+              <polygon points="165,12 200,30 200,68 165,86 130,68 130,30" fill="#2a2548" stroke="#38b572" stroke-width="1.5"/>
+              <polygon points="165,12 200,30 165,48 130,30" fill="#38b572" opacity="0.25"/>
+              <polygon points="130,30 165,48 165,86 130,68" fill="#38b572" opacity="0.12"/>
+              <polygon points="200,30 200,68 165,86 165,48" fill="#38b572" opacity="0.18"/>
+              <circle cx="175" cy="25" r="4" fill="#38b572"/>
+              <circle cx="165" cy="30" r="4" fill="#38b572"/>
+              <circle cx="155" cy="35" r="4" fill="#38b572"/>
+            </svg>
+          </div>
+          <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent);">Duo</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--color-ink);">Duo Game Session</h3>
+          <p style="font-size: 0.9375rem; color: var(--color-mute); flex: 1;">Two players, unlimited game access, one hot drink each.</p>
+          <p style="font-size: 0.875rem; color: var(--color-ink-soft);">60 min · per session</p>
+        </a>
+        <a href="/book/group-game-session" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.75rem; background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); text-decoration: none; transition: box-shadow 0.2s ease;" onmouseover="this.style.boxShadow='0 4px 20px rgba(56,181,114,0.18)'" onmouseout="this.style.boxShadow='none'">
+          <div style="width: 100%; height: 120px; border-radius: 6px; overflow: hidden; margin-bottom: 0.25rem; background: rgba(196,176,104,0.08); display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 280 120" width="220" height="90" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 12px rgba(196,176,104,0.4));">
+              <!-- Die 1 -->
+              <polygon points="45,18 74,33 74,63 45,78 16,63 16,33" fill="#2a2548" stroke="#c4b068" stroke-width="1.5"/>
+              <polygon points="45,18 74,33 45,48 16,33" fill="#c4b068" opacity="0.25"/>
+              <polygon points="16,33 45,48 45,78 16,63" fill="#c4b068" opacity="0.12"/>
+              <polygon points="74,33 74,63 45,78 45,48" fill="#c4b068" opacity="0.18"/>
+              <circle cx="45" cy="33" r="3.5" fill="#c4b068"/>
+              <!-- Die 2 (center, slightly raised) -->
+              <polygon points="140,10 176,30 176,68 140,88 104,68 104,30" fill="#2a2548" stroke="#38b572" stroke-width="1.5"/>
+              <polygon points="140,10 176,30 140,50 104,30" fill="#38b572" opacity="0.28"/>
+              <polygon points="104,30 140,50 140,88 104,68" fill="#38b572" opacity="0.14"/>
+              <polygon points="176,30 176,68 140,88 140,50" fill="#38b572" opacity="0.20"/>
+              <circle cx="150" cy="24" r="4" fill="#38b572"/>
+              <circle cx="140" cy="30" r="4" fill="#38b572"/>
+              <circle cx="130" cy="36" r="4" fill="#38b572"/>
+              <!-- Die 3 -->
+              <polygon points="235,18 264,33 264,63 235,78 206,63 206,33" fill="#2a2548" stroke="#9060c8" stroke-width="1.5"/>
+              <polygon points="235,18 264,33 235,48 206,33" fill="#9060c8" opacity="0.25"/>
+              <polygon points="206,33 235,48 235,78 206,63" fill="#9060c8" opacity="0.12"/>
+              <polygon points="264,33 264,63 235,78 235,48" fill="#9060c8" opacity="0.18"/>
+              <circle cx="243" cy="29" r="3.5" fill="#9060c8"/>
+              <circle cx="227" cy="29" r="3.5" fill="#9060c8"/>
+              <circle cx="243" cy="37" r="3.5" fill="#9060c8"/>
+              <circle cx="227" cy="37" r="3.5" fill="#9060c8"/>
+            </svg>
+          </div>
+          <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent);">Group</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.5rem; color: var(--color-ink);">Group Game Session</h3>
+          <p style="font-size: 0.9375rem; color: var(--color-mute); flex: 1;">Three to six players, full library access, one hot drink per player.</p>
+          <p style="font-size: 0.875rem; color: var(--color-ink-soft);">60 min · per session</p>
+        </a>
+      </div>
+      <div style="text-align: center; margin-top: 2.5rem;">
+        <a href="/book" class="btn-primary" style="background: var(--color-accent); color: var(--color-paper); padding: 0.875rem 2.5rem; border-radius: var(--radius-md); font-family: var(--font-body); font-weight: 500; display: inline-block;">Book a table</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2 — How it works -->
+  <section style="position: relative; z-index: 1; background: rgba(20,18,32,0.62); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 6rem 1.5rem;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <h2 style="font-family: var(--font-display); font-size: 2.25rem; text-align: center; color: var(--color-ink); margin-bottom: 3rem;">How it works</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem;">
+
+        <!-- Card 1 -->
+        <div style="background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; transition: box-shadow 0.3s ease;" class="how-card">
+          <p style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 700; color: var(--color-accent); line-height: 1; margin-bottom: 1.25rem;">01</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: var(--color-ink); margin-bottom: 0.75rem;">Walk in or book a table</h3>
+          <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-mute); line-height: 1.65;">Reserve online in two minutes, or drop by if you see a free table. No deposit, no stress.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div style="background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; transition: box-shadow 0.3s ease;" class="how-card">
+          <p style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 700; color: var(--color-accent); line-height: 1; margin-bottom: 1.25rem;">02</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: var(--color-ink); margin-bottom: 0.75rem;">Pick any game</h3>
+          <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-mute); line-height: 1.65;">Browse 1,200 titles or ask our staff. We explain the rules at the table — takes about three minutes for most games.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div style="background: var(--color-paper); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; transition: box-shadow 0.3s ease;" class="how-card">
+          <p style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 700; color: var(--color-accent); line-height: 1; margin-bottom: 1.25rem;">03</p>
+          <h3 style="font-family: var(--font-display); font-size: 1.25rem; color: var(--color-ink); margin-bottom: 0.75rem;">Pay by the hour</h3>
+          <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-mute); line-height: 1.65;">The clock starts when you sit, stops when you're done. Order drinks at any point. No minimum time required.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3 — Featured Games -->
+  <section style="position: relative; z-index: 1; background: rgba(33,29,56,0.65); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 6rem 1.5rem;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 3rem;">
+        <div>
+          <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 0.5rem;">Staff picks</p>
+          <h2 style="font-family: var(--font-display); font-size: 2.25rem; color: var(--color-ink);">Games we keep recommending</h2>
+        </div>
+        <a href="/games" style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600; color: var(--color-ink); border-bottom: 1px solid var(--color-accent); padding-bottom: 2px; white-space: nowrap;">See all 1,200+ games →</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        {featuredGames.length > 0 ? featuredGames.map((game: any) => (
+          <article style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.3s ease;" class="game-card-home">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+              <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.2;">{game.title}</h3>
+              <span style="flex-shrink: 0; font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink); background: var(--color-accent); border-radius: 100px; padding: 0.25rem 0.625rem; white-space: nowrap;">Staff Pick</span>
+            </div>
+            {game.genre && (
+              <span style="align-self: flex-start; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 100px; padding: 0.1875rem 0.625rem;">{game.genre}</span>
+            )}
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute);">
+              {(game.minPlayers || game.playerCountMin) && (
+                <span>
+                  {game.minPlayers ?? game.playerCountMin}
+                  {(game.maxPlayers ?? game.playerCountMax) ? `–${game.maxPlayers ?? game.playerCountMax}` : ''} players
+                </span>
+              )}
+              {game.complexity && <span>{game.complexity}</span>}
+            </div>
+            {(game.staffNote || game.description) && (
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{game.staffNote ?? game.description}</p>
+            )}
+          </article>
+        )) : (
+          /* Fallback game cards */
+          <>
+            <article style="background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.3s ease;" class="game-card-home">
+              <!-- Wingspan illustration: stylised bird in flight -->
+              <div style="width: 100%; height: 110px; border-radius: 6px; background: rgba(56,181,114,0.07); display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem; overflow: hidden;">
+                <svg viewBox="0 0 160 90" width="140" height="78" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 10px rgba(56,181,114,0.35));">
+                  <!-- wings -->
+                  <path d="M80,45 Q50,20 10,30 Q30,42 50,48 Z" fill="#38b572" opacity="0.7"/>
+                  <path d="M80,45 Q110,20 150,30 Q130,42 110,48 Z" fill="#38b572" opacity="0.7"/>
+                  <!-- body -->
+                  <ellipse cx="80" cy="50" rx="14" ry="8" fill="#c4b068"/>
+                  <!-- head -->
+                  <circle cx="94" cy="44" r="8" fill="#c4b068"/>
+                  <!-- beak -->
+                  <path d="M101,43 L110,45 L101,47 Z" fill="#38b572"/>
+                  <!-- eye -->
+                  <circle cx="97" cy="43" r="2" fill="#141220"/>
+                  <!-- tail -->
+                  <path d="M66,52 Q55,60 48,68 Q58,62 66,56 Z" fill="#c4b068" opacity="0.8"/>
+                  <!-- aurora streaks behind bird -->
+                  <path d="M10,70 Q50,58 80,62 Q110,66 150,55" stroke="#38b572" stroke-width="1.5" fill="none" opacity="0.3"/>
+                  <path d="M10,76 Q50,65 80,70 Q110,74 150,62" stroke="#9060c8" stroke-width="1" fill="none" opacity="0.25"/>
+                </svg>
+              </div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.2;">Wingspan</h3>
+                <span style="flex-shrink: 0; font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink); background: var(--color-accent); border-radius: 100px; padding: 0.25rem 0.625rem;">Staff Pick</span>
+              </div>
+              <span style="align-self: flex-start; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 100px; padding: 0.1875rem 0.625rem;">Engine-building</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute);">
+                <span>1–5 players</span><span>Medium</span>
+              </div>
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.6;">Beautiful card-driven engine-builder about birds. Surprisingly serene for a competitive game. We have seen people cry (happy tears) at the end.</p>
+            </article>
+            <article style="background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.3s ease;" class="game-card-home">
+              <!-- Pandemic illustration: globe with network lines -->
+              <div style="width: 100%; height: 110px; border-radius: 6px; background: rgba(224,85,85,0.07); display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem; overflow: hidden;">
+                <svg viewBox="0 0 140 90" width="130" height="80" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 10px rgba(224,85,85,0.4));">
+                  <!-- globe outline -->
+                  <circle cx="70" cy="45" r="32" fill="none" stroke="#e05555" stroke-width="1.5" opacity="0.6"/>
+                  <!-- continents rough shapes -->
+                  <path d="M48,30 Q55,26 63,28 Q68,30 65,38 Q60,42 52,40 Q44,38 48,30 Z" fill="#e05555" opacity="0.4"/>
+                  <path d="M72,32 Q80,28 90,32 Q95,38 90,44 Q82,46 74,42 Q68,36 72,32 Z" fill="#e05555" opacity="0.3"/>
+                  <path d="M52,50 Q62,48 68,54 Q66,62 58,63 Q50,62 48,56 Q48,52 52,50 Z" fill="#e05555" opacity="0.35"/>
+                  <!-- network connection lines -->
+                  <line x1="63" y1="28" x2="72" y2="32" stroke="#e05555" stroke-width="1" opacity="0.5"/>
+                  <line x1="65" y1="38" x2="74" y2="42" stroke="#e05555" stroke-width="1" opacity="0.5"/>
+                  <line x1="68" y1="54" x2="74" y2="42" stroke="#e05555" stroke-width="1" opacity="0.5"/>
+                  <!-- alert nodes -->
+                  <circle cx="63" cy="28" r="3" fill="#e05555"/>
+                  <circle cx="90" cy="32" r="3" fill="#e05555"/>
+                  <circle cx="58" cy="63" r="3" fill="#e05555"/>
+                  <!-- latitude/longitude lines -->
+                  <ellipse cx="70" cy="45" rx="32" ry="12" fill="none" stroke="#e05555" stroke-width="0.8" opacity="0.3"/>
+                  <line x1="70" y1="13" x2="70" y2="77" stroke="#e05555" stroke-width="0.8" opacity="0.3"/>
+                </svg>
+              </div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.2;">Pandemic</h3>
+                <span style="flex-shrink: 0; font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink); background: var(--color-accent); border-radius: 100px; padding: 0.25rem 0.625rem;">Staff Pick</span>
+              </div>
+              <span style="align-self: flex-start; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 100px; padding: 0.1875rem 0.625rem;">Cooperative</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute);">
+                <span>2–4 players</span><span>Medium</span>
+              </div>
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.6;">Cooperative disease control. Everyone wins together or loses together. A good choice when the table has not played many games before.</p>
+            </article>
+            <article style="background: rgba(20,18,32,0.72); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.3s ease;" class="game-card-home">
+              <!-- Azul illustration: geometric tile mosaic -->
+              <div style="width: 100%; height: 110px; border-radius: 6px; background: rgba(144,96,200,0.07); display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem; overflow: hidden;">
+                <svg viewBox="0 0 140 90" width="130" height="80" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 3px 10px rgba(144,96,200,0.35));">
+                  <!-- 4x3 tile grid -->
+                  <rect x="28" y="12" width="20" height="20" rx="2" fill="#9060c8" opacity="0.8"/>
+                  <rect x="52" y="12" width="20" height="20" rx="2" fill="#38b572" opacity="0.7"/>
+                  <rect x="76" y="12" width="20" height="20" rx="2" fill="#c4b068" opacity="0.7"/>
+                  <rect x="100" y="12" width="20" height="20" rx="2" fill="#9060c8" opacity="0.5"/>
+
+                  <rect x="28" y="36" width="20" height="20" rx="2" fill="#c4b068" opacity="0.7"/>
+                  <rect x="52" y="36" width="20" height="20" rx="2" fill="#9060c8" opacity="0.8"/>
+                  <rect x="76" y="36" width="20" height="20" rx="2" fill="#38b572" opacity="0.7"/>
+                  <rect x="100" y="36" width="20" height="20" rx="2" fill="#c4b068" opacity="0.6"/>
+
+                  <rect x="28" y="60" width="20" height="20" rx="2" fill="#38b572" opacity="0.6"/>
+                  <rect x="52" y="60" width="20" height="20" rx="2" fill="#c4b068" opacity="0.7"/>
+                  <rect x="76" y="60" width="20" height="20" rx="2" fill="#9060c8" opacity="0.7"/>
+                  <rect x="100" y="60" width="20" height="20" rx="2" fill="#38b572" opacity="0.8"/>
+                  <!-- inner decorations on some tiles -->
+                  <circle cx="38" cy="22" r="5" fill="white" opacity="0.2"/>
+                  <circle cx="86" cy="46" r="5" fill="white" opacity="0.2"/>
+                  <circle cx="62" cy="70" r="5" fill="white" opacity="0.2"/>
+                </svg>
+              </div>
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+                <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.2;">Azul</h3>
+                <span style="flex-shrink: 0; font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink); background: var(--color-accent); border-radius: 100px; padding: 0.25rem 0.625rem;">Staff Pick</span>
+              </div>
+              <span style="align-self: flex-start; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 100px; padding: 0.1875rem 0.625rem;">Abstract</span>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute);">
+                <span>2–4 players</span><span>Light</span>
+              </div>
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.6;">Draft tiles and build a mosaic. Tactile, quick to learn, harder to master than it looks. The pieces are genuinely satisfying to handle.</p>
+            </article>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4 — Testimonials -->
+  <section style="position: relative; z-index: 1; background: rgba(15,14,26,0.68); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border-top: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule); padding: 6rem 1.5rem;">
+    <div style="max-width: 1280px; margin: 0 auto;">
+      <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent); text-align: center; margin-bottom: 0.75rem;">Guests</p>
+      <h2 style="font-family: var(--font-display); font-size: 2.25rem; color: var(--color-ink); text-align: center; margin-bottom: 3rem;">What people say</h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        {testimonials.length > 0 ? testimonials.map((t: any) => (
+          <figure style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; transition: box-shadow 0.3s ease;" class="testimonial-card">
+            <blockquote style="font-family: var(--font-display); font-size: 1.0625rem; font-style: italic; color: var(--color-ink); line-height: 1.65; margin: 0; flex: 1;">"{t.quote ?? t.body ?? t.text ?? ''}"</blockquote>
+            <figcaption>
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600; color: var(--color-ink);">{t.name ?? t.guestName ?? 'A guest'}</p>
+              {(t.favoriteGame ?? t.game) && (
+                <p style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute); margin-top: 0.25rem;">Favorite game: {t.favoriteGame ?? t.game}</p>
+              )}
+            </figcaption>
+          </figure>
+        )) : (
+          /* Fallback testimonials */
+          <>
+            <figure style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; transition: box-shadow 0.3s ease;" class="testimonial-card">
+              <blockquote style="font-family: var(--font-display); font-size: 1.0625rem; font-style: italic; color: var(--color-ink); line-height: 1.65; margin: 0; flex: 1;">"We spent three hours there on a Tuesday afternoon. The staff explained Wingspan in five minutes and then left us completely alone. Perfect."</blockquote>
+              <figcaption>
+                <p style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600; color: var(--color-ink);">Sigríður H.</p>
+                <p style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute); margin-top: 0.25rem;">Favorite game: Wingspan</p>
+              </figcaption>
+            </figure>
+            <figure style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; transition: box-shadow 0.3s ease;" class="testimonial-card">
+              <blockquote style="font-family: var(--font-display); font-size: 1.0625rem; font-style: italic; color: var(--color-ink); line-height: 1.65; margin: 0; flex: 1;">"Brought my parents who have never played a board game in their lives. By the end they were asking when we could come back."</blockquote>
+              <figcaption>
+                <p style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600; color: var(--color-ink);">Björn K.</p>
+                <p style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute); margin-top: 0.25rem;">Favorite game: Ticket to Ride</p>
+              </figcaption>
+            </figure>
+            <figure style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; transition: box-shadow 0.3s ease;" class="testimonial-card">
+              <blockquote style="font-family: var(--font-display); font-size: 1.0625rem; font-style: italic; color: var(--color-ink); line-height: 1.65; margin: 0; flex: 1;">"The hot chocolate alone is worth the trip. The games are just a reason to sit there longer."</blockquote>
+              <figcaption>
+                <p style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600; color: var(--color-ink);">Anna M.</p>
+                <p style="font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute); margin-top: 0.25rem;">Favorite game: Azul</p>
+              </figcaption>
+            </figure>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5 — Booking CTA band -->
+  <section style="position: relative; z-index: 1; background: rgba(20,18,32,0.68); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 5rem 1.5rem; text-align: center; border-top: 1px solid var(--color-rule);">
+    <h2 style="font-family: var(--font-display); font-size: 2.5rem; color: var(--color-ink); margin-bottom: 1rem;">Ready to play?</h2>
+    <p style="font-family: var(--font-body); color: var(--color-mute); max-width: 40ch; margin: 0 auto 2rem;">No deposit required. Cancel or change anytime up to two hours before your slot.</p>
+    <a href="/book" class="btn-primary" style="background: var(--color-accent); color: var(--color-paper); font-weight: 600; padding: 1rem 2.5rem; border-radius: var(--radius-md);">Book a table</a>
+    <p style="font-size: 0.8125rem; color: var(--color-mute); margin-top: 1.5rem; font-family: var(--font-body);">Mon–Thu 14:00–23:00 · Fri–Sat 12:00–01:00 · Sun 12:00–22:00</p>
+  </section>
+
+</Layout>
+
+<style>
+  .how-card:hover,
+  .game-card-home:hover,
+  .testimonial-card:hover {
+    box-shadow: 0 4px 24px rgba(56,181,114,0.18);
+  }
+</style>

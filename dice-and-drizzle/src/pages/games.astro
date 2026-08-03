@@ -1,0 +1,259 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { items } from '@wix/data';
+import { auth } from '@wix/essentials';
+
+const GENRE_ICONS: Record<string, string> = {
+  abstract:    `<path d="M3 3h4v4H3zm6 0h4v4H9zm0 6h4v4H9zM3 9h4v4H3z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/>`,
+  party:       `<path d="M8 2v2M2 8h2M14 8h-2M8 14v-2M4.2 4.2l1.4 1.4M11.4 4.2l-1.4 1.4M4.2 11.8l1.4-1.4M11.4 11.8l-1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.2" fill="none"/>`,
+  strategy:    `<path d="M8 2L5 6h6L8 2z" fill="currentColor" opacity="0.7"/><rect x="6.5" y="6" width="3" height="5" fill="currentColor" opacity="0.7"/><rect x="4" y="11" width="8" height="2" rx="0.5" fill="currentColor" opacity="0.7"/>`,
+  cooperative: `<path d="M5 10c0-1.66 1.34-3 3-3s3 1.34 3 3" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="8" cy="5.5" r="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M2 14c0-2 1.5-3 3-3M13 14c0-2-1.5-3-3-3" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="3.5" cy="9.5" r="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="12.5" cy="9.5" r="1.2" stroke="currentColor" stroke-width="1.2" fill="none"/>`,
+  family:      `<path d="M8 2L2 7v7h4v-4h4v4h4V7L8 2z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/>`,
+  thematic:    `<path d="M4 12l2-5 2 3 2-6 2 8" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  euro:        `<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M10.5 5.5A3.5 3.5 0 0 0 5 8.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/><path d="M4.5 7h5M4.5 9h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>`,
+  deduction:   `<circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 10v2M7 13h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M3 3l10 10" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>`,
+  dexterity:   `<path d="M8 13V7M5 10l3-3 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="4" r="1.5" fill="currentColor"/>`,
+  worker:      `<rect x="3" y="10" width="10" height="3" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="5" y="7" width="6" height="3" rx="0.5" stroke="currentColor" stroke-width="1.2" fill="none"/><circle cx="8" cy="4.5" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none"/>`,
+  deck:        `<rect x="4" y="5" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/><rect x="3" y="3" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/>`,
+  trivia:      `<circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6.5 6.5a1.5 1.5 0 0 1 3 .5c0 1-1.5 1.5-1.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.7" fill="currentColor"/>`,
+};
+
+function genreIcon(genre: string): string {
+  const key = genre.toLowerCase().replace(/[^a-z]/g, '').replace('placement', 'worker').replace('building', 'strategy');
+  const paths = GENRE_ICONS[key] ?? GENRE_ICONS[Object.keys(GENRE_ICONS).find(k => key.includes(k)) ?? ''] ?? `<circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.3" fill="none"/>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 16 16" style="display:inline-block;vertical-align:-1px;flex-shrink:0" aria-hidden="true">${paths}</svg>`;
+}
+
+const elevatedQuery = auth.elevate(items.query);
+const { items: gamesData } = await elevatedQuery("Games").ascending('title').limit(100).find();
+const games = gamesData;
+---
+
+<Layout
+  title="Game Library"
+  description="Browse 1,200+ tabletop games at Dice & Drizzle, Reykjavik's board game cafe."
+>
+  <!-- Page header -->
+  <section style="background: var(--color-paper-warm); padding: 5rem 1.5rem 4rem;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto;">
+      <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 1rem;">Game Library</p>
+      <h1 style="font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4rem); color: var(--color-ink); font-weight: 700; margin-bottom: 1rem;">1,200+ games</h1>
+      <p style="font-family: var(--font-body); color: var(--color-mute); font-size: 1.0625rem;">
+        <span id="visible-count">{games.length}</span> in our spotlight. Something for every table.
+      </p>
+    </div>
+  </section>
+
+  <!-- Filter bar -->
+  <section style="background: var(--color-paper-warm); border-bottom: 1px solid var(--color-rule); padding: 1.25rem 1.5rem; position: sticky; top: 56px; z-index: 40;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start;">
+
+      <!-- Genre filter -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+        <span style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-mute); margin-right: 0.25rem;">Genre</span>
+        {['Strategy', 'Party', 'Abstract', 'Cooperative', 'Family', 'Engine-building', 'Heavy'].map(g => (
+          <button
+            class="filter-pill"
+            data-filter-group="genre"
+            data-filter={g}
+            aria-pressed="false"
+            style="font-family: var(--font-body); font-size: 0.8125rem; padding: 0.3125rem 0.875rem; border: 1px solid var(--color-rule); border-radius: 100px; background: transparent; color: var(--color-ink); cursor: pointer; transition: all 160ms ease;"
+          >{g}</button>
+        ))}
+      </div>
+
+      <!-- Players filter -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+        <span style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-mute); margin-right: 0.25rem;">Players</span>
+        {[['1', '1+'], ['2', '2+'], ['3', '3+'], ['4', '4+']].map(([val, label]) => (
+          <button
+            class="filter-pill"
+            data-filter-group="players"
+            data-filter={val}
+            aria-pressed="false"
+            style="font-family: var(--font-body); font-size: 0.8125rem; padding: 0.3125rem 0.875rem; border: 1px solid var(--color-rule); border-radius: 100px; background: transparent; color: var(--color-ink); cursor: pointer; transition: all 160ms ease;"
+          >{label}</button>
+        ))}
+      </div>
+
+      <!-- Complexity filter -->
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+        <span style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-mute); margin-right: 0.25rem;">Weight</span>
+        {['Light', 'Medium', 'Heavy'].map(c => (
+          <button
+            class="filter-pill"
+            data-filter-group="complexity"
+            data-filter={c}
+            aria-pressed="false"
+            style="font-family: var(--font-body); font-size: 0.8125rem; padding: 0.3125rem 0.875rem; border: 1px solid var(--color-rule); border-radius: 100px; background: transparent; color: var(--color-ink); cursor: pointer; transition: all 160ms ease;"
+          >{c}</button>
+        ))}
+      </div>
+
+      <!-- Clear button -->
+      <button
+        id="clear-filters"
+        style="font-family: var(--font-body); font-size: 0.8125rem; padding: 0.3125rem 0.875rem; border: none; background: none; color: var(--color-mute); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; display: none;"
+      >Clear filters</button>
+    </div>
+  </section>
+
+  <!-- Game grid -->
+  <section style="background: var(--color-paper); padding: 3rem 1.5rem 5rem;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto;">
+      <div id="games-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+        {games.map((game: any) => (
+          <article
+            class="game-card"
+            data-genre={game.genre ?? ''}
+            data-min-players={String(game.minPlayers ?? game.playerCountMin ?? 1)}
+            data-max-players={String(game.maxPlayers ?? game.playerCountMax ?? 10)}
+            data-complexity={game.complexity ?? ''}
+            style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; transition: box-shadow 0.3s ease;"
+          >
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;">
+              <h2 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--color-ink); line-height: 1.2;">{game.title}</h2>
+              {game.staffPick && (
+                <span style="flex-shrink: 0; font-family: var(--font-body); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink); background: var(--color-accent); border-radius: 100px; padding: 0.25rem 0.625rem; white-space: nowrap;">Staff Pick</span>
+              )}
+            </div>
+
+            {game.genre && (
+              <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent); border: 1px solid var(--color-accent); border-radius: 100px; padding: 0.1875rem 0.625rem;" set:html={genreIcon(game.genre) + game.genre} />
+            )}
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; font-family: var(--font-body); font-size: 0.8125rem; color: var(--color-mute);">
+              {(game.minPlayers || game.playerCountMin) && (
+                <span>
+                  {game.minPlayers ?? game.playerCountMin}
+                  {(game.maxPlayers ?? game.playerCountMax) && (game.maxPlayers ?? game.playerCountMax) !== (game.minPlayers ?? game.playerCountMin)
+                    ? `–${game.maxPlayers ?? game.playerCountMax}`
+                    : ''} players
+                </span>
+              )}
+              {game.complexity && <span>{game.complexity}</span>}
+              {(game.playTime ?? game.playtimeMinutes) && (
+                <span>{game.playTime ?? `${game.playtimeMinutes} min`}</span>
+              )}
+            </div>
+
+            {game.description && (
+              <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{game.description}</p>
+            )}
+          </article>
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <p id="no-results" style="display: none; text-align: center; color: var(--color-mute); font-family: var(--font-body); padding: 4rem 0;">No games match those filters. Try removing one.</p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: var(--color-paper-warm); border-top: 1px solid var(--color-rule); padding: 4rem 1.5rem; text-align: center;">
+    <p style="font-family: var(--font-display); font-size: 1.75rem; color: var(--color-ink); margin-bottom: 1.5rem;">Found something you want to play?</p>
+    <a href="/book" class="btn-primary" style="background: var(--color-accent); color: var(--color-ink); font-weight: 600; padding: 1rem 2.5rem; border-radius: var(--radius-md);">Book a table</a>
+  </section>
+</Layout>
+
+<style>
+  @media (max-width: 1024px) {
+    #games-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (max-width: 640px) {
+    #games-grid { grid-template-columns: 1fr !important; }
+  }
+  .game-card:hover {
+    box-shadow: 0 4px 24px rgba(232,168,124,0.15);
+  }
+  .filter-pill[aria-pressed="true"] {
+    background: var(--color-ink) !important;
+    color: var(--color-paper) !important;
+    border-color: var(--color-ink) !important;
+  }
+  .filter-pill:hover {
+    border-color: var(--color-accent) !important;
+    color: var(--color-accent) !important;
+  }
+  .filter-pill[aria-pressed="true"]:hover {
+    background: var(--color-accent) !important;
+    color: var(--color-ink) !important;
+    border-color: var(--color-accent) !important;
+  }
+</style>
+
+<script>
+  (function () {
+    const activeFilters: Record<string, string | null> = { genre: null, players: null, complexity: null };
+
+    function applyFilters() {
+      const cards = document.querySelectorAll<HTMLElement>('.game-card');
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        let show = true;
+
+        if (activeFilters.genre && card.dataset.genre !== activeFilters.genre) {
+          show = false;
+        }
+
+        if (activeFilters.players !== null) {
+          const needed = parseInt(activeFilters.players, 10);
+          const min = parseInt(card.dataset.minPlayers || '1', 10);
+          const max = parseInt(card.dataset.maxPlayers || '99', 10);
+          if (max < needed || min > needed) show = false;
+        }
+
+        if (activeFilters.complexity && card.dataset.complexity !== activeFilters.complexity) {
+          show = false;
+        }
+
+        card.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+      });
+
+      const countEl = document.getElementById('visible-count');
+      if (countEl) countEl.textContent = String(visibleCount);
+
+      const noResults = document.getElementById('no-results');
+      if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
+
+      const clearBtn = document.getElementById('clear-filters');
+      if (clearBtn) {
+        const anyActive = Object.values(activeFilters).some(v => v !== null);
+        clearBtn.style.display = anyActive ? '' : 'none';
+      }
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('.filter-pill').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const group = btn.dataset.filterGroup as string;
+        const value = btn.dataset.filter as string;
+
+        if (activeFilters[group] === value) {
+          activeFilters[group] = null;
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          document.querySelectorAll<HTMLButtonElement>(`[data-filter-group="${group}"]`).forEach((b) => {
+            b.setAttribute('aria-pressed', 'false');
+          });
+          activeFilters[group] = value;
+          btn.setAttribute('aria-pressed', 'true');
+        }
+
+        applyFilters();
+      });
+    });
+
+    const clearBtn = document.getElementById('clear-filters');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        Object.keys(activeFilters).forEach((k) => (activeFilters[k] = null));
+        document.querySelectorAll<HTMLButtonElement>('.filter-pill').forEach((b) => {
+          b.setAttribute('aria-pressed', 'false');
+        });
+        applyFilters();
+      });
+    }
+  })();
+</script>
