@@ -1,0 +1,3558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨流 Inkflow Academy — Chinese Calligraphy & Brush Arts · Chengdu</title>
+<meta name="description" content="Inkflow Academy (墨流) — a Chinese calligraphy and brush-arts studio in Chengdu since 2004. In-person courses, private critiques, and a worldwide online live class. Learn the brush from master teachers.">
+<meta name="theme-color" content="#0C0A18">
+<!-- Favicon: the 墨 seal in gold on ink -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230C0A18'/><text x='16' y='24' font-size='22' text-anchor='middle' fill='%23C9A028' font-family='serif'>墨</text></svg>">
+<!-- Open Graph / social preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="墨流 Inkflow Academy — Chinese Calligraphy & Brush Arts">
+<meta property="og:description" content="A Chinese calligraphy studio in Chengdu since 2004. Courses, private critiques, and a worldwide online live class.">
+<meta property="og:image" content="images/ink-orchid.webp">
+<meta property="og:locale" content="en">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="墨流 Inkflow Academy — Chinese Calligraphy & Brush Arts">
+<meta name="twitter:description" content="A Chinese calligraphy studio in Chengdu since 2004. Courses, private critiques, and a worldwide online live class.">
+<meta name="twitter:image" content="images/ink-orchid.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700&family=Hanken+Grotesk:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0E8D5; --ink:#100E1C; --seal:#D43B20; --gold:#C9A028;
+  --dark:#0C0A18;  --on-ink:#F0E8D5; --muted:#6A6258; --wash:#D8CFBA;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto;
+  cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='52'><line x1='28' y1='2' x2='10' y2='36' stroke='%23C9A028' stroke-width='4' stroke-linecap='round' opacity='0.9'/><rect x='8' y='34' width='6' height='5' rx='1' fill='%237A4F00' transform='rotate(-35 11 36)'/><path d='M6 40 L14 37 L5 52 Z' fill='%23C9A028'/><path d='M8 44 L11 41 L6 52 Z' fill='%23F0D878' opacity='0.5'/></svg>") 5 51, auto}
+body{background:var(--paper);color:var(--ink);font-family:'Hanken Grotesk',sans-serif;overflow-x:hidden;
+  color-scheme:dark}
+
+/* ── LIVE CALLIGRAPHY BACKGROUND ── */
+#bgLayer{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  will-change:transform;
+}
+/* spawned chars via JS */
+.bch-live{
+  position:absolute;font-family:'Noto Serif SC',serif;font-weight:700;
+  pointer-events:none;user-select:none;line-height:1;
+}
+
+/* ── SMOKE CANVAS ── */
+#smokeCanvas{position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:2;mix-blend-mode:screen}
+
+/* ── INK WASH BASE BLOBS (pure CSS ambient layer) ── */
+.ink-wash{position:absolute;border-radius:50%;pointer-events:none;
+  filter:blur(70px);will-change:transform,opacity}
+@keyframes iw0{0%,100%{transform:translate(0,0) scale(1);opacity:.09}
+  33%{transform:translate(-7%,9%) scale(1.14);opacity:.12}
+  66%{transform:translate(6%,-6%) scale(.9);opacity:.07}}
+@keyframes iw1{0%,100%{transform:translate(0,0) scale(1);opacity:.06}
+  50%{transform:translate(8%,6%) scale(1.1);opacity:.1}}
+@keyframes iw2{0%,100%{transform:translate(0,0) scale(1);opacity:.08}
+  40%{transform:translate(-5%,-9%) scale(1.18);opacity:.05}
+  80%{transform:translate(7%,5%) scale(.86);opacity:.1}}
+
+/* progress */
+#progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:600}
+#pBar{height:100%;width:0;background:var(--gold)}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:1.7rem 3.5rem;
+  display:flex;align-items:center;justify-content:space-between;transition:background .4s,backdrop-filter .4s}
+nav.on{background:rgba(12,10,24,.94);backdrop-filter:blur(18px)}
+.logo{font-family:'Noto Serif SC',serif;font-size:1.45rem;font-weight:700;color:var(--gold);
+  text-decoration:none;letter-spacing:.05em;display:flex;align-items:center;gap:.75rem}
+.logo em{font-style:normal;font-family:'Hanken Grotesk',sans-serif;font-size:.75rem;
+  color:rgba(240,232,213,.65);font-weight:400;letter-spacing:.18em;text-transform:uppercase}
+.nav-ul{display:flex;gap:2rem;list-style:none;position:absolute;left:50%;transform:translateX(-50%)}
+.nav-ul a{color:rgba(240,232,213,.5);text-decoration:none;font-size:.76rem;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:500;transition:color .2s}
+.nav-ul a:hover{color:var(--gold)}
+.nav-ul .cta{color:var(--gold);border:1px solid rgba(201,160,40,.35);padding:.38rem 1.1rem}
+.nav-ul .cta:hover{background:var(--gold);color:var(--dark)}
+
+/* ── SOUND TOGGLE ── */
+.sound-btn{background:rgba(201,160,40,.08);border:1px solid rgba(201,160,40,.35);
+  cursor:pointer;padding:0;width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(240,232,213,.85);transition:color .25s,background .25s,border-color .25s,transform .2s}
+.sound-btn svg{width:30px;height:30px;fill:none;stroke:currentColor;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sound-btn:hover{color:#fff;background:rgba(201,160,40,.16);
+  border-color:rgba(201,160,40,.6);transform:scale(1.06)}
+.sound-btn.on{color:var(--gold);background:rgba(201,160,40,.14);border-color:var(--gold)}
+@keyframes soundPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,160,40,.35)}50%{box-shadow:0 0 0 6px rgba(201,160,40,0)}}
+/* heartbeat — draws the eye to the OFF sound button (lub-dub, then a rest) */
+@keyframes soundHeartbeat{
+  0%   {transform:scale(1);   box-shadow:0 0 0 0 rgba(201,160,40,.5),  0 0 0 0 rgba(201,160,40,.35)}
+  10%  {transform:scale(1.16);box-shadow:0 0 14px 3px rgba(201,160,40,.6),0 0 0 0 rgba(201,160,40,.35)}
+  20%  {transform:scale(1);   box-shadow:0 0 6px 1px rgba(201,160,40,.3), 0 0 0 0 rgba(201,160,40,.2)}
+  30%  {transform:scale(1.13);box-shadow:0 0 16px 4px rgba(201,160,40,.55),0 0 0 0 rgba(201,160,40,.3)}
+  42%  {transform:scale(1);   box-shadow:0 0 0 0 rgba(201,160,40,0),   0 0 0 10px rgba(201,160,40,0)}
+  100% {transform:scale(1);   box-shadow:0 0 0 0 rgba(201,160,40,0),   0 0 0 0 rgba(201,160,40,0)}
+}
+.sound-btn.beat{animation:soundHeartbeat 2.08s ease-in-out infinite}
+.sound-btn:hover{animation:none}
+.sound-btn.on{animation:soundPulse 2.8s ease-in-out infinite}
+
+/* ── CART ICON ── */
+.lang-btn{background:none;border:none;cursor:pointer;
+  flex-shrink:0;padding:.2rem .45rem;border-radius:4px;
+  display:inline-flex;align-items:center;gap:.32rem;
+  color:rgba(240,232,213,.6);border:1px solid rgba(240,232,213,.18);
+  transition:color .2s,border-color .2s}
+.lang-btn:hover{color:rgba(240,232,213,.95);border-color:rgba(240,232,213,.4)}
+.lang-flag{font-size:1.3rem;line-height:1;display:inline-block;width:1.4em;text-align:center}
+.lang-code{font-family:'Hanken Grotesk',sans-serif;font-size:.85rem;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;display:inline-block;width:1.6em;text-align:center}
+html.lang-zh .ig-body,html.lang-zh .os-body,html.lang-zh .tc-quote,
+html.lang-zh .cc-desc,html.lang-zh .faq-a p,html.lang-zh .sp-desc,
+html.lang-zh .sp-tag,html.lang-zh .cc-tag,html.lang-zh .ey,
+html.lang-zh .pr-lead,html.lang-zh .pr-hint,html.lang-zh .pr-choose{font-family:'Noto Serif SC',serif}
+.cart-btn{position:relative;background:none;border:none;cursor:pointer;padding:.3rem .4rem;
+  display:flex;align-items:center;color:rgba(240,232,213,.55);transition:color .2s;margin-left:.5rem}
+.cart-btn:hover{color:var(--gold)}
+.cart-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cart-badge{position:absolute;top:-3px;right:-4px;min-width:16px;height:16px;border-radius:8px;
+  background:var(--seal);color:#fff;font-size:.52rem;font-weight:700;letter-spacing:.02em;
+  display:flex;align-items:center;justify-content:center;padding:0 3px;
+  opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s}
+.cart-badge.show{opacity:1;transform:scale(1)}
+
+/* ── CART PANEL ── */
+#cartPanel{position:fixed;top:0;right:0;bottom:0;width:360px;max-width:92vw;
+  background:var(--ink);z-index:2000;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);
+  box-shadow:-20px 0 60px rgba(0,0,0,.55)}
+#cartPanel.open{transform:translateX(0)}
+.cart-overlay{position:fixed;inset:0;z-index:1999;background:rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;transition:opacity .3s}
+.cart-overlay.show{opacity:1;pointer-events:all}
+.cart-header{display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 1.6rem;border-bottom:1px solid rgba(240,232,213,.08)}
+.cart-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;
+  color:var(--on-ink);letter-spacing:.04em}
+.cart-close{background:none;border:none;cursor:pointer;color:rgba(240,232,213,.4);
+  font-size:1.2rem;padding:.2rem;transition:color .2s;line-height:1}
+.cart-close:hover{color:var(--on-ink)}
+.cart-items{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:1rem 1.6rem}
+.cart-empty{text-align:center;padding:3rem 0;color:rgba(240,232,213,.28);
+  font-size:.82rem;letter-spacing:.08em;text-transform:uppercase}
+.cart-item{display:flex;gap:1rem;align-items:center;padding:.9rem 0;
+  border-bottom:1px solid rgba(240,232,213,.07)}
+.cart-item-name{flex:1;font-family:'Cormorant Garamond',serif;font-size:1.05rem;
+  font-weight:500;color:var(--on-ink);line-height:1.2}
+.cart-item-price{font-size:.78rem;color:var(--gold);margin-top:.15rem}
+.cart-qty{display:flex;align-items:center;gap:.5rem;margin-left:.5rem}
+.cart-qty button{width:24px;height:24px;border-radius:50%;border:1px solid rgba(240,232,213,.2);
+  background:none;color:var(--on-ink);cursor:pointer;font-size:.9rem;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}
+.cart-qty button:hover{background:rgba(240,232,213,.1);border-color:rgba(240,232,213,.4)}
+.cart-qty span{font-size:.82rem;color:var(--on-ink);min-width:18px;text-align:center}
+.cart-footer{padding:1.4rem 1.6rem;border-top:1px solid rgba(240,232,213,.08)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.2rem}
+.cart-total-label{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(240,232,213,.4)}
+.cart-total-price{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--gold)}
+.cart-checkout{display:block;width:100%;padding:.9rem;background:var(--seal);color:#fff;
+  border:none;cursor:pointer;font-family:'Hanken Grotesk',sans-serif;
+  font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  border-radius:4px;transition:background .2s;text-decoration:none;text-align:center}
+.cart-checkout:hover{background:#b83018}
+.cart-checkout:disabled{background:rgba(240,232,213,.1);color:rgba(240,232,213,.3);cursor:default}
+
+/* ── ADD TO CART BUTTON ── */
+.sp-add{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  background:transparent;border:1px solid rgba(240,232,213,.25);color:var(--on-ink);
+  padding:.42rem 1rem;border-radius:3px;cursor:pointer;
+  transition:background .2s,border-color .2s,color .2s;white-space:nowrap}
+.sp-add:hover{background:rgba(240,232,213,.08);border-color:rgba(240,232,213,.45)}
+.sp-add.in-cart{background:var(--seal);border-color:var(--seal);color:#fff}
+.sp-add.in-cart:hover{background:#b83018;border-color:#b83018}
+
+/* ── HERO ── */
+.hero-track{height:100vh;position:relative}
+.hero-stage{position:relative;height:100vh;overflow:hidden;background:var(--dark)}
+#heroBg{position:absolute;inset:0;background:url('images/ink-orchid.webp') center/cover no-repeat;
+  opacity:0;transition:opacity .6s;filter:url(#ink-ripple)}
+/* live motion background — faint, lightly blurred, under the overlay so hero text stays readable */
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:.22;filter:blur(4px) brightness(1.06) saturate(1.1);transform:scale(1.12);
+  pointer-events:none}
+@media (prefers-reduced-motion: reduce){.hero-video{display:none}}
+#heroBgOverlay{position:absolute;inset:0;
+  background:linear-gradient(130deg,rgba(12,10,24,.85) 0%,rgba(12,10,24,.5) 55%,rgba(12,10,24,.2) 100%)}
+
+/* calligraphy class photo — top fade */
+#classPhoto{
+  position:absolute;top:0;left:0;right:0;height:58%;
+  object-fit:cover;object-position:center 30%;
+  width:100%;
+  opacity:1;
+  mix-blend-mode:luminosity;
+  -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.3) 55%,transparent 100%);
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.55) 0%,rgba(0,0,0,.3) 55%,transparent 100%);
+  pointer-events:none;z-index:3}
+
+/* pen — static, big */
+.pen-photo{
+  position:absolute;right:2%;top:50%;
+  transform:translateY(-50%) rotate(10deg);
+  width:min(50vw,560px);
+  opacity:0;
+  filter:drop-shadow(12px 28px 50px rgba(0,0,0,.8));
+  transition:opacity .65s;
+}
+.pen-photo img{width:100%;height:auto;display:block;border-radius:20px;
+  mix-blend-mode:luminosity;filter:brightness(1.05) contrast(1.1)}
+
+/* hero floating chars — always on, slow float */
+.hfc{position:absolute;font-family:'Noto Serif SC',serif;font-weight:700;
+  pointer-events:none;user-select:none;will-change:transform;line-height:1;color:rgba(240,232,213,.055)}
+#hfc1{font-size:34vw;top:-15vh;left:-8%;animation:hf1 18s ease-in-out infinite}
+#hfc2{font-size:20vw;top:10vh;right:1%;animation:hf2 22s ease-in-out infinite 2s}
+#hfc3{font-size:14vw;top:52vh;left:14%;color:rgba(201,160,40,.045);animation:hf1 26s ease-in-out infinite 1s}
+#hfc4{font-size:24vw;top:30vh;right:-4%;animation:hf2 20s ease-in-out infinite 4s}
+@keyframes hf1{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-22px) rotate(.3deg)}}
+@keyframes hf2{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(18px) rotate(-.25deg)}}
+
+/* hero text */
+.hero-text{position:absolute;left:6%;bottom:18%;max-width:560px;z-index:10}
+.h-ey{font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:var(--seal);margin-bottom:.8rem;
+  opacity:0;transform:translateY(10px);transition:opacity .4s .18s,transform .4s .18s}
+.h-school{font-family:'Noto Serif SC',serif;font-size:clamp(2rem,4vw,3.6rem);font-weight:700;
+  color:var(--paper);margin-bottom:.6rem;letter-spacing:.02em;line-height:1.15}
+.h-ti{font-family:'Cormorant Garamond',serif;font-size:clamp(.95rem,1.6vw,1.35rem);
+  font-weight:300;font-style:italic;line-height:1.5;color:rgba(240,232,213,.7);text-shadow:none}
+.h-ti strong{color:var(--gold);font-weight:400;font-style:normal}
+
+/* ── SELF-DRAWING BRUSH HERO — the 墨 paints itself in gold, top-to-bottom, on load ── */
+.brush-hero{position:absolute;inset:0;z-index:5;pointer-events:none;
+  display:flex;align-items:center;justify-content:center}
+.brush-stage{position:relative;transform:translate(-6%,-3vh)}   /* nudge into the gap between title and pen */
+.ink-bloom{position:absolute;top:50%;left:50%;width:64vh;height:64vh;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.5);opacity:0;
+  background:radial-gradient(circle,rgba(201,160,40,.30),rgba(201,160,40,.06) 45%,transparent 66%);
+  filter:blur(26px)}
+/* clip-path reveals the solid character top-to-bottom, like a brush laying ink */
+.brush-svg{position:relative;display:block;width:min(52vh,58vw);height:auto;overflow:visible;
+  clip-path:inset(0 0 100% 0)}
+.brush-svg text{font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-size:360px}
+.brush-ink{fill:none;stroke:rgba(201,160,40,.55);stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round}
+.brush-fill{fill:var(--gold);opacity:.5;filter:drop-shadow(0 4px 22px rgba(0,0,0,.4)) drop-shadow(0 0 16px rgba(201,160,40,.25))}
+
+@keyframes brushWipe{to{clip-path:inset(0 0 0% 0)}}
+@keyframes brushBloom{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}
+  55%{opacity:.85}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
+
+.brush-hero.go .brush-svg {animation:brushWipe 1.9s cubic-bezier(.6,0,.35,1) forwards}
+.brush-hero.go .ink-bloom {animation:brushBloom 2s ease-out forwards}
+
+/* The title paints on with the SAME brush-wipe as the 墨 icon (top-to-bottom) */
+.hero-text{clip-path:inset(0 0 100% 0)}
+.hero-text.painting{animation:brushWipe 1.9s cubic-bezier(.6,0,.35,1) forwards}
+
+/* Reduced motion (or no JS): show the finished character + title immediately, no drawing */
+@media (prefers-reduced-motion: reduce){
+  .brush-svg{clip-path:none}
+  .ink-bloom{opacity:.5;transform:translate(-50%,-50%) scale(1)}
+  .hero-text{clip-path:none}
+}
+
+/* ── SHARED ── */
+section,div[class*="section"]{position:relative;z-index:1}
+.container{max-width:1200px;margin:0 auto;padding:0 3.5rem}
+
+.ey{font-size:.82rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--seal);display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;
+  opacity:0;transform:translateY(12px);transition:opacity .65s,transform .65s}   /* exact same fade as the hero title (.h-school) */
+.ey.ey-visible{opacity:1;transform:none}
+.ey::after{content:'';width:22px;height:1px;background:var(--seal);opacity:.45}
+.ey-c{justify-content:center}
+.ey-c::before{content:'';width:22px;height:1px;background:var(--seal);opacity:.45}
+.ey-c::after{display:none}
+.sh{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.4rem);font-weight:300;font-style:italic;line-height:1.1;letter-spacing:.02em;
+  opacity:0;transform:translateY(12px);transition:opacity .65s,transform .65s}   /* same gentle motion as the hero title (.h-school) */
+.sh.sh-visible{opacity:1;transform:none}
+.sh-l{color:var(--on-ink)}.sh-d{color:var(--ink)}
+.rule{width:28px;height:1px;background:var(--gold);margin:.8rem auto}
+
+.rv{}
+.rv.in{}
+
+.btn{display:inline-block;text-decoration:none;cursor:pointer;border:none;
+  font-family:'Hanken Grotesk',sans-serif;font-size:.68rem;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;padding:.82rem 2rem;transition:all .2s}
+.btn-seal{background:var(--seal);color:#fff}.btn-seal:hover{background:#b83018}
+.btn-outline-d{background:transparent;border:1px solid rgba(16,14,28,.2);color:var(--ink)}
+.btn-outline-d:hover{border-color:var(--seal);color:var(--seal)}
+.btn-outline-l{background:transparent;border:1px solid rgba(240,232,213,.22);color:var(--on-ink)}
+.btn-outline-l:hover{border-color:var(--gold);color:var(--gold)}
+
+/* image slot */
+.slot{position:relative;overflow:hidden;background:#1A1528;border-radius:16px}
+.slot-bg{position:absolute;inset:0;background:linear-gradient(145deg,rgba(201,160,40,.05),rgba(12,10,24,.7))}
+.slot-zh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Noto Serif SC',serif;font-weight:700;color:rgba(240,232,213,.04);pointer-events:none;user-select:none;line-height:1}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ── FEATURED ── */
+.hero-img-section{position:relative;height:70vh;overflow:hidden;display:flex;align-items:center}
+.hero-img-section img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-img-overlay{position:absolute;inset:0;
+  background:linear-gradient(to right,rgba(12,10,24,.78) 0%,rgba(12,10,24,.15) 55%,rgba(12,10,24,.05) 100%)}
+.hero-img-text{position:relative;z-index:1;padding:4rem 4rem 4rem 7rem;max-width:560px}
+.hero-img-kicker{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem}
+.hero-img-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4.5vw,4rem);
+  font-weight:700;font-style:italic;line-height:1.1;color:#fff}
+
+/* ── INK GARDEN ── */
+.ig{display:grid;grid-template-columns:1fr 1fr;min-height:80vh;background:var(--paper);position:relative;overflow:hidden}
+@keyframes ig-drift{
+  0%  {transform:translateY(0)}
+  100%{transform:translateY(-50%)}
+}
+.ig-fc{position:absolute;top:-10%;font-family:'Noto Serif SC',serif;font-weight:700;
+  font-size:5.5rem;color:var(--ink);pointer-events:none;user-select:none;
+  line-height:1.08;display:flex;flex-direction:column;align-items:center;gap:.04em;
+  opacity:.08;filter:blur(2.4px);
+  animation:ig-drift 120s linear infinite;z-index:0}
+.ig::before{content:'';position:absolute;inset:0;
+  background:url('images/calliback.webp') center/cover no-repeat;
+  opacity:.10;filter:saturate(.5) brightness(1.05);pointer-events:none;z-index:0}
+.ig .ig-text,.ig .slot{position:relative;z-index:1}
+.ig-text{padding:5rem 4rem 5rem 6rem;display:flex;flex-direction:column;justify-content:center}
+.ig-body{font-size:.85rem;line-height:1.9;color:var(--muted);max-width:360px;margin-bottom:2rem}
+
+/* ── HANGING CALLIGRAPHY CURTAIN — realistic cloth: irregular folds, drifting sheen, wavy hem ── */
+.ig-curtain{position:absolute;top:0;bottom:0;left:42%;margin-left:calc(clamp(130px,14vw,190px) / -2);
+  width:clamp(130px,14vw,190px);z-index:2;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+  transform-origin:top center;animation:curtain-sway 8s ease-in-out infinite;will-change:transform}
+.ig-curtain-rod{width:118%;height:9px;border-radius:5px;flex-shrink:0;z-index:2;
+  background:linear-gradient(180deg,#7a6338,#3a2c18 60%,#2a2013);
+  box-shadow:0 3px 9px rgba(0,0,0,.45)}
+.ig-curtain-cord{width:2px;height:11px;background:#3a2c18;flex-shrink:0}
+.ig-curtain-cloth{position:relative;flex:1;width:100%;
+  background:
+    /* gather shadow just under the rod */
+    linear-gradient(180deg,rgba(55,40,18,.42) 0,rgba(55,40,18,.06) 20px,transparent 46px),
+    /* irregular vertical folds — hand-placed ridges & valleys */
+    linear-gradient(90deg,
+      rgba(70,52,24,.30) 0%, rgba(150,120,60,.06) 3%,
+      rgba(255,254,247,.55) 8%, rgba(150,120,60,.08) 12%, rgba(75,56,26,.26) 16%,
+      rgba(255,253,245,.40) 21%, rgba(140,110,55,.05) 27%, rgba(82,62,28,.24) 32%,
+      rgba(255,254,247,.52) 38%, rgba(150,120,60,.07) 44%, rgba(72,54,25,.20) 49%,
+      rgba(255,253,245,.46) 55%, rgba(140,110,55,.05) 61%, rgba(82,62,28,.25) 66%,
+      rgba(255,254,247,.54) 72%, rgba(150,120,60,.08) 77%, rgba(74,55,26,.22) 82%,
+      rgba(255,253,245,.42) 88%, rgba(150,120,60,.06) 93%, rgba(70,52,24,.30) 100%),
+    /* vertical light: bright near the top, soft shadow toward the hem */
+    linear-gradient(180deg,#faf5e8 0%,#f3ead4 52%,#e6d9bd 100%);
+  background-size:100% 46px,100% 100%,100% 100%;
+  background-position:top,center,center;background-repeat:no-repeat;
+  box-shadow:0 26px 50px rgba(0,0,0,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  gap:.12em;padding:1.3rem .5rem 2rem;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200%20H100%20V85%20C97%2089%2094%2095%2089%2092%20C84%2089%2080%2094%2074%2091%20C68%2088%2063%2096%2056%2092%20C50%2089%2046%2094%2040%2091%20C34%2088%2029%2095%2022%2092%20C16%2089%2011%2094%205%2091%20L0%2093%20Z'%20fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-size:100% 100%;-webkit-mask-repeat:no-repeat;
+  mask-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%20preserveAspectRatio='none'%3E%3Cpath%20d='M0%200%20H100%20V85%20C97%2089%2094%2095%2089%2092%20C84%2089%2080%2094%2074%2091%20C68%2088%2063%2096%2056%2092%20C50%2089%2046%2094%2040%2091%20C34%2088%2029%2095%2022%2092%20C16%2089%2011%2094%205%2091%20L0%2093%20Z'%20fill='%23000'/%3E%3C/svg%3E");
+  mask-size:100% 100%;mask-repeat:no-repeat;
+  animation:cloth-billow 7s ease-in-out infinite}
+/* moving light sheen across the folds — the wind cue */
+.ig-curtain-sheen{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 36%,rgba(255,255,255,.16) 50%,transparent 64%);
+  background-size:220% 100%;background-repeat:no-repeat;mix-blend-mode:soft-light;
+  animation:cloth-sheen 8s ease-in-out infinite}
+.ig-curtain-ink{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:.12em}
+.ig-curtain-seal{width:1.9rem;height:1.9rem;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Noto Serif SC',serif;font-size:1rem;color:#fff;
+  background:var(--seal);border-radius:3px;margin-bottom:.5rem;
+  box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.ig-curtain-char{font-family:'Ma Shan Zheng','Noto Serif SC',serif;
+  font-size:clamp(2.6rem,5.4vw,4.2rem);line-height:1.02;color:#1a150c;
+  text-shadow:0 1px 1px rgba(255,255,255,.45)}
+@keyframes curtain-sway{
+  0%  {transform:rotate(0deg)   skewX(0deg)}
+  25% {transform:rotate(1.3deg) skewX(-.9deg)}
+  50% {transform:rotate(-.6deg) skewX(.6deg)}
+  75% {transform:rotate(.9deg)  skewX(-.4deg)}
+  100%{transform:rotate(0deg)   skewX(0deg)}
+}
+/* the cloth breathes/skews like fabric catching wind (transform only — folds stay put) */
+@keyframes cloth-billow{
+  0%,100%{transform:skewX(0deg)   scaleX(1)}
+  30%    {transform:skewX(-1.1deg) scaleX(.993)}
+  60%    {transform:skewX(.8deg)  scaleX(1.007)}
+}
+@keyframes cloth-sheen{
+  0%,100%{background-position:130% 0}
+  50%    {background-position:-30% 0}
+}
+@media (prefers-reduced-motion: reduce){.ig-curtain,.ig-curtain-cloth,.ig-curtain-sheen{animation:none}}
+@media (max-width:900px){.ig-curtain{display:none}}
+
+/* ── GALLERY ── */
+.gallery{background:var(--paper);padding:3.5rem 0 2rem;min-height:90vh;display:flex;flex-direction:column;justify-content:flex-start;position:relative;overflow:hidden}
+.gallery::before{content:'';position:absolute;inset:0;
+  background:url('images/calliback.webp') center/cover no-repeat;
+  opacity:.09;filter:saturate(.5) brightness(1.05);pointer-events:none;z-index:0}
+.gallery .container{position:relative;z-index:1}
+.gal-filters{display:flex;justify-content:center;margin:2.5rem 0 0;
+  border-bottom:1px solid rgba(16,14,28,.12)}
+.gf{padding:.85rem 2rem;border:none;background:transparent;cursor:pointer;
+  font-family:'Hanken Grotesk',sans-serif;font-size:.9rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(16,14,28,.62);
+  position:relative;transition:color .25s}
+.gf::after{content:'';position:absolute;bottom:-1px;left:12%;right:12%;height:3px;
+  background:var(--gold);transform:scaleX(0);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.gf:hover{color:rgba(16,14,28,.9)}
+.gf.on{color:var(--ink);font-weight:700}
+.gf.on::after{transform:scaleX(1)}
+
+/* fan stage — all cards share one pivot at the bottom center */
+.fan-stage{position:relative;height:min(68vh,620px);margin-top:1.5rem;margin-bottom:4rem;flex:1;overflow:visible;
+  display:flex;justify-content:center;align-items:flex-end}
+/* gold rivet at the fan's pivot point */
+.fan-stage::after{content:'';position:absolute;bottom:-7px;left:50%;
+  transform:translateX(-50%);
+  width:16px;height:16px;border-radius:50%;
+  background:var(--gold);z-index:200;
+  box-shadow:0 0 16px rgba(201,160,40,.55),0 0 4px rgba(201,160,40,.9)}
+
+/* fan cards — all rotate around their own bottom-center = one shared pivot */
+.gi{position:absolute;bottom:0;left:50%;
+  width:210px;height:min(68vh,580px);
+  margin-left:-105px;
+  /* clip-path is more reliable than overflow:hidden for GPU-composited rotated layers */
+  -webkit-clip-path:inset(0 round 11px 11px 3px 3px);
+  clip-path:inset(0 round 11px 11px 3px 3px);
+  border-radius:11px 11px 3px 3px;overflow:hidden;cursor:pointer;
+  background:var(--ink);
+  transform-origin:50% 100%;
+  transform:rotate(var(--rot,0deg));
+  transition:transform 1s cubic-bezier(.34,1.3,.64,1), opacity .38s ease;
+  box-shadow:0 8px 44px rgba(0,0,0,.38),0 2px 8px rgba(0,0,0,.22);
+  -webkit-backface-visibility:hidden;backface-visibility:hidden}
+.gi:hover{
+  transform:rotate(var(--rot,0deg)) translateY(-30px) scale(1.07);
+  z-index:100!important}
+/* deep vignette — darkens edges so white-bg brush photos blend into card shape */
+.gi::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  border-radius:inherit;
+  background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.42) 100%);
+  box-shadow:inset 0 0 18px rgba(0,0,0,.55)}
+
+/* slow "coming closer" zoom on the image */
+.gi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform 1.6s cubic-bezier(.25,.46,.45,.94),filter .5s}
+.gi img{filter:brightness(.78)}
+.gi:hover img{transform:scale(1.14);filter:brightness(1)}
+
+/* hover overlay */
+.gi-over{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:flex-end;padding:1.2rem 1rem;
+  background:linear-gradient(to top,rgba(12,10,24,.9) 0%,rgba(12,10,24,.28) 55%,transparent 100%);
+  opacity:0;transition:opacity .35s}
+.gi:hover .gi-over{opacity:1}
+.gi-zh{font-family:'Noto Serif SC',serif;font-size:3rem;font-weight:700;
+  color:rgba(201,160,40,.65);line-height:1;margin-bottom:.25rem;display:block}
+.gi-name{font-family:'Cormorant Garamond',serif;font-size:.9rem;font-style:italic;
+  color:#fff;margin:0;line-height:1.3}
+.gi-meta{font-size:.55rem;color:rgba(201,160,40,.85);letter-spacing:.1em;
+  margin-top:.22rem;text-transform:uppercase}
+.gi-expand{position:absolute;top:.7rem;right:.7rem;width:26px;height:26px;
+  border-radius:50%;background:rgba(0,0,0,.42);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.7);font-size:.78rem;
+  opacity:0;transform:scale(.7);transition:opacity .3s,transform .3s}
+.gi:hover .gi-expand{opacity:1;transform:scale(1)}
+
+/* lightbox */
+#lightbox{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.97);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s}
+#lightbox.open{opacity:1;pointer-events:all}
+#lbImg{max-width:88vw;max-height:84vh;object-fit:contain;border-radius:6px;
+  box-shadow:0 40px 100px rgba(0,0,0,.9);cursor:grab;touch-action:pan-y;user-select:none;
+  transform:scale(.94);opacity:1;
+  transition:opacity .38s ease,transform .35s cubic-bezier(.16,1,.3,1)}
+#lightbox.open #lbImg{transform:scale(1)}
+#lbImg.fading{opacity:0}                          /* fade-out / fade-in on switch */
+#lightbox.grabbing #lbImg{cursor:grabbing;transition:opacity .38s ease}  /* 1:1 drag, no transform lag */
+#lbCaption{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);
+  font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;
+  color:rgba(240,232,213,.55);white-space:nowrap;pointer-events:none}
+#lbCounter{position:absolute;top:1.6rem;left:50%;transform:translateX(-50%);
+  font-size:.62rem;letter-spacing:.14em;color:rgba(255,255,255,.3);
+  font-family:'Hanken Grotesk',sans-serif;pointer-events:none}
+#lbClose{position:absolute;top:1.4rem;right:2rem;
+  background:none;border:none;color:rgba(255,255,255,.55);font-size:2rem;
+  cursor:pointer;transition:color .2s;line-height:1;padding:.2rem .4rem}
+#lbClose:hover{color:#fff}
+#lbPrev,#lbNext{position:absolute;top:50%;transform:translateY(-50%);
+  background:rgba(201,160,40,.08);border:1px solid rgba(201,160,40,.3);
+  color:var(--gold);width:50px;height:50px;border-radius:50%;
+  font-size:1.6rem;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center}
+#lbPrev{left:2rem}#lbNext{right:2rem}
+#lbPrev:hover,#lbNext:hover{background:rgba(201,160,40,.18);color:#f0d87a;border-color:rgba(201,160,40,.6)}
+
+/* ── VIDEO SECTION ── */
+.vs{padding:6rem 0 5rem;background:var(--dark);position:relative;overflow:hidden;text-align:center}
+.vs-inner{max-width:860px;margin:0 auto;padding:0 2rem}
+.vs-head{margin-bottom:2.8rem}
+.vs-head .ey{margin-bottom:.6rem}
+.vs-head h2{margin-bottom:.9rem}
+.vs-head p{font-size:1.05rem;color:rgba(240,232,213,.55);max-width:none;margin:0 auto;line-height:1.6;white-space:nowrap}
+@media(max-width:720px){.vs-head p{white-space:normal;max-width:88vw;font-size:.95rem}}
+
+/* 16:9 player wrapper */
+.vs-player{
+  position:relative;width:100%;padding-top:56.25%;
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(201,160,40,.12);
+  cursor:inherit;user-select:none}
+
+.vs-thumb{position:absolute;inset:0;background:#0c0a18;overflow:hidden}
+.vs-slides{position:absolute;inset:0}
+.vs-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:center 30%;filter:brightness(.78) contrast(1.06);
+  opacity:0;transition:opacity 1s ease-in-out;transform-origin:center;z-index:1}
+.vs-slide.active{opacity:1;z-index:2}
+.vs-slide.active.behind{z-index:1}   /* outgoing slide: stays opaque but forced below the incoming one, so stacking never depends on DOM order */
+.vs-slide.leaving{opacity:0;z-index:1}
+.vs-slide.sharp{filter:brightness(.86) contrast(1.18) saturate(1.12)}
+.vs-grad{position:absolute;inset:0;z-index:3;
+  background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.1) 55%,transparent 100%)}
+
+/* Ken Burns always on active slide */
+
+@keyframes vs-kb{
+  0%  {transform:scale(1)    translate(0%,0%)}
+  30% {transform:scale(1.10) translate(-1.2%,.4%)}
+  60% {transform:scale(1.07) translate(.8%,-.6%)}
+  100%{transform:scale(1)    translate(0%,0%)}
+}
+.vs-slide.active{animation:vs-kb 30s ease-in-out infinite}
+
+/* big centre play/pause button — hidden (always live) */
+/* center button + control bar — removed, always live */
+.vs-center-btn,.vs-bar{display:none!important}
+
+/* scrub bar */
+.vs-scrub{flex:1;height:3px;background:rgba(255,255,255,.22);border-radius:2px;
+  position:relative;cursor:pointer;transition:height .15s}
+.vs-scrub:hover{height:5px}
+.vs-scrub-fill{position:absolute;left:0;top:0;height:100%;
+  width:0%;background:rgba(200,0,0,.9);border-radius:2px;pointer-events:none}
+.vs-scrub-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;
+  background:#fff;transform:translate(-50%,-50%) scale(0);left:0%;
+  pointer-events:none;transition:transform .15s}
+.vs-scrub:hover .vs-scrub-dot{transform:translate(-50%,-50%) scale(1)}
+
+.vs-bar-time{font-size:.64rem;color:rgba(255,255,255,.72);white-space:nowrap;
+  font-family:monospace;flex-shrink:0}
+.vs-vol{width:18px;height:18px;fill:rgba(255,255,255,.55);flex-shrink:0}
+
+/* overlay label */
+.vs-label{
+  position:absolute;top:1rem;left:1rem;
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(201,160,40,.75);font-family:'Hanken Grotesk',sans-serif;font-weight:600;
+  background:rgba(0,0,0,.45);padding:.3rem .65rem;border-radius:4px;
+  border:1px solid rgba(201,160,40,.2);z-index:4}
+
+/* ── OUR STORY ── */
+.os{padding:7rem 0 6rem;background:var(--paper);position:relative;overflow:hidden}
+.os-inner{max-width:1100px;margin:0 auto;padding:0 2.5rem;
+  display:grid;grid-template-columns:1fr 340px;gap:5rem;align-items:center}
+.os-text{display:flex;flex-direction:column;gap:1.4rem}
+.os-text .sh{color:var(--ink);margin:0;font-size:clamp(3rem,6vw,5.2rem);font-weight:500;line-height:1.05}
+.os-body{font-size:1.1rem;color:var(--muted);line-height:1.8;margin:0}
+.os-body-group{display:flex;flex-direction:column;gap:.4rem}
+.os-figures{display:flex;gap:2.5rem;margin-top:.6rem;padding-top:1.4rem;
+  border-top:1px solid rgba(16,14,28,.12)}
+.os-fig{display:flex;flex-direction:column;gap:.2rem}
+.os-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;
+  color:var(--ink);line-height:1;will-change:transform,opacity}
+@keyframes numRise{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}
+.os-num.counting{animation:numRise 1.02s cubic-bezier(.2,.75,.25,1) both}
+.os-label{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+/* right accent panel */
+.os-accent{display:flex;flex-direction:column;align-items:center;gap:1.6rem;
+  background:var(--ink);border-radius:18px;padding:3rem 2rem;text-align:center;
+  box-shadow:0 24px 60px rgba(16,14,28,.18)}
+.os-char{font-family:'Noto Serif SC',serif;font-size:clamp(4rem,11vw,6.4rem);font-weight:700;
+  color:var(--gold);line-height:1;text-shadow:0 0 44px rgba(201,160,40,.22);
+  letter-spacing:.05em;white-space:nowrap}
+.os-quote{font-family:'Cormorant Garamond',serif;font-size:1.05rem;
+  color:rgba(240,232,213,.75);line-height:1.7;margin:0}
+.os-quote em{display:block;margin-top:0;font-size:1.2rem;
+  color:rgba(240,232,213,.62);font-style:italic;line-height:1.5}
+@media(max-width:900px){
+  .os-inner{grid-template-columns:1fr;gap:3rem}
+  .os-accent{max-width:380px;margin:0 auto}
+}
+
+/* ── STORE ── */
+.store{background:var(--ink);padding:6rem 0 6rem;scroll-margin-top:-12rem;position:relative;overflow:hidden}
+.store-bg-zh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.store-bg-zh span{font-family:'Noto Serif SC',serif;font-size:55vw;font-weight:700;color:rgba(240,232,213,.016);line-height:1}
+.store-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:3rem}
+.sp{background:#16131f;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.sp-img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:center;
+  filter:brightness(.88) contrast(1.04);
+  transition:filter 1.1s ease, transform 1.4s cubic-bezier(.16,1,.3,1)}
+.sp:hover .sp-img{filter:brightness(1) contrast(1.06);transform:scale(1.12)}
+.sp-body{padding:1.4rem 1.3rem 1.6rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+.sp-tag{font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.75}
+.sp-name{font-family:'Cormorant Garamond',serif;font-size:1.22rem;font-weight:600;color:var(--on-ink);line-height:1.2}
+.sp-desc{font-size:.86rem;color:rgba(240,232,213,.5);line-height:1.6;margin-top:.1rem;flex:1}
+.sp-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.9rem;
+  border-top:1px solid rgba(240,232,213,.08)}
+.sp-price{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--gold)}
+.sp-cta{font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--on-ink);border:1px solid rgba(240,232,213,.25);
+  padding:.4rem .9rem;border-radius:3px;cursor:pointer;text-decoration:none;
+  transition:background .2s,border-color .2s,color .2s}
+.sp-cta:hover{background:var(--gold);border-color:var(--gold);color:var(--dark)}
+/* magnify wrapper */
+.sp-img-wrap{position:relative;overflow:hidden;cursor:zoom-in}
+
+/* product zoom lightbox */
+#spZoom{position:fixed;inset:0;z-index:4000;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;transition:opacity .3s}
+#spZoom.open{opacity:1;pointer-events:all}
+#spZoomImg{width:auto;height:50vh;max-width:60vw;object-fit:contain;
+  border-radius:8px;box-shadow:0 40px 100px rgba(0,0,0,.9);
+  transform:scale(.93);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+#spZoom.open #spZoomImg{transform:scale(1)}
+#spZoomClose{position:absolute;top:1.4rem;right:1.6rem;
+  background:none;border:none;color:rgba(240,232,213,.5);
+  font-size:1.6rem;cursor:pointer;line-height:1;
+  transition:color .2s}
+#spZoomClose:hover{color:#fff}
+
+@media(max-width:900px){.store-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.store-grid{grid-template-columns:1fr}}
+
+/* ── TESTIMONIALS ── */
+.tst{padding:6rem 0;background:var(--dark);position:relative;overflow:hidden}
+.tst-zh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.tst-zh span{font-family:'Noto Serif SC',serif;font-size:55vw;font-weight:700;color:rgba(240,232,213,.018);line-height:1}
+.tst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:3rem;background:rgba(240,232,213,.05)}
+.tc{background:var(--dark);padding:2.4rem 2rem;border-top:2px solid var(--seal)}
+.tc-quote{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-style:italic;font-weight:500;
+  color:rgba(240,232,213,.95);line-height:1.7;margin-bottom:1.5rem;
+  text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.tc-name{font-family:'Hanken Grotesk',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.06em;color:var(--seal)}
+.tc-meta{font-family:'Hanken Grotesk',sans-serif;font-size:.65rem;color:rgba(240,232,213,.5);margin-top:.22rem;letter-spacing:.04em}
+
+/* ── STUDENTS REVEAL SLIDER (drag the divider to wipe between testimonials and student work) ── */
+.tst-reveal{position:relative;height:clamp(330px,42vh,460px);margin-top:3rem;user-select:none}
+/* inner stage carries the rounded clip so the divider handle (outside it) is never cut off */
+.tst-stage{position:absolute;inset:0;overflow:hidden;border-radius:14px;
+  border:1px solid rgba(240,232,213,.09);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+/* behind — students' work */
+.tst-works{position:absolute;inset:0;z-index:1;display:flex;background:#0a0812}
+.tst-works figure{flex:1;position:relative;margin:0;overflow:hidden;border-right:1px solid rgba(0,0,0,.5)}
+.tst-works figure:last-child{border-right:none}
+.tst-works img{width:100%;height:100%;object-fit:cover;filter:brightness(.92)}
+.tst-works figcaption{position:absolute;left:0;right:0;bottom:0;padding:1.4rem .8rem .7rem;
+  font-family:'Hanken Grotesk',sans-serif;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(240,232,213,.85);background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.tst-works-tag{position:absolute;top:1rem;left:1.1rem;z-index:2;font-family:'Hanken Grotesk',sans-serif;
+  font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  background:rgba(12,10,24,.6);padding:.35rem .75rem;border-radius:20px}
+/* front — testimonials, clipped by the divider */
+.tst-cover{position:absolute;inset:0;z-index:2;background:var(--dark);
+  display:flex;align-items:center;clip-path:inset(0 2% 0 0);will-change:clip-path}
+.tst-cover .tst-grid{margin-top:0;width:100%}
+/* divider + handle */
+.tst-divider{position:absolute;top:0;bottom:0;left:98%;width:2px;z-index:5;transform:translateX(-1px);
+  background:linear-gradient(rgba(201,160,40,0),rgba(201,160,40,.9) 12%,rgba(201,160,40,.9) 88%,rgba(201,160,40,0));
+  cursor:ew-resize;touch-action:none}
+.tst-handle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:46px;height:46px;border-radius:50%;background:var(--gold);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:700;
+  box-shadow:0 4px 16px rgba(0,0,0,.55);animation:tstPulse 2.4s ease-in-out infinite}
+@keyframes tstPulse{0%,100%{box-shadow:0 4px 16px rgba(0,0,0,.55),0 0 0 0 rgba(201,160,40,.5)}
+  50%{box-shadow:0 4px 16px rgba(0,0,0,.55),0 0 0 13px rgba(201,160,40,0)}}
+.tst-hint{position:absolute;left:50%;bottom:1.3rem;transform:translateX(-50%);white-space:nowrap;z-index:6;
+  font-family:'Hanken Grotesk',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:#fff;background:rgba(12,10,24,.9);padding:.7rem 1.3rem;border-radius:26px;
+  border:1.5px solid rgba(201,160,40,.6);pointer-events:none;
+  animation:hintPulse 2.1s ease-in-out infinite;transition:opacity .3s}
+@keyframes hintPulse{
+  0%,100%{transform:translateX(-50%) scale(1);   border-color:rgba(201,160,40,.5); box-shadow:0 6px 20px rgba(0,0,0,.45)}
+  50%    {transform:translateX(-50%) scale(1.05);border-color:rgba(201,160,40,1);  box-shadow:0 8px 26px rgba(201,160,40,.5)}
+}
+.tst-reveal.dragging{cursor:ew-resize}
+.tst-reveal.dragging .tst-hint{opacity:0;animation:none}
+@media(prefers-reduced-motion:reduce){.tst-hint{animation:none}}
+.tst-reveal.dragging .tst-handle{animation:none}
+@media(prefers-reduced-motion:reduce){.tst-handle{animation:none}}
+/* mobile — drop the slider, just stack the testimonials */
+@media(max-width:760px){
+  .tst-reveal{height:auto;border:none;box-shadow:none;overflow:visible;margin-top:2rem}
+  .tst-works,.tst-divider,.tst-hint{display:none}
+  .tst-cover{position:static;clip-path:none;background:transparent;display:block}
+}
+
+/* ── COURSES ── */
+.courses{background:var(--paper);padding:6rem 0;position:relative;overflow:hidden}
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:3rem;background:transparent}
+.cc{background:var(--paper);padding:2.5rem 2rem;position:relative;overflow:hidden;
+  border:1px solid rgba(16,14,28,.1);
+  transition:background .25s,box-shadow .25s,border-color .25s;cursor:pointer;user-select:none}
+.cc:hover{border-color:rgba(16,14,28,.22)}
+.cc:hover{background:#E8DFC8}
+.cc.selected{background:#EDE3CC;box-shadow:inset 0 0 0 2px var(--seal)}
+@keyframes ccShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.cc.needs-pick{animation:ccShake .45s ease;box-shadow:inset 0 0 0 1.5px var(--seal)}
+.cc-check{position:absolute;top:1rem;right:1rem;width:22px;height:22px;border-radius:50%;
+  border:1.5px solid rgba(16,14,28,.2);display:flex;align-items:center;justify-content:center;
+  transition:background .2s,border-color .2s;flex-shrink:0}
+.cc-check::after{content:'';width:6px;height:10px;border:2px solid #fff;
+  border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px);
+  opacity:0;transition:opacity .15s}
+.cc.selected .cc-check{background:var(--seal);border-color:var(--seal)}
+.cc.selected .cc-check::after{opacity:1}
+.cc-zh{position:absolute;bottom:.5rem;right:1rem;font-family:'Noto Serif SC',serif;font-size:5.5rem;
+  font-weight:700;color:rgba(16,14,28,.05);pointer-events:none;user-select:none;line-height:1}
+.cc-tag{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--seal);margin-bottom:.7rem}
+.cc-name{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--ink);margin-bottom:.45rem;line-height:1.2}
+.cc-desc{font-size:.78rem;line-height:1.72;color:var(--muted)}
+.cc-price{font-size:.72rem;color:var(--seal);font-weight:500;margin-top:.9rem}
+/* selected course summary below grid */
+.cc-selection{margin-top:1.4rem;text-align:center;min-height:1.4rem;
+  font-size:.72rem;color:var(--muted);transition:opacity .2s}
+.cc-selection strong{color:var(--seal);font-weight:600}
+
+/* ── PRICING ── */
+.pricing{background:var(--paper);padding:6rem 0}
+.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:3rem;background:var(--wash)}
+.pc2{background:var(--paper);padding:2.5rem 2rem;transition:transform .3s}
+.pc2:hover{transform:translateY(-4px)}
+.pc2.feat{background:#E8DFC8;border-top:2px solid var(--seal)}
+.p-tier{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--seal);margin-bottom:.65rem}
+.p-price{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--ink)}
+.p-period{font-size:.7rem;color:var(--muted);margin-bottom:1.5rem}
+.p-list{list-style:none;margin-bottom:1.5rem}
+.p-list li{font-size:.75rem;color:var(--muted);padding:.4rem 0;border-bottom:1px solid var(--wash);display:flex;gap:.6rem}
+.p-list li::before{content:'—';color:var(--seal);font-size:.65rem;flex-shrink:0}
+
+/* ── FAQ ── */
+.faq{padding:2rem 0 3.5rem;background:var(--paper);position:relative;min-height:560px;overflow:hidden}
+.faq::before{content:'';position:absolute;inset:0;
+  background:url('images/landscape.webp') center/cover no-repeat;
+  opacity:.13;filter:saturate(.6) brightness(1.1);pointer-events:none;z-index:0}
+.faq .container{position:relative;z-index:1}
+.faq-list{max-width:640px;margin:1rem auto 0}
+.faq-item{border-bottom:1px solid var(--wash)}
+.faq-q{width:100%;text-align:left;padding:1.2rem 0;background:none;border:none;
+  font-family:'Cormorant Garamond',serif;font-size:1.12rem;font-weight:600;color:var(--ink);
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.faq-icon{width:16px;height:16px;flex-shrink:0;position:relative;opacity:.6;transition:transform .3s}
+.faq-icon::before,.faq-icon::after{content:'';position:absolute;background:var(--ink)}
+.faq-icon::before{top:50%;left:0;right:0;height:2px;transform:translateY(-50%)}
+.faq-icon::after{top:0;bottom:0;left:50%;width:2px;transform:translateX(-50%);transition:transform .3s}
+.faq-item.open .faq-icon{opacity:.85;transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.16,1,.3,1)}
+.faq-item.open .faq-a{max-height:160px}
+.faq-a p{padding-bottom:1.2rem;font-size:.83rem;line-height:1.8;color:var(--muted)}
+
+/* ── FOOTER ── */
+.site-footer{background:#08060f;border-top:1px solid rgba(201,160,40,.1);padding:2.1rem 3.5rem 1.2rem;position:relative;z-index:1}
+.footer-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;max-width:1100px;margin:0 auto 1.4rem}
+.footer-brand .foot-logo{font-family:'Noto Serif SC',serif;font-size:1.45rem;font-weight:700;
+  color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:.75rem;
+  letter-spacing:.05em;margin-bottom:.7rem}
+.footer-brand .foot-logo em{font-style:normal;font-family:'Hanken Grotesk',sans-serif;font-size:.75rem;
+  color:rgba(240,232,213,.65);font-weight:400;letter-spacing:.18em;text-transform:uppercase}
+.footer-brand p{font-size:.78rem;color:rgba(240,232,213,.35);line-height:1.55;max-width:260px;margin-bottom:.7rem}
+.footer-zh{font-family:'Noto Serif SC',serif;font-size:2.8rem;color:rgba(201,160,40,.06);
+  line-height:1;position:absolute;right:3.5rem;top:3rem;pointer-events:none;user-select:none}
+
+.foot-col-title{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(201,160,40,.55);font-weight:600;margin-bottom:.85rem}
+.foot-contact-list{list-style:none;display:flex;flex-direction:column;gap:.62rem}
+.foot-contact-list li{display:flex;align-items:flex-start;gap:.65rem}
+.foot-contact-list .ft-icon{font-size:.85rem;line-height:1.5;flex-shrink:0;opacity:.6}
+.foot-contact-list a,.foot-contact-list span{font-size:.78rem;color:rgba(240,232,213,.5);
+  text-decoration:none;line-height:1.5;transition:color .2s}
+.foot-contact-list a:hover{color:var(--gold)}
+
+.foot-nav-list{list-style:none;display:flex;flex-direction:column;gap:.75rem}
+.foot-nav-list a{font-size:.76rem;color:rgba(240,232,213,.35);text-decoration:none;
+  letter-spacing:.08em;transition:color .2s}
+.foot-nav-list a:hover{color:var(--on-ink)}
+
+.foot-divider{border:none;border-top:1px solid rgba(255,255,255,.04);max-width:1100px;margin:0 auto 1rem}
+.foot-bottom{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.foot-copy{font-size:.62rem;color:rgba(240,232,213,.12);letter-spacing:.06em}
+.foot-made{font-size:.6rem;color:rgba(240,232,213,.1)}
+
+@media(max-width:700px){
+  .footer-grid{grid-template-columns:1fr;gap:2.2rem}
+  .site-footer{padding:3.5rem 1.5rem 2rem}
+  .footer-zh{display:none}
+  .foot-bottom{flex-direction:column;gap:.5rem;text-align:center}
+}
+
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem}.nav-ul{display:none}
+  .courses-grid,.p-grid,.tst-grid{grid-template-columns:1fr}
+  .fan-stage{height:min(65vh,420px)}
+  .gi{width:140px;height:min(58vh,360px);margin-left:-70px}
+  .ig{grid-template-columns:1fr}
+  .ig-text{padding:4rem 1.5rem}
+  .container{padding:0 1.5rem}
+  .hero-img-text{padding:2rem 1.5rem}
+  .pen-photo{display:none}
+  .foot-bar{flex-direction:column;gap:.8rem;text-align:center}
+}
+/* ── PRACTICE PAD — trace a character, clear, redraw ── */
+.practice{background:var(--paper);padding:6rem 0;position:relative;overflow:hidden}
+.practice .container{position:relative;z-index:1}
+.pr-lead{max-width:600px;margin:1.1rem auto 0;font-size:1.18rem;line-height:1.55;color:var(--ink);text-align:center;
+  animation:leadGlow 2.6s ease-in-out infinite}
+@keyframes leadGlow{0%,100%{text-shadow:0 0 2px rgba(201,160,40,.15)}
+  50%{text-shadow:0 0 18px rgba(201,160,40,.6),0 0 4px rgba(201,160,40,.4)}}
+.pr-arrow{display:flex;justify-content:center;color:var(--gold);margin:.7rem 0 -.3rem;animation:prArrowBob 1.5s ease-in-out infinite}
+.pr-arrow svg{width:26px;height:42px;filter:drop-shadow(0 0 8px rgba(201,160,40,.5))}
+@keyframes prArrowBob{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(9px);opacity:1}}
+.pr-wrap{display:flex;gap:2.6rem;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:3rem}
+.pr-pad{position:relative;width:min(420px,86vw);aspect-ratio:1/1;flex:none;
+  background:radial-gradient(120% 120% at 30% 20%,#fdf9ef,#efe4cd 72%,#e7dabf);
+  border-radius:3px;
+  box-shadow:0 30px 70px rgba(16,14,28,.26),
+    0 0 0 1px rgba(16,14,28,.16),                        /* crisp inner edge */
+    0 0 0 8px #efe5cf,                                    /* paper mount */
+    0 0 0 9px rgba(201,160,40,.45),                       /* gold hairline frame */
+    inset 0 0 44px rgba(120,90,30,.12);                   /* soft paper vignette */
+  overflow:hidden;touch-action:none;
+  cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='52'><line x1='28' y1='2' x2='10' y2='36' stroke='%23C9A028' stroke-width='4' stroke-linecap='round' opacity='0.9'/><rect x='8' y='34' width='6' height='5' rx='1' fill='%237A4F00' transform='rotate(-35 11 36)'/><path d='M6 40 L14 37 L5 52 Z' fill='%23C9A028'/><path d='M8 44 L11 41 L6 52 Z' fill='%23F0D878' opacity='0.5'/></svg>") 5 51, auto}
+/* a real calligrapher's red seal, stamped in the corner */
+.pr-pad::after{content:'墨';position:absolute;right:16px;bottom:16px;z-index:3;pointer-events:none;
+  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+  font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-size:1.5rem;line-height:1;
+  color:#f7efe0;background:var(--seal);border-radius:4px;transform:rotate(-3deg);
+  box-shadow:0 3px 10px rgba(212,59,32,.45)}
+.pr-guide,.pr-draw{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pr-guide{z-index:1;transition:opacity .3s}
+.pr-guide.hide{opacity:0}
+.pr-draw{z-index:2;touch-action:none}
+/* one-time "brush paints a stroke, then fades" demo hint */
+.pr-demo-c{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:0;transition:opacity .55s ease}
+.pr-demo-brush{position:absolute;top:0;left:0;z-index:4;pointer-events:none;opacity:0;
+  transform:translate(-3px,-42px);transition:opacity .55s ease;will-change:left,top}
+.pr-demo-brush svg{display:block;width:30px;height:48px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4))}
+.pr-side{display:flex;flex-direction:column;gap:1.15rem;max-width:280px}
+.pr-choose{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--seal);margin:0}
+.pr-chars{display:flex;flex-wrap:wrap;gap:.5rem}
+.pr-char{font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-size:1.5rem;line-height:1;
+  width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+  background:transparent;border:1px solid rgba(16,14,28,.18);border-radius:6px;color:var(--ink);
+  cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.pr-char:hover{border-color:var(--gold);color:var(--gold)}
+.pr-char.active{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.pr-actions{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+.pr-btn{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;
+  background:var(--seal);color:#fff;border:none;border-radius:4px;padding:.6rem 1.15rem;
+  cursor:pointer;transition:background .2s}
+.pr-btn:hover{background:#b83018}
+.pr-toggle{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--muted);cursor:pointer;user-select:none}
+.pr-toggle input{accent-color:var(--seal);cursor:pointer}
+.pr-hint{font-size:.8rem;line-height:1.6;color:var(--muted);font-style:italic;
+  border-left:2px solid var(--gold);padding-left:.85rem;margin:0}
+@media(max-width:768px){
+  .practice{padding:4rem 0}
+  .pr-wrap{gap:1.6rem}
+  .pr-side{max-width:none;align-items:center;text-align:center}
+  .pr-hint{text-align:left}
+}
+
+/* ── MEET THE MASTERS ── */
+.masters{background:var(--paper);padding:7rem 0;position:relative;overflow:hidden}
+.masters .container{position:relative;z-index:1}
+.masters-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;margin-top:3.2rem}
+.mc{background:none;border:none;padding:0}
+/* first view: the four gather inward to their places (the reverse of an expand) */
+.masters-grid .mc{opacity:0;transition:transform 3.4s cubic-bezier(.16,1,.3,1),opacity 2s ease}
+.masters-grid .mc:nth-child(1){transform:translateX(-72px) scale(1.06)}
+.masters-grid .mc:nth-child(2){transform:translateX(-26px) scale(1.03)}
+.masters-grid .mc:nth-child(3){transform:translateX(26px) scale(1.03)}
+.masters-grid .mc:nth-child(4){transform:translateX(72px) scale(1.06)}
+.masters-grid.in .mc{opacity:1;transform:none}
+.mc-photo{aspect-ratio:3/4;overflow:hidden;border-radius:8px;margin-bottom:.9rem}
+.mc-photo img{width:100%;height:100%;object-fit:cover;object-position:center 28%;display:block;
+  filter:saturate(.92) contrast(1.02);transition:transform .5s cubic-bezier(.16,1,.3,1),filter .4s}
+.mc:hover .mc-photo img{transform:scale(1.05);filter:saturate(1.05)}
+.mc-role{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--seal);margin:0 0 .45rem}
+.mc-name{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--ink);
+  margin:0 0 .45rem;line-height:1.15}
+.mc-name span{font-family:'Noto Serif SC',serif;font-size:1.05rem;color:var(--muted);margin-left:.4rem}
+.mc-bio{font-size:.95rem;line-height:1.55;color:var(--muted);margin:0}
+html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
+@media(max-width:768px){.masters{padding:4.5rem 0}.masters-grid{grid-template-columns:repeat(2,1fr);gap:1.2rem}}
+
+/* ── INTRO: calligraphy characters falling like leaves, once on load, then gone ── */
+.leaf-fall{position:fixed;inset:0;z-index:450;pointer-events:none;overflow:hidden}
+.leaf{position:absolute;top:-14vh;font-family:'Ma Shan Zheng','Noto Serif SC',serif;
+  line-height:1;user-select:none;will-change:transform,opacity;opacity:0}
+@keyframes leafFall{
+  0%  {transform:translate3d(0,-14vh,0) rotate(0deg);opacity:0}
+  10% {opacity:var(--o,.8)}
+  25% {transform:translate3d(2.2vw,18vh,0) rotate(42deg)}
+  50% {transform:translate3d(-2.4vw,46vh,0) rotate(-24deg)}
+  75% {transform:translate3d(1.8vw,74vh,0) rotate(30deg)}
+  88% {opacity:var(--o,.8)}
+  100%{transform:translate3d(-1.2vw,113vh,0) rotate(-12deg);opacity:0}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* ── AI ASSISTANT (墨童 · Inkling) ── */
+.ai-fab{position:fixed;right:26px;bottom:26px;z-index:2100;
+  width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,#E8C766,var(--gold) 62%,#a8831c);
+  border:1px solid rgba(201,160,40,.55);color:var(--dark);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 0 rgba(201,160,40,.5);
+  animation:aiPulse 3s ease-in-out infinite;transition:transform .25s cubic-bezier(.16,1,.3,1)}
+.ai-fab:hover{transform:scale(1.08) rotate(-4deg)}
+.ai-fab .ai-glyph{font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-size:1.9rem;line-height:1;
+  transform:translateY(1px)}
+.ai-fab .ai-close-x{display:none;font-size:1.4rem;font-weight:300}
+.ai-fab.open .ai-glyph{display:none}
+.ai-fab.open .ai-close-x{display:block}
+.ai-fab.open{animation:none}
+@keyframes aiPulse{0%,100%{box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 0 rgba(201,160,40,.45)}
+  50%{box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 12px rgba(201,160,40,0)}}
+/* attention ping — a soft dot until first open */
+.ai-ping{position:absolute;top:-2px;right:-2px;width:15px;height:15px;border-radius:50%;
+  background:var(--seal);border:2px solid var(--paper);
+  animation:aiPingPulse 1.8s ease-in-out infinite}
+.ai-fab.open .ai-ping,.ai-fab.seen .ai-ping{display:none}
+@keyframes aiPingPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+.ai-panel{position:fixed;right:26px;bottom:104px;z-index:2100;
+  width:380px;max-width:calc(100vw - 40px);height:min(560px,calc(100vh - 150px));
+  background:var(--ink);border:1px solid rgba(201,160,40,.22);border-radius:16px;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 30px 70px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(18px) scale(.96);transform-origin:bottom right;
+  pointer-events:none;transition:opacity .3s,transform .35s cubic-bezier(.16,1,.3,1)}
+.ai-panel.open{opacity:1;transform:none;pointer-events:all}
+
+.ai-head{display:flex;align-items:center;gap:.8rem;padding:1.1rem 1.3rem;
+  border-bottom:1px solid rgba(240,232,213,.08);background:var(--dark)}
+.ai-avatar{width:42px;height:42px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 32% 28%,#E8C766,var(--gold) 62%,#a8831c);
+  display:flex;align-items:center;justify-content:center;color:var(--dark);
+  font-family:'Ma Shan Zheng','Noto Serif SC',serif;font-size:1.35rem}
+.ai-id{flex:1;min-width:0}
+.ai-name{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:600;
+  color:var(--on-ink);letter-spacing:.03em;line-height:1.1}
+.ai-status{display:flex;align-items:center;gap:.4rem;margin-top:.15rem;
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.8}
+.ai-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 6px var(--gold);animation:aiPulse2 2s ease-in-out infinite}
+@keyframes aiPulse2{0%,100%{opacity:1}50%{opacity:.35}}
+.ai-head-close{background:none;border:none;cursor:pointer;color:rgba(240,232,213,.4);
+  font-size:1.15rem;line-height:1;padding:.2rem;transition:color .2s}
+.ai-head-close:hover{color:var(--on-ink)}
+
+.ai-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:1.2rem 1.2rem .4rem;
+  display:flex;flex-direction:column;gap:.85rem;scroll-behavior:smooth}
+.ai-msg{max-width:82%;padding:.75rem 1rem;border-radius:14px;font-size:.98rem;line-height:1.55;
+  animation:aiMsgIn .3s cubic-bezier(.16,1,.3,1)}
+@keyframes aiMsgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ai-msg.bot{align-self:flex-start;background:rgba(240,232,213,.06);color:var(--on-ink);
+  border:1px solid rgba(240,232,213,.07);border-bottom-left-radius:4px}
+.ai-msg.user{align-self:flex-end;background:var(--seal);color:#fff;border-bottom-right-radius:4px}
+.ai-msg .ai-tag{display:inline-block;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.35rem;opacity:.75}
+.ai-typing{align-self:flex-start;display:flex;gap:5px;padding:.85rem .95rem;
+  background:rgba(240,232,213,.06);border-radius:14px;border-bottom-left-radius:4px}
+.ai-typing span{width:7px;height:7px;border-radius:50%;background:var(--gold);opacity:.6;
+  animation:aiDot 1.2s infinite ease-in-out}
+.ai-typing span:nth-child(2){animation-delay:.2s}
+.ai-typing span:nth-child(3){animation-delay:.4s}
+@keyframes aiDot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+.ai-chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:.2rem 1.2rem .9rem}
+.ai-chip{font-size:.76rem;color:var(--on-ink);background:rgba(201,160,40,.08);
+  border:1px solid rgba(201,160,40,.28);border-radius:999px;padding:.4rem .85rem;
+  cursor:pointer;transition:background .2s,border-color .2s}
+.ai-chip:hover{background:rgba(201,160,40,.18);border-color:var(--gold)}
+
+.ai-input{display:flex;align-items:center;gap:.6rem;padding:.9rem 1.1rem;
+  border-top:1px solid rgba(240,232,213,.08);background:var(--dark)}
+.ai-input input{flex:1;background:rgba(240,232,213,.05);border:1px solid rgba(240,232,213,.12);
+  border-radius:999px;padding:.65rem 1.05rem;color:var(--on-ink);font-family:'Hanken Grotesk',sans-serif;
+  font-size:.92rem;outline:none;transition:border-color .2s}
+.ai-input input::placeholder{color:rgba(240,232,213,.32)}
+.ai-input input:focus{border-color:rgba(201,160,40,.5)}
+.ai-send{flex:none;width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--gold);color:var(--dark);display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,background .2s}
+.ai-send:hover{transform:scale(1.08);background:#E8C766}
+.ai-send svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+.ai-foot{text-align:center;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(240,232,213,.28);padding:0 0 .7rem;background:var(--dark)}
+
+/* first-visit greeting bubble — appears beside the button to invite a click */
+.ai-teaser{position:fixed;right:100px;bottom:34px;z-index:2100;
+  max-width:250px;background:var(--ink);color:var(--on-ink);
+  border:1px solid rgba(201,160,40,.3);border-radius:14px;border-bottom-right-radius:4px;
+  padding:.85rem 2rem .85rem 1rem;font-size:.92rem;line-height:1.5;
+  box-shadow:0 16px 40px rgba(0,0,0,.5);cursor:pointer;
+  opacity:0;transform:translateX(14px) scale(.9);transform-origin:bottom right;pointer-events:none;
+  transition:opacity .35s,transform .45s cubic-bezier(.16,1,.3,1)}
+.ai-teaser.show{opacity:1;transform:none;pointer-events:all;animation:aiTeaserBob 3s ease-in-out 1s infinite}
+.ai-teaser strong{color:var(--gold);font-weight:600}
+.ai-teaser::after{content:'';position:absolute;right:-8px;bottom:16px;width:14px;height:14px;
+  background:var(--ink);border-right:1px solid rgba(201,160,40,.3);border-bottom:1px solid rgba(201,160,40,.3);
+  transform:rotate(-45deg)}
+.ai-teaser-x{position:absolute;top:5px;right:7px;background:none;border:none;cursor:pointer;
+  color:rgba(240,232,213,.4);font-size:.8rem;line-height:1;padding:.15rem;transition:color .2s}
+.ai-teaser-x:hover{color:var(--on-ink)}
+@keyframes aiTeaserBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+@media(max-width:768px){
+  .ai-fab{right:18px;bottom:18px;width:56px;height:56px}
+  .ai-panel{right:12px;left:12px;bottom:86px;width:auto;max-width:none}
+  .ai-teaser{right:84px;bottom:24px;max-width:200px;font-size:.86rem}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"><div id="pBar"></div></div>
+
+<!-- live calligraphy BG — chars injected by JS -->
+<div id="bgLayer"></div>
+
+<nav id="nav">
+  <a href="#" class="logo"><span>墨流</span><em>Inkflow Academy of Calligraphy</em></a>
+  <ul class="nav-ul">
+    <li><a href="#our-story">Our Story</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#store">Store</a></li>
+    <li><a href="#students">Students</a></li>
+    <li><a href="#courses" class="cta">Book a Session</a></li>
+    <li><button class="lang-btn" id="langToggle" aria-label="Switch language"><span class="lang-flag">🇨🇳</span><span class="lang-code">CN</span></button></li>
+    <li><button class="sound-btn" id="soundToggle" title="Play ambient music" aria-label="Toggle ambient music"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button></li>
+  </ul>
+  <button class="cart-btn" id="cartToggle" aria-label="Open cart">
+    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+</nav>
+
+<!-- SVG filter defs — static turbulence, no animation (animated feTurbulence causes frame drops) -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none" aria-hidden="true">
+  <defs>
+    <filter id="ink-ripple" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.014 0.009" numOctaves="3" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- unsharp mask: blur, then amplify difference from original -->
+    <filter id="sharpen" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0.55" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="arithmetic" k1="0" k2="2.2" k3="-1.2" k4="0"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ── HERO ── -->
+<div class="hero-track" id="heroTrack">
+<div class="hero-stage" id="heroStage">
+  <div id="heroBg"></div>
+  <video class="hero-video" autoplay muted loop playsinline preload="auto"><source src="video/motion.mp4" type="video/mp4"></video>
+  <div id="heroBgOverlay"></div>
+  <img width="756" height="463" decoding="async" fetchpriority="high" id="classPhoto" src="images/calligraphy-class.webp" alt="Calligraphy class"
+       onerror="this.style.display='none'">
+  <!-- ink-wash base blobs — cool smoke tones -->
+  <div class="ink-wash" style="width:55vw;height:42vw;left:-8%;top:5%;background:radial-gradient(ellipse,rgba(90,95,110,1),transparent);animation:iw0 26s ease-in-out infinite"></div>
+  <div class="ink-wash" style="width:65vw;height:38vw;right:-12%;top:35%;background:radial-gradient(ellipse,rgba(70,75,90,1),transparent);animation:iw1 33s ease-in-out infinite 5s"></div>
+  <div class="ink-wash" style="width:48vw;height:52vw;left:20%;bottom:-8%;background:radial-gradient(ellipse,rgba(55,58,72,1),transparent);animation:iw2 29s ease-in-out infinite 11s"></div>
+  <div class="hfc" id="hfc1">書</div>
+  <div class="hfc" id="hfc2">法</div>
+  <div class="hfc" id="hfc3">道</div>
+  <div class="hfc" id="hfc4">墨</div>
+  <!-- pen — static -->
+  <div class="pen-photo" id="penPhoto">
+    <img width="286" height="342" decoding="async" src="images/pen-nib.webp" alt="Gold fountain pen"
+         onerror="this.parentElement.style.display='none'">
+  </div>
+  <!-- self-drawing brush centerpiece — the 墨 writes itself in gold on load -->
+  <div class="brush-hero" id="brushHero" aria-hidden="true">
+    <div class="brush-stage">
+      <div class="ink-bloom"></div>
+      <svg class="brush-svg" viewBox="0 0 400 400">
+        <text class="brush-ink"  x="200" y="322" text-anchor="middle">墨</text>
+        <text class="brush-fill" x="200" y="322" text-anchor="middle">墨</text>
+      </svg>
+    </div>
+  </div>
+  <div class="hero-text" id="heroText">
+    <p class="h-school" id="hSchool">墨流 · Inkflow Academy of Calligraphy</p>
+    <h1 class="h-ti" id="hTi">Where the brush<br>still <strong>teaches</strong><br>the hand</h1>
+  </div>
+</div>
+</div>
+
+
+<!-- ── INK GARDEN ── -->
+<section class="ig" id="inkGarden">
+  <div class="ig-curtain" aria-hidden="true">
+    <div class="ig-curtain-rod"></div>
+    <div class="ig-curtain-cord"></div>
+    <div class="ig-curtain-cloth">
+      <div class="ig-curtain-sheen"></div>
+      <div class="ig-curtain-ink">
+        <span class="ig-curtain-seal">心</span>
+        <span class="ig-curtain-char">書</span>
+        <span class="ig-curtain-char">道</span>
+      </div>
+    </div>
+  </div>
+  <div class="ig-text rv">
+    <p class="ey">The Practice</p>
+    <h2 class="sh sh-d">The brush knows<br>before you do</h2>
+    <p class="ig-body">Goat hair for softness, wolf for spring, rabbit for precision — students get to know their brush before they ever write a stroke.</p>
+    <a href="#courses" class="btn btn-outline-d" style="align-self:flex-start">View courses →</a>
+  </div>
+  <div class="slot" style="min-height:75vh;border-radius:0">
+    <img width="429" height="437" decoding="async" loading="lazy" src="images/brushes-bowl.webp" alt="Calligraphy brushes in bowl" onerror="this.style.display='none'">
+    <div class="slot-bg"></div>
+    <div class="slot-zh" style="font-size:14rem">道</div>
+  </div>
+</section>
+
+<!-- ── PRACTICE PAD ── -->
+<section class="practice" id="practice">
+  <div class="container">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c">Try the Brush</p>
+      <h2 class="sh sh-d">Trace a character.<br>Feel the stroke.</h2>
+      <div class="rule"></div>
+      <p class="pr-lead" id="prLead">Paint over the character — slower strokes lay thicker ink.</p>
+    </div>
+    <div class="pr-arrow" aria-hidden="true">
+      <svg viewBox="0 0 24 42"><path d="M12 2 V33 M4 25 L12 34 L20 25" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="pr-wrap rv">
+      <div class="pr-pad" id="prPad">
+        <canvas class="pr-guide" id="prGuide"></canvas>
+        <canvas class="pr-draw" id="prDraw" aria-label="Calligraphy practice canvas"></canvas>
+        <canvas class="pr-demo-c" id="prDemo" aria-hidden="true"></canvas>
+        <div class="pr-demo-brush" id="prDemoBrush" aria-hidden="true">
+          <svg viewBox="0 0 32 52"><line x1="28" y1="2" x2="10" y2="36" stroke="#C9A028" stroke-width="4" stroke-linecap="round" opacity="0.9"/><rect x="8" y="34" width="6" height="5" rx="1" fill="#7A4F00" transform="rotate(-35 11 36)"/><path d="M6 40 L14 37 L5 52 Z" fill="#C9A028"/><path d="M8 44 L11 41 L6 52 Z" fill="#F0D878" opacity="0.5"/></svg>
+        </div>
+      </div>
+      <div class="pr-side">
+        <p class="pr-choose" id="prChoose">Choose a character</p>
+        <div class="pr-chars" id="prChars"></div>
+        <div class="pr-actions">
+          <button class="pr-btn" id="prClear">Clear</button>
+          <label class="pr-toggle"><input type="checkbox" id="prGuideToggle" checked><span id="prGuideLabel">Show guide</span></label>
+        </div>
+        <p class="pr-hint" id="prHint">永 is the classic first character — its eight strokes contain every basic move in Chinese calligraphy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── VIDEO ── -->
+<section class="vs" id="academy-video">
+  <div class="vs-inner">
+    <div class="vs-head rv">
+      <p class="ey ey-c">Know the Academy</p>
+      <h2 class="sh sh-d">A glimpse inside our studio</h2>
+      <p>Brushwork alive in Chengdu — the space, the teachers, the discipline of ink.</p>
+    </div>
+    <div class="vs-player rv" id="vsPlayer">
+      <div class="vs-thumb" id="vsThumb">
+        <div class="vs-slides" id="vsSlides">
+          <img width="756" height="463" decoding="async" loading="lazy" class="vs-slide active" src="images/calligraphy-class.webp"                        alt="Calligraphy class">
+          <img width="325" height="215" decoding="async" loading="lazy" class="vs-slide sharp"  src="images/academy-practice.webp"        alt="Academy practice">
+          <img width="202" height="221" decoding="async" loading="lazy" class="vs-slide"        src="images/studio-session.webp"        alt="Studio session">
+          <img width="736" height="736" decoding="async" loading="lazy" class="vs-slide"        src="images/landscape.webp"                                 alt="Tong Shu Academy">
+        </div>
+        <div class="vs-grad"></div>
+        <div class="vs-center-btn" id="vsCenterBtn">
+          <svg class="vs-icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="vs-icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </div>
+      </div>
+      <div class="vs-bar" id="vsBar">
+        <button class="vs-btn-sm" id="vsPlayPause" aria-label="Play / Pause">
+          <svg class="vs-icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="vs-icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <div class="vs-scrub" id="vsScrub" role="slider" aria-label="Seek">
+          <div class="vs-scrub-fill" id="vsFill"></div>
+          <div class="vs-scrub-dot" id="vsDot"></div>
+        </div>
+        <span class="vs-bar-time" id="vsTime">0:00 / 3:42</span>
+        <svg class="vs-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── OUR STORY ── -->
+<section class="os" id="our-story">
+  <div class="os-inner">
+    <div class="os-text rv">
+      <p class="ey">Our Story</p>
+      <h2 class="sh sh-l">Ink passed down<br>through living hands</h2>
+      <div class="os-body-group">
+        <p class="os-body">Founded in Chengdu by Master Liú Wén — Sichuan's most respected brush arts centre.</p>
+        <p class="os-body">Calligraphy is daily practice: small groups, lineage teachers, first stroke to last.</p>
+      </div>
+      <div class="os-figures">
+        <div class="os-fig"><span class="os-num">21</span><span class="os-label">years of teaching</span></div>
+        <div class="os-fig"><span class="os-num">6</span><span class="os-label">resident masters</span></div>
+        <div class="os-fig"><span class="os-num">1,400+</span><span class="os-label">students taught</span></div>
+      </div>
+    </div>
+    <div class="os-accent rv">
+      <div class="os-char">墨流</div>
+      <p class="os-quote"><em>To learn calligraphy, first learn to be human.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ── MEET THE MASTERS ── -->
+<section class="masters" id="masters">
+  <div class="container">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c">The Masters</p>
+      <h2 class="sh sh-d">The hands that guide the brush</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="masters-grid rv">
+      <div class="mc">
+        <div class="mc-photo">
+          <img src="images/master-liu.webp" alt="Master Liú Wén" width="419" height="306" decoding="async" loading="lazy">
+        </div>
+        <p class="mc-role">Founder · Seal Script</p>
+        <h3 class="mc-name">Liú Wén <span>刘文</span></h3>
+        <p class="mc-bio">Founded Inkflow in 2004.</p>
+      </div>
+      <div class="mc">
+        <div class="mc-photo">
+          <img src="images/master-chen.webp" alt="Master Chén Yù" width="244" height="244" decoding="async" loading="lazy">
+        </div>
+        <p class="mc-role">Regular Script · Kai-Shu</p>
+        <h3 class="mc-name">Chén Yù <span>陈玉</span></h3>
+        <p class="mc-bio">Leads the private red-ink critiques.</p>
+      </div>
+      <div class="mc">
+        <div class="mc-photo">
+          <img src="images/master-wang.webp" alt="Master Wáng Sù" width="217" height="173" decoding="async" loading="lazy">
+        </div>
+        <p class="mc-role">Running &amp; Cursive Script</p>
+        <h3 class="mc-name">Wáng Sù <span>王素</span></h3>
+        <p class="mc-bio">Teaches the flowing hand.</p>
+      </div>
+      <div class="mc">
+        <div class="mc-photo">
+          <img src="images/master-lin.webp" alt="Master Lín Hé" width="474" height="353" decoding="async" loading="lazy">
+        </div>
+        <p class="mc-role">Brush Lettering &amp; Design</p>
+        <h3 class="mc-name">Lín Hé <span>林禾</span></h3>
+        <p class="mc-bio">Classical strokes, modern brands.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GALLERY ── -->
+<section class="gallery" id="gallery">
+  <div class="container">
+    <div class="rv" style="text-align:center">
+      <h2 class="sh sh-d">From first stroke<br>to finished piece</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="gal-filters rv">
+      <button class="gf on" data-cat="all">All Works</button>
+      <button class="gf" data-cat="calligraphy">Calligraphy</button>
+      <button class="gf" data-cat="brushes">Brushes</button>
+      <button class="gf" data-cat="academy">Academy</button>
+    </div>
+    <div class="fan-stage" id="galGrid">
+
+      <!-- edges — darker/muted -->
+      <div class="gi" data-cat="brushes all" data-title="The Craftsman">
+        <img width="692" height="550" decoding="async" loading="lazy" src="images/artisan-brush.webp" alt="Artisan brush resting in stone dust">
+        <div class="gi-over"><span class="gi-zh">匠</span><p class="gi-name">The Craftsman</p><p class="gi-meta">Artisan Tools</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="brushes all" data-title="The Bowl">
+        <img width="429" height="437" decoding="async" loading="lazy" src="images/brushes-ceramic-bowl.webp" alt="Calligraphy brushes in ceramic bowl">
+        <div class="gi-over"><span class="gi-zh">器</span><p class="gi-name">The Bowl</p><p class="gi-meta">Studio Tools</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="brushes all" data-title="Laid to Rest">
+        <img width="463" height="365" decoding="async" loading="lazy" src="images/brushes-on-stone.webp" alt="Brushes laid on stone">
+        <div class="gi-over"><span class="gi-zh">靜</span><p class="gi-name">Laid to Rest</p><p class="gi-meta">After Practice</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="calligraphy all" data-title="Classical Script">
+        <img width="283" height="273" decoding="async" loading="lazy" src="images/calligraphy-scroll.webp" alt="Classical calligraphy scroll">
+        <div class="gi-over"><span class="gi-zh">書</span><p class="gi-name">Classical Script</p><p class="gi-meta">Tang Dynasty</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="calligraphy all" data-title="Spring Character">
+        <img width="800" height="520" decoding="async" loading="lazy" src="images/writing-spring-character.webp" alt="Hand writing spring character on red paper">
+        <div class="gi-over"><span class="gi-zh">春</span><p class="gi-name">Spring Character</p><p class="gi-meta">Calligraphy · Red Paper</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <!-- centre — most colourful, highest z-index -->
+      <div class="gi" data-cat="brushes all" data-title="Colour & Form">
+        <img width="438" height="584" decoding="async" loading="lazy" src="images/paint-dipped-brushes.webp" alt="Vibrant paint-dipped brushes on white background">
+        <div class="gi-over"><span class="gi-zh">彩</span><p class="gi-name">Colour & Form</p><p class="gi-meta">The Brushes</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="academy all" data-title="Lantern Street · Chengdu">
+        <img width="826" height="458" decoding="async" loading="lazy" src="images/chinese-lanterns.webp" alt="Chinese lanterns glowing orange red and blue">
+        <div class="gi-over"><span class="gi-zh">燈</span><p class="gi-name">Lantern Street</p><p class="gi-meta">Chengdu · Festival</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <!-- fading back out -->
+      <div class="gi" data-cat="brushes all" data-title="Dragon Brush">
+        <img width="886" height="504" decoding="async" loading="lazy" src="images/dragon-brush.webp" alt="Decorative dragon brush resting on red calligraphy paper">
+        <div class="gi-over"><span class="gi-zh">筆</span><p class="gi-name">Dragon Brush</p><p class="gi-meta">Chengdu Market</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="brushes all" data-title="Market Colours">
+        <img width="249" height="344" decoding="async" loading="lazy" src="images/beaded-brushes.webp" alt="Colorful beaded calligraphy brushes">
+        <div class="gi-over"><span class="gi-zh">色</span><p class="gi-name">Market Colours</p><p class="gi-meta">Chengdu Market</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="calligraphy all" data-title="Ink · Smoke · Art">
+        <img width="346" height="606" decoding="async" loading="lazy" src="images/ink-smoke.webp" alt="Ink smoke calligraphy art">
+        <div class="gi-over"><span class="gi-zh">氣</span><p class="gi-name">Ink · Smoke · Art</p><p class="gi-meta">Calligraphy</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="brushes all" data-title="The Craft">
+        <img width="473" height="409" decoding="async" loading="lazy" src="images/brush-fan.webp" alt="Fan of calligraphy brushes">
+        <div class="gi-over"><span class="gi-zh">藝</span><p class="gi-name">The Craft</p><p class="gi-meta">Traditional Brushes</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+      <div class="gi" data-cat="academy all" data-title="The Practice — Tong Shu Academy">
+        <img width="756" height="463" decoding="async" loading="lazy" src="images/calligraphy-class.webp" alt="Students practicing calligraphy" style="object-position:center 30%">
+        <div class="gi-over"><span class="gi-zh">習</span><p class="gi-name">The Practice</p><p class="gi-meta">Academy · Chengdu</p></div>
+        <span class="gi-expand">↗</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── STORE ── -->
+<section class="store" id="store">
+  <div class="store-bg-zh"><span>筆</span></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c" style="color:rgba(201,160,40,.8)">Studio Shop</p>
+      <h2 class="sh sh-l">The right brush<br>changes everything.</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="store-grid">
+
+      <div class="sp rv">
+        <div class="sp-img-wrap">
+          <img width="429" height="437" decoding="async" loading="lazy" class="sp-img" src="images/brushes-bowl.webp" alt="Starter brush set in ceramic bowl">
+        </div>
+        <div class="sp-body">
+          <span class="sp-tag">Beginner</span>
+          <p class="sp-name">Starter Set</p>
+          <p class="sp-desc">Three goat-hair brushes, inkstone, and grinding rod.</p>
+          <div class="sp-footer">
+            <span class="sp-price">CN¥ 280</span>
+            <button class="sp-add" data-id="starter" data-name="Starter Set" data-price="280">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp rv" style="transition-delay:.06s">
+        <div class="sp-img-wrap">
+          <img width="473" height="409" decoding="async" loading="lazy" class="sp-img" src="images/brush-fan.webp" alt="Fan of traditional calligraphy brushes">
+        </div>
+        <div class="sp-body">
+          <span class="sp-tag">Intermediate</span>
+          <p class="sp-name">Bamboo Master Set</p>
+          <p class="sp-desc">Six mixed-hair brushes — wolf, goat, and rabbit blends.</p>
+          <div class="sp-footer">
+            <span class="sp-price">CN¥ 560</span>
+            <button class="sp-add" data-id="bamboo" data-name="Bamboo Master Set" data-price="560">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp rv" style="transition-delay:.12s">
+        <div class="sp-img-wrap">
+          <img width="249" height="344" decoding="async" loading="lazy" class="sp-img" src="images/colorful-brushes.webp" alt="Collection of colourful calligraphy brushes">
+        </div>
+        <div class="sp-body">
+          <span class="sp-tag">Collector</span>
+          <p class="sp-name">Festival Collection</p>
+          <p class="sp-desc">Eight lacquered brushes, hand-wrapped in silk brocade.</p>
+          <div class="sp-footer">
+            <span class="sp-price">CN¥ 980</span>
+            <button class="sp-add" data-id="festival" data-name="Festival Collection" data-price="980">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp rv" style="transition-delay:.18s">
+        <div class="sp-img-wrap">
+          <img width="463" height="365" decoding="async" loading="lazy" class="sp-img" src="images/brushes-on-stone.webp" alt="Brushes resting on stone after practice">
+        </div>
+        <div class="sp-body">
+          <span class="sp-tag">Specialty</span>
+          <p class="sp-name">Market Brushes</p>
+          <p class="sp-desc">Handmade in Chengdu's brush market. Each piece unique.</p>
+          <div class="sp-footer">
+            <span class="sp-price">CN¥ 160</span>
+            <button class="sp-add" data-id="market" data-name="Market Brushes" data-price="160">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="tst" id="students">
+  <div class="tst-zh"><span>學</span></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c">Students</p>
+      <h2 class="sh sh-l">The work speaks for itself.</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="tst-reveal" id="tstReveal">
+     <div class="tst-stage">
+      <!-- behind: students' work, revealed by dragging -->
+      <div class="tst-works">
+        <span class="tst-works-tag">Students' work</span>
+        <figure><img width="800" height="520" decoding="async" loading="lazy" src="images/writing-spring-character.webp" alt="Student calligraphy — Spring"><figcaption>Spring · 春</figcaption></figure>
+        <figure><img width="283" height="273" decoding="async" loading="lazy" src="images/calligraphy-scroll.webp" alt="Student calligraphy scroll"><figcaption>Hanging scroll</figcaption></figure>
+        <figure><img width="346" height="606" decoding="async" loading="lazy" src="images/ink-orchid.webp" alt="Student ink painting — orchid"><figcaption>Orchid study</figcaption></figure>
+        <figure><img width="736" height="736" decoding="async" loading="lazy" src="images/landscape.webp" alt="Student ink landscape"><figcaption>Ink landscape</figcaption></figure>
+      </div>
+      <!-- front: the testimonials (clipped by the divider) -->
+      <div class="tst-cover" id="tstCover">
+        <div class="tst-grid">
+          <div class="tc rv">
+            <p class="tc-quote">"After six months, I was already designing restaurant signs for real clients."</p>
+            <p class="tc-name">Xu Jianfeng</p><p class="tc-meta">Master Track · Shenzhen</p>
+          </div>
+          <div class="tc rv" style="transition-delay:.06s">
+            <p class="tc-quote">"We practice on water, so every stroke fades in minutes. It taught me to stop chasing perfection."</p>
+            <p class="tc-name">Anna Kowalski</p><p class="tc-meta">Visiting student · Warsaw</p>
+          </div>
+          <div class="tc rv" style="transition-delay:.12s">
+            <p class="tc-quote">"One class taught me more about visual balance than four years of design school."</p>
+            <p class="tc-name">Lin Bingqian</p><p class="tc-meta">Practitioner · Chengdu</p>
+          </div>
+        </div>
+      </div>
+     </div><!-- /tst-stage -->
+      <!-- draggable divider -->
+      <div class="tst-divider" id="tstDivider" role="slider" aria-label="Drag to reveal students' work" aria-valuemin="0" aria-valuemax="100" aria-valuenow="98" tabindex="0">
+        <div class="tst-handle" aria-hidden="true">⟺</div>
+      </div>
+      <span class="tst-hint" id="tstHint">◀ Drag to reveal their work</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── COURSES ── -->
+<section class="courses" id="courses">
+  <div class="container">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c">Courses</p>
+      <h2 class="sh sh-d">Classical training. Modern application.</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="courses-grid" id="coursesGrid">
+      <div class="cc rv" data-course="Private Critique — Classical Script" data-price="CN¥ 480">
+        <div class="cc-check"></div>
+        <div class="cc-zh">私</div>
+        <p class="cc-tag">Private · 90 min</p>
+        <h3 class="cc-name">Private Critique — Classical Script</h3>
+        <p class="cc-desc">One-on-one with Master Chen. Red-ink corrections in real time.</p>
+        <p class="cc-price">CN¥ 480</p>
+      </div>
+      <div class="cc rv" style="transition-delay:.06s" data-course="Group Workshop — Kai-Shu Basics" data-price="CN¥ 320">
+        <div class="cc-check"></div>
+        <div class="cc-zh">群</div>
+        <p class="cc-tag">Group · 3 hrs · Max 12</p>
+        <h3 class="cc-name">Group Workshop — Kai-Shu Basics</h3>
+        <p class="cc-desc">Foundational regular script. Horizontal strokes to full characters.</p>
+        <p class="cc-price">CN¥ 320</p>
+      </div>
+      <div class="cc rv" style="transition-delay:.12s" data-course="Weekend — Brand Lettering" data-price="CN¥ 1,200">
+        <div class="cc-check"></div>
+        <div class="cc-zh">藝</div>
+        <p class="cc-tag">Intensive · 2 Days · Max 8</p>
+        <h3 class="cc-name">Weekend — Brand Lettering</h3>
+        <p class="cc-desc">Brush lettering to vectorized logotype. Both days included.</p>
+        <p class="cc-price">CN¥ 1,200</p>
+      </div>
+      <div class="cc rv" style="transition-delay:.18s" data-course="Online — Live Brush Class" data-price="CN¥ 380">
+        <div class="cc-check"></div>
+        <div class="cc-zh">網</div>
+        <p class="cc-tag">Online · Live · Worldwide</p>
+        <h3 class="cc-name">Online — Live Brush Class</h3>
+        <p class="cc-desc">Join live from anywhere. Taught in English &amp; Mandarin, with a starter kit shipped to your door.</p>
+        <p class="cc-price">CN¥ 380</p>
+      </div>
+    </div>
+    <p class="cc-selection rv" id="ccSelection"></p>
+    <div class="rv" style="text-align:center;margin-top:1.5rem">
+      <a href="mailto:hello@tongshuacademy.com" class="btn btn-seal" id="reserve">Reserve a Spot</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── FAQ ── -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="rv" style="text-align:center">
+      <p class="ey ey-c">Questions</p>
+      <h2 class="sh sh-d">Before you begin.</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="faq-list rv">
+      <div class="faq-item">
+        <button class="faq-q">Do I need prior experience?<span class="faq-icon"></span></button>
+        <div class="faq-a"><p>No. Introductory workshops start with basic strokes before full characters.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What should I bring?<span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Nothing for the first class. Materials are provided. Afterward we recommend a level-matched supply kit.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">How does the ink garden work?<span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Water brush on wet courtyard flagstone. Strokes appear, then evaporate in minutes. Open practice — no instructor required.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Rescheduling policy?<span class="faq-icon"></span></button>
+        <div class="faq-a"><p>Private critiques: 24 hours notice. Group workshops: 48 hours. No-shows are not refunded.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+  <span class="footer-zh" aria-hidden="true">墨流</span>
+  <div class="footer-grid">
+
+    <!-- Brand -->
+    <div class="footer-brand">
+      <a href="#" class="foot-logo"><span>墨流</span><em>Inkflow Academy of Calligraphy</em></a>
+      <p>A living lineage of Chinese calligraphy, rooted in Chengdu since 2004. Small groups, master teachers, ink that lasts.</p>
+    </div>
+
+    <!-- Contact -->
+    <div>
+      <p class="foot-col-title">Contact</p>
+      <ul class="foot-contact-list">
+        <li>
+          <span class="ft-icon">📍</span>
+          <span>21 Kuanzhai Alley, Qingyang District<br>Chengdu, Sichuan 610000</span>
+        </li>
+        <li>
+          <span class="ft-icon">✉</span>
+          <a href="mailto:hello@tongshuacademy.com">hello@tongshuacademy.com</a>
+        </li>
+        <li>
+          <span class="ft-icon">📞</span>
+          <a href="tel:+862887654321">+86 28 8765 4321</a>
+        </li>
+        <li>
+          <span class="ft-icon">💬</span>
+          <span>WeChat: <strong style="color:rgba(240,232,213,.55)">tongshu_academy</strong></span>
+        </li>
+        <li>
+          <span class="ft-icon">🕐</span>
+          <span>Tue – Sun &nbsp; 09:00 – 17:30</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+  <hr class="foot-divider">
+  <div class="foot-bottom">
+    <span class="foot-copy">© 2025 Inkflow Academy of Calligraphy · Chengdu</span>
+    <span class="foot-made">Crafted with ink &amp; intention</span>
+  </div>
+</footer>
+
+<!-- ── AI ASSISTANT (墨童 · Inkling) ── -->
+<div class="ai-panel" id="aiPanel" role="dialog" aria-modal="false" aria-label="Inkling assistant">
+  <div class="ai-head">
+    <div class="ai-avatar">墨</div>
+    <div class="ai-id">
+      <div class="ai-name" id="aiName">Inkling · 墨童</div>
+      <div class="ai-status" id="aiStatus">Online</div>
+    </div>
+    <button class="ai-head-close" id="aiHeadClose" aria-label="Close assistant">✕</button>
+  </div>
+  <div class="ai-body" id="aiBody"></div>
+  <div class="ai-chips" id="aiChips"></div>
+  <form class="ai-input" id="aiForm" autocomplete="off">
+    <input type="text" id="aiInput" placeholder="Ask me anything…" aria-label="Message Inkling">
+    <button type="submit" class="ai-send" aria-label="Send">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </form>
+  <div class="ai-foot" id="aiFoot">Your guide to Inkflow Academy</div>
+</div>
+<div class="ai-teaser" id="aiTeaser" role="button" tabindex="0" aria-label="Open Inkling assistant">
+  <button class="ai-teaser-x" id="aiTeaserX" aria-label="Dismiss">✕</button>
+  <span id="aiTeaserText"></span>
+</div>
+<button class="ai-fab" id="aiFab" aria-label="Open Inkling assistant">
+  <span class="ai-glyph">墨</span>
+  <span class="ai-close-x">✕</span>
+  <span class="ai-ping" aria-hidden="true"></span>
+</button>
+
+<!-- ── CART OVERLAY + PANEL ── -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div id="cartPanel" role="dialog" aria-modal="true" aria-label="Shopping cart">
+  <div class="cart-header">
+    <span class="cart-title">Your Cart</span>
+    <button class="cart-close" id="cartClose" aria-label="Close cart">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <p class="cart-empty" id="cartEmpty">Your cart is empty.</p>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total</span>
+      <span class="cart-total-price" id="cartTotal">CN¥ 0</span>
+    </div>
+    <button class="cart-checkout" id="cartCheckout" disabled>Checkout</button>
+  </div>
+</div>
+
+<!-- ── STORE PRODUCT ZOOM ── -->
+<div id="spZoom" role="dialog" aria-modal="true" aria-label="Product zoom">
+  <button id="spZoomClose" aria-label="Close">✕</button>
+  <img id="spZoomImg" src="" alt="">
+</div>
+
+<!-- ── LIGHTBOX ── -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button id="lbClose" aria-label="Close">✕</button>
+  <button id="lbPrev" aria-label="Previous image">&#8249;</button>
+  <button id="lbNext" aria-label="Next image">&#8250;</button>
+  <img id="lbImg" src="" alt="">
+  <p id="lbCaption"></p>
+  <span id="lbCounter"></span>
+</div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const pBar=$('pBar'),navEl=$('nav'),heroTrack=$('heroTrack'),heroStage=$('heroStage');
+const heroBg=$('heroBg'),penPhoto=$('penPhoto'),heroText=$('heroText');
+const hSchool=$('hSchool'),hTi=$('hTi');
+const bgLayer=$('bgLayer');
+
+// ── LIVE AMORPHIC CALLIGRAPHY BACKGROUND ──
+const BG_CHARS = ['書','法','道','墨','藝','品','水','竹','心','蘭','筆','硯','雅','靜','氣','宣','韻','章'];
+const BG_COLORS = [
+  [201,160,40],  // gold
+  [240,232,213], // paper — warm white
+  [201,160,40],  // gold again (weighted)
+  [212,59,32],   // seal red — rare
+  [240,232,213],
+];
+
+function spawnBgChar() {
+  const char     = BG_CHARS[Math.floor(Math.random() * BG_CHARS.length)];
+  const rgb      = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+  const size     = Math.random() * 28 + 8;           // 8–36vw — bigger than before
+  const x        = Math.random() * 86;
+  const y        = Math.random() * 82;
+  const rotA     = (Math.random() - 0.5) * 32;
+  const rotB     = rotA * 0.1;
+  const peak     = (Math.random() * 0.07 + 0.04).toFixed(3); // slightly brighter
+  const emergeMs = Math.random() * 1400 + 1200;      // faster: 1.2–2.6s
+  const aliveMs  = Math.random() * 3500 + 3500;
+  const dissolveMs = Math.random() * 1200 + 1400;
+  const blurIn   = (Math.random() * 35 + 22).toFixed(1); // 22–57px — starts smokier
+
+  const el = document.createElement('span');
+  el.className = 'bch-live';
+  Object.assign(el.style, {
+    fontSize: size + 'vw',
+    left: x + '%', top: y + '%',
+    color: `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`,
+    filter: `blur(${blurIn}px)`,
+    transform: `scale(0.2) rotate(${rotA}deg)`,
+    opacity: '0',
+    transition: [
+      `color ${emergeMs}ms cubic-bezier(.16,1,.3,1)`,
+      `filter ${emergeMs}ms cubic-bezier(.16,1,.3,1)`,
+      `transform ${emergeMs}ms cubic-bezier(.16,1,.3,1)`,
+      `opacity ${emergeMs}ms cubic-bezier(.16,1,.3,1)`,
+    ].join(','),
+  });
+  bgLayer.appendChild(el);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.color     = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${peak})`;
+    el.style.filter    = 'blur(0px)';
+    el.style.transform = `scale(1) rotate(${rotB}deg)`;
+    el.style.opacity   = '1';
+  }));
+
+  setTimeout(() => {
+    const blurOut  = (Math.random() * 25 + 14).toFixed(1);
+    const scaleOut = (Math.random() * 0.5 + 1.2).toFixed(2);
+    Object.assign(el.style, {
+      transition: [
+        `color ${dissolveMs}ms ease-in`,
+        `filter ${dissolveMs}ms ease-in`,
+        `transform ${dissolveMs}ms ease-in`,
+        `opacity ${dissolveMs}ms ease-in`,
+      ].join(','),
+      color: `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`,
+      filter: `blur(${blurOut}px)`,
+      transform: `scale(${scaleOut}) rotate(${rotA * 0.6}deg)`,
+      opacity: '0',
+    });
+    setTimeout(() => el.remove(), dissolveMs + 100);
+  }, aliveMs);
+}
+
+// Bigger initial burst
+for (let i = 0; i < 14; i++) setTimeout(spawnBgChar, i * 260);
+// Faster continuous spawn
+setInterval(spawnBgChar, 480);
+
+
+// ── CANVAS SMOKE ENGINE ──
+(function() {
+  const cv = document.createElement('canvas');
+  cv.id = 'smokeCanvas';
+  heroStage.insertBefore(cv, heroStage.children[2]); // after heroBg + overlay
+
+  const cx = cv.getContext('2d');
+  let W = 0, H = 0;
+  function resize() { W = cv.width = heroStage.offsetWidth; H = cv.height = heroStage.offsetHeight; }
+  resize();
+  new ResizeObserver(resize).observe(heroStage);
+
+  // Sine-wave flow field
+  function flowAngle(x, y, t) {
+    return Math.sin(x * 0.003 + t * 0.28) * Math.cos(y * 0.004 + t * 0.18) * Math.PI * 0.6
+         + Math.sin(x * 0.005 - y * 0.003 + t * 0.38) * 0.4;
+  }
+
+  class Puff {
+    spawn() {
+      this.x    = Math.random() * W;
+      this.y    = H * (0.15 + Math.random() * 0.85);
+      this.r    = 90 + Math.random() * 130;   // large but not huge
+      this.spd  = 0.18 + Math.random() * 0.28; // slow drift — smoke not fire
+      this.vy   = -(0.08 + Math.random() * 0.18); // gentle rise
+      this.life = 0;
+      this.maxL = 280 + Math.random() * 340;   // longer life = smoother
+      this.pk   = 0.012 + Math.random() * 0.016; // very low opacity = wispy
+      this.a    = 0;
+      this.grey = 55 + Math.random() * 30;     // neutral grey 55–85%
+      this.sat  = Math.random() * 8;           // near-zero saturation = true smoke
+      this.ang  = flowAngle(this.x, this.y, 0);
+    }
+    constructor() { this.spawn(); this.life = Math.random() * this.maxL; }
+    step(t) {
+      const fa  = flowAngle(this.x, this.y, t);
+      this.ang  = this.ang * 0.96 + fa * 0.04; // slow turn — smoke is lazy
+      this.x   += Math.cos(this.ang) * this.spd;
+      this.y   += Math.sin(this.ang) * this.spd + this.vy;
+      this.r   += 0.18;
+      this.life++;
+      const p  = this.life / this.maxL;
+      this.a   = p < 0.2  ? this.pk * (p / 0.2)
+               : p > 0.72 ? this.pk * ((1 - p) / 0.28)
+               : this.pk;
+      if (this.life >= this.maxL || this.y < -this.r) this.spawn();
+    }
+    draw() {
+      const g = cx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
+      // cool grey — no warm, no colour cast
+      g.addColorStop(0,    `hsla(220,${this.sat}%,${this.grey}%,${(this.a*1.1).toFixed(3)})`);
+      g.addColorStop(0.5,  `hsla(220,${this.sat}%,${this.grey-8}%,${this.a.toFixed(3)})`);
+      g.addColorStop(1,    `hsla(220,${this.sat}%,${this.grey-18}%,0)`);
+      cx.fillStyle = g;
+      cx.beginPath();
+      cx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      cx.fill();
+    }
+  }
+
+  // 30 puffs — enough for density, low enough for smooth 60fps
+  const puffs = Array.from({length: 30}, () => new Puff());
+
+  // Skip the animation entirely for visitors who prefer reduced motion.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let t = 0, running = false, rafId = null;
+  function loop() {
+    cx.clearRect(0, 0, W, H);
+    t += 0.016;
+    puffs.forEach(p => { p.step(t); p.draw(); });
+    rafId = requestAnimationFrame(loop);
+  }
+  function start() { if (!running) { running = true; rafId = requestAnimationFrame(loop); } }
+  function stop()  { running = false; if (rafId) cancelAnimationFrame(rafId); rafId = null; }
+
+  if (!reduceMotion) {
+    // Only animate while the hero is actually on screen — save CPU/battery once scrolled past.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        ([e]) => (e.isIntersecting ? start() : stop()),
+        { threshold: 0 }
+      ).observe(heroStage);
+    } else {
+      start();
+    }
+  }
+})();
+
+
+// ── HERO ENTRANCE ──
+// The 墨 brush character writes itself first; the title follows once the ink lands.
+window.addEventListener('load', () => {
+  const img = new Image();
+  img.onload = () => { heroBg.style.backgroundImage = "url('images/ink-orchid.webp')"; heroBg.style.opacity = '.55'; };
+  img.src = 'images/ink-orchid.webp';
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const brush  = document.getElementById('brushHero');
+  const revealText = () => { heroText.classList.add('painting'); };   // brush-wipe, same as the 墨 icon
+  const revealPen = () => { penPhoto.style.opacity = '1'; };
+
+  if (reduce) { revealPen(); revealText(); return; }   // no drawing — show everything right away
+
+  // Brush, title, and pen all enter together the moment the stroke begins.
+  const start = () => { if (brush) brush.classList.add('go'); revealPen(); revealText(); };
+  // Wait for the brush font so the character draws in its true form (no fallback flash).
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => setTimeout(start, 60));
+  else setTimeout(start, 200);
+});
+
+
+// ── SCROLL ──
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+let raf = false;
+function onScroll() { if (!raf) { raf = true; requestAnimationFrame(tick); } }
+
+function tick() {
+  raf = false;
+  const sy = window.scrollY, tot = document.body.scrollHeight - window.innerHeight;
+  pBar.style.width = (sy / tot * 100) + '%';
+  navEl.classList.toggle('on', sy > 80);
+
+  // Sitewide bg parallax — slow drift upward
+  bgLayer.style.transform = `translateY(${-sy * 0.07}px)`;
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+tick();
+
+
+// ── REVEAL ──
+const io = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+  { threshold: .06, rootMargin: '0px 0px -16px 0px' }
+);
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+
+// ── VIDEO PLAYER ──
+(function(){
+  const player = document.getElementById('vsPlayer');
+  if (!player) return;
+
+  // ── slideshow — smooth crossfade with z-index overlap ──
+  const slides = Array.from(document.querySelectorAll('.vs-slide'));
+  let slideIdx = 0, slideTimer = null;
+  function nextSlide() {
+    const prev = slideIdx;
+    slideIdx = (slideIdx + 1) % slides.length;
+    slides[prev].classList.add('behind');          // pin outgoing below incoming (fixes the 3→0 wrap where DOM order otherwise hides the new slide)
+    slides[slideIdx].classList.add('active');      // new slide fades in on top (z-index:2)
+    setTimeout(() => {
+      slides[prev].classList.remove('active', 'behind'); // old slide fades out, hidden under the now-opaque new one
+    }, 1000); // matches the 1s CSS transition — crossfade finishes well inside the 2.5s beat
+  }
+  function startSlides(interval) {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(nextSlide, interval);
+  }
+  startSlides(2500); // exactly 2.5s per slide, 1s crossfade + 1.5s hold
+
+  // autoplay immediately — no button press needed
+  player.classList.add('playing', 'started');
+
+})();
+
+// ── MOMENTUM SCROLL ──
+// Shared state so smoothScrollTo can cancel momentum cleanly
+let _mVy = 0, _mRaf = null;
+function _cancelMomentum() {
+  if (_mRaf) { cancelAnimationFrame(_mRaf); _mRaf = null; }
+  _mVy = 0;
+}
+(function(){
+  const FRICTION = 0.93, MAX = 78, MIN = 0.3;   // 65 → 78 (+20% faster)
+  function loop() {
+    _mVy *= FRICTION;
+    if (Math.abs(_mVy) < MIN) { _mVy = 0; _mRaf = null; return; }
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    window.scrollTo(0, Math.max(0, Math.min(window.scrollY + _mVy, max)));
+    _mRaf = requestAnimationFrame(loop);
+  }
+  window.addEventListener('wheel', e => {
+    // When the pointer is over the chat assistant or the cart, let those panels
+    // scroll their own content natively instead of hijacking the wheel for the page.
+    if (e.target.closest && e.target.closest('#aiPanel, #cartPanel')) return;
+    e.preventDefault();
+    let d = e.deltaY;
+    if (e.deltaMode === 1) d *= 40;
+    if (e.deltaMode === 2) d *= window.innerHeight;
+    _mVy = Math.max(-MAX, Math.min(MAX, _mVy + d * 0.1944));  // 0.162 → 0.1944 (+20% faster per tick)
+    if (!_mRaf) _mRaf = requestAnimationFrame(loop);
+  }, { passive: false });
+})();
+
+// ── SMOOTH SCROLL (easeInOutCubic, interruptible) ──
+function smoothScrollTo(targetY, duration) {
+  _cancelMomentum();                              // stop momentum before taking control
+  const startY = window.scrollY;
+  const dist = targetY - startY;
+  let start = null, cancelled = false;
+  const cancel = () => { cancelled = true; };
+  window.addEventListener('wheel',      cancel, { once: true, passive: true });
+  window.addEventListener('touchstart', cancel, { once: true, passive: true });
+  function step(ts) {
+    if (cancelled) return;
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+    window.scrollTo(0, startY + dist * ease);
+    if (p < 1) requestAnimationFrame(step);
+    else {
+      window.removeEventListener('wheel',      cancel);
+      window.removeEventListener('touchstart', cancel);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    const id = link.getAttribute('href').slice(1);
+    e.preventDefault();
+    if (!id) { smoothScrollTo(0, 1240); return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    const navH = document.getElementById('nav')?.offsetHeight || 0;
+    const y = target.getBoundingClientRect().top + window.scrollY - navH;
+    smoothScrollTo(y, 1240);
+  });
+});
+
+// ── FAN GALLERY ──
+(function(){
+  const stage = document.getElementById('galGrid');
+
+  function spreadFan(cards) {
+    const N = cards.length;
+    if (!N) return;
+    const spread    = 110;              // Japanese sensu fan — wide arc from single bottom pivot
+    const offset    = spread / 2;
+    const increment = spread / (N + 1); // -offset + increment*(i+1), i=0..N-1
+    cards.forEach((c, i) => {
+      const angle = -offset + increment * (i + 1);
+      c.style.setProperty('--rot', angle + 'deg');
+      c.style.zIndex = Math.round(N - Math.abs(i - (N - 1) / 2)); // centre cards on top
+    });
+  }
+
+  function collapseFan() {
+    stage.querySelectorAll('.gi').forEach(c => c.style.setProperty('--rot', '0deg'));
+  }
+
+  function visibleCards() {
+    return Array.from(stage.querySelectorAll('.gi')).filter(c => c.style.display !== 'none');
+  }
+
+  // filter buttons — three-phase: fade+collapse → restructure → spread+fade-in
+  document.querySelectorAll('.gf').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gf').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      const cat = btn.dataset.cat;
+      const all = Array.from(stage.querySelectorAll('.gi'));
+      const toShow = all.filter(c => cat === 'all' || (c.dataset.cat || '').includes(cat));
+      const toHide = all.filter(c => !toShow.includes(c));
+
+      // phase 1 — collapse all to 0° and fade everything out
+      all.forEach(c => {
+        c.style.setProperty('--rot', '0deg');
+        c.style.opacity = '0';
+      });
+
+      // phase 2 — after fade+collapse, hide unwanted, position visible ones
+      setTimeout(() => {
+        toHide.forEach(c => c.style.display = 'none');
+        toShow.forEach(c => { c.style.display = ''; });
+        spreadFan(toShow);
+
+        // phase 3 — one frame later: fade visible cards back in at their spread positions
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          toShow.forEach(c => c.style.opacity = '1');
+        }));
+      }, 480);
+    });
+  });
+
+  // reset fan state: collapse cards and fade out
+  function resetFan() {
+    Array.from(stage.querySelectorAll('.gi')).forEach(c => {
+      c.style.setProperty('--rot', '0deg');
+      c.style.opacity = '0';
+    });
+  }
+
+  // re-enter: spread visible cards and fade in after a beat
+  function enterFan() {
+    const cards = visibleCards();
+    spreadFan(cards);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      cards.forEach(c => { c.style.opacity = '1'; });
+    }));
+  }
+
+  // reset filter to "All Works"
+  function resetToAll() {
+    document.querySelectorAll('.gf').forEach(b => b.classList.remove('on'));
+    const allBtn = document.querySelector('.gf[data-cat="all"]');
+    if (allBtn) allBtn.classList.add('on');
+    const all = Array.from(stage.querySelectorAll('.gi'));
+    all.forEach(c => { c.style.display = ''; });
+  }
+
+  // watch the fan stage: collapse when it leaves the viewport, re-spread on return
+  // reset to "All Works" only when leaving upward (user scrolled back up)
+  let fanHasLeft = false;
+  let prevY = window.scrollY;
+  new IntersectionObserver((entries) => {
+    const e = entries[0];
+    const currentY = window.scrollY;
+    const scrollingUp = currentY < prevY;
+    prevY = currentY;
+    if (!e.isIntersecting) {
+      fanHasLeft = true;
+      if (scrollingUp) resetToAll();   // reset filter only when leaving upward
+      resetFan();
+    } else if (fanHasLeft) {
+      fanHasLeft = false;
+      setTimeout(enterFan, 80);
+    }
+  }, { threshold: 0 }).observe(stage);
+
+  // initial spread on load
+  spreadFan(visibleCards());
+})();
+
+// ── LIGHTBOX ──
+(function(){
+  const lb     = document.getElementById('lightbox');
+  const lbImg  = document.getElementById('lbImg');
+  const lbCap  = document.getElementById('lbCaption');
+  const lbCnt  = document.getElementById('lbCounter');
+  let items = [], idx = 0;
+
+  function getVisible() {
+    return Array.from(document.querySelectorAll('.gi')).filter(g => g.style.display !== 'none');
+  }
+
+  function show(i) {
+    idx = (i + items.length) % items.length;
+    const it = items[idx];
+    // fade the current image out, swap the source, then fade the new one in once it's ready
+    lbImg.classList.add('fading');
+    clearTimeout(show._t);
+    show._t = setTimeout(() => {
+      const reveal = () => lbImg.classList.remove('fading');
+      lbImg.onload = reveal;
+      lbImg.onerror = reveal;
+      lbImg.src = it.src;
+      lbImg.alt = it.title;
+      if (lbImg.complete) reveal();   // already cached — onload may not refire
+      lbCap.textContent = it.title;
+      lbCnt.textContent = (idx + 1) + ' / ' + items.length;
+    }, 340);
+  }
+
+  function open(i) {
+    items = getVisible().map(g => ({
+      src: g.querySelector('img')?.currentSrc || g.querySelector('img')?.src || '',
+      title: g.dataset.title || ''
+    }));
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    show(i);
+  }
+
+  function close() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.gi').forEach((gi, i, all) => {
+    gi.addEventListener('click', () => {
+      const vis = getVisible();
+      open(vis.indexOf(gi));
+    });
+  });
+
+  document.getElementById('lbClose').addEventListener('click', close);
+  document.getElementById('lbPrev').addEventListener('click', () => show(idx - 1));
+  document.getElementById('lbNext').addEventListener('click', () => show(idx + 1));
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+
+  // ── drag left / right to switch (hand cursor) ──
+  let dragX0 = null, dragging = false, moved = false;
+  const THRESHOLD = 60;   // px before a drag counts as a switch
+  lbImg.addEventListener('pointerdown', e => {
+    dragging = true; moved = false; dragX0 = e.clientX;
+    lb.classList.add('grabbing');
+    try { lbImg.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  lbImg.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - dragX0;
+    if (Math.abs(dx) > 4) moved = true;
+    lbImg.style.transform = `scale(1) translateX(${dx * 0.35}px)`;   // follow the drag
+    lbImg.style.opacity = Math.max(0, 1 - Math.abs(dx) / 320);        // slowly fade out as it's dragged away
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    lb.classList.remove('grabbing');
+    lbImg.style.transform = '';                                       // snap position back (transition returns)
+    lbImg.style.opacity = '';                                         // released: snap back to 1, or let show()'s fade take over
+    const dx = e.clientX - dragX0;
+    if (Math.abs(dx) > THRESHOLD) { dx < 0 ? show(idx + 1) : show(idx - 1); }  // left→next, right→prev
+  }
+  lbImg.addEventListener('pointerup', endDrag);
+  lbImg.addEventListener('pointercancel', endDrag);
+  lbImg.addEventListener('dragstart', e => e.preventDefault());        // block native image drag
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape')      close();
+    if (e.key === 'ArrowLeft')   show(idx - 1);
+    if (e.key === 'ArrowRight')  show(idx + 1);
+  });
+})();
+
+// ── OUR STORY — count-up numbers when the section comes into view ──
+(function(){
+  const nums = Array.from(document.querySelectorAll('.os-num'));
+  if (!nums.length) return;
+  const DUR = 1680, STAGGER = 228;                    // per-number roll (ms) + cascade offset (+20% slower)
+  const fmt = n => n.toLocaleString('en-US');         // keeps the thousands comma (1,400)
+  const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  const items = nums.map((el, i) => {
+    const raw = el.textContent.trim();
+    const m = raw.match(/[\d,]+/);
+    const target = m ? parseInt(m[0].replace(/,/g, ''), 10) : 0;
+    const suffix = m ? raw.slice(m.index + m[0].length) : '';  // e.g. the "+"
+    el.textContent = '0' + suffix;
+    el.style.opacity = '0';                           // hidden until its turn in the cascade
+    return { el, i, target, suffix, done: false };
+  });
+
+  function roll(it){
+    it.el.classList.add('counting');                  // subtle rise + fade-in as it starts
+    let start = null;
+    (function step(ts){
+      if (start === null) start = ts;
+      const t = Math.min(1, (ts - start) / DUR);
+      it.el.textContent = fmt(Math.round(it.target * easeInOutCubic(t))) + it.suffix;
+      if (t < 1) requestAnimationFrame(step);
+      else it.el.textContent = fmt(it.target) + it.suffix;
+    })();
+  }
+
+  function run(it){
+    if (it.done) return; it.done = true;
+    setTimeout(() => roll(it), it.i * STAGGER);        // cascade the three figures one after another
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const it = items.find(x => x.el === en.target);
+      if (it) run(it);
+      io.unobserve(en.target);
+    });
+  }, { threshold: 0.5 });
+  items.forEach(it => io.observe(it.el));
+})();
+
+// ── STUDENTS REVEAL SLIDER — drag the divider to wipe testimonials ⇄ student work ──
+(function(){
+  const wrap    = document.getElementById('tstReveal');
+  const cover   = document.getElementById('tstCover');
+  const divider = document.getElementById('tstDivider');
+  const hint    = document.getElementById('tstHint');
+  if (!wrap || !cover || !divider) return;
+
+  const isMobile = () => window.matchMedia('(max-width:760px)').matches;
+  let P = 98;                                        // refined below to a ~0.5cm opening
+
+  function set(p){
+    P = Math.max(0, Math.min(100, p));            // full range — closes with no gap
+    cover.style.clipPath = `inset(0 ${100 - P}% 0 0)`;
+    divider.style.left = P + '%';
+    divider.setAttribute('aria-valuenow', Math.round(P));
+    if (hint) hint.textContent = P < 55 ? 'Drag back to the reviews ▶' : '◀ Drag to reveal their work';
+  }
+
+  // ~0.5 cm teaser opening (width-independent) — the partition's resting/closed-to point
+  const PX_PER_CM = 37.8;
+  const w0 = wrap.getBoundingClientRect().width || 900;
+  const DEFAULT_P = 100 - (0.5 * PX_PER_CM / w0) * 100;
+  let restP = DEFAULT_P;
+  set(restP);
+
+  const xToP = x => {
+    const r = wrap.getBoundingClientRect();
+    return ((x - r.left) / r.width) * 100;
+  };
+
+  let dragging = false;
+  function start(e){
+    if (isMobile()) return;
+    dragging = true; wrap.classList.add('dragging');
+    try { divider.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  }
+  function move(e){ if (dragging) set(xToP(e.clientX)); }
+  function end(){ dragging = false; wrap.classList.remove('dragging'); restP = P; }
+
+  divider.addEventListener('pointerdown', start);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
+  // keyboard support
+  divider.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { set(P - 6); restP = P; e.preventDefault(); }
+    if (e.key === 'ArrowRight') { set(P + 6); restP = P; e.preventDefault(); }
+  });
+
+  // ── scrolling the section out closes the partition (tracking scroll); once fully out it stays closed ──
+  const section = document.querySelector('.tst');
+  if (section) {
+    const ENTER = 0.45;                             // stays put while comfortably in view — only moves on the way out
+    let ticking = false;
+    function reveal(){
+      ticking = false;
+      if (isMobile() || dragging) return;
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const dist = Math.abs(rect.top + rect.height / 2 - vh / 2);
+      const prog = Math.min(1, dist / ((vh / 2 + rect.height / 2) * 1.2)); // ×1.2 → ~20% slower
+      if (prog <= ENTER) { set(restP); return; }    // in view — hold the current rest position
+      const t = (prog - ENTER) / (1 - ENTER);       // 0..1 as it scrolls out, up or down
+      set(restP + (DEFAULT_P - restP) * (t * t));   // t² → closes only to the 0.5cm teaser, tracking the scroll
+      if (rect.bottom <= 0 || rect.top >= vh) restP = DEFAULT_P; // fully scrolled past → latch at 0.5cm; stays until re-opened by drag
+    }
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(reveal); } }, { passive: true });
+    reveal();
+  }
+})();
+
+// ── FLOATING CALLIGRAPHY CHARS — all bright sections ──
+(function(){
+  const CHARS = ['書','墨','筆','道','藝','心','靜','氣','水','練','法','美','古','雅','宣','志','德','禪','蒼','雲','山','風'];
+  function pick() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
+
+  function addCols(section) {
+    const N = 7;
+    for (let i = 0; i < N; i++) {
+      const col = document.createElement('div');
+      col.className = 'ig-fc';
+      // Generate 18 chars then repeat them — translateY(-50%) lands exactly at
+      // the repeat point, making the loop seamless with no visible jump
+      const seq = Array.from({length: 18}, pick);
+      [...seq, ...seq].forEach(ch => {
+        const c = document.createElement('span');
+        c.textContent = ch;
+        col.appendChild(c);
+      });
+      const x   = (3 + i * 14).toFixed(0);
+      const del = -(i * 7).toFixed(0);
+      col.style.cssText = `left:${x}%;animation-delay:${del}s`;
+      section.prepend(col);
+    }
+  }
+
+  ['inkGarden','practice','gallery','our-story','courses','faq'].forEach(id => {
+    const s = document.getElementById(id);
+    if (s) addCols(s);
+  });
+})();
+
+// ── TITLE FLOAT-IN ──
+(function(){
+  const opts = { threshold: 0.1, rootMargin: '0px 0px -40px 0px' };
+  document.querySelectorAll('.sh').forEach(el => {
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { el.classList.add('sh-visible'); obs.disconnect(); }
+    }, opts);
+    obs.observe(el);
+  });
+  document.querySelectorAll('.ey').forEach(el => {
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { el.classList.add('ey-visible'); obs.disconnect(); }
+    }, opts);
+    obs.observe(el);
+  });
+})();
+
+// ── STORE PRODUCT ZOOM ──
+(function(){
+  const spZoom     = document.getElementById('spZoom');
+  const spZoomImg  = document.getElementById('spZoomImg');
+  const spZoomClose = document.getElementById('spZoomClose');
+
+  function openZoom(src, alt) {
+    spZoomImg.src = src;
+    spZoomImg.alt = alt || '';
+    spZoom.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeZoom() {
+    spZoom.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.sp-img-wrap').forEach(wrap => {
+    wrap.addEventListener('click', () => {
+      const img = wrap.querySelector('.sp-img');
+      openZoom(img.src, img.alt);
+    });
+  });
+
+  spZoomClose.addEventListener('click', closeZoom);
+  spZoom.addEventListener('click', closeZoom);
+  document.addEventListener('keydown', e => {
+    if (spZoom.classList.contains('open') && e.key === 'Escape') closeZoom();
+  });
+})();
+
+// ── COURSE SELECTION ──
+(function(){
+  const cards     = document.querySelectorAll('.cc[data-course]');
+  const summary   = document.getElementById('ccSelection');
+  const reserveBtn = document.getElementById('reserve');
+  const baseEmail = 'hello@tongshuacademy.com';
+
+  function render() {
+    const selected = Array.from(cards).filter(c => c.classList.contains('selected'));
+    if (selected.length === 0) {
+      summary.innerHTML = '';
+      reserveBtn.removeAttribute('href');
+    } else {
+      const names  = selected.map(c => c.dataset.course).join(' + ');
+      const prices = selected.map(c => c.dataset.price).join(' + ');
+      summary.innerHTML = `Selected: <strong>${names}</strong> &mdash; ${prices}`;
+      const body = `Hi, I'd like to reserve a spot for:%0A${selected.map(c=>`• ${c.dataset.course} (${c.dataset.price})`).join('%0A')}`;
+      reserveBtn.href = `mailto:${baseEmail}?subject=Course Reservation&body=${body}`;
+    }
+  }
+
+  reserveBtn.addEventListener('click', e => {
+    const selected = Array.from(cards).filter(c => c.classList.contains('selected'));
+    if (selected.length > 0) return;  // has selection — let mailto proceed
+    e.preventDefault();
+    // Prompt user to pick a course
+    summary.innerHTML = '<span style="color:var(--seal)">← Please choose a course above first</span>';
+    // Shake all cards to draw attention
+    cards.forEach(c => {
+      c.classList.remove('needs-pick');
+      void c.offsetWidth;  // force reflow to restart animation
+      c.classList.add('needs-pick');
+    });
+    setTimeout(() => cards.forEach(c => c.classList.remove('needs-pick')), 500);
+    // Scroll courses into view if offscreen
+    cards[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const wasSelected = card.classList.contains('selected');
+      cards.forEach(c => c.classList.remove('selected'));
+      if (!wasSelected) card.classList.add('selected');
+      render();
+    });
+  });
+
+  render();
+})();
+
+// ── FAQ ──
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const item = btn.closest('.faq-item');
+    if (!item) return;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// close all FAQ items when section scrolls out of view
+new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting)
+    document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
+}, { threshold: 0 }).observe(document.getElementById('faq'));
+
+// ── CART ──
+(function(){
+  const panel    = document.getElementById('cartPanel');
+  const overlay  = document.getElementById('cartOverlay');
+  const badge    = document.getElementById('cartBadge');
+  const itemsEl  = document.getElementById('cartItems');
+  const emptyEl  = document.getElementById('cartEmpty');
+  const totalEl  = document.getElementById('cartTotal');
+  const checkout = document.getElementById('cartCheckout');
+
+  let cart = {}; // { id: { name, price, qty } }
+
+  function openCart()  { panel.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
+  function closeCart() { panel.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
+
+  document.getElementById('cartToggle').addEventListener('click', openCart);
+  document.getElementById('cartClose').addEventListener('click', closeCart);
+  overlay.addEventListener('click', closeCart);
+
+  function totalItems() { return Object.values(cart).reduce((s,i)=>s+i.qty,0); }
+  function totalPrice() { return Object.values(cart).reduce((s,i)=>s+i.price*i.qty,0); }
+
+  function render() {
+    const count = totalItems();
+    badge.textContent = count;
+    badge.classList.toggle('show', count > 0);
+    totalEl.textContent = 'CN¥ ' + totalPrice().toLocaleString();
+    checkout.disabled = count === 0;
+
+    // sync Add-to-Cart buttons
+    document.querySelectorAll('.sp-add').forEach(btn => {
+      const inCart = !!cart[btn.dataset.id];
+      btn.classList.toggle('in-cart', inCart);
+      btn.textContent = inCart ? 'In Cart ✓' : 'Add to Cart';
+    });
+
+    // rebuild item list
+    const existing = itemsEl.querySelectorAll('.cart-item');
+    existing.forEach(el => el.remove());
+    const ids = Object.keys(cart);
+    emptyEl.style.display = ids.length ? 'none' : '';
+    ids.forEach(id => {
+      const item = cart[id];
+      const row = document.createElement('div');
+      row.className = 'cart-item';
+      row.innerHTML = `
+        <div style="flex:1">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">CN¥ ${item.price.toLocaleString()} each</div>
+        </div>
+        <div class="cart-qty">
+          <button data-action="dec" data-id="${id}">−</button>
+          <span>${item.qty}</span>
+          <button data-action="inc" data-id="${id}">+</button>
+        </div>`;
+      itemsEl.appendChild(row);
+    });
+  }
+
+  // qty buttons (event delegation)
+  itemsEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!cart[id]) return;
+    if (btn.dataset.action === 'inc') { cart[id].qty++; }
+    else { cart[id].qty--; if (cart[id].qty <= 0) delete cart[id]; }
+    render();
+  });
+
+  // Add to Cart buttons
+  document.querySelectorAll('.sp-add').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { id, name, price } = btn.dataset;
+      if (cart[id]) { delete cart[id]; } // toggle off if already in cart
+      else { cart[id] = { name, price: parseInt(price), qty: 1 }; }
+      render();
+    });
+  });
+
+  // Checkout — build mailto with order summary
+  checkout.addEventListener('click', () => {
+    if (!totalItems()) return;
+    const lines = Object.values(cart).map(i=>`${i.name} x${i.qty} = CN¥${i.price*i.qty}`).join('%0A');
+    const total = 'Total: CN¥' + totalPrice().toLocaleString();
+    window.location.href = `mailto:hello@tongshuacademy.com?subject=Order from Tong Shu Store&body=${lines}%0A%0A${total}`;
+  });
+
+  render();
+})();
+
+// ── LANGUAGE TOGGLE ──
+(function(){
+  const ZH = {
+    'nav-story':  '关于我们',
+    'nav-gal':    '作品',
+    'nav-store':  '商店',
+    'nav-students':'学员',
+    'nav-book':   '预约课程',
+    'hero-school':'通書 · 通书书法学院',
+    'hero-h1':    '笔，<br>仍在<strong>教导</strong><br>你的双手',
+    'ig-ey':      '习练之道',
+    'ig-h2':      '笔知，<br>先于你心',
+    'ig-body':    '羊毫柔顺，狼毫富弹，兔毫精准——先识其笔，后习其法。',
+    'ig-btn':     '查看课程 →',
+    'pr-ey':      '试笔',
+    'pr-h2':      '临摹一字，<br>感受运笔',
+    'pr-lead':    '沿着字样书写——运笔越慢，墨迹越浓。',
+    'pr-choose':  '选择一个字',
+    'pr-clear':   '清除',
+    'pr-guide-label':'显示字样',
+    'pr-hint':    '「永」是入门第一字——其八画涵盖了中国书法所有基本笔法。',
+    'vs-ey':      '了解学院',
+    'vs-h2':      '走进我们的工作室',
+    'vs-body':    '成都的笔法传承——空间、老师，与墨中修行。',
+    'vs-label':   '通书书法学院 · 成都',
+    'os-ey':      '关于我们',
+    'os-h2':      '墨迹代代相传，<br>薪火永续不断',
+    'os-body1':   '通书由刘文先生创立于成都，是四川最具声誉的笔墨艺术中心。',
+    'os-body2':   '书法乃日常修行——小班教学，名师亲授。',
+    'os-s1':      '年教学经验',
+    'os-s2':      '位驻院名师',
+    'os-s3':      '名学员',
+    'os-quote':   '习书法，先学为人。',
+    'ms-ey':      '名师',
+    'ms-h2':      '执笔引路的人',
+    'ms-role1':   '创始人 · 篆书',
+    'ms-bio1':    '2004 年创立墨流。',
+    'ms-role2':   '楷书',
+    'ms-bio2':    '主理一对一朱笔点评。',
+    'ms-role3':   '行书与草书',
+    'ms-bio3':    '教授流动的笔法。',
+    'ms-role4':   '毛笔字体与设计',
+    'ms-bio4':    '古典笔法，现代品牌。',
+    'gal-h2':     '从第一笔，<br>到完稿之作',
+    'gal-f1':     '全部作品',
+    'gal-f2':     '书法',
+    'gal-f3':     '笔墨',
+    'gal-f4':     '学院',
+    'st-ey':      '工作室商店',
+    'st-h2':      '一支好笔，<br>改变一切。',
+    'st-tag1':    '入门', 'st-name1': '入门套装',
+    'st-desc1':   '三支羊毫笔、砚台及研墨棒。',
+    'st-add1':    '加入购物车',
+    'st-tag2':    '进阶', 'st-name2': '竹制大师套装',
+    'st-desc2':   '六支混毫笔——狼毫、羊毫与兔毫混合。',
+    'st-add2':    '加入购物车',
+    'st-tag3':    '收藏', 'st-name3': '节日礼盒',
+    'st-desc3':   '八支漆制毛笔，手工丝绸织锦包装。',
+    'st-add3':    '加入购物车',
+    'st-tag4':    '特制', 'st-name4': '市集毛笔',
+    'st-desc4':   '成都笔墨市场手工制作，每支独一无二。',
+    'st-add4':    '加入购物车',
+    'tst-ey':     '学员心声',
+    'tst-h2':     '作品，胜于言语。',
+    'tst-q1':     '「入学六个月，我就开始为真实客户设计餐厅招牌。」',
+    'tst-m1':     '大师班 · 深圳',
+    'tst-q2':     '「我们在水上练字，每一笔几分钟就消失。它让我学会不再追求完美。」',
+    'tst-m2':     '访学生 · 华沙',
+    'tst-q3':     '「一堂课让我学到的视觉平衡，胜过四年设计学院。」',
+    'tst-m3':     '习练者 · 成都',
+    'cc-ey':      '课程',
+    'cc-h2':      '经典训练，现代应用。',
+    'cc-tag1':    '私教 · 90分钟',
+    'cc-name1':   '私人点评——楷书',
+    'cc-desc1':   '与陈师傅一对一授课，当场红墨点评纠正。',
+    'cc-tag2':    '小组 · 3小时 · 限12人',
+    'cc-name2':   '小组工作坊——楷书基础',
+    'cc-desc2':   '正楷基础入门，从横笔到完整字形。',
+    'cc-tag3':    '集训 · 2天 · 限8人',
+    'cc-name3':   '周末集训——品牌字体设计',
+    'cc-desc3':   '从毛笔字到矢量标志，两天全程包含。',
+    'cc-tag4':    '在线 · 直播 · 全球',
+    'cc-name4':   '在线直播 · 毛笔课',
+    'cc-desc4':   '全球皆可在线参与。中英双语授课，入门套装直邮到家。',
+    'cc-reserve': '立即预约',
+    'faq-ey':     '常见问题',
+    'faq-h2':     '开始之前。',
+    'faq-q1':     '需要书法基础吗？<span class="faq-icon"></span>',
+    'faq-a1':     '不需要。入门工作坊从基本笔画开始，循序渐进至完整字形。',
+    'faq-q2':     '需要携带什么？<span class="faq-icon"></span>',
+    'faq-a2':     '第一堂课无需携带任何物品，所有材料均已提供。课后我们会根据水平推荐适合的材料套装。',
+    'faq-q3':     '墨园是如何运作的？<span class="faq-icon"></span>',
+    'faq-a3':     '用水笔在湿润的庭院石板上书写，笔迹出现后数分钟内自然蒸发。开放练习，无需老师指导。',
+    'faq-q4':     '改期政策？<span class="faq-icon"></span>',
+    'faq-a4':     '私教课：提前24小时通知。小组工作坊：提前48小时。缺席不予退款。',
+    'ft-logo':    '墨流 · 墨流书法学院',
+    'ft-gal':     '作品',
+    'ft-crs':     '课程',
+    'ft-copy':    '© 2025 · 成都',
+    'cart-title': '购物车',
+    'cart-empty': '购物车为空。',
+    'cart-tot':   '合计',
+    'cart-out':   '结账',
+  };
+
+  // Resolve elements lazily by selector
+  const SEL = {
+    'nav-story':  '.nav-ul li:nth-child(1) a',
+    'nav-gal':    '.nav-ul li:nth-child(2) a',
+    'nav-store':  '.nav-ul li:nth-child(3) a',
+    'nav-students':'.nav-ul li:nth-child(4) a',
+    'nav-book':   '.nav-ul li:nth-child(5) a',
+    'hero-school':'#hSchool',
+    'hero-h1':    '#hTi',
+    'ig-ey':      '#inkGarden .ey',
+    'ig-h2':      '#inkGarden .sh',
+    'ig-body':    '#inkGarden .ig-body',
+    'ig-btn':     '#inkGarden .btn',
+    'pr-ey':      '#practice .ey',
+    'pr-h2':      '#practice .sh',
+    'pr-lead':    '#prLead',
+    'pr-choose':  '#prChoose',
+    'pr-clear':   '#prClear',
+    'pr-guide-label':'#prGuideLabel',
+    'pr-hint':    '#prHint',
+    'vs-ey':      '#academy-video .ey',
+    'vs-h2':      '#academy-video .sh',
+    'vs-body':    '#academy-video .vs-head p:last-child',
+    'vs-label':   '.vs-label',
+    'os-ey':      '#our-story .ey',
+    'os-h2':      '#our-story .sh',
+    'vs-label':   '.vs-label',
+    'os-h2':      '#our-story .sh',
+    'ms-ey':      '#masters .ey',
+    'ms-h2':      '#masters .sh',
+    'gal-h2':     '#gallery .sh',
+    'st-ey':      '#store .ey',
+    'st-h2':      '#store .sh',
+    'tst-ey':     '.tst .ey',
+    'tst-h2':     '.tst .sh',
+    'cc-ey':      '#courses .ey',
+    'cc-h2':      '#courses .sh',
+    'cc-reserve': '#reserve',
+    'faq-ey':     '#faq .ey',
+    'faq-h2':     '#faq .sh',
+    'ft-logo':    '.foot-bar-logo',
+    'ft-gal':     '.foot-bar-links li:nth-child(1) a',
+    'ft-crs':     '.foot-bar-links li:nth-child(2) a',
+    'ft-copy':    '.foot-bar-copy',
+    'cart-title': '.cart-title',
+    'cart-empty': '#cartEmpty',
+    'cart-tot':   '.cart-total-label',
+    'cart-out':   '#cartCheckout',
+  };
+
+  // Multi-element selectors (querySelectorAll + index)
+  const SELM = {
+    'os-body1': ['.os-body', 0], 'os-body2': ['.os-body', 1],
+    'os-s1':    ['.os-label', 0], 'os-s2': ['.os-label', 1], 'os-s3': ['.os-label', 2],
+    'os-quote': ['.os-quote em', 0],
+    'ms-role1': ['#masters .mc-role', 0], 'ms-bio1': ['#masters .mc-bio', 0],
+    'ms-role2': ['#masters .mc-role', 1], 'ms-bio2': ['#masters .mc-bio', 1],
+    'ms-role3': ['#masters .mc-role', 2], 'ms-bio3': ['#masters .mc-bio', 2],
+    'ms-role4': ['#masters .mc-role', 3], 'ms-bio4': ['#masters .mc-bio', 3],
+    'gal-f1':   ['.gf', 0], 'gal-f2': ['.gf', 1], 'gal-f3': ['.gf', 2], 'gal-f4': ['.gf', 3],
+    'st-tag1':  ['.sp-tag', 0], 'st-name1': ['.sp-name', 0], 'st-desc1': ['.sp-desc', 0], 'st-add1': ['.sp-add', 0],
+    'st-tag2':  ['.sp-tag', 1], 'st-name2': ['.sp-name', 1], 'st-desc2': ['.sp-desc', 1], 'st-add2': ['.sp-add', 1],
+    'st-tag3':  ['.sp-tag', 2], 'st-name3': ['.sp-name', 2], 'st-desc3': ['.sp-desc', 2], 'st-add3': ['.sp-add', 2],
+    'st-tag4':  ['.sp-tag', 3], 'st-name4': ['.sp-name', 3], 'st-desc4': ['.sp-desc', 3], 'st-add4': ['.sp-add', 3],
+    'tst-q1':   ['.tc-quote', 0], 'tst-m1': ['.tc-meta', 0],
+    'tst-q2':   ['.tc-quote', 1], 'tst-m2': ['.tc-meta', 1],
+    'tst-q3':   ['.tc-quote', 2], 'tst-m3': ['.tc-meta', 2],
+    'cc-tag1':  ['.cc-tag', 0], 'cc-name1': ['.cc-name', 0], 'cc-desc1': ['.cc-desc', 0],
+    'cc-tag2':  ['.cc-tag', 1], 'cc-name2': ['.cc-name', 1], 'cc-desc2': ['.cc-desc', 1],
+    'cc-tag3':  ['.cc-tag', 2], 'cc-name3': ['.cc-name', 2], 'cc-desc3': ['.cc-desc', 2],
+    'cc-tag4':  ['.cc-tag', 3], 'cc-name4': ['.cc-name', 3], 'cc-desc4': ['.cc-desc', 3],
+    'faq-q1':   ['.faq-q', 0], 'faq-a1': ['.faq-a p', 0],
+    'faq-q2':   ['.faq-q', 1], 'faq-a2': ['.faq-a p', 1],
+    'faq-q3':   ['.faq-q', 2], 'faq-a3': ['.faq-a p', 2],
+    'faq-q4':   ['.faq-q', 3], 'faq-a4': ['.faq-a p', 3],
+  };
+
+  function getEl(key) {
+    if (SEL[key])  return document.querySelector(SEL[key]);
+    if (SELM[key]) return document.querySelectorAll(SELM[key][0])[SELM[key][1]];
+    return null;
+  }
+
+  const stored = {};
+  let lang = 'en';
+
+  function storeEn() {
+    const keys = [...Object.keys(SEL), ...Object.keys(SELM)];
+    keys.forEach(k => {
+      const el = getEl(k);
+      if (!el) return;
+      stored[k] = el.innerHTML;
+      el.dataset.en = el.innerHTML;  // pin EN text on the element itself
+    });
+  }
+
+  function reanimateHero() {
+    const school = document.getElementById('hSchool');
+    const ti     = document.getElementById('hTi');
+    if (!school || !ti) return;
+    school.style.transition = ti.style.transition = 'opacity .25s';
+    school.style.opacity = ti.style.opacity = '0';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      school.style.opacity = '1';
+      ti.style.opacity     = '1';
+    }));
+  }
+
+  function applyLang(l) {
+    lang = l;
+    const isZh = l === 'zh';
+    document.documentElement.classList.toggle('lang-zh', isZh);
+    document.documentElement.lang = isZh ? 'zh-CN' : 'en';   // keep <html lang> correct for a11y/SEO
+    const _btn = document.getElementById('langToggle');
+    _btn.querySelector('.lang-flag').textContent = isZh ? '🇬🇧' : '🇨🇳';
+    _btn.querySelector('.lang-code').textContent = isZh ? 'EN' : 'CN';
+    const keys = [...Object.keys(SEL), ...Object.keys(SELM)];
+    keys.forEach(k => {
+      const el = getEl(k);
+      if (!el) return;
+      el.innerHTML = isZh ? (ZH[k] ?? el.dataset.en) : (el.dataset.en ?? stored[k]);
+    });
+    reanimateHero();
+  }
+
+  storeEn();
+  document.getElementById('langToggle').addEventListener('click', () => applyLang(lang === 'en' ? 'zh' : 'en'));
+})();
+
+// ── AMBIENT BACKGROUND MUSIC (looped MP3) ──
+(function(){
+  const SRC     = 'audio/theme.mp3';
+  const MAX_VOL = 0.55;          // ceiling — ambient, sits under the page
+  const FADE_IN = 2000;          // ms
+  const FADE_OUT= 1500;          // ms
+
+  let playing = false, fadeRaf = null;
+
+  const audio = new Audio(SRC);
+  audio.loop     = true;
+  audio.preload  = 'none';   // don't fetch the 3.7 MB theme until the visitor presses play
+  audio.volume   = 0;
+
+  function fadeTo(target, ms, onDone) {
+    cancelAnimationFrame(fadeRaf);
+    const from = audio.volume, delta = target - from, start = performance.now();
+    (function step(now){
+      const p = Math.min(1, (now - start) / ms);
+      audio.volume = Math.max(0, Math.min(1, from + delta * p));
+      if (p < 1) { fadeRaf = requestAnimationFrame(step); }
+      else if (onDone) onDone();
+    })(start);
+  }
+
+  function startMusic() {
+    audio.play().then(() => {
+      playing = true;
+      sync();
+      fadeTo(MAX_VOL, FADE_IN);
+    }).catch(() => {});
+  }
+
+  function stopMusic() {
+    playing = false;
+    sync();
+    fadeTo(0, FADE_OUT, () => audio.pause());
+  }
+
+  const SVG_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+  const SVG_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+
+  function sync() {
+    const btn = document.getElementById('soundToggle');
+    if (!btn) return;
+    btn.classList.toggle('on', playing);
+    btn.innerHTML = playing ? SVG_ON : SVG_OFF;
+    btn.title = playing ? 'Stop music' : 'Play ambient music';
+  }
+
+  // Music is off on load and starts ONLY from the sound button — no autoplay, no gesture fallback.
+  document.getElementById('soundToggle').addEventListener('click', e => {
+    e.stopPropagation();
+    if (playing) stopMusic();
+    else         startMusic();
+  });
+
+  sync();   // render the OFF icon initially
+
+  // Heartbeat the sound button for the first 10 seconds after load to catch the eye,
+  // then let it rest. (While playing, the calmer .on pulse takes over.)
+  const _sb = document.getElementById('soundToggle');
+  if (_sb) {
+    _sb.classList.add('beat');
+    setTimeout(() => _sb.classList.remove('beat'), 10000);
+  }
+})();
+
+// ── CHINESE CHARACTER MOUSE TRAIL ──
+(function(){
+  // Respect reduced-motion — no decorative trail for visitors who opt out.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const CHARS = '永書法墨筆道心禪雅風水山竹蘭梅松雲霧月星花鳥龍鳳韻意境神氣力美善';
+  const GOLD  = 'rgba(201,160,40,';
+  let last = 0;
+
+  document.addEventListener('mousemove', e => {
+    const now = Date.now();
+    if (now - last < 80) return;   // throttle: one char per 80 ms
+    last = now;
+
+    const el = document.createElement('span');
+    el.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+    const size = 13 + Math.random() * 14;          // 13–27 px
+    const angle = (Math.random() - 0.5) * 40;      // ±20 deg
+    const drift = (Math.random() - 0.5) * 24;      // horizontal float
+    el.style.cssText = `
+      position:fixed;
+      left:${e.clientX + (Math.random() - 0.5) * 18}px;
+      top:${e.clientY  + (Math.random() - 0.5) * 18}px;
+      font-family:'Noto Serif SC',serif;
+      font-size:${size}px;
+      color:${GOLD}${(0.55 + Math.random() * 0.35).toFixed(2)});
+      pointer-events:none;
+      user-select:none;
+      z-index:99999;
+      transform:rotate(${angle}deg) translateX(0px);
+      transition:
+        transform 1.4s cubic-bezier(.2,.8,.4,1),
+        opacity   1.4s ease-out;
+    `;
+    document.body.appendChild(el);
+
+    // Force reflow so transition fires
+    el.getBoundingClientRect();
+    el.style.transform  = `rotate(${angle}deg) translateX(${drift}px) translateY(-38px)`;
+    el.style.opacity    = '0';
+
+    setTimeout(() => el.remove(), 1450);
+  });
+})();
+
+// ── INTRO: calligraphy characters fall like leaves once on load, then clear ──
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const CHARS = '永書法道墨筆心禪雅風山水竹蘭梅松雲月花鳥龍鳳韻意氣靜';
+  const GOLD = 'rgba(201,160,40,', INK = 'rgba(16,14,28,', PAPER = 'rgba(240,232,213,';
+  const N = 24;
+  const layer = document.createElement('div');
+  layer.className = 'leaf-fall';
+  layer.setAttribute('aria-hidden', 'true');
+  let maxEnd = 0;
+  for (let i = 0; i < N; i++) {
+    const s = document.createElement('span');
+    s.className = 'leaf';
+    s.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+    const size  = 20 + Math.random() * 32;     // 20–52 px
+    const left  = Math.random() * 100;          // vw
+    const dur   = 3.2 + Math.random() * 1.9;    // 3.2–5.1 s
+    const delay = Math.random() * 1.4;          // 0–1.4 s
+    const op    = (0.4 + Math.random() * 0.42).toFixed(2);
+    const tone  = Math.random();
+    const base  = tone < 0.55 ? GOLD : (tone < 0.8 ? PAPER : INK);   // mostly gold, some paper, a few ink
+    s.style.cssText =
+      `left:${left}vw;font-size:${size}px;color:${base}${op});` +
+      `filter:blur(${(Math.random() * 1.1).toFixed(1)}px);--o:${op};` +
+      `animation:leafFall ${dur.toFixed(2)}s cubic-bezier(.45,.05,.55,.95) ${delay.toFixed(2)}s forwards`;
+    layer.appendChild(s);
+    maxEnd = Math.max(maxEnd, dur + delay);
+  }
+  // Wait for the brush font so the glyphs fall in their true form, then run once and self-remove.
+  const go = () => { document.body.appendChild(layer); setTimeout(() => layer.remove(), (maxEnd + 0.6) * 1000); };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(go).catch(go);
+  else go();
+})();
+
+// ── PRACTICE PAD — trace a character with a brush, clear, redraw ──
+(function(){
+  const pad = document.getElementById('prPad');
+  const gc  = document.getElementById('prGuide');
+  const dc  = document.getElementById('prDraw');
+  if (!pad || !gc || !dc) return;
+  const gctx = gc.getContext('2d');
+  const dctx = dc.getContext('2d');
+  const demoC = document.getElementById('prDemo');
+  const demoBrush = document.getElementById('prDemoBrush');
+  const dmx = demoC && demoC.getContext('2d');
+
+  const CHARS = ['永','道','心','山','水','書'];
+  let cur = '永';
+  let W = 0, H = 0;
+
+  function fit(cv){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    cv.width  = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    cv.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawGuide(){
+    gctx.clearRect(0, 0, W, H);
+    const m = 10;
+    // 米字格 practice grid — faint seal red
+    gctx.strokeStyle = 'rgba(212,59,32,.30)';
+    gctx.lineWidth = 1;
+    gctx.strokeRect(m, m, W - 2*m, H - 2*m);
+    gctx.save();
+    gctx.setLineDash([5,5]);
+    gctx.strokeStyle = 'rgba(212,59,32,.22)';
+    gctx.beginPath();
+    gctx.moveTo(W/2, m); gctx.lineTo(W/2, H-m);   // vertical centre line
+    gctx.moveTo(m, H/2); gctx.lineTo(W-m, H/2);   // horizontal centre line
+    gctx.stroke();
+    gctx.restore();
+    // reference character — faint warm ink to trace over
+    const size = Math.min(W, H) * 0.74;
+    gctx.fillStyle = 'rgba(28,18,12,.16)';
+    gctx.font = size + "px 'Ma Shan Zheng','Noto Serif SC',serif";
+    gctx.textAlign = 'center';
+    gctx.textBaseline = 'middle';
+    gctx.fillText(cur, W/2, H/2 + size*0.04);
+  }
+
+  function clearDraw(){ dctx.clearRect(0, 0, W, H); }
+
+  function setup(){
+    const r = pad.getBoundingClientRect();
+    W = r.width; H = r.height;
+    if (!W || !H) return;
+    fit(gc); fit(dc);           // resets each context transform for the new pixel size
+    if (demoC) fit(demoC);
+    drawGuide();
+    clearDraw();
+  }
+
+  // ── one-time demo: a brush paints a stroke (~2s), then it fades out ──
+  let demoPlayed = false;
+  function demoPoint(t){                       // cubic bezier across the pad, in CSS px
+    const p0={x:.28*W,y:.34*H}, p1={x:.44*W,y:.26*H}, p2={x:.58*W,y:.52*H}, p3={x:.72*W,y:.72*H};
+    const m=1-t;
+    return { x:m*m*m*p0.x+3*m*m*t*p1.x+3*m*t*t*p2.x+t*t*t*p3.x,
+             y:m*m*m*p0.y+3*m*m*t*p1.y+3*m*t*t*p2.y+t*t*t*p3.y };
+  }
+  function playDemo(){
+    if (demoPlayed || !dmx) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!W || !H) setup();
+    if (!W || !H) return;
+    demoPlayed = true;
+    dmx.clearRect(0,0,W,H);
+    dmx.strokeStyle='rgba(20,16,28,.82)'; dmx.lineCap='round'; dmx.lineJoin='round';
+    demoC.style.opacity='1'; demoBrush.style.opacity='1';
+    const DUR=1900; const start=performance.now(); let prev=demoPoint(0);
+    (function frame(now){
+      const t=Math.min(1,(now-start)/DUR);
+      const p=demoPoint(t);
+      dmx.lineWidth=5+9*Math.sin(t*Math.PI);   // thicker through the slow middle
+      dmx.beginPath(); dmx.moveTo(prev.x,prev.y); dmx.lineTo(p.x,p.y); dmx.stroke();
+      prev=p;
+      demoBrush.style.left=p.x+'px'; demoBrush.style.top=p.y+'px';
+      if (t<1) requestAnimationFrame(frame);
+      else setTimeout(() => {                  // hold a beat, then fade out and clear
+        demoC.style.opacity='0'; demoBrush.style.opacity='0';
+        setTimeout(() => dmx.clearRect(0,0,W,H), 600);
+      }, 300);
+    })(start);
+  }
+
+  // ── brush: slower strokes lay thicker ink ──
+  let drawing = false, lastX = 0, lastY = 0, lastT = 0, lastW = 10;
+  function pt(e){ const r = dc.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function down(e){
+    drawing = true;
+    const p = pt(e);
+    lastX = p.x; lastY = p.y; lastT = performance.now(); lastW = 11;
+    try { dc.setPointerCapture(e.pointerId); } catch (_) {}
+    dctx.fillStyle = 'rgba(16,14,28,.92)';
+    dctx.beginPath(); dctx.arc(p.x, p.y, lastW/2, 0, Math.PI*2); dctx.fill();  // a tap leaves a dot
+    e.preventDefault();
+  }
+  function move(e){
+    if (!drawing) return;
+    const p = pt(e), now = performance.now();
+    const dist = Math.hypot(p.x - lastX, p.y - lastY);
+    const speed = dist / Math.max(1, now - lastT);   // px per ms
+    let w = 15 - speed * 9;                            // slow → thick, fast → thin
+    w = Math.max(3, Math.min(16, w));
+    w = lastW * 0.55 + w * 0.45;                       // smooth width changes
+    dctx.strokeStyle = 'rgba(16,14,28,.92)';
+    dctx.lineCap = 'round'; dctx.lineJoin = 'round';
+    dctx.lineWidth = w;
+    const mx = (lastX + p.x)/2, my = (lastY + p.y)/2;
+    dctx.beginPath();
+    dctx.moveTo(lastX, lastY);
+    dctx.quadraticCurveTo(lastX, lastY, mx, my);
+    dctx.lineTo(p.x, p.y);
+    dctx.stroke();
+    lastX = p.x; lastY = p.y; lastT = now; lastW = w;
+    e.preventDefault();
+  }
+  function up(){ drawing = false; }
+  dc.addEventListener('pointerdown', down);
+  dc.addEventListener('pointermove', move);
+  dc.addEventListener('pointerup', up);
+  dc.addEventListener('pointercancel', up);
+
+  // ── controls ──
+  const charsWrap = document.getElementById('prChars');
+  CHARS.forEach((ch, i) => {
+    const b = document.createElement('button');
+    b.className = 'pr-char' + (i === 0 ? ' active' : '');
+    b.textContent = ch;
+    b.setAttribute('aria-label', 'Practise ' + ch);
+    b.addEventListener('click', () => {
+      cur = ch;
+      charsWrap.querySelectorAll('.pr-char').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      drawGuide(); clearDraw();
+    });
+    charsWrap.appendChild(b);
+  });
+  document.getElementById('prClear').addEventListener('click', clearDraw);
+  const toggle = document.getElementById('prGuideToggle');
+  toggle.addEventListener('change', () => gc.classList.toggle('hide', !toggle.checked));
+
+  // Wait for the brush font so the guide glyph is correct, then draw.
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load("40px 'Ma Shan Zheng'").then(setup).catch(setup);
+    document.fonts.ready.then(setup);
+  } else {
+    setup();
+  }
+  let rt = null;
+  new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(setup, 150); }).observe(pad);
+
+  // Play the brush demo once, when the pad first scrolls into view.
+  if ('IntersectionObserver' in window) {
+    const dio = new IntersectionObserver((es) => {
+      if (es[0].isIntersecting) { setTimeout(playDemo, 250); dio.disconnect(); }
+    }, { threshold: 0.45 });
+    dio.observe(pad);
+  } else {
+    setTimeout(playDemo, 800);
+  }
+})();
+
+// ── AI ASSISTANT (墨童 · Inkling) ──
+// A bilingual site assistant answering from a curated knowledge base of the
+// academy: courses, brushes, the store, visiting, our story, and booking.
+(function(){
+  const fab   = document.getElementById('aiFab');
+  const panel = document.getElementById('aiPanel');
+  const body  = document.getElementById('aiBody');
+  const chips = document.getElementById('aiChips');
+  const form  = document.getElementById('aiForm');
+  const input = document.getElementById('aiInput');
+  const teaser     = document.getElementById('aiTeaser');
+  const teaserText = document.getElementById('aiTeaserText');
+  const teaserX    = document.getElementById('aiTeaserX');
+  if (!fab || !panel) return;
+
+  const isZh = () => document.documentElement.classList.contains('lang-zh');
+
+  const TEASER = {
+    en: "Hi — I'm <strong>Inkling</strong>. Ask me anything about the academy ✒️",
+    zh: "你好 —— 我是<strong>墨童</strong>。关于学院尽管问我 ✒️",
+  };
+  let teaserTimer = null;
+  function showTeaser(){
+    if (panel.classList.contains('open') || fab.classList.contains('seen')) return;
+    teaserText.innerHTML = TEASER[isZh() ? 'zh' : 'en'];
+    teaser.classList.add('show');
+    teaserTimer = setTimeout(hideTeaser, 12000);   // fade on its own if ignored
+  }
+  function hideTeaser(){
+    clearTimeout(teaserTimer);
+    teaser.classList.remove('show');
+  }
+
+  // Static labels re-rendered on open so they follow the language toggle.
+  const LABELS = {
+    en: { name:'Inkling · 墨童', status:'Online', foot:'Your guide to Inkflow Academy',
+          placeholder:'Ask me anything…' },
+    zh: { name:'墨童 · Inkling', status:'在线', foot:'墨流书院 · 您的向导',
+          placeholder:'问我任何问题…' },
+  };
+
+  // Suggested starter questions (also drive keyword routing).
+  const CHIPS = {
+    en: ['Tell me about the academy', 'What courses do you offer?', 'Do you offer online classes?', 'Which brush suits a beginner?', 'How do I book?'],
+    zh: ['介绍一下学院', '有哪些课程？', '有在线课程吗？', '新手适合哪种毛笔？', '如何预约？'],
+  };
+
+  // Greeting shown on first open.
+  const GREET = {
+    en: "Hi — I'm <strong>Inkling</strong> (墨童), your guide to Inkflow Academy. <strong>Ask me anything</strong> — our courses, the brushes, our story, prices, the store, or planning a visit. Where shall we begin? ✒️",
+    zh: "你好 —— 我是<strong>墨童</strong>（Inkling），墨流书院的向导。<strong>有任何问题都可以问我</strong> —— 课程、毛笔、我们的故事、价格、店铺，或如何来访。想从哪儿开始呢？✒️",
+  };
+
+  // Knowledge base — keyword → reply. Ordered specific → general; the matcher
+  // scores by keyword length, so precise topics win over broad ones.
+  const RULES = [
+    // ── ABOUT / STORY ──
+    { k:['founder','who founded','founded by','liu wen','liú wén','who started','who owns','owner','谁创','创始人','创办人'],
+      en:"The academy was founded by <strong>Master Liú Wén</strong> (刘文), a revered Sichuan calligrapher. It's grown into one of the region's most respected brush-arts centres, with six resident masters carrying the lineage forward.",
+      zh:"学院由<strong>刘文大师</strong>创办 —— 一位备受敬重的四川书法家。如今它已成为四川最受尊崇的笔墨艺术中心之一，六位常驻大师延续着这一传承。" },
+    { k:['history','when was it founded','when did you open','established','how old','since when','how long have you','年历史','成立','创立','什么时候开'],
+      en:"We were founded in <strong>Chengdu in 2004</strong> — that's <strong>21 years</strong> of daily teaching, six resident masters, and more than <strong>1,400 students</strong> guided from their first stroke onward.",
+      zh:"我们于<strong>2004 年在成都</strong>创立 —— 至今已教学 <strong>21 年</strong>，拥有六位常驻大师，指导过 <strong>1,400 多名</strong>学生，从第一笔起悉心相授。" },
+    { k:['how many students','number of students','students taught','学生人数','多少学生','多少学员'],
+      en:"More than <strong>1,400 students</strong> have trained with us since 2004 — from curious first-timers to working designers.",
+      zh:"自 2004 年以来，已有 <strong>1,400 多名学生</strong>在此研习 —— 从好奇的初学者到职业设计师。" },
+    { k:['teacher','teachers','master','masters','instructor','faculty','who teaches','laoshi','老师','师父','导师','谁教'],
+      en:"Six <strong>resident masters</strong> teach here, each rooted in a living lineage. Private critiques are led by <strong>Master Chen</strong>, with real-time red-ink corrections.",
+      zh:"六位<strong>常驻大师</strong>在此授课，皆承续鲜活的师承。一对一点评由<strong>陈大师</strong>亲授，当场以朱笔批改。" },
+    { k:['philosophy','motto','belief','why calligraphy','what do you believe','meaning of calligraphy','理念','格言','座右铭','宗旨'],
+      en:"Our guiding line is: <em>“To learn calligraphy, first learn to be human.”</em> Here the brush is daily practice — patience, balance, and presence, one stroke at a time.",
+      zh:"我们的箴言是：<em>「学书先学做人。」</em>在这里，笔是日日的修行 —— 一笔一画间，修的是耐心、平衡与专注。" },
+    { k:['name mean','meaning of the name','what does inkflow mean','what does 墨流','ink flow','墨流是什么意思','名字的意思'],
+      en:"<strong>墨流 (Mòliú) — “flowing ink.”</strong> It's the idea that ink, like water, finds its own path down the page; our craft is learning to guide that flow.",
+      zh:"<strong>墨流 —— 「流动的墨」。</strong>寓意墨如水，自会在纸上寻得去路；而书艺，正是学着去引导这份流动。" },
+    { k:['about the academy','tell me about','what is inkflow','what is this place','introduce','overview','介绍','关于','这是什么地方'],
+      en:"<strong>Inkflow Academy (墨流)</strong> is a Chinese calligraphy studio in Chengdu, founded 2004. Small groups, master teachers, and a courtyard ink-garden — from your very first stroke to refined script. Ask me about courses, brushes, the store, or visiting!",
+      zh:"<strong>墨流书院</strong>是成都的一家中国书法工作室，创立于 2004 年。小班教学、名师亲授，还有一座庭院墨园 —— 从第一笔到成熟书体皆可研习。课程、毛笔、店铺或来访事宜，尽管问我！" },
+
+    // ── LOCATION / VISIT / HOURS ──
+    { k:['hours','opening hours','when are you open','what time','open time','close time','when do you close','营业时间','几点','开门','关门'],
+      en:"We're open <strong>Tuesday–Sunday, 09:00–17:30</strong> (closed Mondays). Drop by during those hours — no appointment needed just to look around.",
+      zh:"营业时间为<strong>周二至周日 09:00–17:30</strong>（周一休息）。这段时间随时欢迎前来 —— 只是参观的话无需预约。" },
+    { k:['what days','which days','open on monday','closed monday','open weekends','周一','星期几','哪几天','周末开'],
+      en:"Open <strong>Tuesday through Sunday</strong>, 09:00–17:30. We're <strong>closed on Mondays</strong> — the studio's rest day.",
+      zh:"<strong>周二至周日</strong>开放，09:00–17:30。<strong>周一休息</strong> —— 是工作室的静养日。" },
+    { k:['parking','park','metro','subway','bus','how to get','how do i get','directions','transport','nearest station','停车','地铁','公交','怎么去','怎么走'],
+      en:"We're on <strong>Kuanzhai Alley (宽窄巷子)</strong> in central Chengdu — a walkable historic lane, easiest reached by metro or taxi to Qingyang District. Street parking is limited, so metro or taxi is best.",
+      zh:"我们位于成都市中心的<strong>宽窄巷子</strong> —— 一条适宜步行的历史街巷，乘地铁或打车至青羊区最为方便。周边路边车位有限，建议地铁或打车前来。" },
+    { k:['visit','drop in','come by','walk in','tour','see the studio','can i come','参观','拜访','来看看','逛'],
+      en:"Visitors are warmly welcome during opening hours (Tue–Sun, 09:00–17:30). Come watch a class, see the ink-garden, and browse the brush store — no booking needed just to visit.",
+      zh:"营业时间内（周二至周日 09:00–17:30）诚挚欢迎来访。可旁观课程、参观墨园、逛逛毛笔店 —— 只是参观无需预约。" },
+    { k:['where','location','address','located','find you','map','哪里','地址','在哪','位置'],
+      en:"You'll find us at <strong>21 Kuanzhai Alley, Qingyang District, Chengdu, Sichuan 610000</strong> — in the heart of the old city. Open Tue–Sun, 09:00–17:30.",
+      zh:"我们在<strong>四川省成都市青羊区宽窄巷子 21 号，邮编 610000</strong> —— 就在老城中心。营业时间周二至周日 09:00–17:30。" },
+    { k:['chengdu','sichuan','which city','what city','china','成都','四川','哪个城市'],
+      en:"We're in <strong>Chengdu, Sichuan</strong> — on historic Kuanzhai Alley in Qingyang District.",
+      zh:"我们位于<strong>四川成都</strong> —— 青羊区历史悠久的宽窄巷子。" },
+
+    // ── CONTACT ──
+    { k:['wechat','weixin','instagram','social','follow you','social media','微信','社交','关注'],
+      en:"Find us on WeChat: <strong>tongshu_academy</strong>. It's the quickest way to ask about upcoming class dates.",
+      zh:"微信搜索 <strong>tongshu_academy</strong> 即可找到我们，也是咨询近期开课日期最快的方式。" },
+    { k:['contact','phone','call','email','e-mail','reach you','phone number','联系','电话','邮箱','邮件','怎么联系'],
+      en:"You can reach us by email at <strong>hello@tongshuacademy.com</strong>, by phone at <strong>+86 28 8765 4321</strong>, or on WeChat <strong>tongshu_academy</strong>.",
+      zh:"可通过邮箱 <strong>hello@tongshuacademy.com</strong>、电话 <strong>+86 28 8765 4321</strong>，或微信 <strong>tongshu_academy</strong> 联系我们。" },
+
+    // ── COURSES ──
+    { k:['private critique','private lesson','one-on-one','one on one','1-on-1','private class','master chen','classical script class','私教','一对一','私人课'],
+      en:"<strong>Private Critique — Classical Script</strong> is a <strong>90-minute one-on-one</strong> with Master Chen, with red-ink corrections in real time. <strong>CN¥ 480</strong>. Ideal if you want focused, personal feedback.",
+      zh:"<strong>私人点评 —— 古典书体</strong>是与陈大师的 <strong>90 分钟一对一</strong>课程，当场朱笔批改。<strong>CN¥ 480</strong>。适合希望获得专注、个性化指导的学员。" },
+    { k:['group workshop','kai-shu','kaishu','kai shu','regular script','basics class','group class','群','楷书','基础课'],
+      en:"<strong>Group Workshop — Kai-Shu Basics</strong> is a <strong>3-hour</strong> class (max 12 people) covering foundational regular script, from horizontal strokes to full characters. <strong>CN¥ 320</strong>.",
+      zh:"<strong>小组工作坊 —— 楷书基础</strong>为 <strong>3 小时</strong>课程（最多 12 人），讲授楷书基本功，从横画到完整字形。<strong>CN¥ 320</strong>。" },
+    { k:['brand lettering','logotype','logo','weekend intensive','brand class','vector','commercial','design course','品牌','字体设计','周末班','商标'],
+      en:"<strong>Weekend — Brand Lettering</strong> is a <strong>2-day intensive</strong> (max 8 people) taking you from brush lettering to a vectorized logotype. Both days included, <strong>CN¥ 1,200</strong>.",
+      zh:"<strong>周末班 —— 品牌字体设计</strong>是 <strong>为期两天的强化课</strong>（最多 8 人），带你从毛笔字走向矢量标志字体。含两天课程，<strong>CN¥ 1,200</strong>。" },
+    { k:['beginner','first time','never done','no experience','prior experience','start from scratch','complete beginner','new to calligraphy','新手','初学','零基础','没经验'],
+      en:"No experience needed at all! Introductory workshops start with the most basic strokes before building to full characters. The <strong>Group Kai-Shu Basics</strong> class (CN¥ 320) is the perfect first step.",
+      zh:"完全不需要任何基础！入门工作坊从最基本的笔画教起，再逐步过渡到完整字形。<strong>楷书基础小组课</strong>（CN¥ 320）是理想的第一步。" },
+    { k:['class size','how many people','group size','maximum','how big','人数','多少人','班级大小'],
+      en:"Group workshops cap at <strong>12</strong>, the weekend intensive at <strong>8</strong>, and private critiques are <strong>one-on-one</strong> — small by design, so every brush gets attention.",
+      zh:"小组课最多 <strong>12 人</strong>，周末强化课最多 <strong>8 人</strong>，私人点评为<strong>一对一</strong> —— 有意保持小班，让每一支笔都被看见。" },
+    { k:['how long is the course','duration','how long does','length of','课程多长','时长','多久'],
+      en:"It depends on the course: the group workshop runs <strong>3 hours</strong>, private critiques <strong>90 minutes</strong>, and Brand Lettering is a full <strong>2-day</strong> weekend.",
+      zh:"视课程而定：小组工作坊 <strong>3 小时</strong>，私人点评 <strong>90 分钟</strong>，品牌字体设计则是完整的<strong>两天</strong>周末课。" },
+    { k:['kid','kids','child','children','age','minimum age','too old','too young','for adults','孩子','儿童','小孩','年龄','年纪'],
+      en:"Calligraphy welcomes every age — steady hands come with patience, not youth. Younger students and seniors alike train here; just mention who's joining when you book so we match the right class.",
+      zh:"书法不拘年龄 —— 稳健的手源于耐心，而非年岁。少年与长者皆在此研习；预约时说明参加者的情况，我们便能安排合适的班级。" },
+    { k:['levels','advanced','intermediate','experienced','curriculum','progression','higher level','等级','进阶','高级','水平','课程体系'],
+      en:"We teach from the ground up: foundational <strong>Kai-Shu</strong> for beginners, focused <strong>private critiques</strong> to refine your hand, and the <strong>Brand Lettering</strong> intensive for applied, design-oriented work.",
+      zh:"我们由浅入深：面向初学者的<strong>楷书基础</strong>、精修笔法的<strong>私人点评</strong>，以及偏应用与设计的<strong>品牌字体设计</strong>强化课。" },
+    { k:['schedule','when is the next','dates','availability','next class','timetable','when do classes','排课','时间表','什么时候上课','开课时间'],
+      en:"Class dates rotate through the season. The quickest way to see the next opening is to tap <em>“Book a Session”</em> or message us on WeChat, and we'll share the current schedule.",
+      zh:"开课日期按季度轮排。想知道最近的名额，最快的方式是点击<em>「Book a Session」</em>或加微信咨询，我们会告知当前的排课。" },
+    { k:['online course','online class','online lesson','live class','online','remote','virtual','zoom','distance learning','from home','international','overseas','outside china','abroad','not in china','anywhere','english speaker','在线课程','在线课','在线','网课','线上','远程','在家学','海外','国外','国际'],
+      en:"Yes! Our new <strong>Online — Live Brush Class (CN¥ 380)</strong> is open to students <strong>worldwide</strong> — live video tuition in <strong>English &amp; Mandarin</strong>, with a starter kit shipped to your door. You no longer need to be in Chengdu to learn with us.",
+      zh:"可以！我们新推出的<strong>在线直播 · 毛笔课（CN¥ 380）</strong>面向<strong>全球</strong>学员 —— <strong>中英双语</strong>直播授课，入门套装直邮到家。想跟我们学书，不必再身在成都。" },
+    { k:['language','english','mandarin','speak english','taught in','in chinese','语言','英语','用什么语言','中文授课'],
+      en:"Classes are taught primarily in <strong>Mandarin</strong>, with English support available for visitors — the brush, happily, speaks a language of its own.",
+      zh:"课程主要以<strong>普通话</strong>授课，并为来访者提供英语协助 —— 好在，笔墨自有其通行的语言。" },
+    { k:['corporate','team building','team workshop','team session','company','private event','group booking','workshop for','party','团队','公司','活动','包场','团建'],
+      en:"Yes — we host private groups and team sessions. Reach out via <em>“Book a Session”</em> or WeChat with your group size and dates, and we'll tailor a workshop.",
+      zh:"可以 —— 我们承接私人团体与团队课程。请通过<em>「Book a Session」</em>或微信告知人数与日期，我们会量身安排工作坊。" },
+    { k:['gift','voucher','present','certificate','for someone','gift card','礼物','礼券','送人','代金券'],
+      en:"A calligraphy class makes a lovely gift. We can arrange gift bookings and brush sets — message us via <em>“Book a Session”</em> or WeChat and we'll sort the details.",
+      zh:"书法课是很雅致的礼物。我们可安排课程赠礼与毛笔套装 —— 通过<em>「Book a Session」</em>或微信联系我们即可安排细节。" },
+    { k:['course','courses','class','classes','lesson','lessons','program','workshop','learn','课程','课','班','学习'],
+      en:"We offer four paths: <strong>Group Kai-Shu Basics</strong> (CN¥ 320, 3 hrs), <strong>Private Critique — Classical Script</strong> (CN¥ 480, 90 min, one-on-one), the <strong>Weekend Brand Lettering</strong> intensive (CN¥ 1,200, 2 days), and — open to students worldwide — our <strong>Online Live Brush Class</strong> (CN¥ 380, in English &amp; Mandarin). See the <em>Courses</em> section above.",
+      zh:"我们提供四条路径：<strong>楷书基础小组课</strong>（CN¥ 320，3 小时）、<strong>私人点评 —— 古典书体</strong>（CN¥ 480，90 分钟，一对一）、<strong>周末品牌字体设计</strong>强化课（CN¥ 1,200，两天），以及面向全球学员的<strong>在线直播毛笔课</strong>（CN¥ 380，中英双语）。详见上方<em>课程</em>板块。" },
+
+    // ── BOOKING / PAYMENT ──
+    { k:['cancel','reschedule','change my booking','refund','no-show','miss a class','policy','取消','改期','退款','爽约','政策'],
+      en:"Rescheduling needs <strong>24 hours notice for private critiques</strong> and <strong>48 hours for group workshops</strong>. No-shows aren't refunded.",
+      zh:"改期须提前通知：<strong>私人点评 24 小时</strong>，<strong>小组工作坊 48 小时</strong>。未到场者恕不退款。" },
+    { k:['how do i book','book','reserve','sign up','enroll','register','appointment','join a class','预约','报名','注册','怎么报名'],
+      en:"Tap <em>“Book a Session”</em> in the top navigation — it opens a pre-filled email to the studio. You can also book over WeChat (<strong>tongshu_academy</strong>) or by phone.",
+      zh:"点击顶部导航的<em>「Book a Session」</em> —— 会打开一封预填好、发给工作室的邮件。也可通过微信（<strong>tongshu_academy</strong>）或电话预约。" },
+    { k:['payment','pay','alipay','wechat pay','credit card','cash','how do i pay','支付','付款','支付宝','现金','刷卡'],
+      en:"Payment is arranged when you book — the usual local methods all work: WeChat Pay, Alipay, card, or cash on arrival.",
+      zh:"付款在预约时安排 —— 常见的本地方式均可：微信支付、支付宝、刷卡，或到店现金支付。" },
+    { k:['discount','deal','offer','promo','cheaper','package','student discount','优惠','折扣','套餐','便宜','有没有活动'],
+      en:"Seasonal offers and multi-class packages come and go — ask us on WeChat for what's current. Buying a brush set alongside a course is the usual way to save.",
+      zh:"季节性优惠与多课套餐时有推出 —— 具体可加微信咨询。报名课程时一并选购毛笔套装，是常见的省钱方式。" },
+    { k:['price','cost','how much','fee','pricing','expensive','rates','价格','多少钱','费用','贵','收费'],
+      en:"Courses run <strong>CN¥ 320</strong> (Group Kai-Shu), <strong>CN¥ 380</strong> (Online Live Class), <strong>CN¥ 480</strong> (Private Critique), and <strong>CN¥ 1,200</strong> (Weekend Brand Lettering). Brush sets in the store range <strong>CN¥ 160–980</strong>.",
+      zh:"课程价格为 <strong>CN¥ 320</strong>（楷书小组课）、<strong>CN¥ 380</strong>（在线直播课）、<strong>CN¥ 480</strong>（私人点评）与 <strong>CN¥ 1,200</strong>（周末品牌字体设计）。店内毛笔套装价格区间为 <strong>CN¥ 160–980</strong>。" },
+
+    // ── BRUSHES / MATERIALS ──
+    { k:['which brush','brush for beginner','recommend a brush','best brush','first brush','what brush should','推荐毛笔','哪种笔','新手用什么笔'],
+      en:"For beginners, start with a soft <strong>goat-hair</strong> brush — it's forgiving and teaches control. The <strong>Starter Set</strong> (CN¥ 280) has three goat-hair brushes, an inkstone, and a grinding rod: everything you need.",
+      zh:"新手建议从柔软的<strong>羊毫</strong>笔入手 —— 包容性强，利于练习控笔。<strong>入门套装</strong>（CN¥ 280）含三支羊毫笔、一方砚台和一根墨条，一应俱全。" },
+    { k:['goat hair','goat-hair','soft brush','softness','羊毫','软毫'],
+      en:"<strong>Goat hair</strong> is prized for its <strong>softness</strong> — it holds plenty of ink and rewards a patient, controlled hand. It's what we start beginners on.",
+      zh:"<strong>羊毫</strong>以<strong>柔软</strong>著称 —— 含墨量大，回馈耐心而稳定的运笔。这正是我们让新手入门时所用。" },
+    { k:['wolf hair','wolf-hair','springy','弹性','狼毫'],
+      en:"<strong>Wolf hair</strong> gives <strong>spring</strong> — a crisp, responsive bounce that snaps back, ideal for lively, expressive strokes.",
+      zh:"<strong>狼毫</strong>富有<strong>弹性</strong> —— 挺括、回弹灵敏，适合书写生动而有神采的笔画。" },
+    { k:['rabbit hair','rabbit-hair','precision','fine detail','紫毫','兔毫','精细'],
+      en:"<strong>Rabbit hair</strong> is all about <strong>precision</strong> — fine, firm, and exacting, for delicate detail and controlled fine lines.",
+      zh:"<strong>兔毫（紫毫）</strong>贵在<strong>精准</strong> —— 细而挺、锋芒分明，适合精微的细节与工整的细线。" },
+    { k:['brush care','clean','clean the brush','wash brush','maintain','how to care','dry the brush','store brush','保养','清洗毛笔','护理','怎么洗笔'],
+      en:"Rinse a brush in cool water until it runs clear, gently reshape the tip to a point, and hang it bristles-down to dry — never leave it standing in water. Treated well, a good brush lasts years.",
+      zh:"用清水冲洗至水色变清，轻轻将笔锋理顺成尖，然后笔头朝下悬挂晾干 —— 切勿让笔久泡水中。养护得当，好笔可用多年。" },
+    { k:['ink','inkstone','grind','grinding','ink stick','墨','墨条','砚台','研墨'],
+      en:"Traditional ink is <strong>ground on an inkstone</strong> — a little water, a slow circular grind of the ink stick, until it's rich and glossy. It's a meditative start to every session. A stone and grinding rod come in the Starter Set.",
+      zh:"传统墨是<strong>在砚台上研磨</strong>而成 —— 少许清水，缓缓打圈研墨，直至墨色浓亮。这是每次练习前静心的开端。入门套装中即含砚台与墨条。" },
+    { k:['paper','xuan','rice paper','what paper','宣纸','纸','用什么纸'],
+      en:"Calligraphy is written on <strong>xuan paper (宣纸)</strong> — an absorbent handmade paper that lets ink bloom just so. Beginners practise on plainer sheets before moving to fine xuan.",
+      zh:"书法书写于<strong>宣纸</strong>之上 —— 一种吸墨的手工纸，能让墨韵恰到好处地晕染。初学者先在较普通的纸上练习，再过渡到精制宣纸。" },
+    { k:['what should i bring','what do i need','bring to class','materials provided','supplies','need to bring','带什么','需要准备','材料','提供工具'],
+      en:"Bring <strong>nothing to your first class</strong> — all materials are provided. Afterward, we recommend a level-matched supply kit so you can keep practising at home.",
+      zh:"<strong>第一次上课什么都不用带</strong> —— 所有材料均已备好。之后我们会推荐与你水平相配的用具套装，方便在家继续练习。" },
+
+    // ── STORE / PRODUCTS ──
+    { k:['starter set','入门套装'],
+      en:"The <strong>Starter Set (CN¥ 280)</strong> includes three goat-hair brushes, an inkstone, and a grinding rod — the ideal first kit for a new calligrapher.",
+      zh:"<strong>入门套装（CN¥ 280）</strong>含三支羊毫笔、一方砚台和一根墨条 —— 是书法新手的理想首选。" },
+    { k:['bamboo master','bamboo set','master set','中级套装'],
+      en:"The <strong>Bamboo Master Set (CN¥ 560)</strong> has six mixed-hair brushes — wolf, goat, and rabbit blends — for calligraphers ready to explore different strokes.",
+      zh:"<strong>竹韵大师套装（CN¥ 560）</strong>含六支混毫笔 —— 狼毫、羊毫与兔毫的调配 —— 适合准备探索不同笔法的学书者。" },
+    { k:['festival collection','collector','lacquered','silk','brocade','收藏','节日套装'],
+      en:"The <strong>Festival Collection (CN¥ 980)</strong> is our collector's set: eight lacquered brushes, hand-wrapped in silk brocade — as much heirloom as tool.",
+      zh:"<strong>节庆典藏（CN¥ 980）</strong>是我们的收藏级套装：八支漆柄毛笔，以丝绸锦缎手工包裹 —— 既是工具，亦是传家之物。" },
+    { k:['market brush','handmade brush','unique brush','市场毛笔','手工笔'],
+      en:"<strong>Market Brushes (CN¥ 160)</strong> are handmade in Chengdu's brush market — each one slightly different, with real character. A lovely everyday brush.",
+      zh:"<strong>市集毛笔（CN¥ 160）</strong>手工制作于成都的毛笔市场 —— 每支略有不同，各具韵味。是很称手的日常用笔。" },
+    { k:['shipping','ship','deliver','delivery','post','international','send abroad','邮寄','快递','配送','发货','海外'],
+      en:"We ship across China, and internationally on request. After checkout, we'll confirm shipping options and cost with you by WeChat or email.",
+      zh:"我们提供中国境内配送，境外亦可按需寄送。下单后，我们会通过微信或邮件与你确认配送方式与费用。" },
+    { k:['return','exchange','warranty','faulty','退货','换货','保修'],
+      en:"If something arrives not-quite-right, reach out via WeChat or email and we'll make it good. Brushes are natural, handmade items, so slight variation is part of their charm — not a fault.",
+      zh:"若收到的商品有任何不妥，请通过微信或邮件联系，我们会妥善处理。毛笔为天然手工之物，细微差异是其韵味所在 —— 并非瑕疵。" },
+    { k:['cart','checkout','order','basket','buy online','how do i order','购物车','结账','下单','怎么买'],
+      en:"Add pieces to your cart from the <em>Store</em> section (the basket icon, top-right). Checkout composes an order-summary email to the studio, and we confirm the details with you.",
+      zh:"在<em>店铺</em>板块把作品加入购物车（右上角购物袋图标）。结账时会生成一封订单摘要邮件发给工作室，我们再与你确认细节。" },
+    { k:['store','shop','buy','purchase','products','for sale','merchandise','商店','店铺','购买','商品'],
+      en:"Our store carries four brush sets: <strong>Market Brushes (¥160)</strong>, <strong>Starter Set (¥280)</strong>, <strong>Bamboo Master Set (¥560)</strong>, and the <strong>Festival Collection (¥980)</strong>. Browse the <em>Store</em> section above.",
+      zh:"店内售有四款毛笔套装：<strong>市集毛笔（¥160）</strong>、<strong>入门套装（¥280）</strong>、<strong>竹韵大师套装（¥560）</strong>与<strong>节庆典藏（¥980）</strong>。请见上方<em>店铺</em>板块。" },
+
+    // ── PRACTICE / EXPERIENCE / MEDIA ──
+    { k:['ink garden','garden','flagstone','water brush','courtyard','evaporate','water calligraphy','水写','地书','庭院','墨园'],
+      en:"The <strong>ink-garden</strong> is our courtyard practice: you paint with a <strong>water brush on wet flagstone</strong>, and the strokes shimmer, then evaporate within minutes. It's open practice — no instructor needed, no pressure, just you and the stroke.",
+      zh:"<strong>墨园</strong>是我们的庭院练习：以<strong>清水笔在湿润的石板上</strong>书写，笔迹微光乍现，几分钟后便蒸发消散。这是自由练习 —— 无需老师，没有压力，只有你与这一笔。" },
+    { k:['practice','how do i practice','how to improve','get better','tips','improve my','练习','怎么练','如何提高','进步'],
+      en:"Calligraphy rewards <strong>daily practice</strong> over long sessions — even ten minutes a day. Start slow, watch balance and spacing more than speed, and use the ink-garden to loosen up without wasting paper.",
+      zh:"书法重在<strong>日日练习</strong>，胜过偶尔苦练 —— 哪怕每天十分钟。起笔要慢，多留意结构与布白而非快慢，并善用墨园松手，还不费纸。" },
+    { k:['what will i learn','what do you learn','outcome','after the course','will i be able','learn to write','能学到什么','学会什么','成果'],
+      en:"You'll go from <strong>basic strokes to full characters</strong>, learning how the brush moves, how ink behaves, and how to read balance in a character. Even one class shifts how you see written form.",
+      zh:"你将从<strong>基本笔画走向完整字形</strong>，体会运笔之法、墨性之变，以及如何品读一个字的结构平衡。哪怕只上一堂课，也会改变你看待书写形态的方式。" },
+    { k:['script','style','xing','running script','cursive','seal script','clerical','what styles','字体','书体','行书','草书','篆书','隶书','书法风格'],
+      en:"We ground students in <strong>Kai-Shu (regular script)</strong> first, then move toward classical and running scripts in private critiques, and applied brush-lettering in the Brand course. Master the regular hand and the flowing styles open up.",
+      zh:"我们先以<strong>楷书</strong>打基础，再于私人点评中走向古典与行书，并在品牌课中练习应用型的毛笔字。楷书功底扎实，行草诸体自会豁然开朗。" },
+    { k:['video','watch','footage','film','see inside','glimpse','视频','看看','影片','片子'],
+      en:"There's a short film in the <em>Know the Academy</em> section above — a glimpse inside the Chengdu studio: the space, the teachers, and the discipline of ink.",
+      zh:"上方<em>Know the Academy</em>板块有一段短片 —— 带你一窥成都工作室：空间、师者，以及墨的修行。" },
+    { k:['gallery','artwork','works','pieces','exhibit','see work','作品','画廊','展品'],
+      en:"The <em>Gallery</em> section above fans out a selection of works and studio photography — scroll up and hover to see them spread.",
+      zh:"上方<em>Gallery</em>板块以扇形展开了部分作品与工作室摄影 —— 向上滚动并悬停即可看它们铺展开来。" },
+    { k:['review','reviews','testimonial','feedback','what students say','rating','评价','评论','口碑','学员反馈'],
+      en:"You'll find student voices in the <em>Students</em> section above. One favourite: <em>“One class taught me more about visual balance than four years of design school.”</em>",
+      zh:"上方<em>Students</em>板块收录了学员心声。其中一句尤为动人：<em>「一堂课让我对视觉平衡的领悟，胜过四年的设计学院。」</em>" },
+
+    // ── SITE / META ──
+    { k:['music','sound','audio','song','theme song','background music','音乐','声音','背景音乐'],
+      en:"There's an ambient Chinese instrumental theme — toggle it with the <strong>speaker icon</strong> in the top nav (the one gently beating for your attention). 🎵",
+      zh:"页面有一段中式器乐氛围曲 —— 用顶部导航的<strong>喇叭图标</strong>即可开关（就是那个轻轻跳动、想引起你注意的按钮）。🎵" },
+    { k:['switch','switch language','change language','中文','english version','translate','语言切换','换语言','切换'],
+      en:"Use the <strong>CN / EN toggle</strong> in the top nav to switch the whole site between English and 中文 — and I'll follow along in whichever you pick.",
+      zh:"用顶部导航的 <strong>CN / EN 切换</strong>可让整站在英文与中文间切换 —— 无论你选哪种，我都会随之应答。" },
+    { k:['cursor','pointer','brush cursor','光标','鼠标','指针'],
+      en:"That gold <strong>brush cursor</strong> trailing your pointer? A little flourish of the house — leave a few calligraphy characters drifting as you move. ✒️",
+      zh:"跟着指针游走的那支金色<strong>毛笔光标</strong>？是本院的一点小巧思 —— 移动时会飘落几个书法字符。✒️" },
+    { k:['accessible','accessibility','wheelchair','disability','无障碍','轮椅','残障'],
+      en:"The Kuanzhai Alley studio is in a historic lane; please mention any access needs when you book and we'll make sure your visit is comfortable.",
+      zh:"宽窄巷子的工作室位于历史街巷之中；预约时请告知任何无障碍需求，我们会确保你的来访舒适顺畅。" },
+    { k:['photo','photograph','camera','take pictures','拍照','照相','能拍照'],
+      en:"Photos are welcome — the studio and ink-garden are lovely to capture. Just ask before photographing other students' work up close.",
+      zh:"欢迎拍照 —— 工作室与墨园都很上镜。只是近距离拍摄他人作品前，请先征得同意。" },
+    { k:['tea','food','drink','coffee','refreshment','茶','喝的','吃的'],
+      en:"Tea is part of the ritual here — a quiet cup often accompanies practice. There's no full café, but you'll rarely sit down to ink without one.",
+      zh:"茶是这里仪式的一部分 —— 一盏清茶常伴练习。虽无正式茶室，但提笔研墨时，几乎总有一杯相随。" },
+    { k:['what can you do','help','how can you help','what do you know','options','你能做什么','帮助','你会什么','能帮我'],
+      en:"I can tell you about our <strong>courses, prices, brushes and materials, the store, our story, visiting hours, and how to book</strong>. Try a suggestion below, or just ask in your own words!",
+      zh:"我可以介绍我们的<strong>课程、价格、毛笔与材料、店铺、学院故事、营业时间以及如何预约</strong>。可以点下面的建议，也可直接用自己的话问我！" },
+    { k:['who are you','what are you','your name','are you real','are you human','are you a bot','are you ai','你是谁','你是什么','你叫','机器人','真人'],
+      en:"I'm <strong>Inkling · 墨童</strong>, the studio's assistant and your guide to Inkflow Academy. Ask me anything about our courses, brushes, the store, our story, or planning a visit!",
+      zh:"我是<strong>墨童 · Inkling</strong>，本院的助手，也是你在墨流书院的向导。课程、毛笔、店铺、我们的故事或来访事宜，尽管问我！" },
+    { k:['joke','funny','make me laugh','something fun','笑话','有趣','讲个笑话'],
+      en:"Why did the calligrapher stay so calm? Because no matter what happened, they always knew how to <em>brush it off</em>. ✒️",
+      zh:"书法家为何总是气定神闲？因为不论遇上什么，他们都懂得如何「一笔带过」。✒️" },
+    { k:['bye','goodbye','see you','farewell','再见','拜拜','回见'],
+      en:"Farewell for now — may your strokes be steady and your ink rich. Come back anytime, and do visit us in Chengdu. 🖌️",
+      zh:"暂且别过 —— 愿你运笔沉稳，墨色丰盈。随时欢迎再来，也盼你亲临成都。🖌️" },
+    { k:['thank','thanks','thx','谢谢','感谢','多谢'],
+      en:"You're most welcome! Anything else about the academy, the brushes, or booking a class? I'm happy to help. 🙏",
+      zh:"不客气！关于学院、毛笔或预约课程，还有什么想了解的吗？我很乐意帮忙。🙏" },
+    { k:['hello','hey','good morning','good afternoon','good evening','greetings','你好','您好','早上好','嗨','哈喽'],
+      en:"Hello, and welcome to Inkflow! 🖌️ I'm Inkling. Ask me anything about the academy — courses, brushes, prices, our story, or visiting. Where would you like to start?",
+      zh:"你好，欢迎来到墨流！🖌️ 我是墨童。关于学院的任何事都可以问我 —— 课程、毛笔、价格、我们的故事或来访事宜。想从哪儿开始呢？" },
+  ];
+
+  const FALLBACK = {
+    en: "I'm not sure about that one yet — but <strong>ask me anything about the academy</strong>: our courses, the brushes, prices, our story, visiting, or the store. Try a suggestion below 👇",
+    zh: "这个问题我还答不上来 —— 不过<strong>关于学院的任何事都可以问我</strong>：课程、毛笔、价格、我们的故事、来访或店铺。可以试试下面的建议 👇",
+  };
+
+  let greeted = false;
+
+  function scrollDown(){ body.scrollTop = body.scrollHeight; }
+
+  function addMsg(html, who, tagged){
+    const el = document.createElement('div');
+    el.className = 'ai-msg ' + who;
+    if (who === 'bot' && tagged) {
+      el.innerHTML = '<span class="ai-tag">' + (isZh() ? '墨童' : 'Inkling') + '</span>' + html;
+    } else {
+      el.innerHTML = html;
+    }
+    body.appendChild(el);
+    scrollDown();
+  }
+
+  function showTyping(){
+    const t = document.createElement('div');
+    t.className = 'ai-typing';
+    t.id = 'aiTyping';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    body.appendChild(t);
+    scrollDown();
+  }
+  function hideTyping(){ const t = document.getElementById('aiTyping'); if (t) t.remove(); }
+
+  // Latin keywords match on word boundaries (so "hi" won't fire inside "which");
+  // CJK keywords match as substrings. Score by keyword length so the most
+  // specific rule (e.g. "private critique") beats a broad one (e.g. "course").
+  function keywordHit(q, k){
+    if (/[一-鿿]/.test(k)) return q.includes(k);
+    const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // start on a word boundary; tolerate a plural "s"/"es" before the end boundary
+    return new RegExp('(^|[^a-z0-9])' + esc + '(s|es)?([^a-z0-9]|$)', 'i').test(q);
+  }
+  function bestRule(q){
+    let best = null, bestScore = 0;
+    for (const r of RULES){
+      let score = 0;
+      for (const k of r.k) if (keywordHit(q, k)) score += k.length;
+      if (score > bestScore){ bestScore = score; best = r; }
+    }
+    return best;
+  }
+
+  function reply(text){
+    const q = text.toLowerCase();
+    const hit = bestRule(q);
+    const msg = hit ? hit[isZh() ? 'zh' : 'en'] : FALLBACK[isZh() ? 'zh' : 'en'];
+    showTyping();
+    setTimeout(() => { hideTyping(); addMsg(msg, 'bot', true); }, 650 + Math.min(text.length * 18, 700));
+  }
+
+  function renderChips(){
+    chips.innerHTML = '';
+    CHIPS[isZh() ? 'zh' : 'en'].forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ai-chip';
+      b.textContent = c;
+      b.addEventListener('click', () => send(c));
+      chips.appendChild(b);
+    });
+  }
+
+  function syncLabels(){
+    const L = LABELS[isZh() ? 'zh' : 'en'];
+    document.getElementById('aiName').textContent = L.name;
+    document.getElementById('aiStatus').textContent = L.status;
+    document.getElementById('aiFoot').textContent = L.foot;
+    input.placeholder = L.placeholder;
+    renderChips();
+  }
+
+  function send(text){
+    const t = (text || '').trim();
+    if (!t) return;
+    addMsg(t.replace(/</g,'&lt;'), 'user', false);
+    input.value = '';
+    reply(t);
+  }
+
+  // Close when clicking anywhere outside the panel (the page, the ink canvas, etc.).
+  function onDocClick(e){
+    if (!panel.contains(e.target) && !fab.contains(e.target)) close();
+  }
+
+  function open(){
+    hideTeaser();
+    panel.classList.add('open');
+    fab.classList.add('open', 'seen');
+    fab.setAttribute('aria-label', isZh() ? '关闭助手' : 'Close assistant');
+    syncLabels();
+    if (!greeted){
+      greeted = true;
+      showTyping();
+      setTimeout(() => { hideTyping(); addMsg(GREET[isZh() ? 'zh' : 'en'], 'bot', true); }, 500);
+    }
+    setTimeout(() => input.focus(), 350);
+    // Register on the next tick so the click that opened the panel doesn't close it.
+    setTimeout(() => document.addEventListener('click', onDocClick), 0);
+  }
+  function close(){
+    panel.classList.remove('open');
+    fab.classList.remove('open');
+    fab.setAttribute('aria-label', isZh() ? '打开墨童助手' : 'Open Inkling assistant');
+    document.removeEventListener('click', onDocClick);
+  }
+  function toggle(){ panel.classList.contains('open') ? close() : open(); }
+
+  fab.addEventListener('click', toggle);
+  document.getElementById('aiHeadClose').addEventListener('click', close);
+  form.addEventListener('submit', e => { e.preventDefault(); send(input.value); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('open')) close(); });
+
+  // Teaser: click opens the assistant; the × just dismisses it.
+  teaser.addEventListener('click', open);
+  teaser.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+  teaserX.addEventListener('click', e => { e.stopPropagation(); fab.classList.add('seen'); hideTeaser(); });
+
+  // Keep labels/greeting language in sync if the visitor toggles EN/中文 while open.
+  document.getElementById('langToggle')?.addEventListener('click', () => {
+    if (panel.classList.contains('open')) setTimeout(syncLabels, 0);
+    if (teaser.classList.contains('show')) setTimeout(() => { teaserText.innerHTML = TEASER[isZh() ? 'zh' : 'en']; }, 0);
+  });
+
+  syncLabels();
+  // Pop the greeting bubble shortly after the page settles, drawing the eye to the button.
+  setTimeout(showTeaser, 2800);
+})();
+</script>
+
+<!-- Structured data — helps search engines understand the studio -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["EducationalOrganization", "LocalBusiness"],
+  "name": "Inkflow Academy of Calligraphy",
+  "alternateName": "墨流",
+  "description": "A Chinese calligraphy and brush-arts studio in Chengdu, founded 2004. Courses, private critiques, and a worldwide online live class.",
+  "foundingDate": "2004",
+  "image": "images/ink-orchid.webp",
+  "email": "hello@tongshuacademy.com",
+  "telephone": "+86-28-8765-4321",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "21 Kuanzhai Alley, Qingyang District",
+    "addressLocality": "Chengdu",
+    "addressRegion": "Sichuan",
+    "postalCode": "610000",
+    "addressCountry": "CN"
+  },
+  "openingHours": "Tu-Su 09:00-17:30",
+  "knowsLanguage": ["en", "zh-CN"]
+}
+</script>
+
+</body>
+</html>
