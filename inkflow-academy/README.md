@@ -2,68 +2,84 @@
 
 > **Live site:** [incflow-ac-d99bac1d-liorbar0.wix-site-host.com](https://incflow-ac-d99bac1d-liorbar0.wix-site-host.com/)
 
-A single-page marketing site for **Inkflow Academy** — a Chinese calligraphy and brush-arts studio in Chengdu. One self-contained `index.html` delivers a brush-painting hero, ink-garden storytelling, an interactive **practice pad**, a bilingual **Inkling** assistant, a brush **store** with cart, **course** selection, gallery, testimonials, FAQ, and ambient audio.
+A single-page marketing site for **Inkflow Academy** — a Chinese calligraphy and brush-arts studio in Chengdu. The page includes a brush-painting hero, ink-garden storytelling, an interactive **practice pad**, a bilingual **Inkling** assistant, a Wix-powered **store** with cart checkout, **Wix Bookings** course reservation, gallery, CMS-driven testimonials, FAQ, contact CRM capture, and ambient audio.
 
 ## Technologies
 
-- **Framework:** Vanilla HTML + CSS + JavaScript (no build step)
-- **Wix integration:** Deployed on **Wix Managed Headless**; the **live** site adds Wix Stores checkout, Wix Bookings, Wix CRM (contact), and Wix Members (see note below)
+- **Framework:** Astro 5 + Wix Managed Headless (`@wix/astro`, `@wix/astro-pages`)
+- **Wix integrations:** Stores catalog + hosted checkout, Bookings (availability + confirm), CRM (contact + leads), Members (login/logout), CMS (testimonials)
 - **Styling:** CSS custom properties, Google Fonts (Ma Shan Zheng, Cormorant Garamond, Hanken Grotesk, Noto Serif SC)
-- **Language:** JavaScript (inline)
-- **Deployment:** Static files, or Wix CLI after migrating to Astro (see `MIGRATION.md`)
+- **Deployment:** `wix dev` / `wix release`
 
 ## Project structure
 
 ```
 inkflow-academy/
-├── index.html          # entire site — markup, styles, scripts
-├── images/             # WebP photography
-├── audio/              # ambient theme (theme.mp3)
-├── video/              # hero motion background (motion.mp4)
-├── MIGRATION.md        # notes on Astro + file-based routing for Wix CLI
+├── src/
+│   ├── pages/
+│   │   ├── index.astro          # full marketing page
+│   │   └── api/
+│   │       ├── checkout.ts      # Wix eCommerce hosted checkout
+│   │       ├── store-products.ts
+│   │       ├── services.ts
+│   │       ├── availability.ts
+│   │       ├── booking.ts
+│   │       ├── contact.ts
+│   │       ├── me.ts
+│   │       └── testimonials.ts
+│   └── lib/
+├── public/
+│   ├── images/
+│   ├── audio/
+│   └── video/
+├── astro.config.mjs
+├── package.json
+├── wix.config.example.json
 └── README.md
 ```
 
-## Run locally
-
-No install step. For fonts and audio, serve over HTTP rather than `file://`:
+## Setup
 
 ```bash
-python3 -m http.server 8000
-# open http://localhost:8000
+cd inkflow-academy
+npm install
+cp wix.config.example.json wix.config.json   # fill in appId + siteId from Wix dashboard
+npm run dev
 ```
 
-## Features in this folder
+Open the local URL printed by the CLI (typically `http://localhost:4321`).
+
+## Features
 
 | Feature | How it works |
 |---|---|
 | **Try the Brush** | Canvas practice pad — trace 永/道/心/山/水/書 with pressure-like strokes |
 | **Inkling (墨童)** | Bilingual concierge — ~70-topic knowledge base, no external API |
-| **Store cart** | Add brush sets, open cart from nav basket icon, **Checkout** at bottom of cart panel |
-| **Courses** | Select a course card → **Reserve a Spot** |
+| **Store cart** | Nav basket → add products → **Checkout** → Wix hosted payment (`POST /api/checkout`) |
+| **Courses** | Select a course → **Reserve a Spot** → Wix Bookings modal with live slots |
+| **Contact** | Nav Contact / footer email → CRM modal (`POST /api/contact`) |
+| **Members** | Nav **Log in** / **Log out** via `@wix/astro-pages` OAuth routes |
 | **Gallery** | Fan layout, filters, lightbox |
-| **Students** | Drag divider to reveal student work behind testimonials |
+| **Students** | Drag divider + CMS testimonials (`GET /api/testimonials`) |
 | **EN / 中文** | Language toggle across copy and Inkling |
 
-### Cart checkout (this repo)
+## API routes (match live deployment)
 
-Store checkout in this static source uses a **mailto** order summary to the studio. The **live** deployment uses **Wix Stores + eCommerce** (`POST /api/checkout` → hosted payment page). To match production, migrate to an Astro headless project with API routes — see `MIGRATION.md`.
+| Route | Purpose |
+|---|---|
+| `GET /api/store-products` | Wix Stores catalog (syncs store cards + cart product IDs) |
+| `POST /api/checkout` | Create checkout → redirect URL |
+| `GET /api/services` | Bookings services list |
+| `GET /api/availability?serviceId=` | Open slots for a service |
+| `POST /api/booking` | Confirm a selected slot |
+| `POST /api/contact` | CRM contact + note (general + course lead forms) |
+| `GET /api/me` | Current member session |
+| `GET /api/testimonials` | CMS testimonials |
+| `/api/auth/login`, `/api/auth/logout` | Members OAuth (auto-registered by `@wix/astro-pages`) |
 
-### Course booking (this repo)
+## Source note
 
-Course reservation uses a prefilled **mailto** when a course is selected. The **live** site opens a **Wix Bookings** modal with live availability and CRM lead capture when no slots exist.
-
-## Connect to Wix Managed Headless
-
-This folder is a static page. To deploy like the live site (with Stores, Bookings, Members):
-
-1. Scaffold with `npm create @wix/new@latest -- headless`
-2. Move page content into `src/pages/index.astro` (`<style is:global>`, `<script is:inline>`)
-3. Copy `images/`, `audio/`, `video/` into `public/`
-4. Add server API routes for store catalog, checkout, bookings, contact, and members
-5. `npm run dev` → `npm run release`
-
-See `MIGRATION.md` for routing context and guardrails.
+The public GitHub repo [`liorbar777/inkflow_academy`](https://github.com/liorbar777/inkflow_academy) is a static `index.html` snapshot with mailto checkout. This monorepo copy is rebuilt as **Managed Headless Astro** to match the live Wix-hosted site.
 
 ---
 

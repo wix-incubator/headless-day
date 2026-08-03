@@ -1,3 +1,6 @@
+---
+export const prerender = false;
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,17 +15,17 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="墨流 Inkflow Academy — Chinese Calligraphy & Brush Arts">
 <meta property="og:description" content="A Chinese calligraphy studio in Chengdu since 2004. Courses, private critiques, and a worldwide online live class.">
-<meta property="og:image" content="images/ink-orchid.webp">
+<meta property="og:image" content="/images/ink-orchid.webp">
 <meta property="og:locale" content="en">
 <meta property="og:locale:alternate" content="zh_CN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="墨流 Inkflow Academy — Chinese Calligraphy & Brush Arts">
 <meta name="twitter:description" content="A Chinese calligraphy studio in Chengdu since 2004. Courses, private critiques, and a worldwide online live class.">
-<meta name="twitter:image" content="images/ink-orchid.webp">
+<meta name="twitter:image" content="/images/ink-orchid.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700&family=Hanken+Grotesk:wght@300;400;500&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
-<style>
+<style is:global>
 :root{
   --paper:#F0E8D5; --ink:#100E1C; --seal:#D43B20; --gold:#C9A028;
   --dark:#0C0A18;  --on-ink:#F0E8D5; --muted:#6A6258; --wash:#D8CFBA;
@@ -1041,10 +1044,26 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
   .ai-panel{right:12px;left:12px;bottom:86px;width:auto;max-width:none}
   .ai-teaser{right:84px;bottom:24px;max-width:200px;font-size:.86rem}
 }
+
+/* ── BOOK / CONTACT MODALS (Wix Bookings + CRM) ── */
+.book-modal{position:fixed;inset:0;z-index:850;display:none;align-items:center;justify-content:center;padding:1.25rem}
+.book-modal.open{display:flex}
+.book-backdrop{position:absolute;inset:0;background:rgba(12,10,24,.78);backdrop-filter:blur(8px)}
+.book-card{position:relative;background:var(--paper);color:var(--ink);max-width:26rem;width:100%;padding:2rem 1.75rem;border-radius:2px;box-shadow:0 28px 90px rgba(0,0,0,.55);max-height:min(90vh,720px);overflow-y:auto}
+.book-close{position:absolute;top:.65rem;right:.75rem;background:none;border:none;font-size:1.65rem;line-height:1;cursor:pointer;color:var(--muted);padding:.25rem}
+.book-title{font-family:'Cormorant Garamond',serif;font-size:1.75rem;margin:.25rem 0 .75rem}
+.book-note{font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.55}
+.book-field{width:100%;padding:.65rem .75rem;margin-bottom:.65rem;border:1px solid var(--wash);background:rgba(255,255,255,.55);font-family:inherit;font-size:.92rem;border-radius:2px}
+.book-field:focus{outline:2px solid rgba(201,160,40,.45);border-color:var(--gold)}
+.book-slots{display:grid;gap:.5rem;margin-bottom:1rem}
+.book-slot{display:flex;flex-direction:column;gap:.15rem;padding:.7rem .85rem;text-align:left;background:rgba(12,10,24,.04);border:1px solid var(--wash);cursor:pointer;font:inherit;border-radius:2px;transition:border-color .2s,background .2s}
+.book-slot:hover,.book-slot.sel{border-color:var(--gold);background:rgba(201,160,40,.12)}
+.book-slot b{font-weight:600;font-size:.92rem}
+.book-slot span{font-size:.78rem;color:var(--muted)}
+.book-msg{font-size:.82rem;color:var(--seal);margin-top:.5rem;text-align:center}
 </style>
 </head>
 <body>
-
 <div id="progress"><div id="pBar"></div></div>
 
 <!-- live calligraphy BG — chars injected by JS -->
@@ -1057,7 +1076,9 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
     <li><a href="#gallery">Gallery</a></li>
     <li><a href="#store">Store</a></li>
     <li><a href="#students">Students</a></li>
-    <li><a href="#courses" class="cta">Book a Session</a></li>
+    <li><a href="#courses" class="cta" id="bookCta">Book a Session</a></li>
+    <li><a href="#contact" id="contactCta">Contact</a></li>
+    <li><a href="/api/auth/login?returnToUrl=/" id="authLink">Log in</a></li>
     <li><button class="lang-btn" id="langToggle" aria-label="Switch language"><span class="lang-flag">🇨🇳</span><span class="lang-code">CN</span></button></li>
     <li><button class="sound-btn" id="soundToggle" title="Play ambient music" aria-label="Toggle ambient music"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg></button></li>
   </ul>
@@ -1086,9 +1107,9 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 <div class="hero-track" id="heroTrack">
 <div class="hero-stage" id="heroStage">
   <div id="heroBg"></div>
-  <video class="hero-video" autoplay muted loop playsinline preload="auto"><source src="video/motion.mp4" type="video/mp4"></video>
+  <video class="hero-video" autoplay muted loop playsinline preload="auto"><source src="/video/motion.mp4" type="video/mp4"></video>
   <div id="heroBgOverlay"></div>
-  <img width="756" height="463" decoding="async" fetchpriority="high" id="classPhoto" src="images/calligraphy-class.webp" alt="Calligraphy class"
+  <img width="756" height="463" decoding="async" fetchpriority="high" id="classPhoto" src="/images/calligraphy-class.webp" alt="Calligraphy class"
        onerror="this.style.display='none'">
   <!-- ink-wash base blobs — cool smoke tones -->
   <div class="ink-wash" style="width:55vw;height:42vw;left:-8%;top:5%;background:radial-gradient(ellipse,rgba(90,95,110,1),transparent);animation:iw0 26s ease-in-out infinite"></div>
@@ -1100,7 +1121,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
   <div class="hfc" id="hfc4">墨</div>
   <!-- pen — static -->
   <div class="pen-photo" id="penPhoto">
-    <img width="286" height="342" decoding="async" src="images/pen-nib.webp" alt="Gold fountain pen"
+    <img width="286" height="342" decoding="async" src="/images/pen-nib.webp" alt="Gold fountain pen"
          onerror="this.parentElement.style.display='none'">
   </div>
   <!-- self-drawing brush centerpiece — the 墨 writes itself in gold on load -->
@@ -1142,7 +1163,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
     <a href="#courses" class="btn btn-outline-d" style="align-self:flex-start">View courses →</a>
   </div>
   <div class="slot" style="min-height:75vh;border-radius:0">
-    <img width="429" height="437" decoding="async" loading="lazy" src="images/brushes-bowl.webp" alt="Calligraphy brushes in bowl" onerror="this.style.display='none'">
+    <img width="429" height="437" decoding="async" loading="lazy" src="/images/brushes-bowl.webp" alt="Calligraphy brushes in bowl" onerror="this.style.display='none'">
     <div class="slot-bg"></div>
     <div class="slot-zh" style="font-size:14rem">道</div>
   </div>
@@ -1193,10 +1214,10 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
     <div class="vs-player rv" id="vsPlayer">
       <div class="vs-thumb" id="vsThumb">
         <div class="vs-slides" id="vsSlides">
-          <img width="756" height="463" decoding="async" loading="lazy" class="vs-slide active" src="images/calligraphy-class.webp"                        alt="Calligraphy class">
-          <img width="325" height="215" decoding="async" loading="lazy" class="vs-slide sharp"  src="images/academy-practice.webp"        alt="Academy practice">
-          <img width="202" height="221" decoding="async" loading="lazy" class="vs-slide"        src="images/studio-session.webp"        alt="Studio session">
-          <img width="736" height="736" decoding="async" loading="lazy" class="vs-slide"        src="images/landscape.webp"                                 alt="Tong Shu Academy">
+          <img width="756" height="463" decoding="async" loading="lazy" class="vs-slide active" src="/images/calligraphy-class.webp"                        alt="Calligraphy class">
+          <img width="325" height="215" decoding="async" loading="lazy" class="vs-slide sharp"  src="/images/academy-practice.webp"        alt="Academy practice">
+          <img width="202" height="221" decoding="async" loading="lazy" class="vs-slide"        src="/images/studio-session.webp"        alt="Studio session">
+          <img width="736" height="736" decoding="async" loading="lazy" class="vs-slide"        src="/images/landscape.webp"                                 alt="Tong Shu Academy">
         </div>
         <div class="vs-grad"></div>
         <div class="vs-center-btn" id="vsCenterBtn">
@@ -1254,7 +1275,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
     <div class="masters-grid rv">
       <div class="mc">
         <div class="mc-photo">
-          <img src="images/master-liu.webp" alt="Master Liú Wén" width="419" height="306" decoding="async" loading="lazy">
+          <img src="/images/master-liu.webp" alt="Master Liú Wén" width="419" height="306" decoding="async" loading="lazy">
         </div>
         <p class="mc-role">Founder · Seal Script</p>
         <h3 class="mc-name">Liú Wén <span>刘文</span></h3>
@@ -1262,7 +1283,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
       </div>
       <div class="mc">
         <div class="mc-photo">
-          <img src="images/master-chen.webp" alt="Master Chén Yù" width="244" height="244" decoding="async" loading="lazy">
+          <img src="/images/master-chen.webp" alt="Master Chén Yù" width="244" height="244" decoding="async" loading="lazy">
         </div>
         <p class="mc-role">Regular Script · Kai-Shu</p>
         <h3 class="mc-name">Chén Yù <span>陈玉</span></h3>
@@ -1270,7 +1291,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
       </div>
       <div class="mc">
         <div class="mc-photo">
-          <img src="images/master-wang.webp" alt="Master Wáng Sù" width="217" height="173" decoding="async" loading="lazy">
+          <img src="/images/master-wang.webp" alt="Master Wáng Sù" width="217" height="173" decoding="async" loading="lazy">
         </div>
         <p class="mc-role">Running &amp; Cursive Script</p>
         <h3 class="mc-name">Wáng Sù <span>王素</span></h3>
@@ -1278,7 +1299,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
       </div>
       <div class="mc">
         <div class="mc-photo">
-          <img src="images/master-lin.webp" alt="Master Lín Hé" width="474" height="353" decoding="async" loading="lazy">
+          <img src="/images/master-lin.webp" alt="Master Lín Hé" width="474" height="353" decoding="async" loading="lazy">
         </div>
         <p class="mc-role">Brush Lettering &amp; Design</p>
         <h3 class="mc-name">Lín Hé <span>林禾</span></h3>
@@ -1305,75 +1326,75 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 
       <!-- edges — darker/muted -->
       <div class="gi" data-cat="brushes all" data-title="The Craftsman">
-        <img width="692" height="550" decoding="async" loading="lazy" src="images/artisan-brush.webp" alt="Artisan brush resting in stone dust">
+        <img width="692" height="550" decoding="async" loading="lazy" src="/images/artisan-brush.webp" alt="Artisan brush resting in stone dust">
         <div class="gi-over"><span class="gi-zh">匠</span><p class="gi-name">The Craftsman</p><p class="gi-meta">Artisan Tools</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="brushes all" data-title="The Bowl">
-        <img width="429" height="437" decoding="async" loading="lazy" src="images/brushes-ceramic-bowl.webp" alt="Calligraphy brushes in ceramic bowl">
+        <img width="429" height="437" decoding="async" loading="lazy" src="/images/brushes-ceramic-bowl.webp" alt="Calligraphy brushes in ceramic bowl">
         <div class="gi-over"><span class="gi-zh">器</span><p class="gi-name">The Bowl</p><p class="gi-meta">Studio Tools</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="brushes all" data-title="Laid to Rest">
-        <img width="463" height="365" decoding="async" loading="lazy" src="images/brushes-on-stone.webp" alt="Brushes laid on stone">
+        <img width="463" height="365" decoding="async" loading="lazy" src="/images/brushes-on-stone.webp" alt="Brushes laid on stone">
         <div class="gi-over"><span class="gi-zh">靜</span><p class="gi-name">Laid to Rest</p><p class="gi-meta">After Practice</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="calligraphy all" data-title="Classical Script">
-        <img width="283" height="273" decoding="async" loading="lazy" src="images/calligraphy-scroll.webp" alt="Classical calligraphy scroll">
+        <img width="283" height="273" decoding="async" loading="lazy" src="/images/calligraphy-scroll.webp" alt="Classical calligraphy scroll">
         <div class="gi-over"><span class="gi-zh">書</span><p class="gi-name">Classical Script</p><p class="gi-meta">Tang Dynasty</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="calligraphy all" data-title="Spring Character">
-        <img width="800" height="520" decoding="async" loading="lazy" src="images/writing-spring-character.webp" alt="Hand writing spring character on red paper">
+        <img width="800" height="520" decoding="async" loading="lazy" src="/images/writing-spring-character.webp" alt="Hand writing spring character on red paper">
         <div class="gi-over"><span class="gi-zh">春</span><p class="gi-name">Spring Character</p><p class="gi-meta">Calligraphy · Red Paper</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <!-- centre — most colourful, highest z-index -->
       <div class="gi" data-cat="brushes all" data-title="Colour & Form">
-        <img width="438" height="584" decoding="async" loading="lazy" src="images/paint-dipped-brushes.webp" alt="Vibrant paint-dipped brushes on white background">
+        <img width="438" height="584" decoding="async" loading="lazy" src="/images/paint-dipped-brushes.webp" alt="Vibrant paint-dipped brushes on white background">
         <div class="gi-over"><span class="gi-zh">彩</span><p class="gi-name">Colour & Form</p><p class="gi-meta">The Brushes</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="academy all" data-title="Lantern Street · Chengdu">
-        <img width="826" height="458" decoding="async" loading="lazy" src="images/chinese-lanterns.webp" alt="Chinese lanterns glowing orange red and blue">
+        <img width="826" height="458" decoding="async" loading="lazy" src="/images/chinese-lanterns.webp" alt="Chinese lanterns glowing orange red and blue">
         <div class="gi-over"><span class="gi-zh">燈</span><p class="gi-name">Lantern Street</p><p class="gi-meta">Chengdu · Festival</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <!-- fading back out -->
       <div class="gi" data-cat="brushes all" data-title="Dragon Brush">
-        <img width="886" height="504" decoding="async" loading="lazy" src="images/dragon-brush.webp" alt="Decorative dragon brush resting on red calligraphy paper">
+        <img width="886" height="504" decoding="async" loading="lazy" src="/images/dragon-brush.webp" alt="Decorative dragon brush resting on red calligraphy paper">
         <div class="gi-over"><span class="gi-zh">筆</span><p class="gi-name">Dragon Brush</p><p class="gi-meta">Chengdu Market</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="brushes all" data-title="Market Colours">
-        <img width="249" height="344" decoding="async" loading="lazy" src="images/beaded-brushes.webp" alt="Colorful beaded calligraphy brushes">
+        <img width="249" height="344" decoding="async" loading="lazy" src="/images/beaded-brushes.webp" alt="Colorful beaded calligraphy brushes">
         <div class="gi-over"><span class="gi-zh">色</span><p class="gi-name">Market Colours</p><p class="gi-meta">Chengdu Market</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="calligraphy all" data-title="Ink · Smoke · Art">
-        <img width="346" height="606" decoding="async" loading="lazy" src="images/ink-smoke.webp" alt="Ink smoke calligraphy art">
+        <img width="346" height="606" decoding="async" loading="lazy" src="/images/ink-smoke.webp" alt="Ink smoke calligraphy art">
         <div class="gi-over"><span class="gi-zh">氣</span><p class="gi-name">Ink · Smoke · Art</p><p class="gi-meta">Calligraphy</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="brushes all" data-title="The Craft">
-        <img width="473" height="409" decoding="async" loading="lazy" src="images/brush-fan.webp" alt="Fan of calligraphy brushes">
+        <img width="473" height="409" decoding="async" loading="lazy" src="/images/brush-fan.webp" alt="Fan of calligraphy brushes">
         <div class="gi-over"><span class="gi-zh">藝</span><p class="gi-name">The Craft</p><p class="gi-meta">Traditional Brushes</p></div>
         <span class="gi-expand">↗</span>
       </div>
 
       <div class="gi" data-cat="academy all" data-title="The Practice — Tong Shu Academy">
-        <img width="756" height="463" decoding="async" loading="lazy" src="images/calligraphy-class.webp" alt="Students practicing calligraphy" style="object-position:center 30%">
+        <img width="756" height="463" decoding="async" loading="lazy" src="/images/calligraphy-class.webp" alt="Students practicing calligraphy" style="object-position:center 30%">
         <div class="gi-over"><span class="gi-zh">習</span><p class="gi-name">The Practice</p><p class="gi-meta">Academy · Chengdu</p></div>
         <span class="gi-expand">↗</span>
       </div>
@@ -1395,7 +1416,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 
       <div class="sp rv">
         <div class="sp-img-wrap">
-          <img width="429" height="437" decoding="async" loading="lazy" class="sp-img" src="images/brushes-bowl.webp" alt="Starter brush set in ceramic bowl">
+          <img width="429" height="437" decoding="async" loading="lazy" class="sp-img" src="/images/brushes-bowl.webp" alt="Starter brush set in ceramic bowl">
         </div>
         <div class="sp-body">
           <span class="sp-tag">Beginner</span>
@@ -1410,7 +1431,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 
       <div class="sp rv" style="transition-delay:.06s">
         <div class="sp-img-wrap">
-          <img width="473" height="409" decoding="async" loading="lazy" class="sp-img" src="images/brush-fan.webp" alt="Fan of traditional calligraphy brushes">
+          <img width="473" height="409" decoding="async" loading="lazy" class="sp-img" src="/images/brush-fan.webp" alt="Fan of traditional calligraphy brushes">
         </div>
         <div class="sp-body">
           <span class="sp-tag">Intermediate</span>
@@ -1425,7 +1446,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 
       <div class="sp rv" style="transition-delay:.12s">
         <div class="sp-img-wrap">
-          <img width="249" height="344" decoding="async" loading="lazy" class="sp-img" src="images/colorful-brushes.webp" alt="Collection of colourful calligraphy brushes">
+          <img width="249" height="344" decoding="async" loading="lazy" class="sp-img" src="/images/colorful-brushes.webp" alt="Collection of colourful calligraphy brushes">
         </div>
         <div class="sp-body">
           <span class="sp-tag">Collector</span>
@@ -1440,7 +1461,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
 
       <div class="sp rv" style="transition-delay:.18s">
         <div class="sp-img-wrap">
-          <img width="463" height="365" decoding="async" loading="lazy" class="sp-img" src="images/brushes-on-stone.webp" alt="Brushes resting on stone after practice">
+          <img width="463" height="365" decoding="async" loading="lazy" class="sp-img" src="/images/brushes-on-stone.webp" alt="Brushes resting on stone after practice">
         </div>
         <div class="sp-body">
           <span class="sp-tag">Specialty</span>
@@ -1471,10 +1492,10 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
       <!-- behind: students' work, revealed by dragging -->
       <div class="tst-works">
         <span class="tst-works-tag">Students' work</span>
-        <figure><img width="800" height="520" decoding="async" loading="lazy" src="images/writing-spring-character.webp" alt="Student calligraphy — Spring"><figcaption>Spring · 春</figcaption></figure>
-        <figure><img width="283" height="273" decoding="async" loading="lazy" src="images/calligraphy-scroll.webp" alt="Student calligraphy scroll"><figcaption>Hanging scroll</figcaption></figure>
-        <figure><img width="346" height="606" decoding="async" loading="lazy" src="images/ink-orchid.webp" alt="Student ink painting — orchid"><figcaption>Orchid study</figcaption></figure>
-        <figure><img width="736" height="736" decoding="async" loading="lazy" src="images/landscape.webp" alt="Student ink landscape"><figcaption>Ink landscape</figcaption></figure>
+        <figure><img width="800" height="520" decoding="async" loading="lazy" src="/images/writing-spring-character.webp" alt="Student calligraphy — Spring"><figcaption>Spring · 春</figcaption></figure>
+        <figure><img width="283" height="273" decoding="async" loading="lazy" src="/images/calligraphy-scroll.webp" alt="Student calligraphy scroll"><figcaption>Hanging scroll</figcaption></figure>
+        <figure><img width="346" height="606" decoding="async" loading="lazy" src="/images/ink-orchid.webp" alt="Student ink painting — orchid"><figcaption>Orchid study</figcaption></figure>
+        <figure><img width="736" height="736" decoding="async" loading="lazy" src="/images/landscape.webp" alt="Student ink landscape"><figcaption>Ink landscape</figcaption></figure>
       </div>
       <!-- front: the testimonials (clipped by the divider) -->
       <div class="tst-cover" id="tstCover">
@@ -1547,7 +1568,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
     </div>
     <p class="cc-selection rv" id="ccSelection"></p>
     <div class="rv" style="text-align:center;margin-top:1.5rem">
-      <a href="mailto:hello@tongshuacademy.com" class="btn btn-seal" id="reserve">Reserve a Spot</a>
+      <button type="button" class="btn btn-seal" id="reserve">Reserve a Spot</button>
     </div>
   </div>
 </section>
@@ -1603,7 +1624,7 @@ html.lang-zh .mc-bio{font-family:'Noto Serif SC',serif}
         </li>
         <li>
           <span class="ft-icon">✉</span>
-          <a href="mailto:hello@tongshuacademy.com">hello@tongshuacademy.com</a>
+          <a href="#" id="footEmail">hello@tongshuacademy.com</a>
         </li>
         <li>
           <span class="ft-icon">📞</span>
@@ -2406,37 +2427,28 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
   const cards     = document.querySelectorAll('.cc[data-course]');
   const summary   = document.getElementById('ccSelection');
   const reserveBtn = document.getElementById('reserve');
-  const baseEmail = 'hello@tongshuacademy.com';
+
+  const sel = () => Array.from(cards).filter(c => c.classList.contains('selected'));
 
   function render() {
-    const selected = Array.from(cards).filter(c => c.classList.contains('selected'));
-    if (selected.length === 0) {
-      summary.innerHTML = '';
-      reserveBtn.removeAttribute('href');
-    } else {
-      const names  = selected.map(c => c.dataset.course).join(' + ');
-      const prices = selected.map(c => c.dataset.price).join(' + ');
-      summary.innerHTML = `Selected: <strong>${names}</strong> &mdash; ${prices}`;
-      const body = `Hi, I'd like to reserve a spot for:%0A${selected.map(c=>`• ${c.dataset.course} (${c.dataset.price})`).join('%0A')}`;
-      reserveBtn.href = `mailto:${baseEmail}?subject=Course Reservation&body=${body}`;
-    }
+    const selected = sel();
+    summary.innerHTML = selected.length === 0 ? ''
+      : `Selected: <strong>${selected.map(c => c.dataset.course).join(' + ')}</strong> &mdash; ${selected.map(c => c.dataset.price).join(' + ')}`;
   }
 
   reserveBtn.addEventListener('click', e => {
-    const selected = Array.from(cards).filter(c => c.classList.contains('selected'));
-    if (selected.length > 0) return;  // has selection — let mailto proceed
     e.preventDefault();
-    // Prompt user to pick a course
-    summary.innerHTML = '<span style="color:var(--seal)">← Please choose a course above first</span>';
-    // Shake all cards to draw attention
-    cards.forEach(c => {
-      c.classList.remove('needs-pick');
-      void c.offsetWidth;  // force reflow to restart animation
-      c.classList.add('needs-pick');
-    });
-    setTimeout(() => cards.forEach(c => c.classList.remove('needs-pick')), 500);
-    // Scroll courses into view if offscreen
-    cards[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const selected = sel();
+    if (selected.length === 0) {
+      summary.innerHTML = '<span style="color:var(--seal)">← Please choose a course above first</span>';
+      cards.forEach(c => { c.classList.remove('needs-pick'); void c.offsetWidth; c.classList.add('needs-pick'); });
+      setTimeout(() => cards.forEach(c => c.classList.remove('needs-pick')), 500);
+      cards[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    if (typeof window.openBooking === 'function') {
+      window.openBooking(selected[0].dataset.course);
+    }
   });
 
   cards.forEach(card => {
@@ -2478,9 +2490,26 @@ new IntersectionObserver(entries => {
   const totalEl  = document.getElementById('cartTotal');
   const checkout = document.getElementById('cartCheckout');
 
-  let cart = {}; // { id: { name, price, qty } }
+  let cart = {};
 
-  function openCart()  { panel.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; }
+  let warmSig = null, warmUrl = null, warmTimer;
+  const cartSig = () => JSON.stringify(Object.entries(cart).map(([id, i]) => [id, i.qty]).sort());
+  const cartPayload = () => Object.entries(cart).map(([id, i]) => ({ id, name: i.name, price: i.price, qty: i.qty }));
+  function prewarm() {
+    clearTimeout(warmTimer);
+    warmTimer = setTimeout(async () => {
+      if (!totalItems()) { warmSig = warmUrl = null; return; }
+      const sig = cartSig();
+      if (sig === warmSig && warmUrl) return;
+      try {
+        const res = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: cartPayload() }) });
+        const data = await res.json();
+        if (res.ok && data.url && cartSig() === sig) { warmSig = sig; warmUrl = data.url; }
+      } catch {}
+    }, 400);
+  }
+
+  function openCart()  { panel.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; prewarm(); }
   function closeCart() { panel.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
 
   document.getElementById('cartToggle').addEventListener('click', openCart);
@@ -2494,17 +2523,15 @@ new IntersectionObserver(entries => {
     const count = totalItems();
     badge.textContent = count;
     badge.classList.toggle('show', count > 0);
-    totalEl.textContent = 'CN¥ ' + totalPrice().toLocaleString();
+    totalEl.textContent = '€ ' + totalPrice().toLocaleString();
     checkout.disabled = count === 0;
 
-    // sync Add-to-Cart buttons
     document.querySelectorAll('.sp-add').forEach(btn => {
       const inCart = !!cart[btn.dataset.id];
       btn.classList.toggle('in-cart', inCart);
       btn.textContent = inCart ? 'In Cart ✓' : 'Add to Cart';
     });
 
-    // rebuild item list
     const existing = itemsEl.querySelectorAll('.cart-item');
     existing.forEach(el => el.remove());
     const ids = Object.keys(cart);
@@ -2516,7 +2543,7 @@ new IntersectionObserver(entries => {
       row.innerHTML = `
         <div style="flex:1">
           <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-price">CN¥ ${item.price.toLocaleString()} each</div>
+          <div class="cart-item-price">€ ${item.price.toLocaleString()} each</div>
         </div>
         <div class="cart-qty">
           <button data-action="dec" data-id="${id}">−</button>
@@ -2525,9 +2552,9 @@ new IntersectionObserver(entries => {
         </div>`;
       itemsEl.appendChild(row);
     });
+    prewarm();
   }
 
-  // qty buttons (event delegation)
   itemsEl.addEventListener('click', e => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
@@ -2538,22 +2565,33 @@ new IntersectionObserver(entries => {
     render();
   });
 
-  // Add to Cart buttons
   document.querySelectorAll('.sp-add').forEach(btn => {
     btn.addEventListener('click', () => {
       const { id, name, price } = btn.dataset;
-      if (cart[id]) { delete cart[id]; } // toggle off if already in cart
+      if (cart[id]) { delete cart[id]; }
       else { cart[id] = { name, price: parseInt(price), qty: 1 }; }
       render();
     });
   });
 
-  // Checkout — build mailto with order summary
-  checkout.addEventListener('click', () => {
+  checkout.addEventListener('click', async () => {
     if (!totalItems()) return;
-    const lines = Object.values(cart).map(i=>`${i.name} x${i.qty} = CN¥${i.price*i.qty}`).join('%0A');
-    const total = 'Total: CN¥' + totalPrice().toLocaleString();
-    window.location.href = `mailto:hello@tongshuacademy.com?subject=Order from Tong Shu Store&body=${lines}%0A%0A${total}`;
+    if (warmUrl && warmSig === cartSig()) { window.location.href = warmUrl; return; }
+    const original = checkout.textContent;
+    checkout.disabled = true; checkout.textContent = 'Preparing checkout…';
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ items: cartPayload() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.url) { window.location.href = data.url; return; }
+      throw new Error(data.error || 'No checkout URL');
+    } catch (err) {
+      console.error('checkout', err);
+      checkout.textContent = 'Checkout unavailable — try again';
+      setTimeout(() => { checkout.textContent = original; checkout.disabled = totalItems() === 0; }, 2800);
+    }
   });
 
   render();
@@ -3554,5 +3592,327 @@ new IntersectionObserver(entries => {
 }
 </script>
 
+<!-- ── Live booking modal (Wix Bookings) ── -->  <div id="bookModal" class="book-modal" aria-hidden="true"> <div class="book-backdrop" data-book-close></div> <div class="book-card" role="dialog" aria-modal="true" aria-label="Book a session"> <button class="book-close" data-book-close aria-label="Close">&times;</button> <p class="ey ey-c">Reserve</p> <h3 class="book-title">Book a Session</h3> <div id="bookBody"></div> </div> </div> <script>
+(function () {
+  const cta    = document.getElementById('bookCta');
+  const modal  = document.getElementById('bookModal');
+  if (!cta || !modal) return;
+  const body   = document.getElementById('bookBody');
+
+  let services = null;      // cached service list
+  let chosen   = null;      // { slot, service }
+  let target   = null;      // service name to open directly (from a course card)
+
+  const WECHAT_FALLBACK =
+    '<p class="book-note">Sessions for this class haven\'t been posted yet. Message us on WeChat <strong>tongshu_academy</strong> and we\'ll share the next available dates.</p>';
+
+  const fmt = (iso, tz) => {
+    try {
+      return new Date(iso).toLocaleString(undefined, {
+        weekday: 'short', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit',
+        ...(tz ? { timeZone: tz } : {}),
+      });
+    } catch { return iso; }
+  };
+
+  function open(serviceName) {
+    target = typeof serviceName === 'string' ? serviceName : null;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    loadServices();
+  }
+  function close() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  async function loadServices() {
+    body.innerHTML = '<p class="book-note">Loading available sessions…</p>';
+    try {
+      const res  = await fetch('/api/services');
+      const data = await res.json();
+      services = (data.services || []).filter(s => s.id);
+      if (!services.length) { body.innerHTML = WECHAT_FALLBACK; return; }
+      if (target) {
+        const norm = v => (v || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        const match = services.find(s => norm(s.name) === norm(target))
+                   || services.find(s => norm(s.name).includes(norm(target)) || norm(target).includes(norm(s.name)));
+        if (match) { pickService(match); return; }
+      }
+      renderServices();
+    } catch (err) {
+      console.error('book/services', err);
+      body.innerHTML = WECHAT_FALLBACK;
+    }
+  }
+
+  function renderServices() {
+    if (services.length === 1) { pickService(services[0]); return; }
+    body.innerHTML = '<p class="book-note">Choose a session:</p><div class="book-slots" id="svcGrid"></div>';
+    const grid = document.getElementById('svcGrid');
+    services.forEach(s => {
+      const b = document.createElement('button');
+      b.className = 'book-slot';
+      b.innerHTML = '<b>' + (s.name || 'Session') + '</b>' +
+        (s.price != null ? '<span>' + s.price + (s.currency ? ' ' + s.currency : '') + '</span>' : '');
+      b.addEventListener('click', () => pickService(s));
+      grid.appendChild(b);
+    });
+  }
+
+  async function pickService(service) {
+    body.innerHTML = '<p class="book-note">Finding open times for <strong>' + (service.name || 'this session') + '</strong>…</p>';
+    try {
+      const res  = await fetch('/api/availability?serviceId=' + encodeURIComponent(service.id));
+      const data = await res.json();
+      const slots = data.slots || [];
+      if (!slots.length) { renderLeadForm(service); return; }
+      renderSlots(service, slots);
+    } catch (err) {
+      console.error('book/availability', err);
+      body.innerHTML = WECHAT_FALLBACK;
+    }
+  }
+
+  // No scheduled sessions yet → capture interest as a Wix CRM lead so the
+  // visitor can still "reserve a spot". Switches to live times automatically
+  // once sessions are posted for the service.
+  function renderLeadForm(service) {
+    body.innerHTML =
+      '<p class="book-note">Dates for <strong>' + (service.name || 'this class') + '</strong> rotate through the season. Leave your details and we\'ll email you the moment the next session opens.</p>' +
+      '<input class="book-field" id="ldName" type="text" placeholder="Your name">' +
+      '<input class="book-field" id="ldEmail" type="email" placeholder="Your email">' +
+      '<button class="btn btn-seal" id="ldSend" type="button" style="width:100%">Reserve my spot</button>' +
+      '<p class="book-msg" id="ldMsg"></p>';
+    document.getElementById('ldEmail').focus();
+    document.getElementById('ldSend').addEventListener('click', async () => {
+      const email = document.getElementById('ldEmail').value.trim();
+      const name  = document.getElementById('ldName').value.trim();
+      const msg   = document.getElementById('ldMsg');
+      const btn   = document.getElementById('ldSend');
+      if (!email) { msg.textContent = 'Please enter your email.'; return; }
+      btn.disabled = true; msg.textContent = 'Saving your spot…';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, email, courses: [service.name], message: 'Reservation interest: ' + service.name }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          body.innerHTML =
+            '<p class="book-note" style="text-align:center;color:var(--gold);font-size:1.05rem">✓ Spot reserved.</p>' +
+            '<p class="book-note" style="text-align:center">We\'ll email the next <strong>' + (service.name || 'class') + '</strong> dates to <strong>' + email + '</strong>.</p>';
+        } else { throw new Error(data.error || 'failed'); }
+      } catch (err) {
+        console.error('book/lead', err);
+        msg.textContent = 'Something went wrong — please try again.';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function renderSlots(service, slots) {
+    body.innerHTML =
+      '<p class="book-note">Pick a time for <strong>' + (service.name || 'this session') + '</strong>:</p>' +
+      '<div class="book-slots" id="slotGrid"></div>' +
+      '<div id="slotForm"></div>';
+    const grid = document.getElementById('slotGrid');
+    slots.forEach(slot => {
+      const b = document.createElement('button');
+      b.className = 'book-slot';
+      b.innerHTML = '<b>' + fmt(slot.startDate, slot.timezone) + '</b>' +
+        (slot.openSpots != null ? '<span>' + slot.openSpots + ' spot' + (slot.openSpots === 1 ? '' : 's') + ' left</span>' : '');
+      b.addEventListener('click', () => {
+        grid.querySelectorAll('.book-slot').forEach(x => x.classList.remove('sel'));
+        b.classList.add('sel');
+        chosen = { slot, service };
+        renderForm();
+      });
+      grid.appendChild(b);
+    });
+  }
+
+  function renderForm() {
+    const wrap = document.getElementById('slotForm');
+    wrap.innerHTML =
+      '<input class="book-field" id="bkName" type="text" placeholder="Your name">' +
+      '<input class="book-field" id="bkEmail" type="email" placeholder="Your email">' +
+      '<input class="book-field" id="bkPhone" type="tel" placeholder="Phone (optional)">' +
+      '<button class="btn btn-seal" id="bkConfirm" type="button" style="width:100%">Confirm booking</button>' +
+      '<p class="book-msg" id="bkMsg"></p>';
+    document.getElementById('bkEmail').focus();
+    document.getElementById('bkConfirm').addEventListener('click', confirmBooking);
+  }
+
+  async function confirmBooking() {
+    const email = document.getElementById('bkEmail').value.trim();
+    const name  = document.getElementById('bkName').value.trim();
+    const phone = document.getElementById('bkPhone').value.trim();
+    const msg   = document.getElementById('bkMsg');
+    const btn   = document.getElementById('bkConfirm');
+    if (!email) { msg.textContent = 'Please enter your email.'; return; }
+    btn.disabled = true; msg.textContent = 'Booking your spot…';
+    try {
+      const res = await fetch('/api/booking', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ slot: chosen.slot, name, email, phone }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        body.innerHTML =
+          '<p class="book-note" style="text-align:center;color:var(--gold);font-size:1.05rem">✓ You\'re booked.</p>' +
+          '<p class="book-note" style="text-align:center">' + (chosen.service.name || 'Session') + '<br>' +
+          fmt(chosen.slot.startDate, chosen.slot.timezone) + '</p>' +
+          '<p class="book-note" style="text-align:center">A confirmation is on its way to <strong>' + email + '</strong>.</p>';
+      } else { throw new Error(data.error || 'failed'); }
+    } catch (err) {
+      console.error('book/confirm', err);
+      msg.textContent = 'Could not complete the booking — please try again.';
+      btn.disabled = false;
+    }
+  }
+
+  // "Book a Session" (nav) just scrolls to the Courses section (its href="#courses").
+  // Booking is opened per-course from the Courses "Reserve a Spot" button.
+  window.openBooking = open;   // Courses section opens booking for a specific service
+  modal.addEventListener('click', e => { if (e.target.closest('[data-book-close]')) { e.preventDefault(); close(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+})();
+</script> <!-- ── Shop products from Wix Stores (live catalog → existing cards) ── --> <script>
+(function () {
+  const cards = document.querySelectorAll('.store-grid .sp');
+  if (!cards.length) return;
+  fetch('/api/store-products')
+    .then(r => r.json())
+    .then(data => {
+      const list = (data && data.products) || [];
+      if (!list.length) return;            // keep the built-in cards as fallback
+      cards.forEach((card, i) => {
+        const p = list[i];
+        if (!p) return;
+        const img = card.querySelector('.sp-img');
+        const name = card.querySelector('.sp-name');
+        const desc = card.querySelector('.sp-desc');
+        const price = card.querySelector('.sp-price');
+        const btn = card.querySelector('.sp-add');
+        if (img && p.image) { img.src = p.image; img.setAttribute('alt', p.name); img.removeAttribute('width'); img.removeAttribute('height'); }
+        if (name) name.textContent = p.name;
+        if (desc && p.description) desc.textContent = p.description;
+        if (price) price.textContent = p.formatted || ('€ ' + p.price);
+        if (btn) { btn.dataset.id = p.id; btn.dataset.name = p.name; btn.dataset.price = String(p.price); }
+      });
+    })
+    .catch(() => {});
+})();
+</script> <!-- ── Wix Members login state (nav "Log in" ↔ "Log out") ── --> <script>
+(function () {
+  const link = document.getElementById('authLink');
+  if (!link) return;
+  fetch('/api/me')
+    .then(r => r.json())
+    .then(d => {
+      if (d && d.loggedIn) {
+        const first = (d.name || 'Member').split(' ')[0];
+        link.textContent = 'Log out (' + first + ')';
+        link.title = 'Signed in as ' + (d.name || d.email || 'member');
+        link.setAttribute('href', '/api/auth/logout?returnToUrl=/');
+      } else {
+        link.textContent = 'Log in';
+        link.setAttribute('href', '/api/auth/login?returnToUrl=/');
+      }
+    })
+    .catch(() => {});
+})();
+</script> <!-- ── Students testimonials from Wix CMS (falls back to the built-in quotes) ── --> <script>
+(function () {
+  const cards = document.querySelectorAll('#tstCover .tst-grid .tc');
+  if (!cards.length) return;
+  fetch('/api/testimonials')
+    .then(r => r.json())
+    .then(data => {
+      const list = (data && data.testimonials) || [];
+      if (!list.length) return;            // keep the built-in quotes as fallback
+      cards.forEach((card, i) => {
+        const t = list[i];
+        if (!t) return;
+        const q = card.querySelector('.tc-quote');
+        const n = card.querySelector('.tc-name');
+        const m = card.querySelector('.tc-meta');
+        // Star rating (dashboard-managed via the CMS 'rating' field)
+        const r = Math.max(0, Math.min(5, Math.round(t.rating || 5)));
+        let stars = card.querySelector('.tc-stars');
+        if (!stars) {
+          stars = document.createElement('p');
+          stars.className = 'tc-stars';
+          stars.style.cssText = 'color:var(--gold);letter-spacing:.15em;font-size:.95rem;margin:0 0 .6rem';
+          card.insertBefore(stars, card.firstChild);
+        }
+        stars.textContent = '★★★★★☆☆☆☆☆'.slice(5 - r, 10 - r);
+        stars.setAttribute('aria-label', r + ' out of 5 stars');
+        if (q) q.textContent = '“' + t.quote + '”';
+        if (n) n.textContent = t.author || '';
+        if (m) m.textContent = t.meta || '';
+      });
+    })
+    .catch(() => {});
+})();
+</script> <!-- ── Contact modal (Wix CRM) ── --> <div id="contactModal" class="book-modal" aria-hidden="true"> <div class="book-backdrop" data-contact-close></div> <div class="book-card" role="dialog" aria-modal="true" aria-label="Contact the studio"> <button class="book-close" data-contact-close aria-label="Close">&times;</button> <p class="ey ey-c">Contact</p> <h3 class="book-title">Send us a message</h3> <div id="contactBody"> <p class="book-note">Questions about classes, gifts, or private groups? Leave a note and we'll reply by email.</p> <input class="book-field" id="ctName" type="text" placeholder="Your name"> <input class="book-field" id="ctEmail" type="email" placeholder="Your email"> <textarea class="book-field" id="ctText" rows="4" placeholder="Your message" style="resize:vertical"></textarea> <button class="btn btn-seal" id="ctSend" type="button" style="width:100%">Send message</button> <p class="book-msg" id="ctOut"></p> </div> </div> </div> <script>
+(function () {
+  const modal = document.getElementById('contactModal');
+  if (!modal) return;
+  const body   = document.getElementById('contactBody');
+  const FORM_HTML = body.innerHTML;   // pristine form, restored on every open
+  const openers = ['contactCta', 'footEmail'].map(id => document.getElementById(id)).filter(Boolean);
+
+  function open() {
+    body.innerHTML = FORM_HTML;       // reset so the form can be sent again
+    bindSend();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    const el = document.getElementById('ctEmail'); if (el) el.focus();
+  }
+  function close() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function bindSend() {
+    document.getElementById('ctSend').addEventListener('click', async () => {
+      const email = document.getElementById('ctEmail').value.trim();
+      const name  = document.getElementById('ctName').value.trim();
+      const text  = document.getElementById('ctText').value.trim();
+      const out   = document.getElementById('ctOut');
+      const btn   = document.getElementById('ctSend');
+      if (!email) { out.textContent = 'Please enter your email.'; return; }
+      btn.disabled = true; out.textContent = 'Sending…';
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ name, email, message: text || 'General enquiry' }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          body.innerHTML =
+            '<p class="book-note" style="text-align:center;color:var(--gold);font-size:1.05rem">✓ Message sent.</p>' +
+            '<p class="book-note" style="text-align:center">Thank you — we\'ll reply to <strong>' + email + '</strong> shortly.</p>';
+        } else { throw new Error(data.error || 'failed'); }
+      } catch (err) {
+        console.error('contact', err);
+        out.textContent = 'Something went wrong — please try again.';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  openers.forEach(o => o.addEventListener('click', e => { e.preventDefault(); open(); }));
+  modal.addEventListener('click', e => { if (e.target.closest('[data-contact-close]')) { e.preventDefault(); close(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+})();
+</script>
 </body>
 </html>
