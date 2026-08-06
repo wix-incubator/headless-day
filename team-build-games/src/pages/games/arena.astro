@@ -1,0 +1,137 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import Arena from "../../components/game/Arena.tsx";
+import GameSwitcher from "../../components/games/GameSwitcher.astro";
+import LikeButton from "../../components/games/LikeButton.astro";
+import { getLikeCounts, getMemberLikedSet } from "../../lib/wix/gameLikes";
+import { getSessionMember } from "../../lib/wix/members";
+import { getGameAvatarSetting } from "../../lib/wix/playerAvatars";
+import { getOwnedArenaSkins } from "../../lib/wix/arenaSkins";
+import { premiumSkinById } from "../../game/arena/cosmetic";
+import { resolveGameAvatar } from "../../lib/members/gameAvatar";
+
+// SSR: resolve this member's Arena avatar (per-game override → profile photo). Passed to the island
+// so a signed-in player's face photo rides the wire to peers and overlays the selected fighter.
+const member = await getSessionMember();
+const gameAvatar = member ? await getGameAvatarSetting(member.id, "arena") : null;
+const avatarUrl = member
+  ? resolveGameAvatar(gameAvatar?.url, member.avatarUrl, gameAvatar?.disabled)
+  : null;
+const ownedPremiumShapes = member ? await getOwnedArenaSkins(member.id) : [];
+const lobbyMusicUrl = import.meta.env.PUBLIC_ARENA_LOBBY_MUSIC_URL ?? "";
+const battleMusicUrl = import.meta.env.PUBLIC_ARENA_BATTLE_MUSIC_URL ?? "";
+const blockSoundUrl = import.meta.env.PUBLIC_ARENA_BLOCK_SOUND_URL ?? "";
+const checkoutState = Astro.url.searchParams.get("checkout");
+const checkoutSkin = premiumSkinById(Astro.url.searchParams.get("skin") ?? "");
+
+// Likes: current count + whether this member already voted.
+const likeCounts = await getLikeCounts(["arena"]);
+const liked = member ? (await getMemberLikedSet(member.id)).has("arena") : false;
+
+const controls = [
+  { keys: "WASD / arrows", action: "Move your character" },
+  { keys: "Mouse", action: "Aim your weapon" },
+  { keys: "Space", action: "Attack" },
+  { keys: "Shift", action: "Dash (short cooldown)" },
+  { keys: "Ctrl / right mouse", action: "Block incoming attacks" },
+];
+---
+
+<Layout
+  title="Arena — TeamBuild Games"
+  description="Last one standing, up to 8 players. Dash, aim, and swing in a realtime P2P arena — right in the browser."
+>
+  <div class="mx-auto w-full max-w-[1400px] px-4 py-10">
+    <div class="mb-8">
+      <a
+        href="/"
+        class="font-display text-[9px] text-neutral-500 hover:text-cyan-300"
+      >
+        &lt; Back to the arcade
+      </a>
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 class="neon font-display text-2xl text-cyan-400 sm:text-3xl">
+          Arena
+        </h1>
+        <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+          <span class="border border-cyan-400/40 px-2 py-1 text-cyan-300">
+            Realtime PvP
+          </span>
+          <span class="border border-white/15 px-2 py-1 text-neutral-400">
+            1–8 players
+          </span>
+          <span class="border border-fuchsia-400/40 px-2 py-1 text-fuchsia-300">
+            Last one standing
+          </span>
+          <LikeButton
+            gameId="arena"
+            count={likeCounts.arena ?? 0}
+            liked={liked}
+            authed={!!member}
+          />
+        </div>
+      </div>
+      <p class="mt-3 max-w-2xl text-neutral-400">
+        Dash, swing, and survive on a 30 m field. Share the room link with your
+        colleagues to fight live — or warm up against bots first.
+      </p>
+    </div>
+
+    <div class="mb-6">
+      <GameSwitcher slug="arena" />
+    </div>
+
+    {
+      checkoutState === "success" && checkoutSkin ? (
+        <p class="mb-4 rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-4 py-3 text-sm text-emerald-100">
+          {checkoutSkin.name} unlocked. Pick it in the fighter row.
+        </p>
+      ) : checkoutState === "missing-product" && checkoutSkin ? (
+        <p class="mb-4 rounded-lg border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+          Checkout is not configured for {checkoutSkin.name} yet. Add its Wix Stores product ID to the Arena skin env vars.
+        </p>
+      ) : null
+    }
+
+    {/* cabinet bezel around the game island */}
+    <div
+      class="rounded-2xl border border-cyan-400/25 bg-night-900 p-3 shadow-[0_0_48px_rgb(34_211_238/0.12)] sm:p-4"
+    >
+      <Arena
+        client:only="react"
+        isMember={!!member}
+        avatarUrl={avatarUrl}
+        ownedPremiumShapes={ownedPremiumShapes}
+        lobbyMusicUrl={lobbyMusicUrl}
+        battleMusicUrl={battleMusicUrl}
+        blockSoundUrl={blockSoundUrl}
+      />
+    </div>
+
+    {/* controls legend */}
+    <section class="mt-8 rounded-xl border border-white/10 bg-night-900 p-6">
+      <h2 class="eyebrow text-emerald-400">Controls</h2>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        {
+          controls.map((c) => (
+            <div class="flex items-center gap-3">
+              <dt
+                class="shrink-0 rounded border border-white/20 bg-night-800 px-2.5 py-1.5 font-display text-[9px] text-neutral-200"
+              >
+                {c.keys}
+              </dt>
+              <dd class="text-sm text-neutral-400">{c.action}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-5 text-xs leading-relaxed text-neutral-500">
+        Multiplayer tip: whoever opens the room is the host — everyone else
+        joins through the room link from the lobby. Signed-in players can bring
+        a custom face photo for their fighter; everyone can pick a fighter.
+      </p>
+    </section>
+  </div>
+  <Footer />
+</Layout>

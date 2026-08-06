@@ -1,0 +1,28 @@
+---
+import Footer from "../components/layout/footer.astro";
+import Layout from "../components/layout/layout.astro";
+import Prose from "../components/prose.astro";
+
+const title = "Privacy Policy";
+const body = `<p>Short version: this is an arcade, not an ad network.</p>
+<h3>What we store</h3>
+<ul>
+  <li><p><strong>Nothing, if you play anonymously.</strong> Your name, color, and shape live in the game lobby for the duration of a session and travel peer-to-peer between players — they aren't saved on a server.</p></li>
+  <li><p><strong>Your account basics, if you sign in.</strong> Signing in creates a Wix member profile (name, email, and the character photo you upload). We use it to show your avatar in games and, once progress saving ships, your stats.</p></li>
+</ul>
+<h3>How matches work</h3>
+<p>Gameplay runs peer-to-peer over WebRTC between the browsers in your room. Connection setup may pass through signaling and relay servers, but match traffic isn't recorded by us.</p>
+<h3>Removing your data</h3>
+<p>Delete your character photo from the account page anytime, or ask the site owner to remove your member profile entirely.</p>`;
+---
+
+<Layout title="Privacy Policy — TeamBuild Games">
+  <div class="w-full">
+    <div class="mx-8 max-w-2xl py-20 sm:mx-auto">
+      <p class="eyebrow mb-4 text-cyan-400">The fine print</p>
+      <h1 class="mb-8 font-display text-2xl text-white">{title}</h1>
+      <Prose class="mb-8" html={body} />
+    </div>
+  </div>
+  <Footer />
+</Layout>

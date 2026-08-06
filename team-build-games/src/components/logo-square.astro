@@ -1,0 +1,22 @@
+---
+type Props = { size?: "sm" | undefined };
+import clsx from "clsx";
+import LogoIcon from "./icons/logo.astro";
+---
+
+<div
+  class={clsx(
+    "flex flex-none items-center justify-center border border-cyan-400/40 bg-night-900 shadow-[0_0_12px_rgb(34_211_238/0.25)]",
+    {
+      "h-[40px] w-[40px] rounded-xl": !Astro.props.size,
+      "h-[30px] w-[30px] rounded-lg": Astro.props.size === "sm",
+    }
+  )}
+>
+  <LogoIcon
+    class={clsx({
+      "h-[18px] w-[18px]": !Astro.props.size,
+      "h-[12px] w-[12px]": Astro.props.size === "sm",
+    })}
+  />
+</div>

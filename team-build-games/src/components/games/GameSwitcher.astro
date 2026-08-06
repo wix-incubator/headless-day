@@ -1,0 +1,44 @@
+---
+/**
+ * Prev/next cabinet navigation for game pages — wrap-around in cabinet
+ * (registry) order, showing the name of the game each arrow switches to.
+ */
+import { gameNeighbors } from "../../lib/games/registry";
+
+type Props = { slug: string };
+const { prev, next } = gameNeighbors(Astro.props.slug);
+---
+
+<nav
+  aria-label="Switch game"
+  class="flex items-stretch justify-between gap-3 font-display"
+>
+  <a
+    href={prev.href}
+    class="group flex items-center gap-3 rounded-lg border border-white/10 bg-night-900 px-4 py-3 transition hover:border-cyan-400/60"
+  >
+    <span class="text-sm text-cyan-400 transition group-hover:-translate-x-0.5" aria-hidden="true">
+      &lt;
+    </span>
+    <span>
+      <span class="block text-[7px] text-neutral-500">Prev cabinet</span>
+      <span class="mt-1 block text-[10px] text-neutral-300 group-hover:text-cyan-300">
+        {prev.name}
+      </span>
+    </span>
+  </a>
+  <a
+    href={next.href}
+    class="group flex items-center gap-3 rounded-lg border border-white/10 bg-night-900 px-4 py-3 text-right transition hover:border-cyan-400/60"
+  >
+    <span>
+      <span class="block text-[7px] text-neutral-500">Next cabinet</span>
+      <span class="mt-1 block text-[10px] text-neutral-300 group-hover:text-cyan-300">
+        {next.name}
+      </span>
+    </span>
+    <span class="text-sm text-cyan-400 transition group-hover:translate-x-0.5" aria-hidden="true">
+      &gt;
+    </span>
+  </a>
+</nav>

@@ -1,0 +1,34 @@
+---
+const items = [
+  "Up to 8 players per room",
+  "No installs — runs in the browser",
+  "Share a link, start a battle",
+  "Insert colleague to continue",
+  "Winner picks the lunch spot",
+  "New games dropping soon",
+];
+---
+
+<div
+  class="overflow-hidden border-y border-white/10 bg-night-900 py-2.5"
+>
+  <div class="flex w-max animate-marquee">
+    {
+      [0, 1].map(() => (
+        <div
+          class="flex shrink-0 items-center gap-10 pr-10 font-display text-[9px] text-neutral-400"
+          aria-hidden={false}
+        >
+          {items.map((item) => (
+            <span class="flex items-center gap-10">
+              <span>{item}</span>
+              <span class="text-cyan-400/70" aria-hidden="true">
+                ◆
+              </span>
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>

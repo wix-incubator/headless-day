@@ -4,32 +4,44 @@ A booking site for a surf-travel agent, built on **Wix Headless**.
 
 Fly **Nalu**, a toy helicopter, over a low-poly toy globe with the arrow keys, land at surf destinations to see travel windows (tide & wind), top spots, and book a real trip-planning session with the agent via **Wix Bookings**.
 
+**Live site:** https://birdie-bre-2b166b6a-giladi47.wix-site-host.com/
+
 - Design spec: [`docs/superpowers/specs/2026-07-09-birdie-breaks-design.md`](docs/superpowers/specs/2026-07-09-birdie-breaks-design.md)
 - Scaffold facts: [`docs/scaffold-notes.md`](docs/scaffold-notes.md)
 
-## Development
+## What powers it
 
-**Live site:** https://birdie-bre-2b166b6a-giladi47.wix-site-host.com/
+| Concern | Wix Business Solution |
+|---|---|
+| Trip-planning sessions | **Wix Bookings** — availability, `createBooking` |
+| Confirm free bookings | **Wix eCommerce** — Cart V2 `createCart` → `placeOrder` (no hosted checkout redirect when total is $0) |
+| Hosting | **Wix Managed Headless** (`@wix/astro`, Astro SSR + React island) |
+
+Booking happens in-game (no separate checkout URL): land at a destination → **Book with your surf agent** → pick a slot → confirm.
+
+## Run locally
+
+> All commands below must be run from inside the `nalu-surf-travel/` folder, not the monorepo root.
 
 Requires Node 20 — run `eval "$(fnm env)" && fnm use 20` before any command.
 
 ```bash
-npm install        # install dependencies
-npm test           # run the vitest suite (Vitest + React Testing Library)
-npm run dev        # dev server at http://localhost:4321/
-npm run build      # production build (wix build → astro build)
+npm install
+npx @wix/cli login
+npm create @wix/new@latest init    # generates wix.config.json (git-ignored; see wix.config.example.json)
+npm test                           # Vitest + React Testing Library
+npm run dev                        # http://localhost:4321/
+npm run build                      # wix build → astro build
 npm run release -- --version-type minor --comment "..."   # deploy a new live version
 ```
 
-Built on the Wix Headless Astro template (`@wix/astro`, SSR) with `@astrojs/react` — the game mounts as a single React island. Implementation plan: [`docs/superpowers/plans/2026-07-09-birdie-breaks.md`](docs/superpowers/plans/2026-07-09-birdie-breaks.md). (Per-task briefs, reports, and E2E screenshots live under `.superpowers/sdd/` locally — gitignored, not part of this clone.)
+`src/bookings/config.ts` reads the public OAuth client id from `wix.config.json#appId` (required in the browser bundle).
 
-## Setup remaining (manual, one-time)
+Built on the Wix Headless Astro template (`@wix/astro`, SSR) with `@astrojs/react` — the game mounts as a single React island. Implementation plan: [`docs/superpowers/plans/2026-07-09-birdie-breaks.md`](docs/superpowers/plans/2026-07-09-birdie-breaks.md).
 
-The **Wix Bookings service is not created yet** — booking a session currently fails gracefully (Nalu's "Choppy connection!" message, with a working retry) because the site has no bookable service. To finish setup:
+## Wix Bookings setup (one-time)
 
-1. Open the [Wix dashboard](https://manage.wix.com/dashboard/56b38fa1-9831-4c0a-b87d-0cef220a61b5/home) → Bookings.
-2. Create a service named exactly **"Surf trip planning session"** — 30 min, online, free.
-3. Reload the live site and the booking calendar will show real availability.
+Install **Wix Bookings** on your site, then create a service named exactly **"Surf trip planning session"** — 30 min, online, free. Without it, the in-game calendar shows Nalu's "Choppy connection!" message.
 
 ## Wix Headless docs
 
