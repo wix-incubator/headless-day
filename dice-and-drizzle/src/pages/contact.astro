@@ -1,0 +1,212 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { forms } from '@wix/forms';
+import { auth } from '@wix/essentials';
+import ContactForm from '../components/ContactForm';
+
+const elevatedListForms = auth.elevate(forms.listForms);
+const listResult = await elevatedListForms('wix.form_app.form');
+const wixForm = listResult.forms?.[0];
+const formId = wixForm?._id ?? '124b4f9e-9357-4907-b5e3-474620a5800e';
+
+const formFields =
+  wixForm?.formFields
+    ?.filter((field) => field.fieldType === 'INPUT' && !field.hidden)
+    .map((field) => {
+      const opts = field.inputOptions;
+      const str = opts?.stringOptions;
+      const label =
+        str?.textInputOptions?.label ??
+        str?.dropdownOptions?.label ??
+        str?.phoneInputOptions?.label ??
+        '';
+      return {
+        label,
+        target: opts?.target ?? '',
+        required: opts?.required ?? false,
+        componentType: str?.componentType ?? 'TEXT_INPUT',
+        identifier: field.identifier ?? '',
+        options: str?.dropdownOptions?.options?.map((o) => ({
+          value: o.value ?? o.label ?? '',
+          label: o.label ?? o.value ?? '',
+        })),
+      };
+    }) ?? [];
+---
+
+<Layout title="Contact">
+  <div class="contact-page">
+
+    <!-- Page header -->
+    <header class="contact-header">
+      <hr class="editorial-rule contact-rule" />
+      <h1 class="contact-heading">Get in touch</h1>
+      <p class="contact-subtext">
+        Questions, group bookings, or just want to say hello — we're a small
+        team and we read every message.
+      </p>
+    </header>
+
+    <!-- Two-column: info left, form right -->
+    <div class="contact-body">
+
+      <!-- Left: location + hours -->
+      <div class="contact-info">
+        <div class="info-block">
+          <h3 class="info-heading">Find us</h3>
+          <address class="info-address">
+            <p>Laugavegur 42</p>
+            <p>101 Reykjavik, Iceland</p>
+            <p>
+              <a href="tel:+3545512038" class="info-link">+354 551 2038</a>
+            </p>
+            <p>
+              <a href="mailto:hello@diceanddrizzle.is" class="info-link">
+                hello@diceanddrizzle.is
+              </a>
+            </p>
+          </address>
+        </div>
+
+        <div class="info-block">
+          <h3 class="info-heading">Opening hours</h3>
+          <dl class="hours-grid">
+            <dt>Mon–Thu</dt><dd>14:00–23:00</dd>
+            <dt>Fri–Sat</dt><dd>12:00–01:00</dd>
+            <dt>Sun</dt><dd>12:00–22:00</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Right: contact form -->
+      <div class="contact-form-col">
+        <ContactForm client:load formId={formId} fields={formFields} />
+      </div>
+    </div>
+
+    <!-- Map facade -->
+    <div class="map-facade">
+      <p class="map-label">Laugavegur 42, 101 Reykjavik</p>
+    </div>
+
+  </div>
+</Layout>
+
+<style>
+  .contact-page {
+    max-width: var(--container-3xl);
+    margin-inline: auto;
+    padding: 4rem 1.5rem 5rem;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────────────────── */
+  .contact-header {
+    margin-bottom: 3.5rem;
+    max-width: var(--container-prose);
+  }
+
+  .contact-rule {
+    width: 4rem;
+    margin-left: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-heading {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 1rem;
+  }
+
+  .contact-subtext {
+    font-size: 1.125rem;
+    color: var(--color-mute);
+    max-width: 48ch;
+    line-height: 1.75;
+  }
+
+  /* ── Two-column body ─────────────────────────────────────────────────────── */
+  .contact-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .contact-body {
+      grid-template-columns: 1fr 1.6fr;
+      gap: 5rem;
+    }
+  }
+
+  /* ── Info column ─────────────────────────────────────────────────────────── */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .info-heading {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .info-address {
+    font-style: normal;
+    color: var(--color-mute);
+    line-height: 2;
+  }
+
+  .info-link {
+    color: var(--color-mute);
+    transition: color 0.2s ease;
+  }
+
+  .info-link:hover {
+    color: var(--color-accent);
+  }
+
+  .hours-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 2rem;
+    font-size: 0.9375rem;
+  }
+
+  .hours-grid dt {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  .hours-grid dd {
+    color: var(--color-mute);
+  }
+
+  /* ── Map facade ──────────────────────────────────────────────────────────── */
+  .map-facade {
+    width: 100%;
+    height: 300px;
+    background: var(--color-paper-warm);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  .map-label {
+    color: var(--color-mute);
+    font-size: 0.875rem;
+  }
+</style>

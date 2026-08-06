@@ -1,0 +1,181 @@
+---
+import { resolveWixImageUrl } from "../utils/wix-image";
+import { fetchLiveOffers, offersForProduct } from "../utils/discounts";
+
+interface Props {
+  product: {
+    _id?: string;
+    name?: string;
+    slug?: string;
+    media?: { main?: { image?: string }; items?: any[] };
+    actualPriceRange?: {
+      minValue?: { formattedAmount?: string; amount?: string; currency?: string };
+    };
+  };
+  index?: number;
+}
+
+const { product, index } = Astro.props;
+
+let primaryOffer: { name: string; offer?: string } | undefined;
+try {
+  const offers = await fetchLiveOffers();
+  primaryOffer = offersForProduct(offers, product._id)[0];
+} catch (err) {
+  console.error("[ProductCard] fetchLiveOffers failed:", err);
+}
+
+const imageUrl = resolveWixImageUrl(product.media?.main?.image, 600, 800);
+const amount = product.actualPriceRange?.minValue?.amount;
+const currency = product.actualPriceRange?.minValue?.currency;
+// Format as ISK (whole numbers, no decimals)
+const price = amount
+  ? `${Number(amount).toLocaleString("is-IS")} ISK`
+  : product.actualPriceRange?.minValue?.formattedAmount;
+const indexLabel =
+  typeof index === "number" ? String(index + 1).padStart(2, "0") : null;
+---
+
+<a
+  href={`/products/${product.slug}`}
+  class="product-card"
+  data-analytics-product
+  data-id={product._id}
+  data-name={product.name}
+  data-price={amount}
+  data-currency={currency}
+>
+  <div class="product-card-media">
+    {imageUrl ? (
+      <img src={imageUrl} alt={product.name ?? "Product"} loading="lazy" />
+    ) : (() => {
+      const n = (product.name ?? "").toLowerCase();
+      const isMug = n.includes("mug");
+      const isHoodie = n.includes("hoodie");
+      return isMug ? (
+        <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" class="product-card-illustration" aria-hidden="true">
+          <rect width="400" height="500" fill="#1a1628"/>
+          <ellipse cx="200" cy="75" rx="150" ry="30" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.35"/>
+          <ellipse cx="200" cy="98" rx="110" ry="20" fill="none" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+          <circle cx="70" cy="48" r="2" fill="#fff" opacity="0.7"/>
+          <circle cx="148" cy="32" r="1.5" fill="#fff" opacity="0.5"/>
+          <circle cx="200" cy="24" r="2.5" fill="#fff" opacity="0.8"/>
+          <circle cx="260" cy="36" r="1.5" fill="#fff" opacity="0.5"/>
+          <circle cx="330" cy="50" r="2" fill="#fff" opacity="0.7"/>
+          <!-- Mug body -->
+          <rect x="118" y="160" width="164" height="200" rx="18" fill="#2d2044" stroke="#6b5a3e" stroke-width="3"/>
+          <!-- Handle — right side, C shape -->
+          <path d="M282 200 C330 200 330 310 282 310" stroke="#6b5a3e" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <path d="M282 200 C322 200 322 310 282 310" stroke="#2d2044" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <!-- Steam -->
+          <path d="M170 148 Q176 130 170 112" stroke="#c4956a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <path d="M200 142 Q208 122 200 102" stroke="#c4956a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+          <path d="M230 148 Q236 130 230 112" stroke="#c4956a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <!-- Die on mug -->
+          <rect x="158" y="208" width="84" height="84" rx="14" fill="#e8dcc8" opacity="0.9"/>
+          <circle cx="178" cy="228" r="7" fill="#3b2f1e"/>
+          <circle cx="200" cy="250" r="7" fill="#8b3a3a"/>
+          <circle cx="222" cy="272" r="7" fill="#3b2f1e"/>
+          <!-- Dice pattern on mug bottom area -->
+          <circle cx="178" cy="272" r="7" fill="#3b2f1e"/>
+          <circle cx="222" cy="228" r="7" fill="#3b2f1e"/>
+          <!-- Mug rim highlight -->
+          <rect x="118" y="160" width="164" height="22" rx="11" fill="#3d3060" opacity="0.7"/>
+          <!-- Text band -->
+          <rect x="0" y="420" width="400" height="80" fill="#0d0b14" opacity="0.5"/>
+        </svg>
+      ) : isHoodie ? (
+        <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" class="product-card-illustration" aria-hidden="true">
+          <rect width="400" height="500" fill="#1a1628"/>
+          <ellipse cx="200" cy="75" rx="150" ry="30" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.4"/>
+          <ellipse cx="200" cy="98" rx="110" ry="20" fill="none" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+          <circle cx="70" cy="48" r="2" fill="#fff" opacity="0.7"/>
+          <circle cx="200" cy="24" r="2.5" fill="#fff" opacity="0.8"/>
+          <circle cx="330" cy="50" r="2" fill="#fff" opacity="0.7"/>
+          <!-- Hoodie body (wider, with front pocket) -->
+          <path d="M100 190 L60 165 L40 230 L100 230 L100 390 L300 390 L300 230 L360 230 L340 165 L300 190
+                   Q280 155 240 148 L220 165 Q210 172 200 172 Q190 172 180 165 L160 148
+                   Q120 155 100 190 Z"
+                fill="#2d2044" stroke="#6b5a3e" stroke-width="2.5"/>
+          <!-- Hood opening -->
+          <path d="M160 148 Q180 165 200 172 Q220 165 240 148" stroke="#6b5a3e" stroke-width="2" fill="none"/>
+          <!-- Kangaroo pocket -->
+          <rect x="148" y="310" width="104" height="58" rx="10" fill="#3d3060" stroke="#6b5a3e" stroke-width="1.5"/>
+          <!-- Aurora swirl on chest -->
+          <ellipse cx="200" cy="245" rx="58" ry="18" fill="none" stroke="#a78bfa" stroke-width="3" opacity="0.55"/>
+          <ellipse cx="200" cy="262" rx="42" ry="13" fill="none" stroke="#34d399" stroke-width="2.5" opacity="0.5"/>
+          <!-- Stars on chest -->
+          <circle cx="168" cy="240" r="3" fill="#a78bfa" opacity="0.8"/>
+          <circle cx="200" cy="232" r="3.5" fill="#fff" opacity="0.9"/>
+          <circle cx="232" cy="240" r="3" fill="#34d399" opacity="0.8"/>
+          <circle cx="182" cy="258" r="2.5" fill="#a78bfa" opacity="0.6"/>
+          <circle cx="218" cy="258" r="2.5" fill="#34d399" opacity="0.6"/>
+          <!-- Ribbed cuffs hint -->
+          <rect x="40" y="220" width="60" height="10" rx="5" fill="#3d3060" opacity="0.6"/>
+          <rect x="300" y="220" width="60" height="10" rx="5" fill="#3d3060" opacity="0.6"/>
+          <rect x="0" y="420" width="400" height="80" fill="#0d0b14" opacity="0.5"/>
+        </svg>
+      ) : (
+        <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" class="product-card-illustration" aria-hidden="true">
+          <rect width="400" height="500" fill="#1a1628"/>
+          <ellipse cx="200" cy="75" rx="150" ry="30" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.35"/>
+          <ellipse cx="200" cy="98" rx="110" ry="20" fill="none" stroke="#34d399" stroke-width="2" opacity="0.28"/>
+          <circle cx="60" cy="48" r="2" fill="#fff" opacity="0.7"/>
+          <circle cx="130" cy="32" r="1.5" fill="#fff" opacity="0.5"/>
+          <circle cx="200" cy="24" r="2.5" fill="#fff" opacity="0.8"/>
+          <circle cx="270" cy="36" r="1.5" fill="#fff" opacity="0.5"/>
+          <circle cx="340" cy="50" r="2" fill="#fff" opacity="0.7"/>
+          <!-- T-shirt silhouette -->
+          <path d="M120 175 L78 152 L58 215 L112 215 L112 385 L288 385 L288 215 L342 215 L322 152 L280 175
+                   Q262 142 200 142 Q138 142 120 175 Z"
+                fill="#2d2044" stroke="#6b5a3e" stroke-width="2.5"/>
+          <!-- Volcano on shirt -->
+          <polygon points="200,222 148,325 252,325" fill="#8b3a3a" opacity="0.9"/>
+          <!-- Snow cap -->
+          <polygon points="200,222 188,248 212,248" fill="#e8dcc8" opacity="0.85"/>
+          <!-- Eruption glow -->
+          <polygon points="200,224 194,238 206,238" fill="#e8532a" opacity="0.95"/>
+          <!-- Lava flows -->
+          <path d="M194 238 Q188 258 192 278 Q188 295 194 312" stroke="#e8532a" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.75"/>
+          <path d="M206 238 Q212 260 208 280 Q214 298 208 314" stroke="#e8532a" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.65"/>
+          <!-- Two dice flanking volcano base -->
+          <rect x="116" y="328" width="44" height="44" rx="7" fill="#e8dcc8" opacity="0.9"/>
+          <circle cx="130" cy="341" r="4" fill="#3b2f1e"/>
+          <circle cx="148" cy="350" r="4" fill="#8b3a3a"/>
+          <circle cx="130" cy="359" r="4" fill="#3b2f1e"/>
+          <rect x="240" y="328" width="44" height="44" rx="7" fill="#e8dcc8" opacity="0.9"/>
+          <circle cx="254" cy="341" r="4" fill="#3b2f1e"/>
+          <circle cx="272" cy="341" r="4" fill="#3b2f1e"/>
+          <circle cx="254" cy="359" r="4" fill="#3b2f1e"/>
+          <circle cx="272" cy="359" r="4" fill="#3b2f1e"/>
+          <rect x="0" y="420" width="400" height="80" fill="#0d0b14" opacity="0.5"/>
+        </svg>
+      );
+    })()}
+    {indexLabel && <span class="product-card-index">N°&nbsp;{indexLabel}</span>}
+    {primaryOffer && (
+      <span class="product-card-ribbon" title={primaryOffer.offer}>
+        {primaryOffer.name}
+      </span>
+    )}
+  </div>
+  <div class="product-card-body">
+    <h3 class="product-card-name">{product.name}</h3>
+    {price && <p class="product-card-price">{price}</p>}
+  </div>
+</a>
+
+<script>
+  import { trackEvent } from "../utils/analytics";
+  document.addEventListener("click", (event) => {
+    const anchor = (event.target as HTMLElement)?.closest("a[data-analytics-product]") as HTMLAnchorElement | null;
+    if (!anchor) return;
+    trackEvent("ClickProduct", {
+      id: anchor.dataset.id,
+      name: anchor.dataset.name,
+      price: anchor.dataset.price ? Number(anchor.dataset.price) : undefined,
+      currency: anchor.dataset.currency,
+      origin: "Product Listing",
+    });
+  });
+</script>

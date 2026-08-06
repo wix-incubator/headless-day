@@ -1,0 +1,401 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const plans = [
+  {
+    id: "fb97d14b-2b9a-4fb6-8448-11d26c9e389b",
+    slug: "weekend-player",
+    name: "Weekend Player",
+    description: "One game session per month, perfect for occasional visitors",
+    price: "3.990",
+    currency: "ISK",
+    period: "mán.",
+    perks: ["1 leikfundarskipti á mánuði", "Forgangsblocking um helgar", "10% afsláttur á vörur"],
+    primary: false,
+  },
+  {
+    id: "f3ce0b13-5988-4896-9167-fde76e986c23",
+    slug: "weekly-regular",
+    name: "Weekly Regular",
+    description: "One game session per week (4 per month), for dedicated players",
+    price: "9.990",
+    currency: "ISK",
+    period: "mán.",
+    perks: ["4 leikfundarskipti á mánuði", "Forgangsbókun alla daga", "15% afsláttur á vörur", "Aðgangur að meðlimatilfærslum"],
+    primary: true,
+  },
+  {
+    id: "1d53e65b-52d4-404f-a3c6-360ef1133f57",
+    slug: "unlimited-monthly",
+    name: "Unlimited Monthly",
+    description: "Unlimited game sessions all month, for the true board game enthusiast",
+    price: "19.990",
+    currency: "ISK",
+    period: "mán.",
+    perks: ["Ótakmarkaðir leikfundir", "VIP forgangsbókun", "20% afsláttur á vörur", "Ókeypis mánaðarlegt viðburðarmiði", "Aðgangur að einkaklefa meðlima"],
+    primary: false,
+  },
+];
+
+const benefits = [
+  {
+    icon: "🎲",
+    title: "Priority Booking",
+    description: "Members get first access to booking slots — including peak weekend evenings and special event nights.",
+  },
+  {
+    icon: "🍺",
+    title: "Member Discounts",
+    description: "Enjoy 10–20% off all merchandise, plus occasional member-only drink specials at the bar.",
+  },
+  {
+    icon: "🃏",
+    title: "Exclusive Events",
+    description: "Weekly and monthly game nights open only to members — tournaments, new-game previews, and more.",
+  },
+  {
+    icon: "📚",
+    title: "Full Game Library",
+    description: "Access to our entire collection of 400+ board games, from quick fillers to epic campaign games.",
+  },
+];
+---
+
+<Layout
+  title="Membership"
+  description="Join the Dice & Drizzle community. Get priority booking, member events, and discounts with our monthly membership plans."
+>
+  <!-- Hero -->
+  <section
+    style="
+      background: linear-gradient(160deg, #211d38 0%, #141220 60%);
+      padding: 6rem 1.5rem 4rem;
+      text-align: center;
+      border-bottom: 1px solid #3a3460;
+    "
+  >
+    <div style="max-width: 720px; margin: 0 auto;">
+      <p
+        style="
+          font-family: 'Outfit', sans-serif;
+          font-size: 0.875rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #38b572;
+          margin: 0 0 1rem;
+        "
+      >
+        Community Membership
+      </p>
+      <h1
+        style="
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(2.5rem, 6vw, 4rem);
+          font-weight: 700;
+          color: #ede8da;
+          line-height: 1.1;
+          margin: 0 0 1.25rem;
+        "
+      >
+        Join the Dice &amp; Drizzle<br />Community
+      </h1>
+      <p
+        style="
+          font-family: 'Outfit', sans-serif;
+          font-size: 1.125rem;
+          color: #9090b8;
+          line-height: 1.7;
+          margin: 0 0 2.5rem;
+        "
+      >
+        Become a member and unlock priority booking, exclusive events, and
+        discounts across our game library and bar.
+      </p>
+      <a
+        href="#plans"
+        style="
+          display: inline-block;
+          background: #38b572;
+          color: #141220;
+          font-family: 'Outfit', sans-serif;
+          font-weight: 600;
+          font-size: 1rem;
+          padding: 0.875rem 2.5rem;
+          border-radius: 4px;
+          text-decoration: none;
+          transition: opacity 0.15s;
+        "
+        onmouseover="this.style.opacity='0.85'"
+        onmouseout="this.style.opacity='1'"
+      >
+        View Membership Plans
+      </a>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section
+    style="
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    "
+  >
+    <h2
+      style="
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 600;
+        color: #ede8da;
+        text-align: center;
+        margin: 0 0 3rem;
+      "
+    >
+      Member Benefits
+    </h2>
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+      "
+    >
+      {
+        benefits.map((b) => (
+          <div
+            style="
+              background: #211d38;
+              border: 1px solid #3a3460;
+              border-radius: 8px;
+              padding: 2rem;
+            "
+          >
+            <div style="font-size: 2rem; margin-bottom: 1rem;">{b.icon}</div>
+            <h3
+              style="
+                font-family: 'Cormorant Garamond', serif;
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #ede8da;
+                margin: 0 0 0.5rem;
+              "
+            >
+              {b.title}
+            </h3>
+            <p
+              style="
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.9375rem;
+                color: #9090b8;
+                line-height: 1.6;
+                margin: 0;
+              "
+            >
+              {b.description}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Plans -->
+  <section
+    id="plans"
+    style="
+      background: #211d38;
+      border-top: 1px solid #3a3460;
+      border-bottom: 1px solid #3a3460;
+      padding: 4rem 1.5rem;
+    "
+  >
+    <div style="max-width: 72rem; margin: 0 auto;">
+      <h2
+        style="
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.75rem, 4vw, 2.5rem);
+          font-weight: 600;
+          color: #ede8da;
+          text-align: center;
+          margin: 0 0 0.75rem;
+        "
+      >
+        Choose Your Plan
+      </h2>
+      <p
+        style="
+          font-family: 'Outfit', sans-serif;
+          font-size: 1rem;
+          color: #9090b8;
+          text-align: center;
+          margin: 0 0 3rem;
+        "
+      >
+        All plans renew monthly. Cancel anytime.
+      </p>
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+          align-items: start;
+        "
+      >
+        {
+          plans.map((plan) => (
+            <div
+              style={`
+                background: #141220;
+                border: 2px solid ${plan.primary ? "#38b572" : "#3a3460"};
+                border-radius: 10px;
+                padding: 2rem;
+                position: relative;
+                ${plan.primary ? "box-shadow: 0 0 32px rgba(56,181,114,0.15);" : ""}
+              `}
+            >
+              {plan.primary && (
+                <div
+                  style="
+                    position: absolute;
+                    top: -0.875rem;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #38b572;
+                    color: #141220;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.1em;
+                    text-transform: uppercase;
+                    padding: 0.25rem 1rem;
+                    border-radius: 99px;
+                    white-space: nowrap;
+                  "
+                >
+                  Most Popular
+                </div>
+              )}
+              <h3
+                style="
+                  font-family: 'Cormorant Garamond', serif;
+                  font-size: 1.5rem;
+                  font-weight: 700;
+                  color: #ede8da;
+                  margin: 0 0 0.5rem;
+                "
+              >
+                {plan.name}
+              </h3>
+              <p
+                style="
+                  font-family: 'Outfit', sans-serif;
+                  font-size: 0.875rem;
+                  color: #9090b8;
+                  margin: 0 0 1.5rem;
+                  line-height: 1.5;
+                "
+              >
+                {plan.description}
+              </p>
+              <div style="margin-bottom: 1.5rem;">
+                <span
+                  style="
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 2.5rem;
+                    font-weight: 700;
+                    color: #ede8da;
+                  "
+                >
+                  {plan.price}
+                </span>
+                <span
+                  style="
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.9rem;
+                    color: #9090b8;
+                    margin-left: 0.25rem;
+                  "
+                >
+                  ISK/{plan.period}
+                </span>
+              </div>
+              <ul
+                style="
+                  list-style: none;
+                  padding: 0;
+                  margin: 0 0 2rem;
+                "
+              >
+                {plan.perks.map((perk) => (
+                  <li
+                    style="
+                      font-family: 'Outfit', sans-serif;
+                      font-size: 0.9rem;
+                      color: #c4b068;
+                      padding: 0.375rem 0;
+                      border-bottom: 1px solid #3a3460;
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    "
+                  >
+                    <span style="color: #38b572; flex-shrink: 0;">✓</span>
+                    {perk}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={`/pricing#${plan.slug}`}
+                style={`
+                  display: block;
+                  text-align: center;
+                  background: ${plan.primary ? "#38b572" : "transparent"};
+                  color: ${plan.primary ? "#141220" : "#38b572"};
+                  border: 2px solid #38b572;
+                  font-family: 'Outfit', sans-serif;
+                  font-weight: 600;
+                  font-size: 0.9375rem;
+                  padding: 0.75rem 1.5rem;
+                  border-radius: 4px;
+                  text-decoration: none;
+                `}
+              >
+                Sign Up
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section style="max-width: 72rem; margin: 0 auto; padding: 4rem 1.5rem; text-align: center;">
+    <h2
+      style="
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #ede8da;
+        margin: 0 0 1rem;
+      "
+    >
+      Questions?
+    </h2>
+    <p style="font-family: 'Outfit', sans-serif; color: #9090b8; margin: 0 0 1.5rem;">
+      Reach out and we'll help you pick the right plan for your playing style.
+    </p>
+    <a
+      href="/contact"
+      style="
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.9375rem;
+        color: #38b572;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      "
+    >
+      Contact us &rarr;
+    </a>
+  </section>
+</Layout>

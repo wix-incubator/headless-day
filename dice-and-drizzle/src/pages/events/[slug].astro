@@ -1,0 +1,164 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { wixEventsV2 } from "@wix/events";
+import { auth } from "@wix/essentials";
+
+const { slug } = Astro.params;
+
+let event = null;
+try {
+  const elevatedGetBySlug = auth.elevate(wixEventsV2.getEventBySlug);
+  const result = await elevatedGetBySlug(slug);
+  event = result?.event ?? result ?? null;
+} catch (err) {
+  console.error("[event detail] fetch failed:", err?.message ?? err);
+}
+
+if (!event) {
+  return Astro.redirect("/events");
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  try {
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatTime(dateStr, tz) {
+  if (!dateStr) return "";
+  try {
+    return new Date(dateStr).toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: tz ?? "UTC",
+    });
+  } catch {
+    return "";
+  }
+}
+
+const start = event.dateAndTimeSettings?.startDate;
+const end = event.dateAndTimeSettings?.endDate;
+const tz = event.dateAndTimeSettings?.timeZoneId;
+const location = event.location;
+const eventPageUrl = event.eventPageUrl;
+const checkoutUrl = eventPageUrl
+  ? `${eventPageUrl.base}${eventPageUrl.path}`
+  : null;
+---
+
+<Layout
+  title={event.title}
+  description={event.shortDescription ?? `Join us for ${event.title} at Dice & Drizzle.`}
+>
+  <section style="min-height: 100vh; background: var(--color-paper, #141220); padding: 80px 24px 64px;">
+    <div style="max-width: 760px; margin: 0 auto;">
+
+      <a
+        href="/events"
+        style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.85rem; text-decoration: none; margin-bottom: 40px;"
+      >
+        ← All Events
+      </a>
+
+      {start && (
+        <div style="color: var(--color-accent, #38b572); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;">
+          {formatDate(start)}
+        </div>
+      )}
+
+      <h1 style="font-family: var(--font-display, 'Cormorant Garamond', serif); font-size: clamp(2rem, 5vw, 3.5rem); color: var(--color-ink, #ede8da); margin: 0 0 24px; font-weight: 700; line-height: 1.1;">
+        {event.title}
+      </h1>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--color-rule, #3a3460);">
+        {start && (
+          <div>
+            <div style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px;">Date &amp; Time</div>
+            <div style="color: var(--color-ink, #ede8da); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.95rem;">
+              {formatDate(start)}{end ? ` · ${formatTime(start, tz)} – ${formatTime(end, tz)}` : ""}
+            </div>
+          </div>
+        )}
+        {location?.name && (
+          <div>
+            <div style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px;">Location</div>
+            <div style="color: var(--color-ink, #ede8da); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.95rem;">
+              {location.name}
+              {location.address?.addressLine && (
+                <span style="color: var(--color-mute, #9090b8);"> · {location.address.addressLine}, {location.address.city}</span>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {event.shortDescription && (
+        <p style="color: var(--color-ink-soft, #c4b068); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 1.05rem; line-height: 1.75; margin-bottom: 40px;">
+          {event.shortDescription}
+        </p>
+      )}
+
+      <div style="background: var(--color-paper-warm, #211d38); border: 1px solid var(--color-rule, #3a3460); border-radius: 12px; padding: 28px 32px;">
+        <h2 style="font-family: var(--font-display, 'Cormorant Garamond', serif); font-size: 1.4rem; color: var(--color-ink, #ede8da); margin: 0 0 16px; font-weight: 700;">
+          Tickets
+        </h2>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--color-rule, #3a3460);">
+          <div>
+            <div style="color: var(--color-ink, #ede8da); font-family: var(--font-body, 'Outfit', sans-serif); font-weight: 600; font-size: 1rem;">General Admission</div>
+            <div style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.85rem; margin-top: 2px;">250 spots available</div>
+          </div>
+          <div style="color: var(--color-ink, #ede8da); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 1.3rem; font-weight: 700;">
+            €15.00
+          </div>
+        </div>
+
+        {checkoutUrl ? (
+          <a
+            href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style="display: block; width: 100%; background: var(--color-accent, #38b572); color: var(--color-paper, #141220); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 1rem; font-weight: 700; padding: 14px 24px; border-radius: 8px; text-decoration: none; text-align: center; box-sizing: border-box;"
+          >
+            Register &amp; Get Tickets
+          </a>
+        ) : (
+          <p style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.9rem; text-align: center;">
+            Registration coming soon — check back shortly.
+          </p>
+        )}
+      </div>
+
+      {event.calendarUrls?.google && (
+        <div style="margin-top: 20px; display: flex; gap: 16px; flex-wrap: wrap;">
+          <a
+            href={event.calendarUrls.google}
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.82rem; text-decoration: underline;"
+          >
+            + Add to Google Calendar
+          </a>
+          {event.calendarUrls.ics && (
+            <a
+              href={event.calendarUrls.ics}
+              style="color: var(--color-mute, #9090b8); font-family: var(--font-body, 'Outfit', sans-serif); font-size: 0.82rem; text-decoration: underline;"
+            >
+              + Download .ics
+            </a>
+          )}
+        </div>
+      )}
+
+    </div>
+  </section>
+</Layout>

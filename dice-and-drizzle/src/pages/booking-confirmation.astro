@@ -1,0 +1,60 @@
+---
+// src/pages/booking-confirmation.astro — post-booking confirmation.
+//
+// Renders from the redirect query params (service name + start date) that the
+// booking step passes through. The Wix-hosted checkout returns here after a paid
+// booking; a free / pay-in-person booking lands here directly. Do not re-fetch a
+// stranger's booking from this public page — show what the flow passed in.
+import Layout from "../layouts/Layout.astro";
+
+const serviceName = Astro.url.searchParams.get("service") ?? "your session";
+const startDateParam = Astro.url.searchParams.get("startDate");
+const formattedDate = startDateParam
+  ? new Date(startDateParam).toLocaleString("en-US", {
+      weekday: "long", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit",
+    })
+  : null;
+---
+
+<Layout title="Booking confirmed">
+  <section style="max-width: 65ch; margin: 0 auto; padding: 6rem 1.5rem; text-align: center;">
+    <div style="width: 4rem; height: 4rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; background-color: var(--color-accent);" aria-hidden="true">
+      <span style="font-size: 1.5rem; color: var(--color-paper);">✓</span>
+    </div>
+    <hr class="editorial-rule" style="width: 3rem; margin: 0 auto 1.5rem;" />
+    <h1 style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; color: var(--color-ink); margin-bottom: 1.5rem;">See you soon.</h1>
+
+    {
+      formattedDate ? (
+        <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-mute); line-height: 1.65; margin-bottom: 1rem;">
+          Your table is reserved for <strong style="color: var(--color-ink);">{serviceName}</strong> on{" "}
+          <strong style="color: var(--color-ink);">{formattedDate}</strong>.
+          Your first game is waiting — the hot chocolate will be ready when you sit down.
+        </p>
+      ) : (
+        <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-mute); line-height: 1.65; margin-bottom: 1rem;">
+          Your table is reserved. Your first game is waiting — the hot chocolate will be ready when you sit down.
+        </p>
+      )
+    }
+
+    <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-mute); line-height: 1.6; margin-bottom: 2.5rem;">
+      No deposit charged. You can cancel or change your booking up to two hours before your slot.
+    </p>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+      <a
+        href="/games"
+        style="font-family: var(--font-display); font-size: 1rem; padding: 0.875rem 2.5rem; border-radius: var(--radius-md); background-color: var(--color-accent); color: var(--color-paper); text-decoration: none; display: inline-block;"
+      >
+        Browse the game library →
+      </a>
+      <a
+        href="/"
+        style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-mute); text-decoration: underline; text-underline-offset: 3px;"
+      >
+        Back to home
+      </a>
+    </div>
+  </section>
+</Layout>
