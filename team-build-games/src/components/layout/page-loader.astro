@@ -1,0 +1,98 @@
+---
+/**
+ * Page-transition loader. `<ClientRouter />` swaps pages client-side, so navigation
+ * has no native browser spinner — this fills the gap with a neon top progress bar
+ * plus a blinking pixel tag, driven by the astro:transitions lifecycle. Listeners
+ * are attached once to `document` (which survives swaps), guarded by a window flag.
+ */
+---
+
+<div id="page-loader" aria-hidden="true">
+  <div id="page-loader-bar"></div>
+  <div id="page-loader-tag" class="font-display">LOADING</div>
+</div>
+
+<style>
+  #page-loader-bar {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 100;
+    height: 3px;
+    width: 0;
+    background: linear-gradient(90deg, #22d3ee, #e879f9);
+    box-shadow:
+      0 0 12px rgb(34 211 238 / 0.9),
+      0 0 4px rgb(232 121 249 / 0.9);
+    opacity: 0;
+    transition:
+      width 0.2s ease,
+      opacity 0.3s ease;
+  }
+  /* Creep toward the end while the next page prepares — never quite reaching 100%. */
+  #page-loader-bar.loading {
+    width: 92%;
+    opacity: 1;
+    transition:
+      width 8s cubic-bezier(0.1, 0.7, 0.1, 1),
+      opacity 0.12s ease;
+  }
+  /* Snap full, then fade once the new page is in. */
+  #page-loader-bar.done {
+    width: 100%;
+    opacity: 0;
+    transition:
+      width 0.15s ease,
+      opacity 0.35s ease 0.1s;
+  }
+
+  #page-loader-tag {
+    position: fixed;
+    inset: auto 0.75rem 0.75rem auto;
+    z-index: 100;
+    font-size: 0.5rem;
+    letter-spacing: 0.25em;
+    color: #22d3ee;
+    text-shadow: 0 0 10px currentColor;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  #page-loader-tag.loading {
+    opacity: 1;
+    animation: blink 0.9s steps(2, jump-none) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #page-loader-tag.loading {
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    if (window.__pageLoaderWired) return;
+    window.__pageLoaderWired = true;
+    const els = () => [
+      document.getElementById("page-loader-bar"),
+      document.getElementById("page-loader-tag"),
+    ];
+    const start = () => {
+      for (const el of els()) {
+        if (!el) continue;
+        el.classList.remove("done");
+        void el.offsetWidth; // restart the transition from 0
+        el.classList.add("loading");
+      }
+    };
+    const done = () => {
+      for (const el of els()) {
+        if (!el) continue;
+        el.classList.remove("loading");
+        el.classList.add("done");
+        setTimeout(() => el.classList.remove("done"), 500);
+      }
+    };
+    document.addEventListener("astro:before-preparation", start);
+    document.addEventListener("astro:page-load", done);
+  })();
+</script>

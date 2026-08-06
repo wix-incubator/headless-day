@@ -1,0 +1,36 @@
+---
+// Dev-only Overrun test harness — force-spawn any enemy kind (or the Kraken solo) with no lobby.
+// Gated to `astro dev`: in a production build import.meta.env.DEV is false and we redirect away.
+import Layout from "../../components/layout/layout.astro";
+import OverrunSandbox from "../../components/game/overrun/OverrunSandbox.tsx";
+
+if (!import.meta.env.DEV) return Astro.redirect("/games/overrun");
+---
+
+<Layout title="Overrun Sandbox (dev)" description="Local dev test harness for Overrun enemies.">
+  <div class="mx-auto w-full max-w-[1400px] px-4 py-10">
+    <div class="mb-6">
+      <a href="/games/overrun" class="font-display text-[9px] text-neutral-500 hover:text-cyan-300">&lt; Back to Overrun</a>
+      <h1 class="neon mt-4 font-display text-2xl text-red-400 sm:text-3xl">Overrun Sandbox</h1>
+      <p class="mt-3 max-w-2xl text-neutral-400">
+        Dev-only harness — no lobby, no netcode. Two modes, both driving the real scene + sim:
+        <strong>enemy inspection</strong> (hand-placed kinds) and <strong>campaign stage</strong>
+        (a real run launched at any stage — live waves, transitions &amp; boss). Configure via the URL:
+        <code class="text-amber-300">?stage=5</code> (launch a campaign stage),
+        <code class="text-amber-300">?enemy=kraken&amp;count=1&amp;gun=dmr</code>, or
+        <code class="text-amber-300">?enemy=spitter,exploder,hive&amp;count=6&amp;ai=on</code>.
+        Params: <code>stage</code> (1–6), <code>enemy</code> (comma list), <code>count</code>,
+        <code>gun</code>, <code>ai</code> (on/off), <code>hp</code>. Switch modes live from the overlay.
+      </p>
+    </div>
+
+    <div class="rounded-2xl border border-red-400/25 bg-night-900 p-3 shadow-[0_0_48px_rgb(239_68_68/0.12)] sm:p-4">
+      <OverrunSandbox client:only="react" />
+    </div>
+
+    <p class="mt-4 text-sm text-neutral-500">
+      WASD move · mouse aim · hold LMB fire · R reload — plus the on-screen sandbox controls
+      (or <kbd>[</kbd>/<kbd>]</kbd> to cycle the target kind, <kbd>\</kbd> to freeze/unfreeze AI).
+    </p>
+  </div>
+</Layout>

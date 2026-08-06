@@ -1,0 +1,79 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import GameSwitcher from "../../components/games/GameSwitcher.astro";
+import LikeButton from "../../components/games/LikeButton.astro";
+import { gameBySlug } from "../../lib/games/registry";
+import { getLikeCounts, getMemberLikedSet } from "../../lib/wix/gameLikes";
+import { getSessionMember } from "../../lib/wix/members";
+
+// Locked-cabinet page for roster games that aren't built yet. Live games have
+// their own static page (which Astro prefers over this dynamic route) and the
+// mystery cabinet lives at /suggest — both redirect out of here.
+const slug = Astro.params.slug ?? "";
+const game = gameBySlug(slug);
+if (!game) return Astro.redirect("/#games");
+if (game.status !== "soon") return Astro.redirect(game.href);
+
+const member = await getSessionMember();
+const counts = await getLikeCounts([game.slug]);
+const liked = member ? (await getMemberLikedSet(member.id)).has(game.slug) : false;
+---
+
+<Layout
+  title={`${game.name} — TeamBuild Games`}
+  description={`${game.name} is coming soon to the office arcade. ${game.blurb}`}
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-10">
+    <div class="mb-8">
+      <a
+        href="/#games"
+        class="font-display text-[9px] text-neutral-500 hover:text-cyan-300"
+      >
+        &lt; Back to the arcade
+      </a>
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 class="neon font-display text-2xl text-white sm:text-3xl">
+          {game.name}
+        </h1>
+        <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+          <span class={`border px-2 py-1 ${game.chip}`}>{game.kind}</span>
+          <span class="border border-white/15 px-2 py-1 text-neutral-400">
+            {game.players}
+          </span>
+          <span class="border border-amber-300/40 px-2 py-1 text-amber-200">
+            Coming soon
+          </span>
+        </div>
+      </div>
+      <p class="mt-3 max-w-2xl text-neutral-400">{game.blurb}</p>
+    </div>
+
+    <GameSwitcher slug={game.slug} />
+
+    {/* locked cabinet */}
+    <div
+      class="pixel-grid mt-6 rounded-2xl border border-white/10 bg-night-900 px-6 py-16 text-center"
+    >
+      <p class="animate-blink font-display text-4xl" aria-hidden="true">🔒</p>
+      <p class="mt-6 font-display text-xs leading-relaxed text-neutral-300">
+        This cabinet is still being wheeled onto the floor
+      </p>
+      <p class="mx-auto mt-4 max-w-md text-sm leading-relaxed text-neutral-500">
+        Want it sooner? Likes decide what gets built next — hype it up, or
+        pitch your own twist for the mode.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <LikeButton
+          gameId={game.slug}
+          count={counts[game.slug] ?? 0}
+          liked={liked}
+          authed={!!member}
+        />
+        <a href="/suggest" class="arcade-btn arcade-btn-ghost">Pitch an idea</a>
+        <a href="/games/arena" class="arcade-btn">▶ Play Arena instead</a>
+      </div>
+    </div>
+  </div>
+  <Footer />
+</Layout>

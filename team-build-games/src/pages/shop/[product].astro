@@ -1,0 +1,286 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import MerchPreview from "../../components/merch/MerchPreview.astro";
+import TestModeBanner from "../../components/merch/TestModeBanner.astro";
+import {
+  defaultSelection,
+  formatPrice,
+  MAX_QTY,
+  MERCH_PRODUCTS,
+  productBySlug,
+  unitPriceCents,
+} from "../../lib/merch/catalog";
+import { sanitizePayload } from "../../lib/merch/print";
+import { sanitizeVisual } from "../../lib/merch/visual";
+
+const product = productBySlug(Astro.params.product ?? "");
+if (!product) return Astro.redirect(`/shop/tee${Astro.url.search}`);
+
+const payload = sanitizePayload({
+  title: Astro.url.searchParams.get("title") ?? undefined,
+  sub: Astro.url.searchParams.get("sub") ?? undefined,
+});
+
+// Optional player visual (fighter sprite + avatar photo) — validated in one place.
+const { warriorSrc, avatarUrl } = sanitizeVisual({
+  warrior: Astro.url.searchParams.get("warrior"),
+  avatar: Astro.url.searchParams.get("avatar"),
+});
+const error = Astro.url.searchParams.get("error");
+const errorMessage =
+  error === "save"
+    ? "Couldn't record the test order — try again in a minute."
+    : error
+      ? "Something in the order didn't validate — give it another go."
+      : null;
+
+const selection = defaultSelection(product);
+const unitCents = unitPriceCents(product, selection);
+const garmentOption = product.options.find((o) => o.key !== "printColor" && o.choices[0]?.swatch);
+const garmentColor = garmentOption?.choices[0]?.swatch ?? "#0b0b1a";
+const printColor =
+  product.options.find((o) => o.key === "printColor")?.choices[0]?.swatch ?? "#22d3ee";
+
+// keep the payload (and optional visual) when hopping between products
+const tabParams = new URLSearchParams({ title: payload.title, sub: payload.sub });
+if (warriorSrc) tabParams.set("warrior", warriorSrc);
+if (avatarUrl)  tabParams.set("avatar",  avatarUrl);
+---
+
+<Layout
+  title={`${product.name} — Trophy shop — TeamBuild Games`}
+  description="Turn a match result into office merch — sandbox demo, nothing is charged or shipped."
+>
+  <div class="mx-auto w-full max-w-5xl px-4 py-10">
+    <a
+      href="/#games"
+      class="font-display text-[9px] text-neutral-500 hover:text-cyan-300"
+    >
+      &lt; Back to the arcade
+    </a>
+
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="eyebrow text-amber-300">Trophy shop</p>
+        <h1 class="neon mt-3 font-display text-2xl text-white sm:text-3xl">
+          {product.name}
+        </h1>
+        <p class="mt-3 max-w-xl text-neutral-400">{product.tagline}</p>
+      </div>
+      <nav class="flex gap-2 font-display text-[9px]" aria-label="Merch products">
+        {
+          MERCH_PRODUCTS.map((p) => (
+            <a
+              href={`/shop/${p.slug}?${tabParams.toString()}`}
+              aria-current={p.slug === product.slug ? "page" : "false"}
+              class="border border-white/15 px-3 py-2 text-neutral-400 transition hover:text-cyan-300 aria-[current=page]:border-cyan-400/60 aria-[current=page]:text-cyan-300"
+            >
+              {p.name}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+
+    <div class="mt-6">
+      <TestModeBanner />
+    </div>
+    {
+      errorMessage && (
+        <p class="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {errorMessage}
+        </p>
+      )
+    }
+
+    <div class="mt-6 grid gap-8 lg:grid-cols-2">
+      {/* preview */}
+      <div
+        class="pixel-grid flex min-h-[22rem] items-center justify-center rounded-2xl border border-white/10 bg-night-900 p-6"
+      >
+        <div class="h-80 w-80 max-w-full">
+          <MerchPreview
+            product={product.slug as "tee" | "mug" | "keychain" | "poster"}
+            garmentColor={garmentColor}
+            printColor={printColor}
+            title={payload.title}
+            sub={payload.sub}
+            warriorSrc={warriorSrc}
+            avatarUrl={avatarUrl}
+          />
+        </div>
+      </div>
+
+      {/* options */}
+      <form
+        method="GET"
+        action="/shop/checkout"
+        id="merch-form"
+        data-base={unitCents}
+        class="flex flex-col gap-6"
+      >
+        <input type="hidden" name="product" value={product.slug} />
+        <input type="hidden" name="title" value={payload.title} />
+        <input type="hidden" name="sub" value={payload.sub} />
+        {warriorSrc && <input type="hidden" name="warrior" value={warriorSrc} />}
+        {
+          avatarUrl && (
+            <input type="hidden" name="avatar" id="avatar-field" value={avatarUrl} data-url={avatarUrl} />
+          )
+        }
+
+        <div class="rounded-xl border border-white/10 bg-night-900 p-5">
+          <div class="font-display text-[9px] text-neutral-500">Print reads</div>
+          <div class="mt-3 font-display text-sm leading-relaxed text-white">
+            {payload.title}
+          </div>
+          <div class="mt-1 font-display text-[9px] text-neutral-400">{payload.sub}</div>
+          <p class="mt-3 text-xs text-neutral-500">
+            The text comes from your match — finish another game to print a
+            different score.
+          </p>
+        </div>
+
+        {
+          product.options.map((option) => (
+            <fieldset>
+              <legend class="font-display text-[9px] text-neutral-400">{option.label}</legend>
+              <div class="mt-3 flex flex-wrap gap-2">
+                {option.choices.map((choice, i) => (
+                  <label
+                    class="flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm text-neutral-300 transition hover:border-white/40 has-[:checked]:border-cyan-400 has-[:checked]:text-white"
+                    title={choice.priceDeltaCents ? `+${formatPrice(choice.priceDeltaCents)}` : undefined}
+                  >
+                    <input
+                      type="radio"
+                      name={option.key}
+                      value={choice.value}
+                      checked={i === 0}
+                      data-swatch={choice.swatch}
+                      data-delta={choice.priceDeltaCents ?? 0}
+                      data-option-key={option.key}
+                      class="sr-only"
+                    />
+                    {choice.swatch && (
+                      <span
+                        class="h-4 w-4 rounded-sm border border-white/30"
+                        style={`background:${choice.swatch}`}
+                      />
+                    )}
+                    <span>{choice.label}</span>
+                    {choice.priceDeltaCents ? (
+                      <span class="text-xs text-neutral-500">+{formatPrice(choice.priceDeltaCents)}</span>
+                    ) : null}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))
+        }
+
+        {avatarUrl && (
+          <fieldset>
+            <legend class="font-display text-[9px] text-neutral-400">Avatar photo</legend>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-sm text-neutral-300 transition hover:border-white/40 has-[:checked]:border-cyan-400 has-[:checked]:text-white">
+                <input type="checkbox" id="avatar-toggle" class="sr-only" checked />
+                Show my avatar on the print
+              </label>
+            </div>
+          </fieldset>
+        )}
+
+        <fieldset>
+          <legend class="font-display text-[9px] text-neutral-400">Quantity</legend>
+          <div class="mt-3 flex items-center gap-3">
+            <button type="button" data-qty-step="-1" class="h-10 w-10 rounded-lg border border-white/15 font-display text-xs text-neutral-300 hover:border-cyan-400/60">
+              -
+            </button>
+            <input
+              type="number"
+              name="qty"
+              id="merch-qty"
+              value="1"
+              min="1"
+              max={MAX_QTY}
+              class="h-10 w-20 rounded-lg border border-white/15 bg-night-950 text-center text-neutral-100"
+            />
+            <button type="button" data-qty-step="1" class="h-10 w-10 rounded-lg border border-white/15 font-display text-xs text-neutral-300 hover:border-cyan-400/60">
+              +
+            </button>
+            <span class="text-xs text-neutral-500">
+              up to {MAX_QTY} — enough for the whole room
+            </span>
+          </div>
+        </fieldset>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-5">
+          <div>
+            <div class="font-display text-[9px] text-neutral-500">Total (test)</div>
+            <div id="merch-total" class="neon mt-1 font-display text-xl text-emerald-400">
+              {formatPrice(unitCents)}
+            </div>
+          </div>
+          <button type="submit" class="arcade-btn">Continue to checkout &gt;</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <Footer />
+</Layout>
+
+<script>
+  // Live preview + price: options and quantity restyle the SVG and total in place.
+  const form = document.getElementById("merch-form") as HTMLFormElement | null;
+  if (form) {
+    const base = Number(form.dataset.base ?? 0);
+    const qtyInput = form.querySelector<HTMLInputElement>("#merch-qty")!;
+    const total = document.getElementById("merch-total")!;
+    const fmt = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+    const refresh = () => {
+      let cents = base;
+      for (const radio of form.querySelectorAll<HTMLInputElement>("input[type=radio]:checked")) {
+        cents += Number(radio.dataset.delta ?? 0);
+        const swatch = radio.dataset.swatch;
+        if (!swatch) continue;
+        if (radio.dataset.optionKey === "printColor") {
+          for (const el of document.querySelectorAll("[data-print-title],[data-print-sub]"))
+            el.setAttribute("fill", swatch);
+        } else {
+          for (const el of document.querySelectorAll("[data-garment]"))
+            el.setAttribute("fill", swatch);
+          for (const el of document.querySelectorAll("[data-garment-stroke]"))
+            el.setAttribute("stroke", swatch);
+        }
+      }
+      const qty = Math.min(Math.max(Number(qtyInput.value) || 1, 1), Number(qtyInput.max));
+      total.textContent = fmt(cents * qty);
+    };
+
+    form.addEventListener("change", refresh);
+    qtyInput.addEventListener("input", refresh);
+    for (const btn of form.querySelectorAll<HTMLButtonElement>("[data-qty-step]")) {
+      btn.addEventListener("click", () => {
+        const next = (Number(qtyInput.value) || 1) + Number(btn.dataset.qtyStep);
+        qtyInput.value = String(Math.min(Math.max(next, 1), Number(qtyInput.max)));
+        refresh();
+      });
+    }
+    refresh();
+  }
+
+  // Avatar toggle: show/hide the avatar <image> in the preview AND control whether the
+  // avatar rides through to checkout (clear the hidden field when it's switched off).
+  const avatarToggle = document.getElementById("avatar-toggle") as HTMLInputElement | null;
+  const avatarField = document.getElementById("avatar-field") as HTMLInputElement | null;
+  if (avatarToggle) {
+    const syncAvatar = () => {
+      for (const el of document.querySelectorAll<SVGElement>("[data-avatar]"))
+        el.style.display = avatarToggle.checked ? "" : "none";
+      if (avatarField) avatarField.value = avatarToggle.checked ? (avatarField.dataset.url ?? "") : "";
+    };
+    avatarToggle.addEventListener("change", syncAvatar);
+  }
+</script>

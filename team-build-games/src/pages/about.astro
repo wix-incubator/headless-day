@@ -1,0 +1,79 @@
+---
+import Footer from "../components/layout/footer.astro";
+import Layout from "../components/layout/layout.astro";
+
+const stack = [
+  ["Engine", "Phaser 4 — 2.5D look on a 2D field"],
+  ["Netcode", "Peer-to-peer WebRTC, host-authoritative"],
+  ["Sound", "Chiptune SFX synthesized in Web Audio"],
+  ["Platform", "Astro on Wix Headless hosting"],
+  ["Accounts", "Wix Members — optional, for avatars & progress"],
+];
+---
+
+<Layout
+  title="About — TeamBuild Games"
+  description="Why we built a tiny arcade for teambuildings, and what's under the hood."
+>
+  <div class="mx-auto w-full max-w-3xl px-4 py-16">
+    <p class="eyebrow text-cyan-400">Player's manual</p>
+    <h1 class="mt-3 font-display text-2xl text-white sm:text-3xl">
+      About the arcade
+    </h1>
+
+    <div class="mt-10 space-y-10 text-neutral-300">
+      <section>
+        <h2 class="font-display text-xs text-cyan-300">What this is</h2>
+        <p class="mt-3 leading-relaxed">
+          TeamBuild Games is a small pack of multiplayer browser games built
+          for one job: giving your team something to actually
+          <em>play</em> together. No downloads, no accounts, no procurement
+          form — one person opens a room, shares a link, and everyone's in.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-xs text-fuchsia-300">Why it exists</h2>
+        <p class="mt-3 leading-relaxed">
+          Most teambuilding is a slideshow with extra steps. Fifteen minutes of
+          dashing, aiming, and yelling at each other in an arena does more for
+          a team than an hour of structured icebreakers — especially for
+          remote and hybrid teams who never share a room. Games are short by
+          design: quick rounds, instant rematches, and just enough chaos to
+          generate stories for the next coffee break.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-xs text-emerald-300">Under the hood</h2>
+        <p class="mt-3 leading-relaxed">
+          For the technically curious: matches run peer-to-peer over WebRTC —
+          one player's browser hosts the simulation, everyone else streams
+          inputs to it. Every game runs on a deterministic core, so if the
+          host rage-quits, another player takes over mid-match without missing
+          a tick.
+        </p>
+        <dl class="mt-6 divide-y divide-white/10 rounded-xl border border-white/10 bg-night-900">
+          {
+            stack.map(([label, value]) => (
+              <div class="flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <dt class="font-display text-[9px] text-neutral-500">{label}</dt>
+                <dd class="text-sm text-neutral-300">{value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="pixel-grid rounded-2xl border border-cyan-400/30 bg-night-900 px-6 py-10 text-center">
+        <p class="font-display text-xs leading-relaxed text-white">
+          Enough reading.
+        </p>
+        <div class="mt-6 flex justify-center">
+          <a href="/games/arena" class="arcade-btn">▶ Play Arena</a>
+        </div>
+      </section>
+    </div>
+  </div>
+  <Footer />
+</Layout>

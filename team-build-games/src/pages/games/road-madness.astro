@@ -1,0 +1,76 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import RoadMadness from "../../components/game/road-madness/RoadMadness";
+import GameSwitcher from "../../components/games/GameSwitcher.astro";
+import LikeButton from "../../components/games/LikeButton.astro";
+import { getLikeCounts, getMemberLikedSet } from "../../lib/wix/gameLikes";
+import { getSessionMember } from "../../lib/wix/members";
+
+const member = await getSessionMember();
+const likeCounts = await getLikeCounts(["road-madness"]);
+const liked = member ? (await getMemberLikedSet(member.id)).has("road-madness") : false;
+
+const controls = [
+  { keys: "W / ↑", action: "Accelerate" },
+  { keys: "S / ↓", action: "Brake, then reverse" },
+  { keys: "A D / ← →", action: "Steer — steering reverses while backing up" },
+  { keys: "Space", action: "Handbrake drift" },
+  { keys: "Shift", action: "Nitro boost — release to recharge" },
+];
+---
+
+<Layout
+  title="Road Madness — TeamBuild Games"
+  description="Arcade driving and demolition mayhem. Play the Last Madman Standing alpha against three bots."
+>
+  <div class="mx-auto w-full max-w-[1400px] px-4 py-10">
+    <div class="mb-8">
+      <a href="/" class="font-display text-[9px] text-neutral-500 hover:text-cyan-300">
+        &lt; Back to the arcade
+      </a>
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 class="neon font-display text-2xl text-amber-300 sm:text-3xl">Road Madness</h1>
+        <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+          <span class="border border-amber-300/40 px-2 py-1 text-amber-200">Arcade driving</span>
+          <span class="border border-white/15 px-2 py-1 text-neutral-400">1-player alpha</span>
+          <span class="border border-cyan-400/40 px-2 py-1 text-cyan-300">1–8 multiplayer planned</span>
+          <LikeButton gameId="road-madness" count={likeCounts["road-madness"] ?? 0} liked={liked} authed={!!member} />
+        </div>
+      </div>
+      <p class="mt-3 max-w-3xl text-neutral-400">
+        Four kinds of road chaos, one arcade driving model. The first playable cut drops you into
+        Last Madman Standing: pick a fast Derby car or a heavy Monster truck, protect your sides,
+        and make your bumper hits count. Race, Carnage, Bomb Tag, and live rooms follow on the roadmap.
+      </p>
+    </div>
+
+    <div class="mb-6"><GameSwitcher slug="road-madness" /></div>
+
+    <div class="rounded-2xl border border-amber-300/25 bg-night-900 p-3 shadow-[0_0_48px_rgb(251_191_36/0.1)] sm:p-4">
+      <RoadMadness client:only="react" />
+    </div>
+
+    <section class="mt-8 rounded-xl border border-white/10 bg-night-900 p-6">
+      <div>
+        <h2 class="eyebrow text-amber-300">Controls</h2>
+        <p class="mt-2 text-sm text-neutral-500">Arcade handling: easy to start, slippery when pushed.</p>
+      </div>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        {controls.map((control) => (
+          <div class="flex items-center gap-3">
+            <dt class="shrink-0 rounded border border-white/20 bg-night-800 px-2.5 py-1.5 font-display text-[9px] text-neutral-200">
+              {control.keys}
+            </dt>
+            <dd class="text-sm text-neutral-400">{control.action}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="mt-5 text-xs leading-relaxed text-neutral-500">
+        Damage tip: contact must enter your front or rear bumper arc. More approach speed, cleaner
+        alignment, and greater mass mean more damage. A side swipe shoves but does not remove health.
+      </p>
+    </section>
+  </div>
+  <Footer />
+</Layout>

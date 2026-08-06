@@ -1,0 +1,21 @@
+---
+import { hasMemberSession } from "../lib/auth";
+import { getAllTrendsWithStatus } from "../lib/trends";
+import { parseGroupFilters } from "../lib/filterState";
+import { WebTrendsDashboard } from "../components/dashboard/WebTrendsDashboard";
+import Layout from "../layouts/Layout.astro";
+
+const memberFeaturesEnabled = hasMemberSession(Astro.cookies);
+const { trends: initialTrends, usedFallback } = await getAllTrendsWithStatus();
+const initialGroupStates = parseGroupFilters(Astro.url.search);
+---
+
+<Layout title="@latest · Wix ecosystem signals">
+	<WebTrendsDashboard
+		client:load
+		memberFeaturesEnabled={memberFeaturesEnabled}
+		initialTrends={initialTrends}
+		initialGroupStates={initialGroupStates}
+		usedFallback={usedFallback}
+	/>
+</Layout>
