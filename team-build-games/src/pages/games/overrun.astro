@@ -1,0 +1,76 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import Overrun from "../../components/game/overrun/Overrun.tsx";
+import GameSwitcher from "../../components/games/GameSwitcher.astro";
+import LikeButton from "../../components/games/LikeButton.astro";
+import { getLikeCounts, getMemberLikedSet } from "../../lib/wix/gameLikes";
+import { getSessionMember } from "../../lib/wix/members";
+
+const member = await getSessionMember();
+const likeCounts = await getLikeCounts(["overrun"]);
+const liked = member ? (await getMemberLikedSet(member.id)).has("overrun") : false;
+const assetManifestUrl = import.meta.env.PUBLIC_OVERRUN_ASSET_MANIFEST_URL ?? "";
+
+const controls = [
+  { keys: "WASD / arrows", action: "Move your soldier" },
+  { keys: "Mouse", action: "Aim — hold left button to fire" },
+  { keys: "R", action: "Reload" },
+  { keys: "1 / 2 / 3", action: "Pick a level-up perk" },
+];
+---
+
+<Layout
+  title="Overrun — TeamBuild Games"
+  description="Co-op horde shooter for 1–8 players. Hold the field, scavenge guns, revive your teammates — the waves don't stop."
+>
+  <div class="mx-auto w-full max-w-[1400px] px-4 py-10">
+    <div class="mb-8">
+      <a href="/" class="font-display text-[9px] text-neutral-500 hover:text-cyan-300">
+        &lt; Back to the arcade
+      </a>
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 class="neon font-display text-2xl text-red-400 sm:text-3xl">Overrun</h1>
+        <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+          <span class="border border-red-400/40 px-2 py-1 text-red-300">Co-op horde</span>
+          <span class="border border-white/15 px-2 py-1 text-neutral-400">1–8 players</span>
+          <span class="border border-amber-400/40 px-2 py-1 text-amber-300">Endless waves</span>
+          <LikeButton gameId="overrun" count={likeCounts.overrun ?? 0} liked={liked} authed={!!member} />
+        </div>
+      </div>
+      <p class="mt-3 max-w-2xl text-neutral-400">
+        The horde pours in from every edge. Kite, scavenge dropped guns, pick your
+        level-up perks without stopping, and keep your teammates on their feet —
+        when the whole party is down, it's over.
+      </p>
+    </div>
+
+    <div class="mb-6"><GameSwitcher slug="overrun" /></div>
+
+    <div class="rounded-2xl border border-red-400/25 bg-night-900 p-3 shadow-[0_0_48px_rgb(239_68_68/0.12)] sm:p-4">
+      <Overrun client:only="react" assetManifestUrl={assetManifestUrl} />
+    </div>
+
+    <section class="mt-8 rounded-xl border border-white/10 bg-night-900 p-6">
+      <h2 class="eyebrow text-emerald-400">Controls</h2>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        {
+          controls.map((c) => (
+            <div class="flex items-center gap-3">
+              <dt class="shrink-0 rounded border border-white/20 bg-night-800 px-2.5 py-1.5 font-display text-[9px] text-neutral-200">
+                {c.keys}
+              </dt>
+              <dd class="text-sm text-neutral-400">{c.action}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-5 text-xs leading-relaxed text-neutral-500">
+        Co-op tip: everyone starts with a pistol — better guns drop from kills.
+        Downed teammates revive when you stand next to them, and everyone gets
+        back up between waves. The run ends when the whole party is down.
+      </p>
+    </section>
+  </div>
+  <Footer />
+</Layout>

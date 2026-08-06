@@ -1,0 +1,117 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import MerchPreview from "../../components/merch/MerchPreview.astro";
+import TestModeBanner from "../../components/merch/TestModeBanner.astro";
+import { getMerchOrder } from "../../lib/wix/merchOrders";
+
+const orderNumber = Astro.url.searchParams.get("n") ?? "";
+const order = orderNumber ? await getMerchOrder(orderNumber) : null;
+
+// Older orders (pre-visual) may lack these fields — fall back gracefully.
+const previewProduct = order?.product as "tee" | "mug" | "keychain" | "poster" | undefined;
+---
+
+<Layout title="Order received — Trophy shop — TeamBuild Games">
+  <div class="mx-auto w-full max-w-2xl px-4 py-14">
+    {
+      order ? (
+        <>
+          <div class="pixel-grid rounded-2xl border border-emerald-400/40 bg-night-900 px-6 py-12 text-center shadow-[0_0_48px_rgb(52_211_153/0.15)]">
+            <p class="neon font-display text-lg text-emerald-400">* Order received *</p>
+            <p class="mt-4 font-display text-[10px] text-neutral-400">
+              Order number
+            </p>
+            <p class="neon mt-2 font-display text-xl text-white">{order.orderNumber}</p>
+          </div>
+
+          <div class="mt-6">
+            <TestModeBanner note="This was a TEST order: no real money was charged and no product will be printed or shipped. It exists only as a demo record." />
+          </div>
+
+          <section class="mt-6 rounded-2xl border border-white/10 bg-night-900 p-6">
+            <h2 class="font-display text-[10px] text-neutral-400">What you "bought"</h2>
+            {
+              previewProduct && (
+                <div class="pixel-grid mx-auto mt-4 h-44 w-44 rounded-lg border border-white/10 bg-night-950 p-2">
+                  <MerchPreview
+                    product={previewProduct}
+                    garmentColor={order.garmentColor || "#0b0b1a"}
+                    printColor={order.printColor || "#22d3ee"}
+                    title={order.printTitle}
+                    sub={order.printSub}
+                    warriorSrc={order.printWarrior || undefined}
+                    avatarUrl={order.printAvatar || undefined}
+                  />
+                </div>
+              )
+            }
+            <dl class="mt-4 space-y-2 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Item</dt>
+                <dd class="font-medium text-neutral-200">
+                  {order.productName} × {order.qty}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Options</dt>
+                <dd class="text-right text-neutral-300">{order.optionsSummary}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Print</dt>
+                <dd class="text-right font-display text-[9px] leading-relaxed text-neutral-200">
+                  {order.printTitle}
+                  <br />
+                  <span class="text-neutral-500">{order.printSub}</span>
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">For</dt>
+                <dd class="text-neutral-300">{order.buyerName}</dd>
+              </div>
+              <div class="flex justify-between gap-4 border-t border-white/10 pt-3">
+                <dt class="font-display text-[9px] text-neutral-400">Total (not charged)</dt>
+                <dd class="neon font-display text-lg text-emerald-400">{order.total}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="mt-6 rounded-2xl border border-white/10 bg-night-900 p-6">
+            <h2 class="font-display text-[10px] text-neutral-400">Print partner</h2>
+            <dl class="mt-4 space-y-2 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Provider</dt>
+                <dd class="text-neutral-300">{order.podProvider}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Fulfillment id</dt>
+                <dd class="font-mono text-xs text-neutral-300">{order.podOrderId}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-neutral-500">Status</dt>
+                <dd class="text-right text-amber-200/90">{order.podStatus}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <a href="/games/arena" class="arcade-btn">▶ Earn a better score</a>
+            <a href="/shop/tee" class="arcade-btn arcade-btn-ghost">Order another</a>
+          </div>
+        </>
+      ) : (
+        <div class="rounded-2xl border border-white/10 bg-night-900 px-6 py-12 text-center">
+          <p class="font-display text-xs text-neutral-300">Order not found</p>
+          <p class="mx-auto mt-4 max-w-md text-sm text-neutral-500">
+            That order number doesn't ring a bell. Test orders are kept in the
+            demo collection — try placing a new one.
+          </p>
+          <div class="mt-8 flex justify-center">
+            <a href="/shop/tee" class="arcade-btn">Back to the shop</a>
+          </div>
+        </div>
+      )
+    }
+  </div>
+  <Footer />
+</Layout>

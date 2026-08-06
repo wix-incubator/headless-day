@@ -1,0 +1,47 @@
+---
+import type { Menu } from "../../lib/wix/types";
+import LogoSquare from "../logo-square.astro";
+import FooterMenu from "./footer-menu.astro";
+
+const currentYear = new Date().getFullYear();
+const menu: Menu[] = [
+  { title: "Games", path: "/#games" },
+  { title: "Pitch a game", path: "/suggest" },
+  { title: "Trophy shop", path: "/shop/tee" },
+  { title: "About", path: "/about" },
+  { title: "FAQ", path: "/frequently-asked-questions" },
+  { title: "Player profile", path: "/account" },
+  { title: "Terms & Conditions", path: "/terms-conditions" },
+  { title: "Privacy Policy", path: "/privacy-policy" },
+];
+---
+
+<footer class="text-sm text-neutral-400">
+  <div
+    class="mx-auto flex w-full max-w-7xl flex-col gap-6 border-t border-white/10 px-6 py-12 text-sm md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0"
+  >
+    <div class="md:max-w-xs">
+      <a class="flex items-center gap-3 text-white md:pt-1" href="/">
+        <LogoSquare size="sm" />
+        <span class="font-display text-[10px] leading-relaxed">
+          Team<span class="text-cyan-400">Build</span>
+          <span class="text-fuchsia-400">Games</span>
+        </span>
+      </a>
+      <p class="mt-4 text-xs leading-relaxed text-neutral-500">
+        Tiny multiplayer games for teambuildings. Open a room, drop the link in
+        your team chat, and settle who really carries the standup.
+      </p>
+    </div>
+    <FooterMenu menu={menu} />
+  </div>
+  <div class="border-t border-white/10 py-6 text-sm">
+    <div
+      class="mx-auto w-full max-w-7xl px-4 text-center md:px-4 min-[1320px]:px-0"
+    >
+      <p class="font-display text-[9px] text-neutral-500">
+        &copy; {currentYear} TeamBuild Games — no coins required
+      </p>
+    </div>
+  </div>
+</footer>

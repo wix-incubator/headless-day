@@ -1,0 +1,238 @@
+---
+import Footer from "../components/layout/footer.astro";
+import RootLayout from "../components/layout/layout.astro";
+import { getSessionMember } from "../lib/wix/members";
+import AvatarUploader from "../components/members/AvatarUploader";
+import { GAMES } from "../lib/members/games";
+import { getGameAvatarSetting } from "../lib/wix/playerAvatars";
+import { resolveGameAvatar } from "../lib/members/gameAvatar";
+import { getMemberGamePurchases } from "../lib/wix/gamePurchases";
+
+// SSR: read the current member (anonymous until sign-in).
+const member = await getSessionMember();
+
+// Games listed under "Player". Per-game stats + session history are placeholders until Track B B2
+// (progress persistence); the per-game avatar (B1b) is live — resolve per-game override → profile photo.
+const purchaseGroups = member ? await getMemberGamePurchases(member.id) : [];
+const purchasesByGame = new Map(purchaseGroups.map((group) => [group.gameId, group]));
+const games = member
+  ? await Promise.all(
+      GAMES.map(async (g) => {
+        const avatar = await getGameAvatarSetting(member.id, g.id);
+        const purchases = purchasesByGame.get(g.id);
+        return {
+          ...g,
+          resolvedUrl: resolveGameAvatar(avatar.url, member.avatarUrl, avatar.disabled),
+          availablePurchases: purchases?.availableItems ?? [],
+          ownedPurchases: purchases?.ownedItems ?? [],
+        };
+      }),
+    )
+  : [];
+---
+
+<RootLayout title="Player profile — TeamBuild Games">
+  {
+    member ? (
+      <section class="mx-auto w-full max-w-4xl px-4 py-12">
+        {/* header: identity + logout */}
+        <p class="eyebrow mb-6 text-cyan-400">Player profile</p>
+        <div class="mb-8 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            {member.avatarUrl ? (
+              <img
+                src={member.avatarUrl}
+                alt=""
+                class="h-14 w-14 rounded-lg border border-cyan-400/40 object-cover shadow-[0_0_16px_rgb(34_211_238/0.3)]"
+              />
+            ) : (
+              <span class="flex h-14 w-14 items-center justify-center rounded-lg border border-white/15 bg-night-800 text-2xl">
+                🕹️
+              </span>
+            )}
+            <div>
+              <div class="font-display text-sm leading-relaxed text-white">{member.name}</div>
+              {member.email && <div class="text-sm text-neutral-500">{member.email}</div>}
+            </div>
+          </div>
+          <form method="POST" action="/api/auth/logout?returnToUrl=/" data-astro-reload>
+            <button
+              type="submit"
+              class="rounded-lg border border-white/15 px-4 py-2 font-display text-[9px] text-neutral-300 hover:border-red-400/60 hover:text-red-300"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+
+        <div class="grid gap-8 sm:grid-cols-[180px_1fr]">
+          {/* section nav */}
+          <nav class="flex flex-row gap-2 sm:flex-col">
+            <button
+              data-section="player"
+              aria-current="page"
+              class="account-tab rounded-lg px-3 py-2.5 text-left font-display text-[9px] text-neutral-400 hover:bg-night-800 hover:text-neutral-200 aria-[current=page]:bg-cyan-400 aria-[current=page]:text-night-950"
+            >
+              Player
+            </button>
+            <button
+              data-section="settings"
+              class="account-tab rounded-lg px-3 py-2.5 text-left font-display text-[9px] text-neutral-400 hover:bg-night-800 hover:text-neutral-200 aria-[current=page]:bg-cyan-400 aria-[current=page]:text-night-950"
+            >
+              Account settings
+            </button>
+          </nav>
+
+          {/* panels */}
+          <div>
+            {/* Player */}
+            <div data-panel="player">
+              <p class="mb-6 text-sm text-neutral-500">
+                Stats and match history are saved once member progress is enabled (coming soon) —
+                the layout below is where each game's data will land.
+              </p>
+              {games.map((g) => (
+                <section class="mb-8 rounded-xl border border-white/10 bg-night-900 p-5">
+                  <h3 class="font-display text-xs text-cyan-300">{g.name}</h3>
+
+                  <div class="mt-4 flex items-center gap-4 border border-white/10 bg-night-950 p-3">
+                    <div class="min-w-0">
+                      <div class="font-display text-[10px] text-neutral-300">Game avatar</div>
+                      <p class="mt-1 text-xs text-neutral-500">
+                        Your character photo in {g.name}. Defaults to your profile photo.
+                      </p>
+                    </div>
+                    <div class="ml-auto shrink-0">
+                      <AvatarUploader client:load gameId={g.id} currentUrl={g.resolvedUrl} />
+                    </div>
+                  </div>
+
+                  <div class="mt-4 border border-white/10 bg-night-950 p-3">
+                    <div class="flex items-center justify-between gap-4">
+                      <div>
+                        <div class="font-display text-[10px] text-neutral-300">Bought items</div>
+                        <p class="mt-1 text-xs text-neutral-500">
+                          Premium unlocks you own for {g.name}. Future game purchases will land here automatically.
+                        </p>
+                      </div>
+                      <span class="rounded-full border border-cyan-400/30 px-2 py-1 font-display text-[8px] text-cyan-300">
+                        {g.ownedPurchases.length}/{g.availablePurchases.length}
+                      </span>
+                    </div>
+
+                    {g.ownedPurchases.length > 0 ? (
+                      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        {g.ownedPurchases.map((item) => (
+                          <article class="flex gap-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
+                            <img
+                              src={item.imageSrc}
+                              alt=""
+                              loading="lazy"
+                              class="h-16 w-16 rounded-md border border-white/10 bg-night-900 object-cover"
+                            />
+                            <div class="min-w-0">
+                              <div class="flex flex-wrap items-center gap-2">
+                                <h4 class="font-display text-[10px] text-white">{item.name}</h4>
+                                <span class="rounded-full bg-emerald-400 px-2 py-0.5 font-display text-[7px] text-night-950">
+                                  Owned
+                                </span>
+                              </div>
+                              <p class="mt-1 text-xs leading-relaxed text-neutral-400">{item.description}</p>
+                              <p class="mt-2 font-display text-[8px] text-neutral-500">
+                                {item.kind} · bought item · {item.priceLabel}
+                              </p>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <p class="mt-4 rounded-lg border border-dashed border-white/10 bg-night-900/60 px-3 py-3 text-xs leading-relaxed text-neutral-500">
+                        {g.availablePurchases.length > 0
+                          ? `No ${g.name} premium items bought yet. Unlocks will appear here after checkout.`
+                          : `${g.name} has no premium items configured yet. When we add skins, vehicles, passes, or upgrades, this slot is already wired.`}
+                      </p>
+                    )}
+                  </div>
+
+                  <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      ["Matches", "—"],
+                      ["Wins", "—"],
+                      ["Losses", "—"],
+                      ["Win rate", "—"],
+                    ].map(([label, value]) => (
+                      <div class="border border-white/10 bg-night-950 px-3 py-3">
+                        <div class="font-display text-[8px] text-neutral-500">{label}</div>
+                        <div class="neon mt-2 font-display text-lg text-emerald-400">{value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <h4 class="eyebrow mt-6 text-neutral-500">Recent sessions</h4>
+                  <p class="mt-2 text-sm text-neutral-500">
+                    No sessions yet. After a match, each session will show here — date/time, who you
+                    played with, win/loss, and the avatar you used.
+                  </p>
+                </section>
+              ))}
+            </div>
+
+            {/* Account settings */}
+            <div data-panel="settings" hidden>
+              <section class="rounded-xl border border-white/10 bg-night-900 p-5">
+                <h3 class="font-display text-xs text-cyan-300">Account settings</h3>
+                <dl class="mt-5 flex flex-col gap-3 text-sm">
+                  <div class="flex justify-between gap-4">
+                    <dt class="text-neutral-500">Display name</dt>
+                    <dd class="font-medium text-neutral-200">{member.name}</dd>
+                  </div>
+                  <div class="flex justify-between gap-4">
+                    <dt class="text-neutral-500">Email</dt>
+                    <dd class="font-medium text-neutral-200">{member.email ?? "—"}</dd>
+                  </div>
+                </dl>
+                <div class="mt-5 border-t border-white/10 pt-4">
+                  <div class="mb-2 text-sm text-neutral-500">Character photo</div>
+                  <AvatarUploader client:load currentUrl={member.avatarUrl} />
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : (
+      <section class="mx-auto w-full max-w-2xl px-4 py-16">
+        <p class="eyebrow text-cyan-400">Player profile</p>
+        <h1 class="mt-3 font-display text-2xl text-white">New challenger?</h1>
+        <div class="mt-6 flex flex-col items-start gap-5">
+          <p class="max-w-prose leading-relaxed text-neutral-400">
+            Sign in to use a custom character photo and save your progress across games. You can
+            still play anonymously — signing in just unlocks the extras.
+          </p>
+          <a
+            href="/api/auth/login?returnToUrl=/account"
+            data-astro-reload
+            data-astro-prefetch="false"
+            class="arcade-btn"
+          >
+            ▶ Sign in
+          </a>
+        </div>
+      </section>
+    )
+  }
+  <Footer />
+</RootLayout>
+
+<script>
+  // Switch between the Player and Account settings sections.
+  const tabs = document.querySelectorAll<HTMLButtonElement>(".account-tab");
+  const panels = document.querySelectorAll<HTMLElement>("[data-panel]");
+  tabs.forEach((tab) =>
+    tab.addEventListener("click", () => {
+      const name = tab.dataset.section;
+      panels.forEach((p) => (p.hidden = p.dataset.panel !== name));
+      tabs.forEach((t) => t.setAttribute("aria-current", t.dataset.section === name ? "page" : "false"));
+    }),
+  );
+</script>

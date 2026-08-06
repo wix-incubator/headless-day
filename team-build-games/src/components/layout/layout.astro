@@ -1,0 +1,65 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Marquee from "../marquee.astro";
+import Navbar from "./navbar/index.astro";
+import PageLoader from "./page-loader.astro";
+import "../../styles/global.css";
+
+type Props = { title?: string; description?: string };
+const {
+  title = "TeamBuild Games — the office arcade",
+  description = "Browser games your team can actually play together. Share a link, up to 8 players, no installs — built for teambuildings.",
+} = Astro.props;
+
+// Commerce pages inject their own SEO tags via the slot; everything else gets the defaults.
+const hasSeoTags = Astro.slots.has("seo-tags");
+const canonicalUrl = new URL(Astro.url.pathname, Astro.url.origin);
+const socialImageUrl = new URL("/assets/team-build-games-social.png", Astro.url.origin);
+---
+
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    />
+    {
+      !hasSeoTags && (
+        <>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <link rel="canonical" href={canonicalUrl} />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="og:url" content={canonicalUrl} />
+          <meta property="og:image" content={socialImageUrl} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content="Turn your team call into a boss battle with TeamBuild Games" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={description} />
+          <meta name="twitter:image" content={socialImageUrl} />
+        </>
+      )
+    }
+    <slot name="seo-tags" />
+    <ClientRouter />
+  </head>
+  <body
+    class="crt bg-night-950 text-neutral-100 selection:bg-fuchsia-500 selection:text-white"
+  >
+    <PageLoader />
+    <Navbar />
+    <Marquee />
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
