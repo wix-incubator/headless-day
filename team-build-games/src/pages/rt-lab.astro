@@ -1,0 +1,20 @@
+---
+/**
+ * Realtime Lab — unlisted measurement page (no nav links point here).
+ * See docs/superpowers/specs/2026-07-16-realtime-lab-design.md. Safe to delete
+ * together with src/components/rtlab/ and /api/rt-publish once the investigation ends.
+ */
+import RtLab from "../components/rtlab/RtLab";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Realtime Lab</title>
+  </head>
+  <body>
+    <RtLab client:only="react" />
+  </body>
+</html>

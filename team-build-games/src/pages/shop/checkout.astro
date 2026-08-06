@@ -1,0 +1,165 @@
+---
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import MerchPreview from "../../components/merch/MerchPreview.astro";
+import TestModeBanner from "../../components/merch/TestModeBanner.astro";
+import {
+  clampQty,
+  describeSelection,
+  formatPrice,
+  normalizeSelection,
+  productBySlug,
+  selectionColors,
+  unitPriceCents,
+} from "../../lib/merch/catalog";
+import { sanitizePayload } from "../../lib/merch/print";
+import { sanitizeVisual } from "../../lib/merch/visual";
+import { getSessionMember } from "../../lib/wix/members";
+
+// Everything arrives via query params from the product page and is re-validated
+// here (and once more in the API route — never trust the URL).
+const params = Astro.url.searchParams;
+const product = productBySlug(params.get("product") ?? "");
+if (!product) return Astro.redirect("/shop/tee");
+
+const selection = normalizeSelection(
+  product,
+  Object.fromEntries(product.options.map((o) => [o.key, params.get(o.key) ?? undefined])),
+);
+if (!selection) return Astro.redirect(`/shop/${product.slug}?error=input`);
+
+const payload = sanitizePayload({
+  title: params.get("title") ?? undefined,
+  sub: params.get("sub") ?? undefined,
+});
+const qty = clampQty(params.get("qty"));
+const unitCents = unitPriceCents(product, selection);
+
+// Optional player visual carried from the product page (same trust boundary).
+const { warriorSrc, avatarUrl } = sanitizeVisual({
+  warrior: params.get("warrior"),
+  avatar: params.get("avatar"),
+});
+
+// Preserve payload + visual when hopping back to the product page.
+const backParams = new URLSearchParams({ title: payload.title, sub: payload.sub });
+if (warriorSrc) backParams.set("warrior", warriorSrc);
+if (avatarUrl) backParams.set("avatar", avatarUrl);
+
+const member = await getSessionMember();
+
+const { garmentColor, printColor } = selectionColors(product, selection);
+---
+
+<Layout title="Checkout — Trophy shop — TeamBuild Games">
+  <div class="mx-auto w-full max-w-3xl px-4 py-10">
+    <a
+      href={`/shop/${product.slug}?${backParams.toString()}`}
+      class="font-display text-[9px] text-neutral-500 hover:text-cyan-300"
+    >
+      &lt; Back to the product
+    </a>
+    <p class="eyebrow mt-6 text-amber-300">Trophy shop</p>
+    <h1 class="mt-3 font-display text-2xl text-white sm:text-3xl">Checkout</h1>
+
+    <div class="mt-6">
+      <TestModeBanner note="Sandbox checkout: no payment method is requested, no money moves, nothing ships. The order is recorded only to demo the flow." />
+    </div>
+
+    {/* order summary */}
+    <section class="mt-6 rounded-2xl border border-white/10 bg-night-900 p-6">
+      <h2 class="font-display text-[10px] text-neutral-400">Order summary</h2>
+      <div class="mt-4 flex flex-wrap items-center gap-6">
+        <div class="pixel-grid h-36 w-36 shrink-0 rounded-lg border border-white/10 bg-night-950 p-2">
+          <MerchPreview
+            product={product.slug as "tee" | "mug" | "keychain" | "poster"}
+            garmentColor={garmentColor}
+            printColor={printColor}
+            title={payload.title}
+            sub={payload.sub}
+            warriorSrc={warriorSrc}
+            avatarUrl={avatarUrl}
+          />
+        </div>
+        <dl class="flex-1 space-y-2 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Item</dt>
+            <dd class="font-medium text-neutral-200">{product.name} × {qty}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Options</dt>
+            <dd class="text-right text-neutral-300">{describeSelection(product, selection)}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Print</dt>
+            <dd class="text-right font-display text-[9px] leading-relaxed text-neutral-200">
+              {payload.title}<br />
+              <span class="text-neutral-500">{payload.sub}</span>
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4 border-t border-white/10 pt-3">
+            <dt class="font-display text-[9px] text-neutral-400">Total (test)</dt>
+            <dd class="neon font-display text-lg text-emerald-400">
+              {formatPrice(unitCents * qty)}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    {/* contact + place order */}
+    <form method="POST" action="/api/merch-order" class="mt-6">
+      <input type="hidden" name="product" value={product.slug} />
+      <input type="hidden" name="title" value={payload.title} />
+      <input type="hidden" name="sub" value={payload.sub} />
+      <input type="hidden" name="qty" value={qty} />
+      {warriorSrc && <input type="hidden" name="warrior" value={warriorSrc} />}
+      {avatarUrl && <input type="hidden" name="avatar" value={avatarUrl} />}
+      {
+        product.options.map((o) => (
+          <input type="hidden" name={o.key} value={selection[o.key]} />
+        ))
+      }
+
+      <section class="rounded-2xl border border-white/10 bg-night-900 p-6">
+        <h2 class="font-display text-[10px] text-neutral-400">Deliver to</h2>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2">
+          <label class="block">
+            <span class="text-xs text-neutral-500">Name</span>
+            <input
+              type="text"
+              name="name"
+              required
+              maxlength={80}
+              value={member?.name ?? ""}
+              placeholder="Who takes the glory?"
+              class="mt-1.5 w-full rounded-lg border border-white/15 bg-night-950 px-3 py-2.5 text-neutral-100 placeholder:text-neutral-600"
+            />
+          </label>
+          <label class="block">
+            <span class="text-xs text-neutral-500">Email (optional)</span>
+            <input
+              type="email"
+              name="email"
+              maxlength={120}
+              value={member?.email ?? ""}
+              placeholder="for the imaginary tracking number"
+              class="mt-1.5 w-full rounded-lg border border-white/15 bg-night-950 px-3 py-2.5 text-neutral-100 placeholder:text-neutral-600"
+            />
+          </label>
+        </div>
+        <p class="mt-3 text-xs text-neutral-500">
+          No address needed — it's a test order, the only delivery is to the
+          demo dashboard.
+        </p>
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+          <span class="font-display text-[9px] text-amber-300">
+            No card. No charge. No shipment.
+          </span>
+          <button type="submit" class="arcade-btn">▶ Place test order</button>
+        </div>
+      </section>
+    </form>
+  </div>
+  <Footer />
+</Layout>

@@ -1,0 +1,15 @@
+---
+/** The sandbox disclaimer shown on every step of the merch funnel. */
+type Props = { note?: string };
+const {
+  note = "Sandbox store for the demo: no real money is charged and no product is printed or shipped.",
+} = Astro.props;
+---
+
+<div
+  class="flex items-start gap-3 rounded-lg border border-amber-300/50 bg-amber-400/10 px-4 py-3"
+  role="note"
+>
+  <span class="font-display text-[10px] leading-relaxed text-amber-300">TEST MODE</span>
+  <p class="text-xs leading-relaxed text-amber-200/90">{note}</p>
+</div>

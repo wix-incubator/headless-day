@@ -1,0 +1,42 @@
+{
+  "name": "headless-stadium",
+  "version": "1.0.0",
+  "private": true,
+  "description": "See the match from every seat — a procedural 3D stadium seat-preview experience built on Wix Headless (Stores, eCom, Events) and three.js.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doronsha13/headless-stadium.git"
+  },
+  "keywords": [
+    "wix",
+    "wix-headless",
+    "wix-sdk",
+    "wix-stores",
+    "wix-events",
+    "threejs",
+    "webgl",
+    "vite",
+    "3d",
+    "stadium",
+    "ticketing",
+    "ecommerce"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wix/ecom": "^1.0.2277",
+    "@wix/events": "^1.0.810",
+    "@wix/redirects": "^1.0.120",
+    "@wix/sdk": "^1.21.13",
+    "@wix/stores": "^1.0.832",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "vite": "^7.1.11"
+  }
+}

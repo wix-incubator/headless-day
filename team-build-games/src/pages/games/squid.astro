@@ -1,0 +1,100 @@
+---
+// src/pages/games/squid.astro
+import Footer from "../../components/layout/footer.astro";
+import Layout from "../../components/layout/layout.astro";
+import Squid from "../../components/game/Squid.tsx";
+import GameSwitcher from "../../components/games/GameSwitcher.astro";
+import LikeButton from "../../components/games/LikeButton.astro";
+import { getLikeCounts, getMemberLikedSet } from "../../lib/wix/gameLikes";
+import { getSessionMember } from "../../lib/wix/members";
+
+const member = await getSessionMember();
+const likeCounts = await getLikeCounts(["squid"]);
+const liked = member ? (await getMemberLikedSet(member.id)).has("squid") : false;
+
+const controls = [
+  { keys: "Click / Space", action: "Grab a free leg (Space switches)" },
+  { keys: "← / →", action: "Swing your leg (planted legs push the body)" },
+  { keys: "↑ (hold)", action: "Lift your leg's tip — release to plant it" },
+];
+---
+
+<Layout
+  title="Squid — TeamBuild Games"
+  description="Co-op octopus walking, 1–8 players. One leg each, one shared body — reach the finish arch and put your team on the clock."
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-10">
+    <div class="mb-8">
+      <a
+        href="/"
+        class="font-display text-[9px] text-neutral-500 hover:text-cyan-300"
+      >
+        &lt; Back to the arcade
+      </a>
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <h1 class="neon font-display text-2xl text-violet-400 sm:text-3xl">
+          Squid
+        </h1>
+        <div class="flex flex-wrap items-center gap-2 font-display text-[8px]">
+          <span class="border border-violet-400/40 px-2 py-1 text-violet-300">
+            Co-op walker
+          </span>
+          <span class="border border-white/15 px-2 py-1 text-neutral-400">
+            1–8 players
+          </span>
+          <span class="border border-amber-400/40 px-2 py-1 text-amber-300">
+            Race the clock
+          </span>
+          <LikeButton
+            gameId="squid"
+            count={likeCounts.squid ?? 0}
+            liked={liked}
+            authed={!!member}
+          />
+        </div>
+      </div>
+      <p class="mt-3 max-w-2xl text-neutral-400">
+        Every player controls one octopus leg — planted legs are the base that
+        pushes the body forward. Walk 5 m to the arch as fast as you can; on
+        The Gap, don't drop the head in the hole. Finish times go on the team
+        highscore board in the waiting room.
+      </p>
+    </div>
+
+    <div class="mb-6">
+      <GameSwitcher slug="squid" />
+    </div>
+
+    {/* cabinet bezel around the game island */}
+    <div
+      class="rounded-2xl border border-violet-400/25 bg-night-900 p-3 shadow-[0_0_48px_rgb(167_139_250/0.12)] sm:p-4"
+    >
+      <Squid client:only="react" />
+    </div>
+
+    {/* controls legend */}
+    <section class="mt-8 rounded-xl border border-white/10 bg-night-900 p-6">
+      <h2 class="eyebrow text-emerald-400">Controls</h2>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        {
+          controls.map((c) => (
+            <div class="flex items-center gap-3">
+              <dt
+                class="shrink-0 rounded border border-white/20 bg-night-800 px-2.5 py-1.5 font-display text-[9px] text-neutral-200"
+              >
+                {c.keys}
+              </dt>
+              <dd class="text-sm text-neutral-400">{c.action}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-5 text-xs leading-relaxed text-neutral-500">
+        Co-op tip: solo is possible (Space hops between legs), but a full party
+        moving all eight legs at once is where the chaos — and the fast times —
+        live. Only one player can hold a leg at a time.
+      </p>
+    </section>
+  </div>
+  <Footer />
+</Layout>

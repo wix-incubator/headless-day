@@ -1,0 +1,334 @@
+---
+import { buildLoginHref, buildLogoutHref, hasMemberSession } from "../lib/auth";
+import { LogoGrid } from "../components/background/LogoGrid";
+import { PhraseTicker } from "../components/brand/PhraseTicker";
+import "../styles/brand.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "@latest · Wix ecosystem signals" } = Astro.props as Props;
+const returnToUrl = `${Astro.url.pathname}${Astro.url.search}` || "/";
+const isLoggedIn = hasMemberSession(Astro.cookies);
+const authHref = buildLoginHref(returnToUrl);
+const logoutAction = buildLogoutHref(returnToUrl);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta
+      name="description"
+      content="An editorial dashboard exploring web trends, industry signals, and practical recommendations."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap"
+    />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="site-shell__background" aria-hidden="true">
+      <LogoGrid client:idle />
+    </div>
+    <header class="site-shell__header">
+      <a class="site-shell__brand" href="/" aria-label="@latest home">
+        <PhraseTicker client:load />
+      </a>
+      <nav class="site-shell__nav" aria-label="Primary">
+        {isLoggedIn ? (
+          <form class="site-shell__nav-form" action={logoutAction} method="post">
+            <button class="site-shell__nav-button" type="submit" title="Sign out">Logout</button>
+          </form>
+        ) : (
+          <a href={authHref} title="Sign in with Wix">Login</a>
+        )}
+      </nav>
+    </header>
+    <div class="site-shell__notice" id="publicNotice">
+      <span>› public feed. <code>login</code> unlocks favorites &amp; feedback.</span>
+      <button type="button" class="site-shell__notice-close" aria-label="Dismiss notice" title="Dismiss">×</button>
+    </div>
+    <script is:inline>
+      const n = document.getElementById("publicNotice");
+      const key = "wtNoticeDismissed";
+      if (n && sessionStorage.getItem(key) === "1") n.style.display = "none";
+      n?.querySelector(".site-shell__notice-close")?.addEventListener("click", () => {
+        n.style.display = "none";
+        sessionStorage.setItem(key, "1");
+      });
+    </script>
+    <main class="site-shell__content">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  .site-shell__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px 12px;
+  }
+
+  .site-shell__brand {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: min(420px, 58vw);
+    text-decoration: none;
+    color: rgba(17, 24, 39, 0.88);
+  }
+
+  :global(.phrase-ticker) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    max-width: 100%;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--lt-ink, currentColor);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  :global(.phrase-ticker__caret) {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 2px;
+    height: 0.9em;
+    margin-left: 2px;
+    background: currentColor;
+    animation: ltBlink 1.06s step-end infinite;
+  }
+
+  @keyframes ltBlink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.phrase-ticker__caret) {
+      animation: none;
+    }
+  }
+
+  .site-shell__nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .site-shell__nav-form {
+    margin: 0;
+  }
+
+  .site-shell__nav a,
+  .site-shell__nav-button {
+    color: rgba(17, 24, 39, 0.88);
+    appearance: none;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+  }
+
+  .site-shell__notice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: min(1380px, calc(100vw - 48px));
+    margin: 0 auto;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    color: rgba(15, 23, 42, 0.72);
+    font-size: 0.92rem;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-shell__notice-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .site-shell__content {
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 110px);
+  }
+
+  .site-shell__background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--lt-paper);
+  }
+
+  :global(html),
+  :global(body) {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  :global(html) {
+    color-scheme: light dark;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        var(--lt-scanline) 3px,
+        var(--lt-scanline) 4px
+      ),
+      linear-gradient(180deg, var(--lt-paper) 0%, #eef0ea 100%);
+  }
+
+  :global(body) {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+    font-family:
+      Inter,
+      "SF Pro Text",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .site-shell__header,
+  .site-shell__notice,
+  .site-shell__content {
+    max-width: 100vw;
+  }
+
+  :global(*) {
+    box-sizing: border-box;
+  }
+
+  :global(button),
+  :global(input),
+  :global(textarea),
+  :global(select) {
+    font: inherit;
+  }
+
+  :global(a) {
+    color: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .site-shell__brand,
+    .site-shell__nav a,
+    .site-shell__nav-button {
+      color: rgba(244, 247, 255, 0.96);
+    }
+
+    .site-shell__nav a,
+    .site-shell__nav-button {
+      background: rgba(15, 23, 42, 0.5);
+      border-color: rgba(148, 163, 184, 0.18);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.24);
+    }
+
+    .site-shell__notice {
+      background: rgba(15, 23, 42, 0.48);
+      border-color: rgba(148, 163, 184, 0.16);
+      color: rgba(226, 232, 240, 0.84);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    :global(html) {
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          var(--lt-scanline) 3px,
+          var(--lt-scanline) 4px
+        ),
+        linear-gradient(180deg, var(--lt-paper) 0%, #0d1110 100%);
+    }
+
+    :global(body) {
+      color: rgba(244, 247, 255, 0.96);
+    }
+
+    .site-shell__background {
+      background: var(--lt-paper);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .site-shell__header {
+      padding: 18px 16px 10px;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .site-shell__brand {
+      max-width: 100%;
+    }
+
+    .site-shell__nav {
+      gap: 8px;
+    }
+
+    .site-shell__nav a,
+    .site-shell__nav-button {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+    .site-shell__notice {
+      width: min(100vw - 32px, 1380px);
+      margin: 0 auto;
+    }
+
+    :global(.phrase-ticker) {
+      font-size: 0.78rem;
+    }
+  }
+</style>

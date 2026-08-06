@@ -1,0 +1,73 @@
+---
+/**
+ * One-like-per-game vote button. Signed-in members toggle their like via
+ * /api/game-like; anonymous clicks bounce to login and come back. The click
+ * handler is delegated on `document` (registered once), so the button works
+ * both standalone and floated over a linked game card.
+ */
+type Props = { gameId: string; count: number; liked: boolean; authed: boolean };
+const { gameId, count, liked, authed } = Astro.props;
+---
+
+<button
+  type="button"
+  data-like-button
+  data-game-id={gameId}
+  data-authed={authed ? "1" : "0"}
+  aria-pressed={liked ? "true" : "false"}
+  aria-label={`Like ${gameId}`}
+  title={authed ? "One like per player — click again to take it back" : "Sign in to vote"}
+  class="flex items-center gap-1.5 rounded-sm border border-white/15 bg-night-950/85 px-2 py-1 transition hover:border-red-400/60"
+>
+  <span
+    data-like-heart
+    class={liked ? "text-sm leading-none text-red-400" : "text-sm leading-none text-neutral-500"}
+    aria-hidden="true"
+  >
+    ♥
+  </span>
+  <span data-like-count class="font-display text-[9px] text-neutral-300">{count}</span>
+</button>
+
+<script>
+  // Delegated once for all like buttons on the page (survives view transitions).
+  const w = window as unknown as { __likesWired?: boolean };
+  if (!w.__likesWired) {
+    w.__likesWired = true;
+    document.addEventListener("click", async (e) => {
+      const btn = (e.target as HTMLElement | null)?.closest?.(
+        "[data-like-button]",
+      ) as HTMLButtonElement | null;
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const login = () => {
+        window.location.href = `/api/auth/login?returnToUrl=${encodeURIComponent(
+          window.location.pathname,
+        )}`;
+      };
+      if (btn.dataset.authed !== "1") return login();
+      if (btn.dataset.busy) return;
+      btn.dataset.busy = "1";
+      try {
+        const res = await fetch("/api/game-like", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ gameId: btn.dataset.gameId }),
+        });
+        if (res.status === 401) return login();
+        if (!res.ok) return;
+        const { liked, count } = (await res.json()) as { liked: boolean; count: number };
+        btn.setAttribute("aria-pressed", String(liked));
+        const heart = btn.querySelector("[data-like-heart]");
+        heart?.classList.toggle("text-red-400", liked);
+        heart?.classList.toggle("text-neutral-500", !liked);
+        const counter = btn.querySelector("[data-like-count]");
+        if (counter) counter.textContent = String(count);
+      } finally {
+        delete btn.dataset.busy;
+      }
+    });
+  }
+</script>
