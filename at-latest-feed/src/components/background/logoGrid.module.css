@@ -1,0 +1,76 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 0;
+}
+
+.track {
+  position: absolute;
+  /* top/left set inline — centered over the viewport (pseudo-center of the endless field) */
+  display: grid;
+  will-change: transform;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  /* width/height set inline from responsive tileSize */
+  overflow: visible;
+  pointer-events: auto;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.tile:hover,
+.hovered {
+  transform: scale(1.08) rotate(-2deg);
+  animation: cuteShake 420ms ease-in-out;
+}
+
+.tile img {
+  /* Width/height set inline via logoDisplaySize for aspect-aware balance */
+  max-width: none;
+  object-fit: contain;
+  filter: saturate(0.82);
+}
+
+.morphing {
+  animation: spinMorph 900ms ease-in-out;
+}
+
+@keyframes spinMorph {
+  0% { transform: perspective(500px) rotateY(0) scale(1); }
+  45% { transform: perspective(500px) rotateY(180deg) scale(1.12); }
+  100% { transform: perspective(500px) rotateY(360deg) scale(1); }
+}
+
+@keyframes cuteShake {
+  0%, 100% { transform: scale(1.08) rotate(-2deg); }
+  25% { transform: scale(1.08) translateX(-2px) rotate(-4deg); }
+  75% { transform: scale(1.08) translateX(2px) rotate(1deg); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .layer { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .tile:hover,
+  .hovered,
+  .morphing {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .tile,
+  .tile:hover,
+  .hovered {
+    /* Touch devices: no hover shake affordance */
+    animation: none;
+  }
+}

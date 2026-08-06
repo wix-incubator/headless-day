@@ -1,0 +1,114 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { items } from '@wix/data';
+import { auth } from '@wix/essentials';
+
+const elevatedQuery = auth.elevate(items.query);
+const { items: storyResults } = await elevatedQuery("Story").limit(10).find();
+const story = storyResults[0] ?? null;
+---
+
+<Layout
+  title="Our Story"
+  description="How two friends turned a rainy Reykjavik evening into Dice & Drizzle — Iceland's favorite board game cafe."
+>
+  <!-- Page header -->
+  <section style="background: var(--color-paper-warm); padding: 6rem 1.5rem 5rem;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto;">
+      <p style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 1.25rem;">About us</p>
+      <h1 style="font-family: var(--font-display); font-size: clamp(2.75rem, 6vw, 4.5rem); font-weight: 700; color: var(--color-ink); line-height: 1.05; max-width: 18ch;">Our Story</h1>
+    </div>
+  </section>
+
+  <!-- Editorial rule + story body -->
+  <section style="background: var(--color-paper); padding: 5rem 1.5rem;">
+    <div style="max-width: var(--container-prose); margin: 0 auto;">
+      <hr class="editorial-rule" style="width: 4rem; margin-left: 0; margin-bottom: 2.5rem;" />
+
+      {story ? (
+        <>
+          {story.heading && (
+            <h2 style="font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); color: var(--color-ink); margin-bottom: 1.75rem; line-height: 1.15;">{story.heading}</h2>
+          )}
+          {story.body && (
+            <div style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-ink); line-height: 1.8;" set:html={story.body} />
+          )}
+          {story.content && !story.body && (
+            <div style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-ink); line-height: 1.8;" set:html={story.content} />
+          )}
+          {!story.body && !story.content && story.description && (
+            <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-ink); line-height: 1.8;">{story.description}</p>
+          )}
+        </>
+      ) : (
+        <>
+          <h2 style="font-family: var(--font-display); font-size: clamp(1.75rem, 3.5vw, 2.5rem); color: var(--color-ink); margin-bottom: 1.75rem; line-height: 1.15;">A cafe born on a rainy Tuesday</h2>
+          <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-ink); line-height: 1.8; margin-bottom: 1.5rem;">
+            Reykjavik winters are long. Guðrún and Einar had played through their own shelves twice over and started wondering why there was nowhere in the city to sit down, order a coffee, and try something new from a proper library.
+          </p>
+          <p style="font-family: var(--font-body); font-size: 1.0625rem; color: var(--color-ink); line-height: 1.8;">
+            In 2019 they signed a lease on Laugavegur 42, painted the walls warm white, and opened with 300 games and a single espresso machine. Today the library holds 1,200 titles, the hot chocolate is made from scratch, and the espresso machine has been replaced by two.
+          </p>
+        </>
+      )}
+    </div>
+  </section>
+
+  <!-- Stat facts -->
+  <section style="background: var(--color-paper-warm); border-top: 1px solid var(--color-rule); border-bottom: 1px solid var(--color-rule); padding: 4rem 1.5rem;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center;">
+      <div>
+        <p style="font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--color-ink); line-height: 1;">Est. 2019</p>
+        <p style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-mute); margin-top: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase;">Year founded</p>
+      </div>
+      <div>
+        <p style="font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--color-ink); line-height: 1;">1,200+</p>
+        <p style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-mute); margin-top: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase;">Games in the library</p>
+      </div>
+      <div>
+        <p style="font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--color-ink); line-height: 1;">Laugavegur 42</p>
+        <p style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-mute); margin-top: 0.5rem; letter-spacing: 0.05em; text-transform: uppercase;">Reykjavik, Iceland</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Founders -->
+  <section style="background: var(--color-paper); padding: 5rem 1.5rem;">
+    <div style="max-width: var(--container-3xl); margin: 0 auto;">
+      <h2 style="font-family: var(--font-display); font-size: 2rem; color: var(--color-ink); margin-bottom: 0.75rem;">The founders</h2>
+      <hr class="editorial-rule" style="width: 4rem; margin-left: 0; margin-bottom: 3rem;" />
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <!-- Guðrún -->
+        <div style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; transition: box-shadow 0.3s ease;">
+          <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--color-ink);">G</div>
+          <h3 style="font-family: var(--font-display); font-size: 1.375rem; color: var(--color-ink); margin-bottom: 0.5rem;">Guðrún Björnsdóttir</h3>
+          <p style="font-family: var(--font-body); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 1.25rem;">Co-founder — Game curator</p>
+          <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.7;">Guðrún is the reason the shelves are organized by feel rather than alphabetically. She keeps a worn d20 on her desk, rolls it when she can't choose between two new acquisitions, and says the dice have never steered her wrong. She sources games from publishers across Europe and writes the shelf notes by hand.</p>
+        </div>
+
+        <!-- Einar -->
+        <div style="background: var(--color-paper-warm); border: 1px solid var(--color-rule); border-radius: var(--radius-md); padding: 2rem; transition: box-shadow 0.3s ease;">
+          <div style="width: 3rem; height: 3rem; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--color-ink);">E</div>
+          <h3 style="font-family: var(--font-display); font-size: 1.375rem; color: var(--color-ink); margin-bottom: 0.5rem;">Einar Magnússon</h3>
+          <p style="font-family: var(--font-body); font-size: 0.8125rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 1.25rem;">Co-founder — Operations</p>
+          <p style="font-family: var(--font-body); font-size: 0.9375rem; color: var(--color-ink); line-height: 1.7;">Einar built the booking system himself one December weekend and has been quietly improving it ever since. His dice tray — a piece of walnut he turned on a borrowed lathe — lives on the front counter. He is the one who makes sure the hot chocolate is always exactly 68 degrees.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="background: var(--color-paper-warm); border-top: 1px solid var(--color-rule); padding: 4rem 1.5rem; text-align: center;">
+    <p style="font-family: var(--font-body); font-size: 1rem; color: var(--color-mute); margin-bottom: 1.5rem;">Come and see what 1,200 games looks like in person.</p>
+    <a href="/games" style="font-family: var(--font-body); font-weight: 600; color: var(--color-ink); border-bottom: 1px solid var(--color-accent); padding-bottom: 2px;">
+      See the game library →
+    </a>
+  </section>
+</Layout>
+
+<style>
+  .founders-card:hover {
+    box-shadow: 0 4px 24px rgba(232,168,124,0.15);
+  }
+</style>

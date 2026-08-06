@@ -1,0 +1,23 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="site-footer" transition:persist="site-footer">
+  <div class="max-w-6xl mx-auto px-6 py-16 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
+    <div class="flex flex-col gap-3 max-w-prose">
+      <span class="font-display text-lg text-ink">Dice & Drizzle</span>
+      <p class="text-sm"></p>
+    </div>
+    <nav>
+      <ul class="flex flex-col gap-3 text-sm">
+        <li><a href="/">Home</a></li>
+        <li><a href="/games">Game Library</a></li>
+        <li><a href="/about">Our Story</a></li>
+        <li><a href="/book">Book a Table</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="max-w-6xl mx-auto px-6 pb-8 text-xs">
+    <p>© {year} Dice & Drizzle. All rights reserved.</p>
+  </div>
+</footer>

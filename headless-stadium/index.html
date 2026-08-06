@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wix Headless Stadium · World Cup 2026 Final seat preview</title>
+    <meta
+      name="description"
+      content="A Wix Headless 3D seat-preview experience: explore the New York arena and preview the World Cup 2026 Final from any of 24,000 seats."
+    />
+    <meta name="theme-color" content="#eef2f8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@700;800&family=Wix+Madefor+Text:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23116dff'/%3E%3Cpath d='M8 8l8 16 8-16' stroke='%23fbbf24' stroke-width='3.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <div id="loader" aria-live="polite">
+      <div class="loader-inner">
+        <div class="wordmark">WIX HEADLESS<span class="dot">.</span></div>
+        <div class="loader-sub">New York City · See the final from every seat</div>
+        <div class="loader-bar"><div class="loader-fill" id="loader-fill"></div></div>
+        <div class="loader-status" id="loader-status">Contacting the arena…</div>
+      </div>
+    </div>
+
+    <header class="brand ui">
+      <div class="wordmark sm">WIX HEADLESS<span class="dot">.</span></div>
+      <div class="brand-sub">Arena · World Cup 2026 seat preview</div>
+    </header>
+
+    <div class="fixture ui" id="fixture" hidden>
+      <span class="team home" id="fx-home"></span>
+      <span class="score" id="fx-score"></span>
+      <span class="team away" id="fx-away"></span>
+      <span class="fx-meta" id="fx-meta"></span>
+      <button class="fx-cal" id="btn-cal" title="Add to calendar" aria-label="Add to calendar" hidden>🗓</button>
+    </div>
+
+    <div class="cal-menu ui" id="cal-menu" hidden>
+      <button class="cal-opt" id="cal-google">Google Calendar</button>
+      <button class="cal-opt" id="cal-ics">Apple / Outlook (.ics)</button>
+    </div>
+
+    <button class="watch-cta ui" id="btn-watch" hidden>📺 Can't make it? Watch it free at Wix Campus</button>
+
+    <div class="modal-backdrop ui" id="watch-modal" hidden>
+      <div class="modal" role="dialog" aria-labelledby="watch-title">
+        <button class="card-close" id="watch-close" aria-label="Close">×</button>
+        <div class="card-tier">Free screening · Powered by Wix Events</div>
+        <h2 class="modal-title" id="watch-title"></h2>
+        <div class="modal-meta" id="watch-meta"></div>
+        <p class="modal-blurb" id="watch-blurb"></p>
+        <form id="watch-form" novalidate>
+          <div class="form-row">
+            <input class="field" id="watch-first" type="text" placeholder="First name" autocomplete="given-name" required maxlength="50" />
+            <input class="field" id="watch-last" type="text" placeholder="Last name" autocomplete="family-name" required maxlength="50" />
+          </div>
+          <input class="field" id="watch-email" type="email" placeholder="Email" autocomplete="email" required maxlength="255" />
+          <div class="form-error" id="watch-error" hidden></div>
+          <button class="btn primary" id="watch-submit" type="submit">Register free</button>
+        </form>
+        <div class="modal-done" id="watch-done" hidden>
+          <div class="done-emoji">🎉</div>
+          <div class="done-title">You're in!</div>
+          <div class="done-sub">A confirmation email is on its way — see you at Wix Campus.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend ui" id="legend" hidden></div>
+
+    <div class="viewbar ui" id="viewbar">
+      <button class="round" id="btn-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+      <button class="round" id="btn-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+      <button class="round" id="btn-rotate" title="Auto-rotate (A)" aria-label="Toggle auto-rotate">⟳</button>
+      <button class="round" id="btn-reset" title="Reset view (R)" aria-label="Reset view">⌂</button>
+    </div>
+
+    <div class="hint ui" id="hint">Drag to orbit · Scroll to zoom · Click any seat to preview its view</div>
+
+    <div class="seat-tip ui" id="seat-tip" hidden>
+      <div class="tip-loc" id="tip-loc"></div>
+      <div class="tip-sub">
+        <span class="tip-tier" id="tip-tier"></span>
+        <span class="tip-price" id="tip-price"></span>
+      </div>
+      <div class="tip-hop" id="tip-hop" hidden>Click to watch from here</div>
+    </div>
+
+    <aside class="seat-card ui" id="seat-card" hidden>
+      <button class="card-close" id="card-close" aria-label="Close">×</button>
+      <div class="card-head">
+        <div class="card-tier" id="card-tier"></div>
+        <div class="card-price" id="card-price"></div>
+      </div>
+      <div class="card-loc" id="card-loc"></div>
+      <div class="card-blurb" id="card-blurb"></div>
+      <div class="card-row">
+        <span class="chip" id="card-avail"></span>
+        <span class="chip ghost" id="card-stand"></span>
+      </div>
+      <div class="card-actions">
+        <button class="btn ghost" id="btn-back" hidden>← Back to arena</button>
+        <button class="btn ghost" id="btn-preview" hidden>Preview this view</button>
+        <button class="btn primary" id="btn-reserve">Hold this seat</button>
+      </div>
+      <div class="card-note">Concept demo — seats and availability are simulated; checkout is powered by Wix Headless.</div>
+    </aside>
+
+    <div class="toast ui" id="toast" hidden></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
