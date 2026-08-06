@@ -2,7 +2,7 @@
 
 An infinite, draggable cork board built as a UX designer portfolio template. Sticky notes, skill tags, and quotes are pinned across a panning canvas — visitors drag in any direction to explore.
 
-Built with **Next.js 15** (App Router) + **React 19**.
+Built with **Next.js 16** (App Router) + **React 19**.
 
 **Live site:** https://www.bullet-in-board.online/
 
@@ -36,7 +36,7 @@ Change the text, colours, positions, and rotations to make it your own. The canv
 
 ## Stack
 
-- **Next.js 15** — App Router, client component canvas
+- **Next.js 16** — App Router, client component canvas
 - **React 19** — pointer and touch event handlers
 - **Tailwind CSS** — utility styling
 - **No external data source** — fully static, deploy anywhere (Vercel, Wix Headless, etc.)
