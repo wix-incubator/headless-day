@@ -1,0 +1,30 @@
+:root {
+  /* @latest core palette — light mode */
+  --lt-ink: #1a1a1a;
+  --lt-paper: #f4f4f0;
+  --lt-phosphor: #128a4b;
+  --lt-phosphor-bright: #39ff14;
+  --lt-amber: #b45309;
+  --lt-scanline: rgba(26, 26, 26, 0.06);
+  --lt-grid: rgba(26, 26, 26, 0.1);
+
+  /* Semantic mappings */
+  --accent: var(--lt-phosphor);
+  --accent-contrast: #ffffff;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-border: rgba(26, 26, 26, 0.12);
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lt-ink: #e8ffe8;
+    --lt-paper: #0b0f0c;
+    --lt-phosphor: #39ff14;
+    --lt-scanline: rgba(57, 255, 20, 0.05);
+    --lt-grid: rgba(57, 255, 20, 0.08);
+    --accent: var(--lt-phosphor);
+    --surface: rgba(17, 20, 31, 0.62);
+    --surface-border: rgba(57, 255, 20, 0.14);
+  }
+}
