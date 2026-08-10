@@ -28,7 +28,7 @@ Requires Node 20 — run `eval "$(fnm env)" && fnm use 20` before any command.
 ```bash
 npm install
 npx @wix/cli login
-npm create @wix/new@latest init    # generates wix.config.json (git-ignored; see wix.config.example.json)
+npm create @wix/new@latest init    # generates wix.config.json (git-ignored; see wix.config.json)
 npm test                           # Vitest + React Testing Library
 npm run dev                        # http://localhost:4321/
 npm run build                      # wix build → astro build

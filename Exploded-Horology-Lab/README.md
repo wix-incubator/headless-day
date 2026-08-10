@@ -34,7 +34,7 @@ Design runtime; `watch-lab.js` is the Three.js scene.
 | `watch-lab.js` | The Three.js exploded-view 3D watch. |
 | `support.js` | Claude Design client runtime (renders the `x-dc` component + `{{bindings}}`). |
 | `og.jpg` | 1200×630 social/link-preview image. |
-| `wix.config.example.json` | Template for the Wix project config (`init` generates the real one). |
+| `wix.config.json` | Template for the Wix project config (`init` generates the real one). |
 | `AGENTS.md` | Full architecture docs, REST setup calls, and known gotchas for Wix Headless wiring. |
 
 ## Connect it to your own Wix Headless (optional)

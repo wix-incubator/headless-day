@@ -60,7 +60,7 @@ flowerenco/
 ├── astro.config.mjs
 ├── package.json
 ├── .env.example                 # Optional: Wix Form ID for CRM contact sync
-└── wix.config.example.json      # Reference only — generated locally by init
+└── wix.config.json      # Reference only — generated locally by init
 ```
 
 ## How to Create This Yourself

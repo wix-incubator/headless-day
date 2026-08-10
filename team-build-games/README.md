@@ -38,7 +38,7 @@ team-build-games/
 ├── scripts/                # Optional Wix CLI helpers (e.g. arena skin products)
 ├── docs/                   # Internal game and integration notes
 ├── .env.example            # TURN relay, arena skin product IDs, media URLs
-└── wix.config.example.json # Reference only — generated locally via init
+└── wix.config.json # Reference only — generated locally via init
 ```
 
 ## How to Create This Yourself

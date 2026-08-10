@@ -1,5 +1,4 @@
 .wix/
 wix-error.log
-wix.config.json
 wix.config.json.bak
 .DS_Store

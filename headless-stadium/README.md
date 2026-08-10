@@ -29,7 +29,7 @@ headless-stadium/
 │   └── style.css
 ├── docs/               # README screenshots
 ├── package.json
-├── wix.config.json.example
+├── wix.config.json
 └── .env.example
 ```
 
@@ -86,7 +86,7 @@ headless-stadium/
 
 5. **Deploy on Wix hosting:**
    ```bash
-   cp wix.config.json.example wix.config.json   # fill in appId + siteId
+   Edit `wix.config.json`   # fill in appId + siteId
    npx @wix/cli@latest login
    npm run build
    npx @wix/cli@latest release
