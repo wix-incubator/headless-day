@@ -34,7 +34,7 @@ inkflow-academy/
 │   └── video/
 ├── astro.config.mjs
 ├── package.json
-├── wix.config.example.json
+├── wix.config.json
 └── README.md
 ```
 
@@ -43,7 +43,7 @@ inkflow-academy/
 ```bash
 cd inkflow-academy
 npm install
-cp wix.config.example.json wix.config.json   # fill in appId + siteId from Wix dashboard
+Edit `wix.config.json`   # fill in appId + siteId from Wix dashboard
 npm run dev
 ```
 

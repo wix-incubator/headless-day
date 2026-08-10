@@ -4,4 +4,3 @@ dist
 *.local
 .wix
 .env
-wix.config.json

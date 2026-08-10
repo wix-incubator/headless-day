@@ -8,7 +8,7 @@ A static site for **PICKED**, a fresh-produce veg-box shop, powered by [Wix Head
 
 - **`picked/`** — the built static site (`index.html`, `PICKED.dc.html`), 3D produce models (`.glb`), imagery, and the bundled browser cart module (`wix-cart.js`).
 - **`wix-integration/`** — the Wix eCommerce integration source. `src/wix-cart.js` is bundled with esbuild into `picked/wix-cart.js`, wiring the static site to Wix Stores + Checkout via the `@wix/sdk`.
-- **`wix.config.example.json`** — template for the Wix CLI project config (`init` generates the real `wix.config.json`, git-ignored).
+- **`wix.config.json`** — template for the Wix CLI project config (`init` generates the real `wix.config.json`, git-ignored).
 - **`bootstrap.mjs`** — helper for verifying the Wix CLI and handling device-code login.
 
 ## Run locally (design only)

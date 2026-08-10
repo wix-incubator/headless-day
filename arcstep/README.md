@@ -35,7 +35,7 @@ arcstep/
 ├── astro.config.mjs
 ├── package.json
 ├── .env.example            # PUBLIC_WIX_CLIENT_ID for OAuth
-└── wix.config.example.json # Reference only — generated locally for deploy
+└── wix.config.json # Reference only — generated locally for deploy
 ```
 
 ## How to Create This Yourself

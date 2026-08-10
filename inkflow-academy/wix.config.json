@@ -1,7 +1,7 @@
 {
   "projectType": "Site",
-  "appId": "<your headless OAuth app id>",
-  "siteId": "<your site id>",
+  "appId": "YOUR_APP_ID_HERE",
+  "siteId": "YOUR_SITE_ID_HERE",
   "site": {
     "outputDirectory": "./dist"
   }

@@ -52,7 +52,7 @@ bus-conversions/
 │       └── global.css              # Tailwind v4 theme tokens
 ├── astro.config.mjs
 ├── package.json
-└── wix.config.example.json         # Reference only — generated locally by init
+└── wix.config.json         # Reference only — generated locally by init
 ```
 
 ## How to Create This Yourself

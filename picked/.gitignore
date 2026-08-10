@@ -3,7 +3,6 @@ node_modules/
 
 # Wix local state / logs
 .wix/
-wix.config.json
 
 # OS / editor
 .DS_Store

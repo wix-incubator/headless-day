@@ -1,6 +1,5 @@
 # Wix Headless — site-specific / secrets, never commit
 .wix/
-wix.config.json
 .env
 .env.*
 *.local
