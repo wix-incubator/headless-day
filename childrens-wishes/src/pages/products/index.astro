@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { productsV3 } from "@wix/stores";
+
+const PAGE_SIZE = 24;
+
+let products: any[] = [];
+try {
+  const result = await productsV3
+    .queryProducts({ fields: ["CURRENCY"] })
+    .limit(PAGE_SIZE)
+    .find();
+  products = (result.items ?? []).filter((p: any) => p.ribbon?.name !== "Gift Card");
+} catch (err) {
+  console.error("[products] listing query failed:", err);
+}
+---
+
+<Layout title="Shop — Children's Wishes">
+  <div class="page-wrap">
+    <div class="container">
+      <!-- Heading -->
+      <div class="page-header">
+        <p class="section-label">The Collection</p>
+        <h1 class="page-title">All Wishes</h1>
+      </div>
+
+      <!-- Grid -->
+      {products.length > 0 ? (
+        <div class="product-grid">
+          {products.map((p) => <ProductCard product={p} />)}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <p style="font-size:3rem">🌟</p>
+          <h2>Products coming soon</h2>
+          <p>Check your Wix dashboard to add products to this store.</p>
+          <a href="https://manage.wix.com" target="_blank" rel="noopener" class="btn-primary" style="margin-top:24px;display:inline-flex">
+            Open Dashboard →
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style>
+.page-wrap { padding: 48px 0 80px; }
+.container { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+.page-header { margin-bottom: 48px; }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.page-title { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem); color: var(--ink); }
+</style>
