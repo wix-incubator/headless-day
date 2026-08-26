@@ -1,0 +1,48 @@
+---
+// Server-rendered shell: SEO/no-JS content in the DOM + the interactive 3D app on top.
+import { items } from "@wix/data";
+import Layout from "../layouts/Layout.astro";
+import App from "../components/client/App";
+
+export const prerender = false;
+
+// A safe (unflagged) sample of the collection for crawlers and no-JS visitors.
+let sampleJokes: { text: string; category: string }[] = [];
+try {
+  const { items: rows } = await items
+    .query("Jokes")
+    .eq("status", "approved")
+    .descending("score")
+    .limit(50)
+    .find();
+  sampleJokes = (rows as any[])
+    .filter((j) => !(j.contentFlags ?? []).length)
+    .slice(0, 8)
+    .map((j) => ({ text: j.text, category: j.category }));
+} catch {
+  // Rendering must not depend on data availability — the app fetches live data itself.
+}
+---
+
+<Layout>
+  <App client:only="react" />
+  <noscript>
+    <main style="max-width: 640px; margin: 0 auto; padding: 40px 20px; color: #f4f0e6; font-family: system-ui;">
+      <h1>joke·exchange</h1>
+      <p>
+        Leave a joke, take a joke — this site trades jokes: submit one and receive one from the
+        ever-growing visitor-built collection. The full experience needs JavaScript, but here's a taste:
+      </p>
+      <ul>
+        {sampleJokes.map((j) => <li><p>{j.text}</p><small>({j.category})</small></li>)}
+      </ul>
+    </main>
+  </noscript>
+  {/* SEO: crawlable sample of real content, invisible to app users */}
+  <div hidden aria-hidden="true">
+    <h2>A few jokes from the exchange</h2>
+    <ul>
+      {sampleJokes.map((j) => <li>{j.text} ({j.category})</li>)}
+    </ul>
+  </div>
+</Layout>
