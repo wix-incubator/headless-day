@@ -1,0 +1,162 @@
+---
+import MobileMenu from './MobileMenu.tsx';
+
+interface Props {
+  page?: string;
+}
+const { page = 'home' } = Astro.props;
+
+const links = [
+  { id: 'home', label: 'Home', href: '/' },
+  { id: 'tournaments', label: 'Tournaments', href: '/tournaments' },
+  { id: 'rankings', label: 'Hi-Scores', href: '/rankings' },
+  { id: 'hall', label: 'Hall of Fame', href: '/hall-of-fame' },
+  { id: 'play', label: 'Play', href: '/play' },
+];
+---
+
+<!-- HUD ticker strip -->
+<div class="hud">
+  <div class="hud-inner">
+    <span><span class="blink" style="color:var(--magenta)">●</span> Insert coin</span>
+    <span>Hi-Score <b style="color:var(--gold)">011 CM</b></span>
+    <span class="hud-credit">Credits <b style="color:var(--cyan)">∞</b></span>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Parallel Parking Stadium — home">
+      <span class="brand-mark arcade">P</span>
+      <span class="brand-name arcade">Parking<br />Stadium</span>
+    </a>
+
+    <div class="nav-desktop">
+      {
+        links.map((l) => (
+          <a
+            href={l.href}
+            class:list={['nav-link arcade', { active: l.id === page, play: l.id === 'play' }]}
+            aria-current={l.id === page ? 'page' : undefined}
+          >
+            {l.label}
+          </a>
+        ))
+      }
+      <a href="/tickets" class="nav-cta arcade">▶ Tickets</a>
+    </div>
+
+    <div class="nav-mobile">
+      <MobileMenu client:load page={page} links={links} />
+    </div>
+  </div>
+</nav>
+
+<style>
+  .hud {
+    background: var(--bg-2);
+    border-bottom: 2px solid var(--grid);
+    font-family: var(--font-tag);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+  }
+  .hud-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 6px 20px;
+    display: flex;
+    gap: 22px;
+    justify-content: space-between;
+  }
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: var(--bg-2);
+    border-bottom: 3px solid var(--yellow);
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.4);
+  }
+  .nav-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 14px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 16px;
+    border: 2px solid var(--ink);
+    box-shadow: var(--shadow-sm);
+  }
+  .brand-name {
+    color: var(--ink);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-link {
+    font-size: 11px;
+    padding: 10px 11px;
+    color: var(--ink-dim);
+  }
+  .nav-link:hover {
+    color: var(--ink);
+  }
+  .nav-link.active {
+    color: var(--ink);
+    box-shadow: inset 0 -3px 0 0 var(--yellow);
+  }
+  .nav-link.play {
+    color: var(--cyan);
+  }
+  .nav-link.play.active {
+    color: var(--cyan);
+    box-shadow: inset 0 -3px 0 0 var(--cyan);
+  }
+  .nav-cta {
+    margin-left: 8px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 11px;
+    padding: 11px 14px;
+    border: 2px solid var(--ink);
+    box-shadow: var(--shadow-ink);
+  }
+  .nav-cta:hover {
+    filter: brightness(1.08);
+  }
+  .nav-mobile {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .nav-desktop {
+      display: none;
+    }
+    .nav-mobile {
+      display: block;
+    }
+    .hud-credit {
+      display: none;
+    }
+  }
+</style>

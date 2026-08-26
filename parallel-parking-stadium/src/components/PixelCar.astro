@@ -1,0 +1,40 @@
+---
+import {
+  carCells, isoCells, sideCells,
+  GRID_W, GRID_H, ISO_W, ISO_H, SIDE_W, SIDE_H,
+  CARS, type CarColors,
+} from '../lib/carSprite';
+
+type View = 'top' | 'iso' | 'side';
+interface Props {
+  palette?: keyof typeof CARS;
+  colors?: CarColors;
+  view?: View;
+  s?: number; // pixel size
+  x: number; // centre x
+  y: number; // centre y
+}
+const { palette = 'red', colors, view = 'top', s = 4, x, y } = Astro.props;
+const c = colors ?? CARS[palette];
+
+const { cells, gw, gh } =
+  view === 'iso'
+    ? { cells: isoCells(c), gw: ISO_W, gh: ISO_H }
+    : view === 'side'
+      ? { cells: sideCells(c), gw: SIDE_W, gh: SIDE_H }
+      : { cells: carCells(c), gw: GRID_W, gh: GRID_H };
+
+const ox = (gw / 2) * s;
+const oy = (gh / 2) * s;
+// drop a contact shadow under the wheels — a bit lower for the standing views
+const shadowY = view === 'top' ? oy : oy + s;
+---
+
+<g transform={`translate(${x} ${y})`} shape-rendering="crispEdges">
+  <ellipse cx={0} cy={shadowY} rx={ox * 0.9} ry={s * 1.5} fill="#000" opacity="0.16"></ellipse>
+  {
+    cells.map((p) => (
+      <rect x={p.x * s - ox} y={p.y * s - oy} width={s + 0.4} height={s + 0.4} fill={p.color} />
+    ))
+  }
+</g>
