@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env.local
+.env
+*.bak
+*.old-site
+wix-error.log
+.wix/
+.astro/
+.agents/
+.claude/
