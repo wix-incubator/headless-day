@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { PROJECTS, type CamperProject } from '../data/projects';
+
+// Render from the Wix CMS "CamperProjects" collection when available; fall back to the seed list.
+// (Kept resilient so the site builds and deploys even before the collection is populated.)
+let projects: CamperProject[] = PROJECTS;
+try {
+  // @ts-ignore - optional dependency; present once `npm i @wix/data` + collection exist
+  const { items } = await import('@wix/data');
+  const res = await items.query('CamperProjects').limit(50).find();
+  if (res?.items?.length) {
+    projects = res.items.map((it: any) => ({
+      title: it.title, who: it.who ?? `${it.camperFirstName}, ${it.camperAge ?? ''}`.replace(/, $/, ''),
+      cohort: it.cohort, year: it.year, dataset: it.datasetUsed ?? it.dataset,
+      summary: it.summary, stack: Array.isArray(it.techStack) ? it.techStack : String(it.techStack ?? '').split(',').map((s: string) => s.trim()).filter(Boolean),
+    }));
+  }
+} catch { /* collection not set up yet — use seed data */ }
+
+const itemListLd = {
+  '@context': 'https://schema.org', '@type': 'ItemList', name: 'Tidal Coding Camp — camper projects',
+  itemListElement: projects.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.title })),
+};
+---
+<Layout
+  title="Projects — Tidal Coding Camp"
+  description="Twelve real marine-data projects built by teens on a Brittany tidal island — most of them debugged into existence during a high tide nobody could walk away from."
+  path="/projects"
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(itemListLd)} />
+  <section class="surface">
+    <div class="wrap">
+      <p class="kicker">Projects gallery</p>
+      <h1 style="font-size:clamp(2.2rem,6vw,4.2rem)" class="wl">Shipped between tides.</h1>
+      <p class="muted" style="max-width:58ch;margin-top:1.2rem">Twelve real projects from past cohorts — each one built on a genuine marine dataset, most of them debugged into existence during a high tide nobody could walk away from.</p>
+    </div>
+  </section>
+  <section class="band">
+    <div class="wrap">
+      <div class="grid g3">
+        {projects.map((p, i) => (
+          <article class="project rv">
+            <div class="thumb"><span class="id">Specimen {String(i + 1).padStart(2, '0')} · {p.year}</span></div>
+            <div class="body">
+              <h3>{p.title}</h3>
+              <div class="metaline">{p.who} · Cohort {p.cohort}</div>
+              <div class="muted" style="font-size:.78rem">Dataset: {p.dataset}</div>
+              <p class="sum">{p.summary}</p>
+              <div class="stack">{p.stack.map((s) => <span>{s}</span>)}</div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p style="margin-top:2.4rem"><a class="btn" href="/program">See the program</a> <a class="btn ghost" href="/apply" style="margin-left:.6rem">Reserve your seat</a></p>
+    </div>
+  </section>
+</Layout>

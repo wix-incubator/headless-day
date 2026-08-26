@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="The Program — Tidal Coding Camp"
+  description="Two weeks, one real project. A tide-timed coding camp for ages 13–17 — dates, cohorts, and fees."
+  path="/program"
+>
+  <section class="surface">
+    <div class="wrap">
+      <p class="kicker">The Program</p>
+      <h1 style="font-size:clamp(2.2rem,6vw,4.2rem)" class="wl">Two weeks. One real project.</h1>
+      <p class="muted" style="max-width:44ch;margin-top:1.2rem">A coding camp for ages 13–17, paced by the tide.</p>
+    </div>
+  </section>
+  <section class="band">
+    <div class="wrap split rev">
+      <div class="grid rv">
+        <div class="weekplan">
+          <header><h3>Week 1 — Sea legs</h3><span>Learn</span></header>
+          <div class="dayrow"><b>Mon–Tue</b><div>Python basics: variables, loops, functions.</div></div>
+          <div class="dayrow"><b>Wed</b><div>Reading data — what the tide tables really say.</div></div>
+          <div class="dayrow"><b>Thu</b><div>Your first charts with pandas and matplotlib.</div></div>
+          <div class="dayrow"><b>Fri</b><div>Collect your own data at low tide.</div></div>
+          <div class="dayrow"><b>Sat</b><div>Pick your project. (Sunday: rest.)</div></div>
+        </div>
+        <div class="weekplan">
+          <header><h3>Week 2 — The project</h3><span>Build</span></header>
+          <div class="dayrow"><b>Mon–Wed</b><div>Build it, instructor at the next desk.</div></div>
+          <div class="dayrow"><b>Thu</b><div>Test and debug — high tide is bug-fixing time.</div></div>
+          <div class="dayrow"><b>Fri</b><div>Freeze the repo. Write the README.</div></div>
+          <div class="dayrow"><b>Sat</b><div><b style="color:var(--accent)">Demo day</b> — five minutes each, parents welcome.</div></div>
+        </div>
+      </div>
+      <div class="rv">
+        <p class="kicker">Summer 2026</p>
+        <h2>Sessions</h2>
+        <table class="sessions" style="margin:1.5rem 0 2rem">
+          <thead><tr><th>Session</th><th>Dates</th><th>Cohort</th></tr></thead>
+          <tbody>
+            <tr><td>I</td><td>Jul 6 – Jul 19</td><td>Spring Tide</td></tr>
+            <tr><td>II</td><td>Jul 20 – Aug 2</td><td>Neap Tide</td></tr>
+            <tr><td>III</td><td>Aug 3 – Aug 16</td><td>Spring Tide</td></tr>
+            <tr><td>IV</td><td>Aug 17 – Aug 30</td><td>Neap Tide</td></tr>
+          </tbody>
+        </table>
+        <div class="card">
+          <h3>Fees</h3>
+          <p class="muted" style="font-size:.92rem">€2,450 for two weeks — lodging, meals, supervision, and gear included. A few scholarships available.</p>
+          <p style="margin-top:1rem"><a class="btn" href="/apply">Reserve your seat</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="band dark">
+    <div class="wrap split">
+      <div class="rv"><p class="kicker">Our story</p><h2 class="wl">Why a camp about getting stranded</h2></div>
+      <div class="rv">
+        <p class="muted">A student once got stranded over a high tide with a half-broken script and nothing to do but fix it. She did.</p>
+        <p class="muted">That’s the whole idea: a deadline you can’t walk away from is the best teacher in coding.</p>
+      </div>
+    </div>
+  </section>
+  <section class="cta"><div class="wrap"><p class="kicker">Ready?</p><h2>Four sessions. Small cohorts.</h2><p style="margin:1.5rem 0 0"><a class="btn amber" href="/apply">Reserve your seat</a></p></div></section>
+</Layout>
