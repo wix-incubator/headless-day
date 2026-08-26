@@ -1,0 +1,61 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import MobileBookStickyBar from '../components/islands/MobileBookStickyBar.tsx';
+import { SITE } from '../lib/site';
+import { img } from '../lib/images';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path only, e.g. "/menu". */
+  path?: string;
+  ogImageKey?: Parameters<typeof img>[0];
+}
+
+const { title, description, path = '', ogImageKey = 'hero' } = Astro.props;
+const fullTitle =
+  path === '' || path === '/' ? `${SITE.name} — ${SITE.tagline}` : `${title} · ${SITE.name}`;
+const canonical = new URL(path, SITE.url).href;
+const ogImage = img(ogImageKey, { w: 1200, h: 630 });
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#14110E" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="generator" content={Astro.generator} />
+    <slot name="head" />
+  </head>
+  <body>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <MobileBookStickyBar phoneHref={SITE.phoneHref} client:load />
+    <div class="grain" aria-hidden="true"></div>
+  </body>
+</html>

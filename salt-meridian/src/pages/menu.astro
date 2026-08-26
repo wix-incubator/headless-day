@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import DishCard from '../components/DishCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { getDishes } from '../lib/cms';
+import { SECTION_ORDER } from '../data/content';
+import { restaurantSchema, menuSchema } from '../lib/schema';
+
+const dishes = await getDishes();
+const catchOfDay = dishes.filter((d) => d.catchTag === "Today's Catch");
+const sections = SECTION_ORDER.map((name) => ({
+  name,
+  dishes: dishes
+    .filter((d) => d.section === name)
+    .sort((a, b) => a.order - b.order),
+})).filter((s) => s.dishes.length);
+---
+
+<BaseLayout
+  title="The Board"
+  path="/menu"
+  description="The chalkboard menu — whole turbot and aged txuleta priced by the day, with the morning's catch flagged on top. Basque asador, San Sebastián."
+>
+  <JsonLd slot="head" schema={[restaurantSchema(), menuSchema(dishes)]} />
+
+  <header class="page-head">
+    <div class="mx-auto max-w-6xl px-5">
+      <p class="page-kicker">The Board</p>
+      <h1 class="page-title">Written in chalk, every morning.</h1>
+      <p class="measure mt-5 text-lg text-[var(--color-text-muted)]">
+        Whole fish and aged txuleta, priced by weight and easily split. The board changes with
+        the catch — what's flagged below came in this morning.
+      </p>
+    </div>
+  </header>
+
+  {
+    catchOfDay.length > 0 && (
+      <section class="section pt-0">
+        <div class="mx-auto max-w-6xl px-5">
+          <SectionHeading kicker="On top of the board today" as="h2">
+            Today's Catch
+          </SectionHeading>
+          <div class="mt-8 grid gap-8 md:grid-cols-2">
+            {catchOfDay.map((dish) => (
+              <DishCard dish={dish} withImage />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section-surface pt-12">
+    <div class="mx-auto max-w-4xl px-5">
+      {
+        sections.map((section) => (
+          <div class="board-section">
+            <SectionHeading as="h2" class="mb-8">{section.name}</SectionHeading>
+            <div class="board-rows">
+              {section.dishes.map((dish) => (
+                <DishCard dish={dish} />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+      <p class="mt-12 text-sm text-[var(--color-text-muted)]">
+        Prices marked “/ kg” are for whole fish and the txuleta, weighed and split at the table.
+        Tell us about allergies or a vegetable plate in your booking note.
+      </p>
+    </div>
+  </section>
+
+  <CtaBand heading="The catch changes daily." body="Get a seat before it's gone." />
+</BaseLayout>

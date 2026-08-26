@@ -1,0 +1,58 @@
+---
+import { img, srcset, alt } from '../lib/images';
+
+// Full-bleed moody location plate; the wordmark is the whole hero.
+const w = 1920;
+const ratio = 0.62;
+const h = Math.round(w * ratio);
+const heroSrc = img('place', { w, h });
+const heroSet = srcset('place', [768, 1024, 1440, 1920, 2400], ratio);
+---
+
+<section class="hero hero-cover" aria-label="Salt Meridian">
+  <div class="hero-media">
+    <img
+      class="hero-img"
+      src={heroSrc}
+      srcset={heroSet}
+      sizes="100vw"
+      width={w}
+      height={h}
+      alt={alt('place')}
+      fetchpriority="high"
+      loading="eager"
+      decoding="sync"
+    />
+  </div>
+
+  <div class="hero-cover-content">
+    <p class="hero-cta hero-cover-eyebrow">Coastal Basque Asador · San Sebastián</p>
+    <h1 class="hero-wordmark">
+      <span class="hero-line hero-line-1">Salt</span>
+      <span class="hero-line hero-line-2">Meridian</span>
+    </h1>
+  </div>
+
+  <div class="hero-meta" aria-hidden="true">
+    <span class="hero-meta-coords">43.3232°N · 1.9851°W</span>
+    <a href="#thesis" class="hero-meta-scroll">Scroll down ↓</a>
+    <span class="hero-meta-clock" data-tz="Europe/Madrid">--:--:--</span>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var el = document.querySelector('.hero-meta-clock');
+    if (!el) return;
+    function tick() {
+      try {
+        el.textContent = new Intl.DateTimeFormat('en-GB', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZone: el.dataset.tz,
+        }).format(new Date()) + ' · DONOSTIA';
+      } catch (e) { /* noop */ }
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>

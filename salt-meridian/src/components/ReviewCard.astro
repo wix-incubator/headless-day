@@ -1,0 +1,15 @@
+---
+import type { Review } from '../data/content';
+interface Props {
+  review: Review;
+}
+const { review } = Astro.props;
+---
+
+<figure class="review reveal">
+  <blockquote class="review-quote">“{review.quote}”</blockquote>
+  <figcaption class="mt-6">
+    <span class="review-name block">{review.name}</span>
+    <span class="review-detail block">{review.detail}</span>
+  </figcaption>
+</figure>
