@@ -1,0 +1,74 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCompetitors } from '../lib/content';
+import { marginBarWidth } from '../lib/format';
+
+const competitors = await getCompetitors();
+---
+
+<Base
+  page="rankings"
+  title="Hi-Scores"
+  description="The live parallel-parking leaderboard — ranked by best clearance margin and clean parks. Smallest clean clearance wins; a touch is a penalty."
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,72px) 20px">
+    <div style="max-width:var(--maxw);margin:0 auto">
+      <div class="lbl" style="font-size:12px;color:var(--cyan);margin-bottom:12px">Live leaderboard</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,64px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">Hi-Scores</h1>
+      <p style="margin:0;max-width:580px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        Ranked by best clearance margin and clean parks. Smallest clean clearance wins. A touch is a penalty.
+      </p>
+    </div>
+  </div>
+
+  <div style="max-width:var(--maxw);margin:0 auto;padding:clamp(28px,4vw,48px) 20px">
+    {competitors.length === 0 ? (
+      <div class="empty">
+        The board resets between seasons. Qualifiers seed the next bracket — <a href="/play">play the slot</a> and
+        put a number up.
+      </div>
+    ) : (
+    <div class="panel" style="overflow-x:auto;padding:0">
+      <table class="rk-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Driver</th>
+            <th>Best margin</th>
+            <th>Clean</th>
+            <th>Touches</th>
+            <th style="text-align:right">Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            competitors.map((r) => (
+              <tr style={r.rank === 1 ? 'background:rgba(255,214,10,.08)' : undefined}>
+                <td><span class="arcade" style={`font-size:13px;color:${r.rank === 1 ? 'var(--gold)' : 'var(--ink)'}`}>{String(r.rank).padStart(2, '0')}</span></td>
+                <td>
+                  <div class="dk" style="font-size:19px">{r.name}</div>
+                  <div class="lbl" style="font-size:10px;color:var(--ink-dim)">{r.note}</div>
+                </td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div style="width:90px;height:10px;background:var(--bg);border:1px solid var(--grid)"><div style={`width:${marginBarWidth(r.margin)};height:100%;background:var(--yellow)`} /></div>
+                    <span class="dk" style="font-size:19px">{r.margin}<span class="lbl" style="font-size:10px;color:var(--cyan)"> CM</span></span>
+                  </div>
+                </td>
+                <td><span class="dk" style="font-size:19px">{r.clean}</span></td>
+                <td><span style={`font-size:18px;color:${r.touches === 0 ? 'var(--green)' : 'var(--ink-dim)'}`}>{r.touches}</span></td>
+                <td style="text-align:right"><span class="dk" style="font-size:19px;color:var(--gold)">{r.pts}</span></td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    )}
+    <p style="margin:18px 0 0;font-size:17px;color:var(--ink-dim)">
+      Margins are the smallest clean clearance achieved in sanctioned play this season. The all-time record —
+      Sosa’s 11cm van — lives in the <a href="/hall-of-fame">Hall of Fame</a>. Want a run at the board?
+      <a href="/play">Play the slot →</a>
+    </p>
+  </div>
+</Base>

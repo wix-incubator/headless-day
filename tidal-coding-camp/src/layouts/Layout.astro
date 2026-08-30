@@ -1,0 +1,110 @@
+---
+import '../styles/global.css';
+import Preloader from '../components/Preloader.astro';
+export interface Props {
+  title: string;
+  description: string;
+  path: string;            // current route, e.g. "/program"
+  heroPreload?: boolean;   // preload the LCP causeway image on the home page
+}
+const { title, description, path, heroPreload = false } = Astro.props;
+const origin = (Astro.site?.toString() ?? 'https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com').replace(/\/$/, '');
+const ogImage = `${origin}/assets/cover.jpg`;
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/program', label: 'Program' },
+  { href: '/schedule', label: 'Tide Schedule' },
+  { href: '/island', label: 'The Island' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/faq', label: 'FAQ' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#0C2329" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={`${origin}${path}`} />
+  <meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/fredoka/v17/X7n64b87HvSqjb_WIi2yDCRwoQ_k7367_DWu89U.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/splinesans/v16/_6_7ED73Uf-2WfU2LzycEbAimC0.woff2" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Spline+Sans:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Spline+Sans:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Spline+Sans:wght@400;500;600&display=swap" /></noscript>
+
+  {heroPreload && (
+    <>
+      <link rel="preload" as="image" imagesrcset="/assets/hero-kids-1024.webp 1024w, /assets/hero-kids-1440.webp 1440w, /assets/hero-kids-1920.webp 1920w" imagesizes="100vw" type="image/webp" media="(min-width:721px)" fetchpriority="high" />
+      <link rel="preload" as="image" href="/assets/causeway-mobile.webp" type="image/webp" media="(max-width:720px)" fetchpriority="high" />
+    </>
+  )}
+  <slot name="head" />
+</head>
+<body>
+  <Preloader />
+  <a class="skip" href="#main">Skip to content</a>
+  <nav class="nav" aria-label="Main">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#13505B"/><path d="M4 17c3 0 3-2.5 5.5-2.5S12 17 15 17s3-2.5 5.5-2.5S23 17 26 17" stroke="#FFC857" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M6 21.5c2.5 0 2.5-2 4.7-2s2.2 2 4.6 2 2.4-2 4.6-2 2.1 2 4.6 2" stroke="#FFC857" stroke-width="1.2" fill="none" opacity=".55" stroke-linecap="round"/></svg>
+        <span>Tidal Coding Camp<small>Île de tidal · Brittany</small></span>
+      </a>
+      <div class="nav-links">
+        {nav.map((n) => (
+          <a href={n.href} aria-current={path === n.href ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </div>
+      <a class="btn" href="/apply">Apply</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <div>
+        <a class="brand" href="/" style="margin-bottom:.8rem">
+          <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#FFC857"/><path d="M4 17c3 0 3-2.5 5.5-2.5S12 17 15 17s3-2.5 5.5-2.5S23 17 26 17" stroke="#0C2329" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+          <span>Tidal Coding Camp</span>
+        </a>
+        <p class="muted" style="max-width:38ch">Île de tidal, Brittany, France · Summer sessions only, July–August, daily program timed to the tide tables · est. 2019</p>
+        <p class="muted" style="font-size:.85rem">@tidalcodingcamp · @strandedhours</p>
+      </div>
+      <div><p class="kicker">Site</p><a href="/program">The Program</a><a href="/schedule">Tide Schedule</a><a href="/island">The Island</a><a href="/projects">Projects</a><a href="/faq">FAQ</a></div>
+      <div><p class="kicker">Apply</p><p class="muted" style="font-size:.9rem">Four sessions, twelve campers each, tide tables that don’t negotiate.</p><a class="btn amber" href="/apply" style="margin-top:.5rem">Reserve your seat</a></div>
+    </div>
+  </footer>
+
+  {path !== '/apply' && (
+    <div class="sticky"><a class="btn amber" href="/apply">Reserve your seat</a></div>
+  )}
+
+  <script>
+    // Reveal-on-scroll + waterline underlines (runs on every page)
+    const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const els = document.querySelectorAll('.rv, .wl');
+    if (RM || !('IntersectionObserver' in window)) {
+      els.forEach((el) => el.classList.add('in'));
+    } else {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.14 });
+      els.forEach((el) => io.observe(el));
+    }
+  </script>
+</body>
+</html>

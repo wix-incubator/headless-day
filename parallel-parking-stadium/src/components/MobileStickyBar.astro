@@ -1,0 +1,49 @@
+---
+import { tiers } from '../data/seed';
+import { getTournaments } from '../lib/content';
+const from = Math.min(...tiers.map((t) => t.price));
+const tournaments = await getTournaments();
+const next = tournaments[0];
+---
+
+<div class="sticky-bar">
+  <div>
+    <div class="arcade" style="font-size:13px;color:var(--gold)">From ${from}</div>
+    <div class="lbl" style="font-size:9px;color:var(--ink-dim);margin-top:3px">{next.title} · {next.date}</div>
+  </div>
+  <a href="/tickets" class="sticky-cta arcade">▶ Tickets</a>
+</div>
+
+<style>
+  .sticky-bar {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .sticky-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 70;
+      background: var(--bg-2);
+      border-top: 3px solid var(--yellow);
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  }
+  .sticky-cta {
+    flex: 1;
+    max-width: 200px;
+    background: var(--yellow);
+    color: var(--ink);
+    font-size: 12px;
+    padding: 13px;
+    border: 2px solid var(--ink);
+    box-shadow: var(--shadow-ink);
+    text-align: center;
+    text-decoration: none;
+  }
+</style>
