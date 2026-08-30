@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+import PixelCar from '../components/PixelCar.astro';
+import { getLegendaryParks } from '../lib/content';
+
+const parks = await getLegendaryParks();
+const featured = parks[0];
+const rest = parks.slice(1);
+---
+
+<Base
+  page="hall"
+  title="Hall of Fame"
+  description="Enshrined legendary parks — including Hernán Sosa's 11cm van — each judged, measured to the centimeter, and entered into the record."
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,72px) 20px">
+    <div style="max-width:var(--maxw);margin:0 auto">
+      <div class="lbl" style="font-size:12px;color:var(--gold);margin-bottom:12px">Enshrined</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,64px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">Hall of Fame</h1>
+      <p style="margin:0;max-width:580px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        The parks that measured smaller than belief. Each one judged, measured, and entered into the record.
+      </p>
+    </div>
+  </div>
+
+  <div style="max-width:var(--maxw);margin:0 auto;padding:clamp(28px,4vw,48px) 20px">
+    <!-- featured #001 -->
+    <div class="panel panel-y" style="overflow:hidden;margin-bottom:24px;padding:0">
+      <div class="hall-feature">
+        <div style="padding:clamp(24px,4vw,40px);border-right:2px solid var(--grid)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+            <span class="badge arcade" style="font-size:11px;background:var(--yellow);color:var(--ink)">PARK #{featured.no}</span>
+            <span class="lbl" style="font-size:10px;color:var(--ink-dim)">{featured.year} · still tops the board</span>
+          </div>
+          <div class="lbl" style="font-size:11px;color:var(--ink-dim);margin-bottom:8px">Cleared by</div>
+          <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:18px">
+            <div class="dk" style="font-size:clamp(72px,12vw,120px);color:var(--gold);line-height:.78;text-shadow:4px 4px 0 rgba(25,27,38,.16)">{featured.clearance}</div>
+            <div class="arcade" style="font-size:13px;padding-bottom:14px;line-height:1.6">CENTI-<br />METERS</div>
+          </div>
+          <div class="dk" style="font-size:clamp(22px,3vw,30px);margin-bottom:6px">{featured.driver}</div>
+          <div style="font-size:17px;color:var(--ink-dim);margin-bottom:20px">{featured.car} · Space {featured.space}</div>
+          <p style="margin:0;font-size:18px;line-height:1.45;color:var(--ink-dim);max-width:520px">{featured.story}</p>
+          <a href="/#replay" class="btn btn-sm" style="margin-top:22px">▶ Watch the replay</a>
+        </div>
+        <div style="position:relative;background:#0d0818;min-height:280px">
+          <svg viewBox="0 0 520 460" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+            <defs>
+              <radialGradient id="hofspot" cx="50%" cy="34%" r="62%">
+                <stop offset="0" stop-color="#3a2668" stop-opacity=".9"></stop>
+                <stop offset="1" stop-color="#0d0818" stop-opacity="0"></stop>
+              </radialGradient>
+            </defs>
+            <rect width="520" height="460" fill="#0d0818"></rect>
+            <!-- spotlight on the enshrined car -->
+            <rect width="520" height="460" fill="url(#hofspot)"></rect>
+            <g stroke="#7a5ab4" stroke-opacity=".14">
+              <line x1="0" y1="115" x2="520" y2="115"></line>
+              <line x1="0" y1="230" x2="520" y2="230"></line>
+              <line x1="130" y1="0" x2="130" y2="460"></line>
+              <line x1="390" y1="0" x2="390" y2="460"></line>
+            </g>
+            <!-- podium floor -->
+            <rect x="0" y="322" width="520" height="138" fill="#1d1236"></rect>
+            <line x1="0" y1="322" x2="520" y2="322" stroke="#ffd60a" stroke-opacity=".3" stroke-width="2"></line>
+            <ellipse cx="260" cy="336" rx="150" ry="20" fill="#000" opacity=".35"></ellipse>
+            <!-- the enshrined car, ¾ trophy view -->
+            <PixelCar palette="van" view="iso" x={260} y={244} s={7} />
+            <!-- space plaque -->
+            <rect x="196" y="372" width="128" height="34" rx="2" fill="#0d0818" stroke="#ffd60a" stroke-width="2"></rect>
+            <text x="260" y="395" text-anchor="middle" class="arcade" fill="#ffd60a" font-size="13">SPACE {featured.space.toUpperCase()}</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- other parks -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      {
+        rest.map((h) => (
+          <div class="panel" style="padding:var(--sp-4);display:flex;flex-direction:column">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+              <span class="arcade" style="font-size:11px;color:var(--ink-dim)">PARK #{h.no}</span>
+              <span class="lbl" style="font-size:10px;color:var(--ink-dim)">{h.year}</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:14px">
+              <span class="dk" style="font-size:52px;color:var(--gold);line-height:.8">{h.clearance}</span>
+              <span class="arcade" style="font-size:12px;padding-bottom:6px">CM</span>
+            </div>
+            <div class="dk" style="font-size:20px;margin-bottom:4px">{h.driver}</div>
+            <div style="font-size:15px;color:var(--ink-dim);margin-bottom:14px">{h.car} · Space {h.space}</div>
+            <p style="margin:0;font-size:17px;line-height:1.4;color:var(--ink-dim);flex:1">{h.story}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+
+<style>
+  .hall-feature {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 860px) {
+    .hall-feature {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+  }
+</style>

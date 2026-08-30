@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import { getTournaments } from '../lib/content';
+import { statusColors } from '../lib/format';
+import { sportsEvent } from '../lib/seo';
+
+const tournaments = await getTournaments();
+const jsonLd = tournaments.map(sportsEvent);
+---
+
+<Base
+  page="tournaments"
+  title="Upcoming tournaments"
+  description="The full parallel-parking tournament schedule — nights of elimination brackets in Buenos Aires, judged to the centimeter. Most dates sell out; buy early."
+  jsonLd={jsonLd}
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,72px) 20px">
+    <div style="max-width:var(--maxw);margin:0 auto">
+      <div class="lbl" style="font-size:12px;color:var(--gold);margin-bottom:12px">Schedule · 2026 Season</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,64px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">Upcoming tournaments</h1>
+      <p style="margin:0;max-width:580px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        Nights of elimination brackets. Judges measure the clearance to the centimeter. Most dates sell out — buy early.
+      </p>
+    </div>
+  </div>
+
+  <div style="max-width:var(--maxw);margin:0 auto;padding:clamp(28px,4vw,48px) 20px;display:flex;flex-direction:column;gap:16px">
+    {tournaments.length === 0 && (
+      <div class="empty">
+        No tournaments on the board right now. New dates drop every few weeks — check back or
+        <a href="/tickets"> join the waitlist</a>.
+      </div>
+    )}
+    {
+      tournaments.map((t) => {
+        const c = statusColors(t.status);
+        const sold = t.status === 'Sold out';
+        const href = `/tickets?t=${t.id}`;
+        return (
+          <div
+            class="panel tour-card"
+            style={`border-left:5px solid ${c.accent};padding:var(--sp-4)`}
+          >
+            <div>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+                <span class="dk" style="font-size:clamp(22px,3vw,30px)">{t.title}</span>
+                <span class="badge" style={`background:${c.bg};color:${c.fg};border-color:${c.accent};font-size:10px`}>{t.status}</span>
+              </div>
+              <div class="lbl" style="display:flex;flex-wrap:wrap;gap:16px;color:var(--ink-dim);font-size:11px">
+                <span><b style="color:var(--gold)">{t.date}</b> · {t.time}</span>
+                <span>{t.format}</span>
+                <span>{t.bracket}</span>
+              </div>
+              <p style="margin:12px 0 0;font-size:var(--fs-body);line-height:1.4;color:var(--ink-dim);max-width:580px">{t.matchup}</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px">
+              <div style="text-align:right">
+                <span class="dk" style={`font-size:38px;color:${c.seat}`}>{sold ? '0' : t.seats}</span>
+                <div class="lbl" style="font-size:10px;color:var(--ink-dim)">{sold ? 'Sold out' : 'Seats left'}</div>
+              </div>
+              <a href={href} class:list={['btn', 'btn-sm', { 'btn-ghost': sold }]}>
+                {sold ? 'Join waitlist' : '▶ Get tickets'}
+              </a>
+            </div>
+          </div>
+        );
+      })
+    }
+  </div>
+</Base>
+
+<style>
+  .tour-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+  @media (min-width: 860px) {
+    .tour-card {
+      grid-template-columns: 1fr auto;
+    }
+  }
+</style>

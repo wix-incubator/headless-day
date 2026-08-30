@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import ParkingGame from '../components/ParkingGame.tsx';
+---
+
+<Base
+  page="play"
+  title="Play · The Slot"
+  description="Play The Slot — a parallel-parking mini-game. Reverse the pixel car into the gap. Smallest clean clearance wins; touches are penalties. Beat the 11cm legend."
+>
+  <section style="padding:clamp(28px,5vw,56px) 20px">
+    <div style="max-width:var(--maxw);margin:0 auto">
+      <div class="lbl" style="font-size:12px;color:var(--cyan);margin-bottom:10px">Insert coin · 1 player</div>
+      <h1 class="dk" style="margin:0 0 8px;font-size:clamp(34px,6vw,60px)">The Slot</h1>
+      <p style="margin:0 0 28px;max-width:560px;color:var(--ink-dim);font-size:19px;line-height:1.4">
+        Reverse into the gap. The smallest clean clearance wins the round — exactly like the real sport.
+        Touch a cone and it costs you. Park dead-centre and you clear by eleven.
+      </p>
+      <ParkingGame client:visible />
+    </div>
+  </section>
+</Base>
