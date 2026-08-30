@@ -68,25 +68,24 @@ export default function CartAndSend() {
     };
     try { sessionStorage.setItem('zer4moo-order', JSON.stringify(order)); } catch {}
 
-    // Record the order into the Wix CMS (Orders collection) via the backend route.
-    const payload = {
-      orderNumber: order.number,
-      senderName: form.senderName,
-      senderEmail: form.senderEmail,
-      recipient: recipients.join(', '),
-      bouquet: lines.map((l) => l.bouquetName).join(' | '),
-      stems: lines.flatMap((l) => (l.stems || []).map((s) => s.name)).join(', '),
-      addOns: [...new Set(lines.flatMap((l) => (l.addOns || []).map((a) => a.name)))].join(', '),
-      giftMessage: lines.map((l) => l.giftMessage).filter(Boolean).join(' / '),
-      deliveryPasture: form.deliveryPasture,
-      deliveryDate: form.deliveryDate,
-      total,
-      status: 'received',
-    };
+    // Redirect to Wix hosted checkout for real payment.
     try {
-      await fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    } catch {}
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines }),
+      });
+      const { checkoutUrl } = await res.json();
+      if (checkoutUrl) {
+        clearCart();
+        window.location.href = checkoutUrl;
+        return;
+      }
+    } catch (e) {
+      console.error('checkout error:', e);
+    }
 
+    // Fallback if checkout creation fails
     clearCart();
     window.location.href = '/delivered';
   };
@@ -145,7 +144,7 @@ export default function CartAndSend() {
 
         <form onSubmit={handleSend} noValidate style={{ marginTop: 22 }}>
           <h2 style={{ fontSize: '1.4rem' }}>Where is she grazing?</h2>
-          <p className="muted" style={{ marginTop: '-0.4rem' }}>No payment details — checkout is theatrical. We only need to know where to send the joy.</p>
+          <p className="muted" style={{ marginTop: '-0.4rem' }}>Tell us where to send the joy — you&apos;ll complete payment on Wix&apos;s secure checkout page.</p>
           <Field id="senderName" label="Your name" required err={errors.senderName}>
             <input id="senderName" className="input" value={form.senderName} onChange={(e) => set('senderName', e.target.value)} autoComplete="name" />
           </Field>
