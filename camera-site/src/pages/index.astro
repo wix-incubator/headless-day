@@ -1,0 +1,752 @@
+---
+import { getWixClient } from "../lib/wix-client";
+
+// Tag → zone mapping: product name (lowercase) determines the body zone
+function zoneForName(name = "") {
+  const n = name.toLowerCase();
+  if (n.includes("ear")) return "ears";
+  if (n.includes("neck")) return "neck";
+  if (n.includes("hat") || n.includes("head")) return "head";
+  if (n.includes("wrist") || n.includes("bracelet")) return "wrist";
+  return null;
+}
+
+function imageUrlFromMedia(media) {
+  const id = media?.main?._id;
+  return id ? `https://static.wixstatic.com/media/${id}` : null;
+}
+
+let products = [];
+try {
+  const wixClient = getWixClient(Astro.locals);
+  const { items } = await wixClient.productsV3.queryProducts().find();
+  products = items
+    .map((item) => {
+      const zone = zoneForName(item.name);
+      const imageUrl = imageUrlFromMedia(item.media);
+      if (!zone || !imageUrl) return null;
+      return {
+        id: item._id,
+        name: item.name,
+        zone,
+        price: item.actualPriceRange?.minValue?.amount ?? "0",
+        imageUrl,
+        slug: item.slug,
+      };
+    })
+    .filter(Boolean);
+} catch (err) {
+  console.error("Failed to load products from Wix Stores:", err);
+}
+
+const earsProducts = products.filter((p) => p.zone === "ears");
+const neckProducts = products.filter((p) => p.zone === "neck");
+const headProducts = products.filter((p) => p.zone === "head");
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jewelry Try-On</title>
+    <style>
+      @import url("https://fonts.cdnfonts.com/css/chicago-2");
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        min-height: 100dvh;
+        position: relative;
+        background:
+          radial-gradient(circle at 30% 20%, rgba(255,255,255,0.14), transparent 42%),
+          repeating-linear-gradient(135deg, #4b3f8f 0px, #4b3f8f 40px, #3a3070 40px, #3a3070 80px);
+        font-family: "Chicago", "Chicago 2", "Geneva", system-ui, sans-serif;
+        color: #333;
+      }
+
+      /* ── Desktop / dashboard ─────────────────────────────────────── */
+      #dashboard {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.4s ease-in-out;
+      }
+      body.loaded #dashboard { opacity: 1; }
+
+      .mac-window {
+        position: absolute;
+        z-index: 5;
+      }
+      #window-camera { top: 8%;  left: 30%; width: min(620px, 56vw); }
+      #window-ears   { top: 12%; left: 4%;  width: 190px; }
+      #window-neck   { top: 46%; left: 4%;  width: 190px; }
+      #window-head   { top: 12%; right: 4%; width: 190px; }
+
+      .mac-window.maximized {
+        top: 3vh !important;
+        left: 3vw !important;
+        width: 94vw !important;
+        z-index: 999;
+      }
+      .mac-window.maximized .wrapper { width: 100% !important; }
+
+      /* ── Window chrome ────────────────────────────────────────────── */
+      .wrapper {
+        border-radius: 8px;
+        box-shadow: 0 2px 7px 1px rgba(0,0,0,0.75), 0 20px 40px -20px rgba(0,0,0,0.6);
+        background: #fff;
+        overflow: hidden;
+        width: clamp(100%, max-content, 620px);
+        color: #333;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1), opacity 0.3s ease-in-out;
+        transform-origin: bottom;
+      }
+      .wrapper.closed { transform: scale(0); opacity: 0; pointer-events: none; }
+
+      .title-bar {
+        position: relative;
+        font-size: 0.85rem;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        padding: 0.55rem 3.6rem;
+        border-bottom: 2px solid #aaa;
+        background: repeating-linear-gradient(
+          to bottom, #f5f5f5 3px, #ebebeb 3px, #ebebeb 6px, #f5f5f5 6px, #f5f5f5 9px
+        );
+        cursor: grab;
+        user-select: none;
+      }
+      .title-bar:active { cursor: grabbing; }
+      .title-text { font-weight: 700; letter-spacing: 0.02em; color: #000; }
+
+      .title-bar button {
+        cursor: pointer;
+        border: none;
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 100%;
+        top: calc(50% - 0.5rem);
+        box-shadow: inset 0 0 4px 0.25px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.9);
+        transition: filter 0.15s ease-in-out;
+      }
+      .title-bar button:hover { filter: brightness(1.18); }
+      .title-bar .close    { left: 0.6rem;  background: #ff5f57; }
+      .title-bar .minimize { left: 2.05rem; background: #fdc24b; }
+      .title-bar .expand   { left: 3.5rem;  background: #30a814; }
+
+      .win-body { padding: 12px; }
+
+      /* ── Camera scene ─────────────────────────────────────────────── */
+      .scene {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        background: #000;
+        border-radius: 4px;
+      }
+      video, canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        transform: scaleX(-1);
+      }
+      canvas { pointer-events: none; }
+
+      #overlay-msg {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #ddd;
+        z-index: 10;
+      }
+      #overlay-msg svg { width: 48px; height: 48px; opacity: 0.6; color: #333; }
+      #overlay-msg p   { font-size: 0.8rem; font-weight: 700; color: #222; }
+
+      #enable-btn {
+        padding: 6px 20px;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #000;
+        cursor: pointer;
+        background: #f0f0f0;
+        border: 1px solid #888;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.4);
+      }
+      #enable-btn:active:not(:disabled) {
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+      }
+      #enable-btn:disabled { color: #999; cursor: default; }
+
+      #status-bar {
+        margin-top: 8px;
+        padding: 4px 8px;
+        font-size: 0.72rem;
+        min-height: 14px;
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+      #status-bar.loading { color: #000080; }
+      #status-bar.ready   { color: #1c7a1c; }
+      #status-bar.error   { color: #aa0000; }
+
+      #checkout-btn {
+        margin-top: 8px;
+        width: 100%;
+        padding: 8px;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #000;
+        cursor: pointer;
+        background: #f0f0f0;
+        border: 1px solid #888;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.4);
+      }
+      #checkout-btn:active:not(:disabled) {
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+      }
+      #checkout-btn:disabled { color: #999; cursor: default; }
+
+      /* ── Product tray icons (Finder-style) ──────────────────────── */
+      .tray-body {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+      .product-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 6px;
+        cursor: pointer;
+        user-select: none;
+        border-radius: 4px;
+      }
+      .product-card img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+      }
+      .product-card .pname {
+        font-size: 0.72rem;
+        padding: 1px 5px;
+        border-radius: 2px;
+        color: #000;
+      }
+      .product-card .pprice {
+        font-size: 0.62rem;
+        color: #666;
+      }
+      .product-card[data-active="true"] .pname {
+        background: #000080;
+        color: #fff;
+      }
+
+      /* ── Dock ──────────────────────────────────────────────────── */
+      #dock {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 9999;
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        padding: 8px 10px 4px;
+        border-radius: 14px 14px 5px 5px;
+        background: rgba(255,255,255,0.28);
+        backdrop-filter: blur(6px);
+      }
+      #dock > div {
+        position: relative;
+        width: 0px;
+        height: 42px;
+        overflow: hidden;
+        transition: width 0.2s ease-in-out, margin 0.2s ease-in-out;
+      }
+      #dock > div.active {
+        width: 42px;
+        margin: 0 4px;
+        cursor: pointer;
+      }
+      #dock > div::before {
+        content: attr(data-label);
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        white-space: nowrap;
+        padding: 5px 9px;
+        border-radius: 6px;
+        color: #fff;
+        background: rgba(0,0,0,0.6);
+        font-size: 0.68rem;
+        transform: translate(-50%, 0) scale(0);
+        transform-origin: 50% 100%;
+        transition: 0.2s ease-in-out;
+      }
+      #dock > div.active:hover::before {
+        transform: translate(-50%, 0) scale(1);
+      }
+      #dock > div .wrapper {
+        transform-origin: bottom center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dashboard">
+      <div class="mac-window" id="window-camera" data-label="Camera">
+        <div class="wrapper">
+          <div class="title-bar">
+            <button class="close" aria-label="Close"></button>
+            <button class="minimize" aria-label="Minimize"></button>
+            <button class="expand" aria-label="Expand"></button>
+            <span class="title-text">📷 Camera</span>
+          </div>
+          <div class="win-body">
+            <div class="scene">
+              <video id="video" autoplay playsinline muted></video>
+              <canvas id="canvas"></canvas>
+              <div id="overlay-msg">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path stroke-linecap="round" d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+                <p>Enable your camera to start</p>
+                <button id="enable-btn">Enable Camera</button>
+              </div>
+            </div>
+            <p id="status-bar">Position yourself in frame to see it on you</p>
+            <button id="checkout-btn" disabled>🛍️ Select items to checkout</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mac-window" id="window-ears" data-label="Ears">
+        <div class="wrapper">
+          <div class="title-bar">
+            <button class="close" aria-label="Close"></button>
+            <button class="minimize" aria-label="Minimize"></button>
+            <button class="expand" aria-label="Expand"></button>
+            <span class="title-text">👂 Ears</span>
+          </div>
+          <div class="win-body tray-body">
+            {earsProducts.map(p => (
+              <div
+                class="product-card"
+                data-id={p.id}
+                data-zone={p.zone}
+                data-active="true"
+                data-image={p.imageUrl}
+                data-name={p.name}
+              >
+                <img src={p.imageUrl} alt={p.name} loading="lazy" />
+                <span class="pname">{p.name}</span>
+                {p.price !== "0" && <span class="pprice">${p.price}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="mac-window" id="window-neck" data-label="Neck">
+        <div class="wrapper">
+          <div class="title-bar">
+            <button class="close" aria-label="Close"></button>
+            <button class="minimize" aria-label="Minimize"></button>
+            <button class="expand" aria-label="Expand"></button>
+            <span class="title-text">💎 Neck</span>
+          </div>
+          <div class="win-body tray-body">
+            {neckProducts.map(p => (
+              <div
+                class="product-card"
+                data-id={p.id}
+                data-zone={p.zone}
+                data-active="true"
+                data-image={p.imageUrl}
+                data-name={p.name}
+              >
+                <img src={p.imageUrl} alt={p.name} loading="lazy" />
+                <span class="pname">{p.name}</span>
+                {p.price !== "0" && <span class="pprice">${p.price}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div class="mac-window" id="window-head" data-label="Head">
+        <div class="wrapper">
+          <div class="title-bar">
+            <button class="close" aria-label="Close"></button>
+            <button class="minimize" aria-label="Minimize"></button>
+            <button class="expand" aria-label="Expand"></button>
+            <span class="title-text">🎩 Head</span>
+          </div>
+          <div class="win-body tray-body">
+            {headProducts.map(p => (
+              <div
+                class="product-card"
+                data-id={p.id}
+                data-zone={p.zone}
+                data-active="true"
+                data-image={p.imageUrl}
+                data-name={p.name}
+              >
+                <img src={p.imageUrl} alt={p.name} loading="lazy" />
+                <span class="pname">{p.name}</span>
+                {p.price !== "0" && <span class="pprice">${p.price}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dock">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <script type="module">
+      import {
+        FaceLandmarker,
+        PoseLandmarker,
+        FilesetResolver,
+      } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/+esm';
+      import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm';
+      import { Draggable } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Draggable.js/+esm';
+      import { Flip } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.js/+esm';
+
+      const video      = document.getElementById('video');
+      const canvas     = document.getElementById('canvas');
+      const ctx        = canvas.getContext('2d');
+      const overlayMsg = document.getElementById('overlay-msg');
+      const enableBtn  = document.getElementById('enable-btn');
+      const statusBar  = document.getElementById('status-bar');
+      const checkoutBtn = document.getElementById('checkout-btn');
+
+      // ── Landmark indices ─────────────────────────────────────────
+      const EAR_R    = 234;
+      const EAR_L    = 454;
+      const FOREHEAD = 10;
+      const SHOULDER_L = 11;
+      const SHOULDER_R = 12;
+      const WRIST_L  = 15;
+      const WRIST_R  = 16;
+
+      // ── Product images (keyed by zone) ────────────────────────────
+      // Each zone holds the currently selected product image (or null)
+      const zoneImages = { ears: null, neck: null, wrist: null, head: null };
+
+      function loadProductImages() {
+        document.querySelectorAll('.product-card').forEach(card => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = card.dataset.image;
+          img.onload = () => {
+            if (card.dataset.active === 'true') {
+              zoneImages[card.dataset.zone] = img;
+            }
+          };
+
+          card.addEventListener('click', () => {
+            const isActive = card.dataset.active === 'true';
+            card.dataset.active = String(!isActive);
+            zoneImages[card.dataset.zone] = !isActive ? img : null;
+            updateCheckoutButton();
+          });
+        });
+      }
+      loadProductImages();
+
+      // ── Checkout ────────────────────────────────────────────────
+      function getActiveProductIds() {
+        return Array.from(document.querySelectorAll('.product-card[data-active="true"]'))
+          .map(card => card.dataset.id);
+      }
+
+      function updateCheckoutButton() {
+        const count = getActiveProductIds().length;
+        checkoutBtn.disabled = count === 0;
+        checkoutBtn.textContent = count > 0
+          ? `🛍️ Checkout (${count} item${count > 1 ? 's' : ''})`
+          : '🛍️ Select items to checkout';
+      }
+      updateCheckoutButton();
+
+      checkoutBtn.addEventListener('click', async () => {
+        const productIds = getActiveProductIds();
+        if (!productIds.length) return;
+
+        checkoutBtn.disabled = true;
+        checkoutBtn.textContent = 'Preparing checkout…';
+        try {
+          const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productIds }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Checkout failed');
+          window.location.href = data.checkoutUrl;
+        } catch (err) {
+          checkoutBtn.textContent = 'Checkout failed — try again';
+          checkoutBtn.disabled = false;
+        }
+      });
+
+      // ── Draw product image centered at (cx, cy) with given size ──
+      function drawProduct(img, cx, cy, size) {
+        if (!img || !img.complete) return;
+        const aspect = img.naturalWidth / img.naturalHeight;
+        const w = size * aspect;
+        const h = size;
+        ctx.globalAlpha = 0.92;
+        ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+        ctx.globalAlpha = 1;
+      }
+
+      let faceLandmarker, poseLandmarker;
+
+      function setStatus(msg, type = '') {
+        statusBar.textContent = msg;
+        statusBar.className = type;
+      }
+
+      async function loadModels() {
+        setStatus('Loading AI models…', 'loading');
+        const vision = await FilesetResolver.forVisionTasks(
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm'
+        );
+        [faceLandmarker, poseLandmarker] = await Promise.all([
+          FaceLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+              delegate: 'GPU',
+            },
+            runningMode: 'VIDEO',
+            numFaces: 1,
+          }),
+          PoseLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+              delegate: 'GPU',
+            },
+            runningMode: 'VIDEO',
+            numPoses: 1,
+          }),
+        ]);
+        setStatus('Ready — detecting…', 'ready');
+      }
+
+      function detect(ts) {
+        if (video.readyState < 2) { requestAnimationFrame(detect); return; }
+
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const W = canvas.width;
+        const H = canvas.height;
+
+        // ── Face: ears ────────────────────────────────────────────
+        if (faceLandmarker) {
+          const fr = faceLandmarker.detectForVideo(video, ts);
+          if (fr.faceLandmarks?.length > 0) {
+            const lm = fr.faceLandmarks[0];
+            const rEar = lm[EAR_R];
+            const lEar = lm[EAR_L];
+            const forehead = lm[FOREHEAD];
+
+            if (rEar && lEar) {
+              const faceW = Math.abs(rEar.x - lEar.x) * W;
+
+              if (zoneImages.ears) {
+                // Scale earring to ~1/5 of face width
+                const earSize = faceW * 0.45;
+                // Hang slightly below the ear tragion
+                const dropY = earSize * 0.55;
+
+                drawProduct(zoneImages.ears, rEar.x * W, rEar.y * H + dropY, earSize);
+                drawProduct(zoneImages.ears, lEar.x * W, lEar.y * H + dropY, earSize);
+              }
+
+              if (forehead && zoneImages.head) {
+                // Hats sit close to the face width, sitting low enough to cover the forehead
+                const hatSize = faceW * 1.15;
+                const liftY = hatSize * 0.12;
+                drawProduct(zoneImages.head, forehead.x * W, forehead.y * H - liftY, hatSize);
+              }
+            }
+          }
+        }
+
+        // ── Pose: neck + wrists ───────────────────────────────────
+        if (poseLandmarker) {
+          const pr = poseLandmarker.detectForVideo(video, ts);
+          if (pr.landmarks?.length > 0) {
+            const lm = pr.landmarks[0];
+            const sL = lm[SHOULDER_L];
+            const sR = lm[SHOULDER_R];
+            const wL = lm[WRIST_L];
+            const wR = lm[WRIST_R];
+
+            // Neck
+            if (sL && sR && sL.visibility > 0.4 && sR.visibility > 0.4 && zoneImages.neck) {
+              const shoulderW = Math.abs(sL.x - sR.x) * W;
+              const nx = ((sL.x + sR.x) / 2) * W;
+              const ny = ((sL.y + sR.y) / 2) * H - H * 0.07;
+              drawProduct(zoneImages.neck, nx, ny, shoulderW * 0.55);
+            }
+
+            // Bracelets
+            if (zoneImages.wrist) {
+              const wristSize = W * 0.07;
+              if (wL && wL.visibility > 0.4) {
+                drawProduct(zoneImages.wrist, wL.x * W, wL.y * H, wristSize);
+              }
+              if (wR && wR.visibility > 0.4) {
+                drawProduct(zoneImages.wrist, wR.x * W, wR.y * H, wristSize);
+              }
+            }
+          }
+        }
+
+        requestAnimationFrame(detect);
+      }
+
+      async function start() {
+        enableBtn.disabled = true;
+        setStatus('Requesting camera…', 'loading');
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+            audio: false,
+          });
+          video.srcObject = stream;
+          await video.play();
+          overlayMsg.style.display = 'none';
+          await loadModels();
+          requestAnimationFrame(detect);
+        } catch (err) {
+          setStatus(
+            err.name === 'NotAllowedError'
+              ? 'Camera permission denied — allow it in browser settings'
+              : `Error: ${err.message}`,
+            'error'
+          );
+          enableBtn.disabled = false;
+        }
+      }
+
+      enableBtn.addEventListener('click', start);
+      navigator.permissions?.query({ name: 'camera' }).then(r => {
+        if (r.state === 'granted') start();
+      });
+
+      // ── Mac OS-style window manager (drag / minimize / close / expand) ──
+      gsap.registerPlugin(Draggable, Flip);
+
+      const windows = Array.from(document.querySelectorAll('.mac-window'));
+      const dockSlots = Array.from(document.querySelectorAll('#dock > div'));
+      let topZ = 10;
+      let dockCount = 0;
+      let closedCount = 0;
+
+      windows.forEach((win, i) => {
+        const wrapper  = win.querySelector('.wrapper');
+        const titleBar = win.querySelector('.title-bar');
+        const closeBtn = win.querySelector('.close');
+        const minBtn   = win.querySelector('.minimize');
+        const expBtn   = win.querySelector('.expand');
+        const dockSlot = dockSlots[i];
+        dockSlot.dataset.label = win.dataset.label;
+
+        const homeParent = win; // where the wrapper lives when not docked
+
+        const [draggable] = Draggable.create(win, {
+          trigger: titleBar,
+          type: 'x,y',
+          bounds: '#dashboard',
+          inertia: true,
+          onPress() { win.style.zIndex = ++topZ; },
+        });
+
+        let maximized = false;
+        let restoreX = 0, restoreY = 0;
+
+        expBtn.addEventListener('click', () => {
+          win.style.zIndex = ++topZ;
+          if (!maximized) {
+            restoreX = draggable.x;
+            restoreY = draggable.y;
+            draggable.disable();
+            win.classList.add('maximized');
+            gsap.set(win, { x: 0, y: 0 });
+          } else {
+            win.classList.remove('maximized');
+            draggable.enable();
+            gsap.set(win, { x: restoreX, y: restoreY });
+          }
+          maximized = !maximized;
+        });
+
+        closeBtn.addEventListener('click', () => {
+          wrapper.classList.add('closed');
+          closedCount++;
+          if (closedCount >= windows.length) {
+            setTimeout(() => {
+              document.querySelectorAll('.wrapper').forEach(w => w.classList.remove('closed'));
+              closedCount = 0;
+            }, 2000);
+          }
+        });
+
+        minBtn.addEventListener('click', () => {
+          if (dockSlot.classList.contains('active')) return;
+          const state = Flip.getState(wrapper);
+          dockSlot.classList.add('active');
+          dockSlot.appendChild(wrapper);
+          dockCount++;
+          document.body.style.setProperty('--count', dockCount);
+          Flip.from(state, { duration: 0.3, ease: 'circ.inOut', absolute: true });
+        });
+
+        dockSlot.addEventListener('click', () => {
+          if (!dockSlot.classList.contains('active')) return;
+          const state = Flip.getState(wrapper);
+          homeParent.appendChild(wrapper);
+          dockSlot.classList.remove('active');
+          dockCount--;
+          document.body.style.setProperty('--count', dockCount);
+          win.style.zIndex = ++topZ;
+          Flip.from(state, { duration: 0.3, ease: 'circ.inOut', scale: true, absolute: true });
+        });
+      });
+
+      setTimeout(() => document.body.classList.add('loaded'), 100);
+    </script>
+  </body>
+</html>

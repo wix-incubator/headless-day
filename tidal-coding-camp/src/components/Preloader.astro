@@ -1,0 +1,183 @@
+---
+// Interactive intro — teaches the tide+coding concept through an action:
+// LOW TIDE: tide-code floats above the water; your pointer/finger cuts a wake through it.
+// You "cross the causeway" (click / tap / Enter) → the TIDE RISES, floods the code,
+// it washes up like foam, bubbles rise → reveals the tagline → enters the site.
+// Once per session (?intro=1 forces replay), reduced-motion-safe, Skip + auto-proceed.
+---
+<div id="preloader" role="presentation" aria-hidden="true">
+  <canvas id="pl-canvas"></canvas>
+  <div id="pl-scale"><span class="hi">HIGH TIDE</span><span class="lo">LOW TIDE</span></div>
+
+  <div id="pl-caption"><b id="pl-cap">Low tide — you cross.</b></div>
+
+  <button id="pl-go" type="button">Cross the causeway&nbsp;→</button>
+
+  <div id="pl-brand">
+    <svg width="44" height="44" viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="14" fill="#FFC24B"/><path d="M4 17c3 0 3-2.5 5.5-2.5S12 17 15 17s3-2.5 5.5-2.5S23 17 26 17" stroke="#0E3A44" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+    <strong>Tidal Coding Camp</strong>
+    <em>Learn to code between low tide and high tide</em>
+  </div>
+
+  <button id="pl-skip" type="button">Skip intro →</button>
+</div>
+
+<style>
+  #preloader{position:fixed;inset:0;z-index:9999;background:#0E3A44;overflow:hidden;transition:opacity .6s ease;font-family:'Fredoka','Spline Sans',sans-serif}
+  #preloader.done{opacity:0;pointer-events:none}
+  #pl-canvas{position:absolute;inset:0;width:100%;height:100%}
+  #pl-scale{position:absolute;right:1.1rem;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-between;padding:2.2rem 0;font:600 .6rem/1 'Spline Sans',sans-serif;letter-spacing:.18em;color:rgba(253,246,231,.5);z-index:3}
+  #pl-scale .hi{color:#FFC24B}
+  #pl-caption{position:absolute;left:0;right:0;top:1.8rem;text-align:center;z-index:3}
+  #pl-caption b{font:500 clamp(1rem,3vw,1.35rem)/1.3 'Fredoka',sans-serif;color:rgba(253,246,231,.92)}
+  #pl-go{position:absolute;left:50%;bottom:2.4rem;transform:translateX(-50%);z-index:4;background:#FFC24B;color:#0E3A44;border:none;font:600 1rem 'Fredoka',sans-serif;padding:.85rem 1.7rem;border-radius:999px;cursor:pointer;box-shadow:0 6px 0 #c8912b;animation:plpulse 1.6s ease-in-out infinite;transition:opacity .4s ease}
+  #pl-go:hover{filter:brightness(1.04)}
+  #pl-go:active{transform:translateX(-50%) translateY(3px);box-shadow:none}
+  #pl-go.gone{opacity:0;pointer-events:none}
+  @keyframes plpulse{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+  #pl-brand{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;text-align:center;z-index:2;opacity:0;transform:translateY(10px);transition:opacity .7s ease,transform .7s ease;padding:1rem;pointer-events:none}
+  #pl-brand.show{opacity:1;transform:none}
+  #pl-brand strong{font:600 clamp(1.7rem,5vw,2.6rem)/1 'Fredoka',sans-serif;color:#FDF6E7}
+  #pl-brand em{font:400 clamp(.85rem,2.4vw,1.05rem)/1.4 'Spline Sans',sans-serif;font-style:normal;color:#FFC24B;max-width:24ch}
+  #pl-skip{position:absolute;top:1.1rem;left:1.1rem;z-index:4;background:rgba(253,246,231,.12);border:1px solid rgba(253,246,231,.3);color:#FDF6E7;font:600 .8rem 'Spline Sans',sans-serif;padding:.5rem .9rem;border-radius:999px;cursor:pointer}
+  #pl-skip:hover{background:rgba(253,246,231,.22)}
+  @media(prefers-reduced-motion:reduce){#preloader{display:none}}
+</style>
+
+<script>
+  // @ts-nocheck
+  (function () {
+    const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pl = document.getElementById('preloader');
+    if (!pl) return;
+    const force = new URLSearchParams(location.search).has('intro');
+    if (RM || (!force && sessionStorage.getItem('tcc-intro'))) { pl.remove(); return; }
+    sessionStorage.setItem('tcc-intro', '1');
+    document.documentElement.style.overflow = 'hidden';
+
+    const P = { primary: '#FDF6E7', accent: '#FFC24B', secondary: '#8FC9D4' };
+    const CODE = [
+      'def causeway(tide):',
+      "    if tide == 'HIGH':",
+      "        return 'code'",
+      "    return 'cross'",
+    ];
+    const KW = ['def', 'if', 'return'];
+    const canvas = document.getElementById('pl-canvas');
+    const ctx = canvas.getContext('2d');
+    const brand = document.getElementById('pl-brand');
+    const cap = document.getElementById('pl-cap');
+    const goBtn = document.getElementById('pl-go');
+    let groups = {}, waterY = 1, rising = false, done = false, dpr = 1, W = 0, H = 0, wave = 0;
+    let bubbles = [];
+    const mouse = { x: -1e4, y: -1e4 };
+    const WAKE = 80;
+
+    function size() {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = pl.clientWidth; H = pl.clientHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function build() {
+      groups = {};
+      ctx.clearRect(0, 0, W, H);
+      const mob = W < 600;
+      ctx.font = `bold ${mob ? 16 : 26}px monospace`; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+      const lh = mob ? 26 : 40, startY = H / 2 - (CODE.length * lh) / 2, startX = Math.max(24, W / 2 - (mob ? 130 : 200));
+      CODE.forEach((line, i) => {
+        let x = startX; const y = startY + i * lh;
+        line.split(/(\s+|\b)/).forEach((w) => {
+          ctx.fillStyle = KW.includes(w) ? P.accent : /[:()='.,]/.test(w) ? P.secondary : P.primary;
+          ctx.fillText(w, x, y); x += ctx.measureText(w).width;
+        });
+      });
+      const img = ctx.getImageData(0, 0, W * dpr, H * dpr).data;
+      ctx.clearRect(0, 0, W, H);
+      const step = (W < 600 ? 2 : 3) * dpr;
+      for (let y = 0; y < H * dpr; y += step) for (let x = 0; x < W * dpr; x += step) {
+        const idx = (y * (W * dpr) + x) * 4;
+        if (img[idx + 3] > 128) {
+          const c = `rgb(${img[idx]},${img[idx + 1]},${img[idx + 2]})`;
+          (groups[c] ||= []).push({ x: x / dpr, y: y / dpr, ox: x / dpr, oy: y / dpr, vx: 0, vy: 0 });
+        }
+      }
+    }
+    function drawWater() {
+      const surf = H * waterY; wave += 0.05;
+      const grad = ctx.createLinearGradient(0, surf, 0, H);
+      grad.addColorStop(0, 'rgba(17,110,124,.5)'); grad.addColorStop(1, 'rgba(17,110,124,.92)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.moveTo(0, surf);
+      for (let x = 0; x <= W; x += 12) ctx.lineTo(x, surf + Math.sin(x * 0.03 + wave) * 5);
+      ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+      // bubbles
+      ctx.fillStyle = 'rgba(253,246,231,.4)';
+      for (const b of bubbles) {
+        b.y -= b.s; b.x += Math.sin(b.y * 0.05) * 0.4;
+        if (b.y < surf) { b.y = H + Math.random() * 40; b.x = Math.random() * W; }
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 6.28); ctx.fill();
+      }
+      // amber waterline + rising label
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 12) { const y = surf + Math.sin(x * 0.03 + wave) * 5; x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+      ctx.strokeStyle = P.accent; ctx.lineWidth = 2.5; ctx.stroke();
+      if (rising && waterY > 0.12) { ctx.fillStyle = P.accent; ctx.font = "600 11px 'Spline Sans',sans-serif"; ctx.textAlign = 'left'; ctx.fillText('THE TIDE IS RISING ↑', 24, surf - 14); }
+    }
+    function frame() {
+      if (done) return;
+      ctx.fillStyle = '#0E3A44'; ctx.fillRect(0, 0, W, H);
+      const surf = H * waterY;
+      for (const c in groups) {
+        ctx.fillStyle = c; ctx.beginPath();
+        for (const p of groups[c]) {
+          if (rising) { p.vx += 0.5 + Math.random() * 0.5; p.vy -= 0.25 + Math.random() * 0.5; }
+          else {
+            // pointer wake (interactive) at low tide
+            const dx = mouse.x - p.x, dy = mouse.y - p.y, d2 = dx * dx + dy * dy;
+            if (d2 < WAKE * WAKE) { const d = Math.sqrt(d2) || 1, f = (WAKE - d) / WAKE; p.vx -= (dx / d) * f * 4; p.vy -= (dy / d) * f * 4; }
+            if (p.oy > surf) { p.vy -= 1.8; p.vx += (Math.random() - 0.5) * 2.2; }  // submerged → floats up as foam
+            p.vx += (p.ox - p.x) * 0.08; p.vy += (p.oy - p.y) * 0.08;
+          }
+          p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
+          if (p.x > 0 && p.x < W && p.y > 0 && p.y < H) ctx.rect(p.x, p.y, 1.8, 1.8);
+        }
+        ctx.fill();
+      }
+      drawWater();
+      requestAnimationFrame(frame);
+    }
+    function finish() {
+      if (done) return; done = true;
+      document.documentElement.style.overflow = '';
+      pl.classList.add('done'); setTimeout(() => pl.remove(), 650);
+    }
+    function startTide() {
+      if (rising || done) return;
+      rising = true;
+      goBtn.classList.add('gone');
+      cap.textContent = 'High tide — you code.';
+      bubbles = Array.from({ length: 26 }, () => ({ x: Math.random() * W, y: H + Math.random() * 200, r: 1 + Math.random() * 2.5, s: 0.6 + Math.random() * 1.4 }));
+      // water floods up over the code
+      const t0 = performance.now();
+      const flood = () => { const el = performance.now() - t0; waterY = Math.max(0.05, 1 - Math.min(0.95, el / 1600)); if (el < 1600) requestAnimationFrame(flood); };
+      requestAnimationFrame(flood);
+      setTimeout(() => brand.classList.add('show'), 1400);
+      setTimeout(finish, 3000);
+    }
+
+    size(); build();
+    addEventListener('resize', () => { if (!rising && !done) { size(); build(); } }, { passive: true });
+    canvas.addEventListener('pointermove', (e) => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
+    canvas.addEventListener('pointerleave', () => { mouse.x = -1e4; mouse.y = -1e4; });
+    requestAnimationFrame(frame);
+
+    // actions to continue (desktop + mobile)
+    goBtn.addEventListener('click', startTide);
+    canvas.addEventListener('click', startTide);
+    addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') startTide(); });
+    document.getElementById('pl-skip').addEventListener('click', finish);
+    // if the visitor doesn't act, the tide comes in on its own
+    setTimeout(startTide, 5000);
+    setTimeout(finish, 9000); // safety cap
+  })();
+</script>
