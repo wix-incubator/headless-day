@@ -1,0 +1,46 @@
+---
+import Img from './Img.astro';
+import type { BoardDish } from '../data/content';
+
+interface Props {
+  dish: BoardDish;
+  withImage?: boolean;
+  /** Hide the tasting description — for clean, image-led grids (home). */
+  compact?: boolean;
+}
+const { dish, withImage = false, compact = false } = Astro.props;
+const tagClass =
+  dish.catchTag === "Today's Catch"
+    ? 'tag-catch'
+    : dish.catchTag === 'Signature'
+      ? 'tag-signature'
+      : '';
+---
+
+<article class="dish">
+  {
+    withImage && (
+      <div class="dish-media graded">
+        <Img
+          name={dish.image}
+          width={640}
+          ratio={0.72}
+          sizes="(min-width: 768px) 33vw, 100vw"
+          class="fade-up h-full w-full object-cover"
+        />
+      </div>
+    )
+  }
+  <div class="dish-body">
+    <div class="flex items-baseline justify-between gap-4">
+      <h3 class="dish-name text-2xl sm:text-[1.7rem]">{dish.name}</h3>
+      <span class="dish-price">{dish.price}</span>
+    </div>
+    {
+      dish.catchTag && (
+        <span class:list={['dish-tag', tagClass]}>{dish.catchTag}</span>
+      )
+    }
+    {!compact && <p class="dish-desc">{dish.tastingDescription}</p>}
+  </div>
+</article>

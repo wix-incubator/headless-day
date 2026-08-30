@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import JsonLd from '../components/JsonLd.astro';
+import MapFacade from '../components/islands/MapFacade.tsx';
+import { SITE } from '../lib/site';
+import { restaurantSchema } from '../lib/schema';
+---
+
+<BaseLayout
+  title="Find Us"
+  path="/contact"
+  description="Hours, the harbor location, and the line to call. Salt Meridian — Basque asador above the harbor in San Sebastián, Wed–Sun."
+>
+  <JsonLd slot="head" schema={restaurantSchema()} />
+
+  <header class="page-head">
+    <div class="mx-auto max-w-6xl px-5">
+      <p class="page-kicker">Find Us</p>
+      <h1 class="page-title">Above the harbor, west end.</h1>
+    </div>
+  </header>
+
+  <section class="section pt-4">
+    <div class="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[0.9fr_1.1fr]">
+      <div>
+        <div class="contact-block">
+          <h2 class="contact-head">Hours</h2>
+          <ul class="contact-hours">
+            {
+              SITE.hours.map((h) => (
+                <li>
+                  <span class="contact-hours-day">{h.service}</span>
+                  <span class="contact-hours-time">{h.days} · {h.time}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="mt-3 text-sm text-[var(--color-text-muted)]">
+            Closed Monday and Tuesday. Lunch sittings run long — we don't turn the table.
+          </p>
+        </div>
+
+        <div class="contact-block">
+          <h2 class="contact-head">Reach us</h2>
+          <a href={`tel:${SITE.phoneHref}`} class="contact-phone">{SITE.phone}</a>
+          <p class="mt-1 text-sm text-[var(--color-text-muted)]">
+            Tap to call — fastest way to confirm a table tonight.
+          </p>
+          <p class="mt-4">
+            <a href={`mailto:${SITE.email}`} class="contact-link">{SITE.email}</a>
+          </p>
+          <p class="mt-1">
+            <a href={SITE.social.instagram} class="contact-link" rel="noreferrer" target="_blank">
+              {SITE.social.instagramHandle}
+            </a>
+          </p>
+        </div>
+
+        <div class="contact-block">
+          <h2 class="contact-head">The walk down</h2>
+          <address class="not-italic text-[var(--color-text-muted)]">
+            {SITE.street}<br />
+            {SITE.postalCode} {SITE.locality}, {SITE.region}
+          </address>
+          <p class="mt-3 text-sm text-[var(--color-text-muted)]">
+            Public lot two minutes up the hill, metered parking along the front. The walk to the
+            window is short and worth it.
+          </p>
+        </div>
+
+        <a href="/reservations" class="btn-primary mt-2">Request a table</a>
+      </div>
+
+      <div>
+        <SectionHeading kicker="The map" as="h2" class="mb-6">Harbor neighborhood</SectionHeading>
+        <MapFacade
+          client:visible
+          lat={SITE.geo.lat}
+          lng={SITE.geo.lng}
+          label={`${SITE.name}, ${SITE.locality}`}
+        />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

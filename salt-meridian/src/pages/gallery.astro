@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Img from '../components/Img.astro';
+import { GALLERY } from '../data/content';
+
+// Asymmetric layout: a couple of images run tall/wide to break the grid.
+const spanFor = (i: number) =>
+  i === 0 ? 'gallery-wide' : i === 3 ? 'gallery-tall' : i === 6 ? 'gallery-tall' : '';
+const ratioFor = (i: number) => (i === 0 ? 0.6 : spanFor(i) === 'gallery-tall' ? 1.3 : 0.85);
+---
+
+<BaseLayout
+  title="The Grill & Room"
+  path="/gallery"
+  description="Smoke-lit close-ups of the grill bars, charred turbot, and the thirty-seat room above the water. Salt Meridian, San Sebastián."
+>
+  <header class="page-head">
+    <div class="mx-auto max-w-6xl px-5">
+      <p class="page-kicker">The Grill &amp; Room</p>
+      <h1 class="page-title">Smoke, bars, and the water through the glass.</h1>
+      <p class="measure mt-5 text-lg text-[var(--color-text-muted)]">
+        Nothing here is staged. The fire, the fish, the room — shot mid-service, the way the
+        light actually falls.
+      </p>
+    </div>
+  </header>
+
+  <section class="section pt-4">
+    <div class="mx-auto max-w-6xl px-5">
+      <div class="gallery-grid">
+        {
+          GALLERY.map((item, i) => (
+            <figure class:list={['gallery-item', spanFor(i)]}>
+              <Img
+                name={item.image}
+                width={spanFor(i) === 'gallery-wide' ? 1400 : 800}
+                ratio={ratioFor(i)}
+                sizes={
+                  spanFor(i) === 'gallery-wide'
+                    ? '(min-width: 768px) 66vw, 100vw'
+                    : '(min-width: 768px) 33vw, 100vw'
+                }
+                alt={item.caption}
+                class="gallery-img"
+              />
+              <figcaption class="gallery-caption">{item.caption}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand heading="See it lit up." body="Book a seat above the harbor before the catch is gone." />
+</BaseLayout>
