@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { productsV3 } from '@wix/stores';
+import { categories } from '@wix/categories';
+import { imgSrc, formatPrice } from '../../lib/media';
+
+const activeSlug = Astro.url.searchParams.get('category') ?? '';
+
+let cats: any[] = [];
+try {
+	const res = await categories
+		.queryCategories({ treeReference: { appNamespace: '@wix/stores' } })
+		.exists('name', true)
+		.find();
+	cats = res.items ?? [];
+} catch {}
+
+const activeCategory = cats.find((c: any) => c.slug === activeSlug);
+
+let products: any[] = [];
+try {
+	if (activeCategory) {
+		const res = await productsV3.searchProducts({
+			filter: { 'directCategoriesInfo.categories': { $matchItems: [{ id: activeCategory._id }] } },
+		});
+		products = (res as any).items ?? (res as any).products ?? [];
+	} else {
+		products = (await productsV3.queryProducts().limit(100).find()).items ?? [];
+	}
+} catch {}
+---
+
+<Layout>
+	<main class="container section">
+		<span class="eyebrow">The bookstore</span>
+		<h1>Books worth taking home</h1>
+		<p class="intro">New titles picked by our booksellers — pay online, pick up at the counter or have them delivered.</p>
+
+		{cats.length > 1 && (
+			<nav class="cat-bar">
+				<a href="/books" class:list={['cat', { on: !activeCategory }]}>All</a>
+				{cats.map((c: any) => (
+					<a href={`/books?category=${c.slug}`} class:list={['cat', { on: activeCategory?._id === c._id }]}>{c.name}</a>
+				))}
+			</nav>
+		)}
+
+		{products.length === 0 ? (
+			<p class="notice notice-ok" style="margin-top: 2rem;">No books here yet — check back soon.</p>
+		) : (
+			<div class="grid grid-4" style="margin-top: 2rem;">
+				{products.map((p: any) => {
+					const src = imgSrc(p.media?.main, 480, 640);
+					const inStock = p.inventory?.availabilityStatus === 'IN_STOCK';
+					return (
+						<a class="card book-card" href={`/books/${p.slug}`}>
+							{src ? (
+								<div class="cover"><img src={src} alt={p.name} loading="lazy" /></div>
+							) : (
+								<div class="themed-block" style="aspect-ratio: 3/4;">{p.name}</div>
+							)}
+							<div class="card-body">
+								<h3>{p.name}</h3>
+								<p class="price">{formatPrice(p.actualPriceRange?.minValue?.amount, (p as any).currency)}</p>
+								{!inStock && <span class="chip">Out of stock</span>}
+							</div>
+						</a>
+					);
+				})}
+			</div>
+		)}
+	</main>
+</Layout>
+
+<style>
+	.intro { color: var(--ink-soft); max-width: 52ch; }
+
+	.cat-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.5rem; }
+
+	.cat {
+		text-decoration: none;
+		font-size: 0.9rem;
+		padding: 0.4rem 1rem;
+		border-radius: 999px;
+		border: 1px solid var(--line);
+		color: var(--ink-soft);
+		background: #fffdf8;
+	}
+
+	.cat:hover { border-color: var(--olive); color: var(--ink); }
+	.cat.on { background: var(--olive-deep); border-color: var(--olive-deep); color: var(--cream); }
+
+	.card { text-decoration: none; display: flex; flex-direction: column; }
+	.card-body { padding: 1rem 1.1rem 1.2rem; }
+	.card-body h3 { margin-bottom: 0.35rem; }
+	.price { font-weight: 600; color: var(--terracotta); margin-bottom: 0.4rem; }
+</style>

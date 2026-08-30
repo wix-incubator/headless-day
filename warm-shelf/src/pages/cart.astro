@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CartView from '../components/CartView';
+---
+
+<Layout>
+	<main class="container section" style="max-width: 760px;">
+		<span class="eyebrow">Your order</span>
+		<h1>Cart</h1>
+		<CartView client:only="react" />
+	</main>
+</Layout>
