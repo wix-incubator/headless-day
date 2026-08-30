@@ -1,0 +1,304 @@
+---
+export const prerender = false;
+import Layout from "../layouts/Layout.astro";
+import { plans } from "@wix/pricing-plans";
+
+const FALLBACK_PLANS = [
+  {
+    id: "fb97d14b-2b9a-4fb6-8448-11d26c9e389b",
+    name: "Weekend Player",
+    description: "One game session per month, perfect for occasional visitors",
+    slug: "weekend-player",
+    pricing: { price: { value: "3990", currency: "ISK" } },
+    perks: { values: ["1 game session per month", "Priority weekend booking", "10% off merch"] },
+    primary: false,
+  },
+  {
+    id: "f3ce0b13-5988-4896-9167-fde76e986c23",
+    name: "Weekly Regular",
+    description: "One game session per week (4 per month), for dedicated players",
+    slug: "weekly-regular",
+    pricing: { price: { value: "9990", currency: "ISK" } },
+    perks: { values: ["4 game sessions per month", "Priority booking any day", "15% off merch", "Access to member events"] },
+    primary: true,
+  },
+  {
+    id: "1d53e65b-52d4-404f-a3c6-360ef1133f57",
+    name: "Unlimited Monthly",
+    description: "Unlimited game sessions all month, for the true board game enthusiast",
+    slug: "unlimited-monthly",
+    pricing: { price: { value: "19990", currency: "ISK" } },
+    perks: { values: ["Unlimited game sessions", "VIP priority booking", "20% off merch", "Free monthly event ticket", "Exclusive member lounge access"] },
+    primary: false,
+  },
+];
+
+let pricingPlans: any[] = [];
+let usingFallback = false;
+
+try {
+  const result = await plans.queryPublicPlans().find();
+  pricingPlans = result.plans ?? result.items ?? [];
+  if (!pricingPlans.length) {
+    pricingPlans = FALLBACK_PLANS;
+    usingFallback = true;
+  }
+} catch (err) {
+  console.error("[pricing] query failed:", err);
+  pricingPlans = FALLBACK_PLANS;
+  usingFallback = true;
+}
+
+function formatPrice(plan: any): string {
+  const raw = plan.pricing?.price?.value ?? plan.pricing?.subscription?.price?.value ?? "0";
+  const num = parseFloat(raw);
+  return num.toLocaleString("is-IS");
+}
+
+function getPerks(plan: any): string[] {
+  return plan.perks?.values ?? [];
+}
+---
+
+<Layout
+  title="Pricing Plans"
+  description="Choose a Dice & Drizzle membership plan. Monthly subscriptions for casual visitors to unlimited enthusiasts."
+>
+  <!-- Hero -->
+  <section
+    style="
+      background: linear-gradient(160deg, #211d38 0%, #141220 60%);
+      padding: 5rem 1.5rem 3.5rem;
+      text-align: center;
+      border-bottom: 1px solid #3a3460;
+    "
+  >
+    <div style="max-width: 640px; margin: 0 auto;">
+      <p
+        style="
+          font-family: 'Outfit', sans-serif;
+          font-size: 0.875rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #38b572;
+          margin: 0 0 1rem;
+        "
+      >
+        Membership Plans
+      </p>
+      <h1
+        style="
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(2rem, 5vw, 3.25rem);
+          font-weight: 700;
+          color: #ede8da;
+          line-height: 1.15;
+          margin: 0 0 1rem;
+        "
+      >
+        Simple, Transparent Pricing
+      </h1>
+      <p style="font-family: 'Outfit', sans-serif; font-size: 1rem; color: #9090b8; margin: 0;">
+        All plans are recurring monthly subscriptions. Cancel anytime, no
+        commitment.
+      </p>
+    </div>
+  </section>
+
+  <!-- Plan cards -->
+  <section style="max-width: 72rem; margin: 0 auto; padding: 4rem 1.5rem;">
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        align-items: start;
+      "
+    >
+      {
+        pricingPlans.map((plan) => {
+          const isPrimary = plan.primary ?? false;
+          const perks = getPerks(plan);
+          const slug = plan.slug ?? plan.name?.toLowerCase().replace(/\s+/g, "-") ?? "";
+          return (
+            <div
+              id={slug}
+              style={`
+                background: #211d38;
+                border: 2px solid ${isPrimary ? "#38b572" : "#3a3460"};
+                border-radius: 10px;
+                padding: 2rem;
+                position: relative;
+                ${isPrimary ? "box-shadow: 0 0 32px rgba(56,181,114,0.15);" : ""}
+              `}
+            >
+              {isPrimary && (
+                <div
+                  style="
+                    position: absolute;
+                    top: -0.875rem;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #38b572;
+                    color: #141220;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.1em;
+                    text-transform: uppercase;
+                    padding: 0.25rem 1rem;
+                    border-radius: 99px;
+                    white-space: nowrap;
+                  "
+                >
+                  Most Popular
+                </div>
+              )}
+              <h2
+                style="
+                  font-family: 'Cormorant Garamond', serif;
+                  font-size: 1.625rem;
+                  font-weight: 700;
+                  color: #ede8da;
+                  margin: 0 0 0.5rem;
+                "
+              >
+                {plan.name}
+              </h2>
+              {plan.description && (
+                <p
+                  style="
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.875rem;
+                    color: #9090b8;
+                    margin: 0 0 1.5rem;
+                    line-height: 1.5;
+                  "
+                >
+                  {plan.description}
+                </p>
+              )}
+              <div style="margin-bottom: 1.5rem;">
+                <span
+                  style="
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 2.75rem;
+                    font-weight: 700;
+                    color: #ede8da;
+                    line-height: 1;
+                  "
+                >
+                  {formatPrice(plan)}
+                </span>
+                <span
+                  style="
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 0.875rem;
+                    color: #9090b8;
+                    margin-left: 0.25rem;
+                  "
+                >
+                  ISK/mán.
+                </span>
+              </div>
+
+              {perks.length > 0 && (
+                <ul style="list-style: none; padding: 0; margin: 0 0 2rem;">
+                  {perks.map((perk: string) => (
+                    <li
+                      style="
+                        font-family: 'Outfit', sans-serif;
+                        font-size: 0.9rem;
+                        color: #c4b068;
+                        padding: 0.375rem 0;
+                        border-bottom: 1px solid #3a3460;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                      "
+                    >
+                      <span style="color: #38b572; flex-shrink: 0;">✓</span>
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <a
+                href="/membership"
+                style={`
+                  display: block;
+                  text-align: center;
+                  background: ${isPrimary ? "#38b572" : "transparent"};
+                  color: ${isPrimary ? "#141220" : "#38b572"};
+                  border: 2px solid #38b572;
+                  font-family: 'Outfit', sans-serif;
+                  font-weight: 600;
+                  font-size: 0.9375rem;
+                  padding: 0.75rem 1.5rem;
+                  border-radius: 4px;
+                  text-decoration: none;
+                `}
+              >
+                Subscribe
+              </a>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    {
+      usingFallback && (
+        <p
+          style="
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8125rem;
+            color: #3a3460;
+            text-align: center;
+            margin-top: 2rem;
+          "
+        >
+          Prices shown are indicative. Live data temporarily unavailable.
+        </p>
+      )
+    }
+  </section>
+
+  <!-- Bottom CTA -->
+  <section
+    style="
+      background: #211d38;
+      border-top: 1px solid #3a3460;
+      padding: 3.5rem 1.5rem;
+      text-align: center;
+    "
+  >
+    <h3
+      style="
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #ede8da;
+        margin: 0 0 0.75rem;
+      "
+    >
+      Not sure which plan fits?
+    </h3>
+    <p style="font-family: 'Outfit', sans-serif; color: #9090b8; margin: 0 0 1.5rem;">
+      Start with Weekend Player and upgrade anytime.
+    </p>
+    <a
+      href="/contact"
+      style="
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.9375rem;
+        color: #38b572;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      "
+    >
+      Contact us with questions &rarr;
+    </a>
+  </section>
+</Layout>

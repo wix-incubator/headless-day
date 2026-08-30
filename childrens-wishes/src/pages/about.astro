@@ -1,0 +1,178 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Our Story — Children's Wishes">
+  <div class="page-wrap">
+    <!-- Hero -->
+    <section class="about-hero">
+      <div class="container">
+        <span class="eyebrow">✦ Our Story</span>
+        <h1 class="about-title">Where Every Gift<br /><em class="gradient-text">Tells a Story</em></h1>
+        <p class="about-lead">
+          We believe in the magic of the right gift — one that sparks imagination,
+          builds confidence, and becomes a cherished memory.
+        </p>
+      </div>
+    </section>
+
+    <!-- Values -->
+    <section class="section-pad">
+      <div class="container">
+        <div class="values-grid">
+          {[
+            { icon: "✦", title: "Thoughtfully Curated", body: "Every product in our store is hand-selected by parents, educators, and child development experts." },
+            { icon: "🌿", title: "Sustainably Made", body: "We partner with brands that prioritize eco-friendly materials and ethical manufacturing." },
+            { icon: "🎯", title: "Age-Appropriate", body: "Each item is reviewed for developmental suitability so you can shop with confidence." },
+            { icon: "💛", title: "Joy-Guaranteed", body: "If a gift doesn't spark joy, we'll make it right with our hassle-free return policy." },
+          ].map(({ icon, title, body }) => (
+            <div class="value-card">
+              <span class="value-icon">{icon}</span>
+              <h3 class="value-title">{title}</h3>
+              <p class="value-body">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Mission -->
+    <section class="mission-section">
+      <div class="container">
+        <div class="mission-inner">
+          <div class="mission-text">
+            <p class="section-label">Our Mission</p>
+            <h2 class="mission-title">Making childhood magical, one wish at a time.</h2>
+            <p class="mission-body">
+              Founded by parents who wanted better options for their own children,
+              Children's Wishes started as a small collection of beloved toys and books.
+              Today, we're proud to offer hundreds of carefully chosen products that
+              support creativity, curiosity, and connection.
+            </p>
+            <p class="mission-body">
+              Every purchase helps us donate toys to children in need through our
+              "Wish Forward" program — because every child deserves a little magic.
+            </p>
+          </div>
+          <div class="mission-visual">
+            <div class="mission-card">
+              <p class="stat-number">500+</p>
+              <p class="stat-label">Curated products</p>
+            </div>
+            <div class="mission-card">
+              <p class="stat-number">10k+</p>
+              <p class="stat-label">Happy families</p>
+            </div>
+            <div class="mission-card">
+              <p class="stat-number">1k+</p>
+              <p class="stat-label">Toys donated</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section-pad">
+      <div class="container" style="text-align:center">
+        <h2 style="font-family:var(--font-display);font-size:2.5rem;margin-bottom:16px">Ready to make a wish?</h2>
+        <p style="color:var(--muted);margin-bottom:32px">Browse our collection and find the perfect gift.</p>
+        <a href="/products" class="btn-primary">Shop Now →</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+.page-wrap { background: var(--bg); }
+.container { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+.section-pad { padding: 80px 0; }
+
+.about-hero {
+  padding: 100px 0 80px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 60% 60% at 20% 30%, #FFF0E8 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 70%, #EEE8F9 0%, transparent 60%),
+    var(--bg);
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #FFF0E8;
+  color: #FF9B71;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 28px;
+}
+.about-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.gradient-text {
+  font-style: normal;
+  background: linear-gradient(135deg, #FF9B71 0%, #F5C842 60%, #7ECFB5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.about-lead {
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* Values */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+.value-card {
+  padding: 32px;
+  border-radius: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.value-icon { font-size: 1.8rem; display: block; margin-bottom: 16px; }
+.value-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+.value-body { font-size: 14px; line-height: 1.6; color: var(--muted); }
+
+/* Mission */
+.mission-section {
+  background: linear-gradient(135deg, #1C1A2E 0%, #2E2B42 100%);
+  padding: 80px 0;
+}
+.mission-inner {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .mission-inner { grid-template-columns: 1fr; }
+}
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--peach); margin-bottom: 16px; }
+.mission-title { font-family: var(--font-display); font-size: clamp(1.8rem, 3vw, 2.5rem); color: #fff; margin-bottom: 20px; }
+.mission-body { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+.mission-visual { display: flex; flex-direction: column; gap: 16px; }
+.mission-card {
+  padding: 28px 32px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.stat-number { font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--peach); }
+.stat-label { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+</style>

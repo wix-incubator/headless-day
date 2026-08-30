@@ -1,0 +1,112 @@
+---
+const steps = [
+	{ x: 130, icon: '🔖', title: 'Reserve or pick', text: 'Choose a book online or straight off the shelf between the plants.' },
+	{ x: 400, icon: '☕', title: 'Read it in', text: 'Sink into an armchair with a coffee — no deadlines, no fees.' },
+	{ x: 670, icon: '↩️', title: 'Bring it back', text: 'Return it whenever you\'re done. The shelf is always open.' },
+	{ x: 940, icon: '🌱', title: 'Pass it on', text: 'Or leave a different book you\'d love a stranger to find.' },
+];
+const pathD = 'M130,120 C230,40 300,40 400,120 C500,200 570,200 670,120 C770,40 840,40 940,120';
+---
+
+<div class="bcf reveal">
+	<div class="bcf-scroll">
+		<svg viewBox="0 0 1070 210" role="img" aria-label="How book crossing works, in four steps" class="bcf-svg">
+			<path class="flow-track" d={pathD} />
+			<path class="flow-path" id="bcf-path" d={pathD} />
+
+			{steps.map((s, i) => (
+				<g class={`bcf-node n${i}`}>
+					<circle cx={s.x} cy={120} r="30" class="node-ring" />
+					<circle cx={s.x} cy={120} r="24" class="node-fill" />
+					<text x={s.x} y={120} class="node-icon" text-anchor="middle" dominant-baseline="central">{s.icon}</text>
+					<text x={s.x} y={172} class="node-title" text-anchor="middle">{s.title}</text>
+					<text x={s.x} y={193} class="node-step" text-anchor="middle">STEP {i + 1}</text>
+				</g>
+			))}
+
+			<g class="bcf-token" style={`offset-path: path('${pathD}');`}>
+				<circle r="13" class="token-bg" />
+				<text class="token-icon" text-anchor="middle" dominant-baseline="central">📖</text>
+			</g>
+		</svg>
+	</div>
+
+	<div class="bcf-legend">
+		{steps.map((s) => (
+			<div class="leg-item">
+				<span class="leg-icon">{s.icon}</span>
+				<div>
+					<p class="leg-title">{s.title}</p>
+					<p class="leg-text">{s.text}</p>
+				</div>
+			</div>
+		))}
+	</div>
+</div>
+
+<style>
+	.bcf-scroll { overflow-x: auto; overflow-y: hidden; }
+	.bcf-svg { width: 100%; min-width: 620px; height: auto; display: block; }
+
+	.flow-track { fill: none; stroke: var(--sand); stroke-width: 4; stroke-linecap: round; }
+	.flow-path {
+		fill: none;
+		stroke: var(--olive);
+		stroke-width: 4;
+		stroke-linecap: round;
+		stroke-dasharray: 1400;
+		stroke-dashoffset: 1400;
+	}
+	.bcf.in .flow-path { animation: bcf-draw 2.6s ease forwards; }
+	@keyframes bcf-draw { to { stroke-dashoffset: 0; } }
+
+	.node-ring { fill: var(--cream); stroke: var(--sage); stroke-width: 2; }
+	.node-fill { fill: #fffdf8; stroke: var(--olive); stroke-width: 2; }
+	.node-icon { font-size: 24px; }
+	.node-title { font-family: var(--font-display); font-size: 17px; fill: var(--ink); }
+	.node-step { font-size: 10px; letter-spacing: 0.14em; fill: var(--olive-deep); font-family: var(--font-body); font-weight: 600; }
+
+	.bcf-node { opacity: 0; transform: scale(0.6); transform-origin: center; transform-box: fill-box; }
+	.bcf.in .bcf-node { animation: bcf-pop 0.5s ease forwards; }
+	.bcf.in .bcf-node.n0 { animation-delay: 0.2s; }
+	.bcf.in .bcf-node.n1 { animation-delay: 0.8s; }
+	.bcf.in .bcf-node.n2 { animation-delay: 1.4s; }
+	.bcf.in .bcf-node.n3 { animation-delay: 2.0s; }
+	@keyframes bcf-pop { to { opacity: 1; transform: scale(1); } }
+
+	.bcf-token { opacity: 0; offset-rotate: 0deg; }
+	.token-bg { fill: var(--terracotta); }
+	.token-icon { font-size: 15px; }
+	.bcf.in .bcf-token { animation: bcf-travel 5.5s 2.4s linear infinite; }
+	@keyframes bcf-travel {
+		0% { offset-distance: 0%; opacity: 0; }
+		6% { opacity: 1; }
+		94% { opacity: 1; }
+		100% { offset-distance: 100%; opacity: 0; }
+	}
+
+	.bcf-legend {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+	}
+	.leg-item { display: flex; gap: 0.7rem; align-items: flex-start; }
+	.leg-icon {
+		font-size: 1.1rem; flex-shrink: 0;
+		width: 2rem; height: 2rem; border-radius: 999px;
+		display: flex; align-items: center; justify-content: center;
+		background: var(--sage-soft);
+	}
+	.leg-title { margin: 0 0 0.2rem; font-weight: 600; font-size: 0.95rem; }
+	.leg-text { margin: 0; font-size: 0.86rem; color: var(--ink-soft); }
+
+	@media (max-width: 720px) {
+		.bcf-legend { grid-template-columns: 1fr 1fr; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.flow-path { stroke-dashoffset: 0; }
+		.bcf-node { opacity: 1; transform: none; }
+		.bcf-token { display: none; }
+	}
+</style>

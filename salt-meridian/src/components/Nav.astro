@@ -1,0 +1,43 @@
+---
+import { NAV, SITE } from '../lib/site';
+import NavBookButton from './islands/NavBookButton.tsx';
+import Star from './Star.astro';
+
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="site-header">
+  <a href="#main" class="skip-link">Skip to content</a>
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
+    <a href="/" class="brand" aria-label={`${SITE.name} — home`}>
+      <Star class="brand-mark" />
+      <span class="flex flex-col leading-none">
+        <span class="brand-name">{SITE.name}</span>
+        <span class="brand-sub">Asador · Driftwood Fire</span>
+      </span>
+    </a>
+
+    <nav class="primary-nav" aria-label="Primary">
+      {
+        NAV.map((item) => (
+          <a
+            href={item.href}
+            class:list={['nav-link', isActive(item.href) && 'is-active']}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="nav-actions flex items-center gap-3">
+      <a href={`tel:${SITE.phoneHref}`} class="nav-phone" aria-label="Call the harbor line">
+        {SITE.phone}
+      </a>
+      <NavBookButton client:load />
+    </div>
+  </div>
+</header>

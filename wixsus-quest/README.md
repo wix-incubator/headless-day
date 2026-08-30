@@ -32,7 +32,7 @@ wixsus-quest/
 │   └── layouts/
 │       └── Layout.astro       # HTML shell
 ├── astro.config.mjs
-├── wix.config.example.json    # Rename to wix.config.json after running init
+├── wix.config.json    # Rename to wix.config.json after running init
 └── package.json
 ```
 

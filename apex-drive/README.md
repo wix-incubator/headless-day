@@ -55,7 +55,7 @@ apex-drive/
 ├── astro.config.mjs
 ├── package.json
 ├── .env.example                    # ANTHROPIC_API_KEY for concierge (optional)
-└── wix.config.example.json         # Reference only — generated locally by init
+└── wix.config.json         # Reference only — generated locally by init
 ```
 
 ## How to Create This Yourself

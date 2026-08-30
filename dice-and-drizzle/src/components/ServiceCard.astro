@@ -1,0 +1,148 @@
+---
+// ServiceCard.astro — static card for the services listing grid.
+// Props in, HTML out; no client-side interactivity. Works for APPOINTMENT and
+// CLASS services. Classes (.service-card, .service-card-image,
+// .service-card-meta, .service-card-price, …) are owned by
+// src/styles/components-bookings.css (pre-copied by the orchestrator).
+interface Props {
+  id: string;
+  slug: string;
+  name: string;
+  tagLine?: string;
+  durationMinutes: number;
+  price?: string; // formatted string, e.g. "€25.00" — already formatted by caller
+  currency?: string;
+  imageUrl?: string;
+  type: "APPOINTMENT" | "CLASS";
+  locationId?: string; // when a location is selected on the catalog, carry it to the detail page
+  locationType?: string;
+}
+
+const { slug, name, tagLine, durationMinutes, price, imageUrl, locationId, locationType } = Astro.props;
+
+// Carry the selected location into the detail page so availability is scoped to it.
+const q = new URLSearchParams();
+if (locationId) q.set("locationId", locationId);
+if (locationType) q.set("locationType", locationType);
+const qs = q.toString();
+const href = qs ? `/book/${slug}?${qs}` : `/book/${slug}`;
+---
+
+<a href={href} class="service-card">
+  {
+    imageUrl ? (
+      <div class="service-card-image">
+        <img src={imageUrl} alt={name} loading="lazy" />
+      </div>
+    ) : (
+      <div class="service-card-image service-card-image--illustrated" aria-hidden="true">
+        {name.toLowerCase().includes("group") ? (
+          <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" class="svc-illustration">
+            <!-- Table -->
+            <rect x="40" y="190" width="320" height="18" rx="9" fill="#6b5a3e" opacity="0.55"/>
+            <!-- Dice 1 (left) -->
+            <rect x="70" y="140" width="68" height="68" rx="10" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="2.5"/>
+            <circle cx="104" cy="158" r="5" fill="#3b2f1e"/>
+            <circle cx="86" cy="174" r="5" fill="#3b2f1e"/>
+            <circle cx="122" cy="174" r="5" fill="#3b2f1e"/>
+            <circle cx="86" cy="190" r="5" fill="#3b2f1e"/>
+            <circle cx="122" cy="190" r="5" fill="#3b2f1e"/>
+            <!-- Dice 2 (center) -->
+            <rect x="166" y="128" width="68" height="68" rx="10" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="2.5"/>
+            <circle cx="200" cy="162" r="5.5" fill="#8b3a3a"/>
+            <!-- single pip = Solo style, but this is group so 3 -->
+            <circle cx="182" cy="148" r="5" fill="#3b2f1e"/>
+            <circle cx="218" cy="148" r="5" fill="#3b2f1e"/>
+            <circle cx="200" cy="162" r="5" fill="#3b2f1e"/>
+            <circle cx="182" cy="176" r="5" fill="#3b2f1e"/>
+            <circle cx="218" cy="176" r="5" fill="#3b2f1e"/>
+            <!-- Dice 3 (right) -->
+            <rect x="262" y="142" width="68" height="68" rx="10" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="2.5"/>
+            <circle cx="278" cy="158" r="5" fill="#3b2f1e"/>
+            <circle cx="296" cy="158" r="5" fill="#3b2f1e"/>
+            <circle cx="296" cy="176" r="5" fill="#3b2f1e"/>
+            <!-- Mugs — beside outer dice, same height as dice -->
+            <rect x="8" y="148" width="32" height="38" rx="6" fill="#c4956a" opacity="0.78"/>
+            <rect x="8" y="148" width="32" height="7" rx="3" fill="#b07d50" opacity="0.6"/>
+            <path d="M40 157 C58 157 58 180 40 180" stroke="#c4956a" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+            <path d="M40 157 C55 157 55 180 40 180" stroke="#1a1628" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <rect x="344" y="150" width="32" height="38" rx="6" fill="#c4956a" opacity="0.78"/>
+            <rect x="344" y="150" width="32" height="7" rx="3" fill="#b07d50" opacity="0.6"/>
+            <path d="M376 159 C394 159 394 182 376 182" stroke="#c4956a" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+            <path d="M376 159 C391 159 391 182 376 182" stroke="#1a1628" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <!-- Stars / aurora wisps -->
+            <ellipse cx="200" cy="38" rx="90" ry="22" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.4"/>
+            <ellipse cx="200" cy="55" rx="70" ry="16" fill="none" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+            <circle cx="80" cy="30" r="2.5" fill="#fff" opacity="0.6"/>
+            <circle cx="130" cy="18" r="2" fill="#fff" opacity="0.5"/>
+            <circle cx="200" cy="14" r="2.5" fill="#fff" opacity="0.7"/>
+            <circle cx="270" cy="20" r="2" fill="#fff" opacity="0.5"/>
+            <circle cx="320" cy="28" r="2.5" fill="#fff" opacity="0.6"/>
+          </svg>
+        ) : name.toLowerCase().includes("duo") ? (
+          <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" class="svc-illustration">
+            <rect x="60" y="192" width="280" height="18" rx="9" fill="#6b5a3e" opacity="0.55"/>
+            <!-- Dice 1 -->
+            <rect x="110" y="132" width="78" height="78" rx="12" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="2.5"/>
+            <circle cx="136" cy="152" r="5.5" fill="#3b2f1e"/>
+            <circle cx="162" cy="152" r="5.5" fill="#3b2f1e"/>
+            <circle cx="149" cy="171" r="5.5" fill="#8b3a3a"/>
+            <circle cx="136" cy="190" r="5.5" fill="#3b2f1e"/>
+            <circle cx="162" cy="190" r="5.5" fill="#3b2f1e"/>
+            <!-- Dice 2 -->
+            <rect x="212" y="132" width="78" height="78" rx="12" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="2.5"/>
+            <circle cx="238" cy="171" r="5.5" fill="#3b2f1e"/>
+            <circle cx="264" cy="171" r="5.5" fill="#3b2f1e"/>
+            <!-- Two mugs — beside the dice, same vertical level -->
+            <rect x="14" y="140" width="34" height="40" rx="6" fill="#c4956a" opacity="0.78"/>
+            <rect x="14" y="140" width="34" height="7" rx="3" fill="#b07d50" opacity="0.6"/>
+            <path d="M48 149 C68 149 68 174 48 174" stroke="#c4956a" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+            <path d="M48 149 C65 149 65 174 48 174" stroke="#1a1628" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <rect x="354" y="140" width="34" height="40" rx="6" fill="#c4956a" opacity="0.78"/>
+            <rect x="354" y="140" width="34" height="7" rx="3" fill="#b07d50" opacity="0.6"/>
+            <path d="M388 149 C408 149 408 174 388 174" stroke="#c4956a" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+            <path d="M388 149 C405 149 405 174 388 174" stroke="#1a1628" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <!-- Aurora -->
+            <ellipse cx="200" cy="44" rx="80" ry="20" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.4"/>
+            <ellipse cx="200" cy="60" rx="60" ry="14" fill="none" stroke="#34d399" stroke-width="2" opacity="0.3"/>
+            <circle cx="100" cy="30" r="2.5" fill="#fff" opacity="0.6"/>
+            <circle cx="200" cy="18" r="2.5" fill="#fff" opacity="0.7"/>
+            <circle cx="300" cy="28" r="2.5" fill="#fff" opacity="0.6"/>
+          </svg>
+        ) : (
+          <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" class="svc-illustration">
+            <rect x="80" y="192" width="240" height="18" rx="9" fill="#6b5a3e" opacity="0.55"/>
+            <!-- Single large die -->
+            <rect x="151" y="118" width="98" height="98" rx="16" fill="#e8dcc8" stroke="#6b5a3e" stroke-width="3"/>
+            <circle cx="172" cy="138" r="7" fill="#3b2f1e"/>
+            <circle cx="200" cy="167" r="7" fill="#8b3a3a"/>
+            <circle cx="228" cy="138" r="7" fill="#3b2f1e"/>
+            <circle cx="172" cy="196" r="7" fill="#3b2f1e"/>
+            <circle cx="228" cy="196" r="7" fill="#3b2f1e"/>
+            <!-- Mug — beside the die, same vertical level -->
+            <rect x="264" y="132" width="36" height="42" rx="7" fill="#c4956a" opacity="0.78"/>
+            <rect x="264" y="132" width="36" height="8" rx="4" fill="#b07d50" opacity="0.6"/>
+            <path d="M300 141 C322 141 322 168 300 168" stroke="#c4956a" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.9"/>
+            <path d="M300 141 C318 141 318 168 300 168" stroke="#1a1628" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <!-- Aurora -->
+            <ellipse cx="200" cy="44" rx="85" ry="22" fill="none" stroke="#a78bfa" stroke-width="2.5" opacity="0.4"/>
+            <ellipse cx="200" cy="60" rx="65" ry="15" fill="none" stroke="#34d399" stroke-width="2" opacity="0.35"/>
+            <circle cx="120" cy="30" r="2.5" fill="#fff" opacity="0.6"/>
+            <circle cx="200" cy="16" r="2.5" fill="#fff" opacity="0.8"/>
+            <circle cx="280" cy="28" r="2.5" fill="#fff" opacity="0.6"/>
+          </svg>
+        )}
+      </div>
+    )
+  }
+
+  <div class="service-card-meta">
+    <h3 class="service-card-name">{name}</h3>
+    {tagLine && <p class="service-card-tagline">{tagLine}</p>}
+    <div class="service-card-price">
+      <span>{durationMinutes} min per session</span>
+      {price && <span>{price}</span>}
+    </div>
+    <p style="font-family: var(--font-body); font-size: 0.875rem; color: var(--color-accent); margin-top: 0.5rem;">Book now →</p>
+  </div>
+</a>

@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="Apply — Tidal Coding Camp"
+  description="Apply for a two-week summer session. Pick a tide window, a parent or guardian acknowledges the consent note, and we reply within two tide cycles."
+  path="/apply"
+>
+  <section class="surface">
+    <div class="wrap split">
+      <div>
+        <p class="kicker">Reserve a seat</p>
+        <h1 style="font-size:clamp(2.2rem,6vw,4rem)" class="wl">Reserve your seat.</h1>
+        <p class="muted" style="margin-top:1.2rem">Twelve seats per session. We hold your spot and email your parent to confirm and arrange the fee.</p>
+        <div class="card" style="margin-top:2rem;border-left:3px solid var(--amber)">
+          <h3 style="font-size:1.1rem">Parent consent note</h3>
+          <p class="muted" style="font-size:.9rem">Tidal Coding Camp is a residential program on a tidal island for ages 13–17. Campers cross a causeway on foot during supervised low-tide windows and remain on the island through high water. A parent or guardian must acknowledge this note for an application to be considered. We only use your details to process the application and reach a guardian — nothing else.</p>
+        </div>
+      </div>
+      <form class="card form" id="applyform" novalidate>
+        <div class="grid g2">
+          <div class="field"><label for="f-first">Camper first name <span class="req">*</span></label><input id="f-first" name="camperFirstName" required autocomplete="given-name" /><span class="err">Please enter the camper’s first name.</span></div>
+          <div class="field"><label for="f-age">Camper age <span class="req">*</span></label><input id="f-age" name="camperAge" type="number" min="13" max="17" required inputmode="numeric" placeholder="13–17" /><span class="err">Ages 13–17.</span></div>
+        </div>
+        <div class="grid g2">
+          <div class="field"><label for="f-pname">Parent / guardian name <span class="req">*</span></label><input id="f-pname" name="parentName" required autocomplete="name" /><span class="err">Please enter a parent or guardian name.</span></div>
+          <div class="field"><label for="f-pemail">Parent / guardian email <span class="req">*</span></label><input id="f-pemail" name="parentEmail" type="email" required autocomplete="email" /><span class="err">Please enter a valid email.</span></div>
+        </div>
+        <div class="field"><label for="f-session">Preferred session <span class="req">*</span></label>
+          <select id="f-session" name="preferredSession" required>
+            <option value="">Choose a session…</option>
+            <option>Session I · Jul 6 – Jul 19 · Spring Tide</option>
+            <option>Session II · Jul 20 – Aug 2 · Neap Tide</option>
+            <option>Session III · Aug 3 – Aug 16 · Spring Tide</option>
+            <option>Session IV · Aug 17 – Aug 30 · Neap Tide (waitlist)</option>
+          </select><span class="err">Please choose a session.</span>
+        </div>
+        <div class="field"><label for="f-exp">Coding experience</label><textarea id="f-exp" name="codingExperience" placeholder="None yet? Perfect. Some Scratch, Python basics, a web project — tell us where they are."></textarea></div>
+        <div class="field consent">
+          <input id="f-consent" type="checkbox" name="parentConsentAcknowledged" required />
+          <label for="f-consent" style="font-weight:400"><b>I am the parent/guardian</b> and I acknowledge the consent note: my teen will cross a tidal causeway during supervised low-tide windows and remain on the island through high water. <span class="err" style="margin-top:.3rem">You must acknowledge the consent note to apply.</span></label>
+        </div>
+        <div class="field"><label for="f-q">A question for us <span class="muted" style="font-weight:400">(optional)</span></label><textarea id="f-q" name="questionForUs" placeholder="Dietary needs, scholarships, the boat, the limpets…"></textarea></div>
+        <button class="btn" type="submit" id="applybtn" style="justify-self:start">Reserve my seat</button>
+        <p class="muted" style="font-size:.8rem;margin:0">We only use your details to process the application and reach a guardian, nothing else.</p>
+        <div class="success" id="apply-success" hidden role="status" tabindex="-1">
+          <b>Seat reserved — above the waterline.</b>
+          We’ll email your parent to confirm the spot and arrange the fee.
+        </div>
+        <div class="card" id="apply-fallback" hidden role="alert" style="border-left:3px solid var(--rust)">
+          <b>We couldn’t auto-submit just now.</b>
+          <p class="muted" style="font-size:.9rem;margin:.4rem 0 0">Please email your application to <a href="mailto:hello@tidalcodingcamp.example">hello@tidalcodingcamp.example</a> and we’ll pick it up on the next crossing.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const form = document.getElementById('applyform') as HTMLFormElement;
+  const btn = document.getElementById('applybtn') as HTMLButtonElement;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let ok = true;
+    form.querySelectorAll('.field').forEach((f) => f.classList.remove('invalid'));
+    form.querySelectorAll('[required]').forEach((el) => {
+      const input = el as HTMLInputElement;
+      const valid = input.type === 'checkbox' ? input.checked : input.value.trim() !== '' && input.checkValidity();
+      if (!valid) { input.closest('.field')!.classList.add('invalid'); if (ok) { input.focus(); ok = false; } }
+    });
+    if (!ok) return;
+    const data = Object.fromEntries(new FormData(form).entries());
+    (data as any).parentConsentAcknowledged = (document.getElementById('f-consent') as HTMLInputElement).checked;
+    btn.disabled = true; btn.textContent = 'Reserving…';
+    let success = false, res: any = null;
+    try {
+      const r = await fetch('/api/apply', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
+      success = r.ok; res = await r.json().catch(() => null);
+    } catch { success = false; }
+    if (success) {
+      form.querySelectorAll('input,select,textarea,button').forEach((el) => ((el as HTMLInputElement).disabled = true));
+      const s = document.getElementById('apply-success')!;
+      if (res?.waitlisted) {
+        s.querySelector('b')!.textContent = 'You’re on the waitlist.';
+        s.childNodes[s.childNodes.length - 1].textContent = ' This session is full — we’ll email your parent the moment a seat opens.';
+      }
+      s.hidden = false; (s as HTMLElement).focus();
+      s.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' });
+    } else {
+      document.getElementById('apply-fallback')!.hidden = false;
+      btn.disabled = false; btn.textContent = 'Reserve my seat';
+    }
+  });
+</script>

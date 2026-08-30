@@ -1,0 +1,242 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { WIX_APPS } from '@wix/essentials';
+import { SEO } from '@wix/seo/components';
+import { loadSEOTagsServiceConfig } from '@wix/seo/services';
+import { seoTags } from '@wix/seo';
+import { services } from '@wix/bookings';
+import { imgSrc, formatPrice } from '../../lib/media';
+import { EXLIBRIS_STAMP, EXLIBRIS_DETAIL } from '../../lib/images';
+import BookingWidget from '../../components/BookingWidget';
+import ExLibrisStudio from '../../components/ExLibrisStudio';
+
+export const wixMetadata = {
+	appDefId: WIX_APPS.bookings.id,
+	pageIdentifier: WIX_APPS.bookings.servicePageMetadata.pageIdentifier,
+	identifiers: {
+		slug: WIX_APPS.bookings.servicePageMetadata.identifiers.slug,
+	},
+};
+
+const BOOKING_APP_ID = '13d21c63-b5ec-5912-8397-c3a5ddb27a97';
+const slug = Astro.params.slug!;
+
+let service: any = null;
+let seoTagsServiceConfig: any = null;
+try {
+	const [queryRes, seoRes] = await Promise.all([
+		services
+			.queryServices({ conditionalFields: ['STAFF_MEMBER_DETAILS'] })
+			.eq('mainSlug.name', slug)
+			.eq('appId', BOOKING_APP_ID)
+			.limit(1)
+			.find(),
+		loadSEOTagsServiceConfig({
+			pageUrl: Astro.url.href,
+			itemType: seoTags.ItemType.BOOKINGS_SERVICE,
+			itemData: { slug },
+		}).catch(() => null),
+	]);
+	service = queryRes.items?.[0] ?? null;
+	seoTagsServiceConfig = seoRes;
+} catch {}
+
+if (!service) {
+	return new Response(null, { status: 404 });
+}
+
+const hero = imgSrc(service.media?.mainMedia?.image, 1400, 780);
+const duration = service.schedule?.availabilityConstraints?.sessionDurations?.[0];
+const price = service.payment?.fixed?.price;
+const staff = service.staffMemberDetails?.staffMembers ?? [];
+const isExLibris = /ex\s*libris/i.test(service.name ?? '');
+---
+
+<Layout>
+	{seoTagsServiceConfig && <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />}
+	<main>
+		<section class="sv-hero" style={hero ? `background-image: url(${hero})` : ''}>
+			<div class="sv-hero-scrim"></div>
+			<div class="container sv-hero-inner">
+				<a class="back light" href="/services">← All services</a>
+				<h1>{service.name}</h1>
+				<div class="meta-row">
+					{duration && <span class="chip chip-olive">{duration} min</span>}
+					<span class="price light">{formatPrice(price?.value, price?.currency)}</span>
+					{staff[0]?.name && <span class="chip">with {staff[0].name}</span>}
+				</div>
+			</div>
+		</section>
+
+		<section class="container section sv-intro reveal">
+			<div class="sv-intro-text">
+				{service.tagLine && <p class="tagline">{service.tagLine}</p>}
+				{service.description && <p class="desc">{service.description}</p>}
+				<a class="btn btn-primary" href="#book-exlibris">Book a session</a>
+			</div>
+			{isExLibris && (
+				<div class="sv-example">
+					<figure class="ex-stamp">
+						<img src={EXLIBRIS_STAMP} alt="A handcrafted ex libris stamp with a wooden base" loading="lazy" />
+						<figcaption>Your design, carved onto a turned wooden-handled stamp.</figcaption>
+					</figure>
+					<figure class="ex-detail">
+						<div class="ex-detail-frame"><img src={EXLIBRIS_DETAIL} alt="Close-up of an ex libris impression on paper" loading="lazy" /></div>
+						<figcaption>Crisp, hand-pressed detail on every page.</figcaption>
+					</figure>
+				</div>
+			)}
+		</section>
+
+		{isExLibris && (
+			<section class="section studio-section">
+				<div class="container">
+					<div class="section-head reveal">
+						<div>
+							<span class="eyebrow">Try it now</span>
+							<h2>Ex Libris Studio</h2>
+							<p>Upload your artwork and see it adapted for a stamp — pick your ink, tune the detail, and download a print-ready plate to bring in.</p>
+						</div>
+					</div>
+					<div class="reveal">
+						<ExLibrisStudio client:only="react" />
+					</div>
+				</div>
+			</section>
+		)}
+
+		{isExLibris && (
+			<section class="section saved-section" id="your-design" style="display:none">
+				<div class="container book-wrap">
+					<div class="section-head reveal">
+						<div>
+							<span class="eyebrow">Your design</span>
+							<h2>Ready to carve</h2>
+							<p>You designed this in the studio — we'll use it as your template. Scroll down to pick a time.</p>
+						</div>
+						<a class="see-all" href="/#ex-libris">Edit design →</a>
+					</div>
+					<div class="saved-card reveal">
+						<img id="els-preview-img" src="" alt="Your ex libris design" class="saved-img" />
+						<div class="saved-copy">
+							<p>This is your print-ready plate. Bring it in (or show us on your phone) and we'll carve it into your chosen wood stamp at our craft table.</p>
+							<a class="btn btn-primary" href="#book-exlibris">Pick a time →</a>
+						</div>
+					</div>
+				</div>
+			</section>
+		)}
+
+		<section class="section book-section" id="book-exlibris">
+			<div class="container book-wrap">
+				<div class="section-head reveal">
+					<div>
+						<span class="eyebrow">Reserve your spot</span>
+						<h2>Book your session</h2>
+						<p>Pick a time that suits you — we'll have the coffee ready.</p>
+					</div>
+				</div>
+				<div class="card book-card reveal">
+					<BookingWidget
+						client:only="react"
+						serviceId={service._id}
+						formId={service.form?._id}
+						paymentOptions={(service as any).payment?.options ?? null}
+						cancellationFeeEnabled={Boolean(service.bookingPolicy?.cancellationFeePolicy?.enabled)}
+					/>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
+
+<script is:inline>
+	(function () {
+		try {
+			const preview = sessionStorage.getItem('els-preview');
+			if (!preview) return;
+			const section = document.getElementById('your-design');
+			const img = document.getElementById('els-preview-img');
+			if (section && img) {
+				img.setAttribute('src', preview);
+				section.style.display = '';
+				sessionStorage.removeItem('els-preview');
+			}
+		} catch {}
+	})();
+</script>
+
+<style>
+	.sv-hero {
+		position: relative;
+		min-height: 56vh;
+		display: flex;
+		align-items: flex-end;
+		background-size: cover;
+		background-position: center;
+		background-color: var(--olive-deep);
+		color: var(--cream);
+	}
+	.sv-hero-scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(43,35,22,0.9), rgba(43,35,22,0.1) 70%); }
+	.sv-hero-inner { position: relative; z-index: 1; padding-top: 3rem; padding-bottom: clamp(2rem, 5vw, 3.5rem); color: var(--cream); }
+	.sv-hero-inner h1 { color: var(--cream); margin: 0.7rem 0 0.6rem; }
+	.back { display: inline-block; font-size: 0.9rem; text-decoration: none; margin-bottom: 1rem; }
+	.back.light { color: var(--cream); opacity: 0.85; }
+	.meta-row { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+	.price { font-weight: 600; font-size: 1.15rem; color: var(--olive-deep); }
+	.price.light { color: var(--cream); }
+
+	.sv-intro { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; }
+	.sv-intro-text .tagline { font-size: 1.2rem; font-weight: 500; }
+	.sv-intro-text .desc { color: var(--ink-soft); max-width: 52ch; }
+
+	.sv-example { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1rem; align-items: start; }
+	.sv-example figure { margin: 0; }
+	.sv-example img { width: 100%; border-radius: var(--radius); display: block; }
+	.sv-example figcaption { font-size: 0.82rem; color: var(--ink-soft); margin-top: 0.5rem; }
+	.ex-stamp img { aspect-ratio: 1; object-fit: cover; }
+	.ex-detail { margin-top: 2rem; }
+	.ex-detail-frame { overflow: hidden; border-radius: var(--radius); aspect-ratio: 1; }
+	.ex-detail-frame img { aspect-ratio: 1; object-fit: cover; animation: ex-pan 12s ease-in-out infinite alternate; }
+	@keyframes ex-pan {
+		from { transform: scale(1.05) translate(0, 0); }
+		to { transform: scale(1.25) translate(-4%, -3%); }
+	}
+
+	.studio-section {
+		background: linear-gradient(to bottom,
+			rgba(250,246,238,0) 0%, var(--paper) 110px,
+			var(--paper) calc(100% - 110px), rgba(250,246,238,0) 100%);
+	}
+	.book-section {
+		background: linear-gradient(to bottom,
+			rgba(250,246,238,0) 0%, var(--sage-soft) 110px,
+			var(--sage-soft) calc(100% - 110px), rgba(250,246,238,0) 100%);
+	}
+	.book-wrap { max-width: 820px; }
+	.book-card { padding: 1.8rem; }
+
+	.saved-section {
+		background: linear-gradient(to bottom,
+			rgba(250,246,238,0) 0%, var(--amber-soft) 110px,
+			var(--amber-soft) calc(100% - 110px), rgba(250,246,238,0) 100%);
+	}
+	.saved-card {
+		display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: center;
+		background: var(--cream); border-radius: var(--radius); padding: 1.6rem;
+		border: 1px solid var(--line);
+	}
+	.saved-img { width: 100%; border-radius: var(--radius-sm); display: block; }
+	.saved-copy p { color: var(--ink-soft); margin-bottom: 1.2rem; }
+	@media (max-width: 600px) {
+		.saved-card { grid-template-columns: 1fr; }
+		.saved-img { max-width: 180px; }
+	}
+
+	@media (max-width: 820px) {
+		.sv-intro { grid-template-columns: 1fr; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.ex-detail-frame img { animation: none; }
+	}
+</style>

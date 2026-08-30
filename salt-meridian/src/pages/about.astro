@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import FaqList from '../components/FaqList.astro';
+import CtaBand from '../components/CtaBand.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { getStory } from '../lib/cms';
+import { FAQS } from '../data/content';
+import { faqSchema } from '../lib/schema';
+
+const story = await getStory();
+const paras = story.body.split(/\n\n+/).filter(Boolean);
+---
+
+<BaseLayout
+  title="The Fire"
+  path="/about"
+  description="How a driftwood asador above the harbor in San Sebastián works, and why the menu changes every morning with the catch."
+>
+  <JsonLd slot="head" schema={faqSchema(FAQS)} />
+
+  <header class="page-head">
+    <div class="mx-auto max-w-6xl px-5">
+      <p class="page-kicker">The Fire</p>
+      <h1 class="page-title">{story.heading}</h1>
+    </div>
+  </header>
+
+  <section class="section pt-6">
+    <div class="mx-auto max-w-5xl px-5">
+      <div class="story-prose">
+        {paras.map((p) => <p>{p}</p>)}
+      </div>
+
+      {/* The three things that make it work */}
+      <p class="label mt-16 mb-8">Why it tastes like this</p>
+      <div class="grid gap-6 md:grid-cols-3">
+        <article class="icard">
+          <span class="icard-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M24 4c2 7-4 9-4 15a8 8 0 0 0 8 8c5 0 8-4 8-9 0 0 4 4 4 11a16 16 0 1 1-31-4c3-7 9-8 15-21Z" />
+            </svg>
+          </span>
+          <span class="icard-num">01 / The fire</span>
+          <h3 class="icard-head">Driftwood, not charcoal</h3>
+          <p class="icard-body">
+            Wood the sea worked smooth and salt-cured burns hotter and throws a smoke you can't fake.
+          </p>
+        </article>
+        <article class="icard">
+          <span class="icard-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="8" width="36" height="26" rx="3" />
+              <path d="M14 16h20M14 22h16M14 28h10M20 34v6M28 34v6M16 40h16" />
+            </svg>
+          </span>
+          <span class="icard-num">02 / The board</span>
+          <h3 class="icard-head">A board, not a menu</h3>
+          <p class="icard-body">
+            Written in chalk every morning because the boats decide what's freshest, not us.
+          </p>
+        </article>
+        <article class="icard">
+          <span class="icard-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 4h4v6l3 5v6a5 5 0 0 1-5 5 5 5 0 0 1-5-5v-6l3-5V4Z" />
+              <path d="M24 32v6M18 44h12M19 38h10l-1 6H20l-1-6Z" />
+            </svg>
+          </span>
+          <span class="icard-num">03 / The pour</span>
+          <h3 class="icard-head">Cider from a meter up</h3>
+          <p class="icard-body">
+            Poured tableside from a meter above the glass so it splashes against the side and opens.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ */}
+  <section class="section">
+    <div class="mx-auto max-w-3xl px-5">
+      <SectionHeading kicker="Before you come" align="left">Questions, answered plainly</SectionHeading>
+      <div class="mt-8">
+        <FaqList faqs={FAQS} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand heading="Come see the fire." body="Thirty seats. Book before the catch is spoken for." />
+</BaseLayout>

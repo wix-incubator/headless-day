@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { WIX_APPS } from '@wix/essentials';
+import { SEO } from '@wix/seo/components';
+import { loadSEOTagsServiceConfig } from '@wix/seo/services';
+import { seoTags } from '@wix/seo';
+import { productsV3 } from '@wix/stores';
+import { imgSrc, formatPrice } from '../../lib/media';
+import AddToCart from '../../components/AddToCart';
+
+export const wixMetadata = {
+	appDefId: WIX_APPS.checkoutAndOrders.id,
+	pageIdentifier: WIX_APPS.checkoutAndOrders.productPageMetadata.pageIdentifier,
+	identifiers: {
+		slug: WIX_APPS.checkoutAndOrders.productPageMetadata.identifiers.handle,
+	},
+};
+
+const slug = Astro.params.slug!;
+
+let product: any = null;
+let seoTagsServiceConfig: any = null;
+try {
+	const [queryRes, seoRes] = await Promise.all([
+		productsV3.queryProducts().eq('slug', slug).limit(1).find(),
+		loadSEOTagsServiceConfig({
+			pageUrl: Astro.url.href,
+			itemType: seoTags.ItemType.STORES_PRODUCT,
+			itemData: { slug },
+		}).catch(() => null),
+	]);
+	product = queryRes.items?.[0] ?? null;
+	seoTagsServiceConfig = seoRes;
+} catch {}
+
+if (!product) {
+	return new Response(null, { status: 404 });
+}
+
+const src = imgSrc(product.media?.main, 800, 1060);
+const price = formatPrice(product.actualPriceRange?.minValue?.amount, (product as any).currency);
+const inStock = product.inventory?.availabilityStatus === 'IN_STOCK';
+---
+
+<Layout>
+	{seoTagsServiceConfig && <SEO.Tags seoTagsServiceConfig={seoTagsServiceConfig} slot="seo-tags" />}
+	<main class="container section product-page">
+		<a class="back" href="/books">← All books</a>
+		<div class="product-grid">
+			<div>
+				{src ? (
+					<img class="cover" src={src} alt={product.name} />
+				) : (
+					<div class="themed-block cover" style="aspect-ratio: 3/4;">{product.name}</div>
+				)}
+			</div>
+			<div class="details">
+				<h1>{product.name}</h1>
+				<p class="price">{price}</p>
+				{product.plainDescription && <p class="description">{product.plainDescription}</p>}
+				{inStock ? (
+					<AddToCart client:only="react" productId={product._id} productName={product.name} />
+				) : (
+					<p class="notice notice-err">Currently out of stock — drop by the store, we may have a copy on the shelf.</p>
+				)}
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.back { display: inline-block; font-size: 0.9rem; color: var(--ink-soft); text-decoration: none; margin-bottom: 1.5rem; }
+	.back:hover { color: var(--ink); }
+
+	.product-grid {
+		display: grid;
+		grid-template-columns: minmax(280px, 420px) 1fr;
+		gap: clamp(1.5rem, 5vw, 4rem);
+		align-items: start;
+	}
+
+	.cover { border-radius: var(--radius); aspect-ratio: 3/4; object-fit: cover; width: 100%; }
+	.price { font-size: 1.4rem; font-weight: 600; color: var(--terracotta); }
+	.description { color: var(--ink-soft); max-width: 52ch; }
+
+	@media (max-width: 720px) {
+		.product-grid { grid-template-columns: 1fr; }
+	}
+</style>

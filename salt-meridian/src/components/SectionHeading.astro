@@ -1,0 +1,18 @@
+---
+interface Props {
+  kicker?: string;
+  as?: 'h2' | 'h3';
+  class?: string;
+  align?: 'left' | 'center';
+}
+const { kicker, as: Tag = 'h2', class: className = '', align = 'left' } = Astro.props;
+---
+
+<div class:list={[align === 'center' && 'text-center', className]}>
+  {kicker && <p class="label mb-3.5">{kicker}</p>}
+  <Tag
+    class="ember-underline text-4xl uppercase leading-[0.92] tracking-[-0.01em] sm:text-5xl md:text-6xl"
+  >
+    <slot />
+  </Tag>
+</div>

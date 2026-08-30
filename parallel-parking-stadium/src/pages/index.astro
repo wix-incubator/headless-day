@@ -1,0 +1,479 @@
+---
+import Base from '../layouts/Base.astro';
+import CountdownTimer from '../components/CountdownTimer.tsx';
+import ReplayPlayer from '../components/ReplayPlayer.tsx';
+import ParkingGame from '../components/ParkingGame.tsx';
+import Faq from '../components/Faq.astro';
+import PixelCar from '../components/PixelCar.astro';
+import { getTournaments, getCompetitors, getTestimonials } from '../lib/content';
+import { faqs } from '../data/seed';
+import { sportsActivityLocation, faqPage } from '../lib/seo';
+
+const tournaments = await getTournaments();
+const competitors = await getCompetitors();
+const testimonials = await getTestimonials();
+const next = tournaments[0];
+const topThree = competitors.slice(0, 3);
+
+const rules = [
+  { n: '01', title: 'The gap', body: 'Smallest clean clearance wins the round. Tighter is better, measured to the centimeter on both bumpers.' },
+  { n: '02', title: 'The touches', body: 'Every touch on a cone or bumper is a penalty. A correction costs you. A second attempt is a forfeit.' },
+  { n: '03', title: 'The clock', body: 'Ties break on the clock. One continuous motion, fastest clean park advances. Eleven judges, no appeals.' },
+];
+
+const jsonLd = [sportsActivityLocation(), faqPage(faqs)];
+---
+
+<Base page="home" jsonLd={jsonLd}>
+  <!-- HERO — broadcast tale-of-the-tape -->
+  <section class="hero">
+    <div class="hero-grid wrap">
+      <!-- the pitch -->
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="blink" style="color:var(--magenta)">●</span>
+          <span class="lbl" style="font-size:11px;color:var(--ink)">Live · {next.title} · {next.bracket}</span>
+        </div>
+        <h1 class="dk hero-h1">Parking.<br /><span class="mag">As a blood<br />sport.</span></h1>
+        <p class="hero-p">
+          Forty thousand centimeters of asphalt. One car. Eleven judges. The car that clears by the
+          smallest margin wins the round.
+        </p>
+        <div class="hero-cta">
+          <a href="/tickets" class="btn btn-lg">▶ Get tickets</a>
+          <a href="/play" class="btn btn-cyan btn-lg">▶ Play the slot</a>
+        </div>
+        <div class="hero-ticks">
+          <div><span class="dk">11</span><span class="lbl">judges</span></div>
+          <div><span class="dk">40,000</span><span class="lbl">cm of asphalt</span></div>
+          <div><span class="dk">1</span><span class="lbl">attempt</span></div>
+        </div>
+      </div>
+
+      <!-- the jumbotron: one park, measured to the centimeter -->
+      <div class="hero-right">
+        <div class="jumbo">
+          <div class="jumbo-head">
+            <span class="lbl"><span class="blink" style="color:#ff5a5a">●</span> Live feed · Cam 3</span>
+            <span class="lbl jumbo-dim">The 11cm park</span>
+          </div>
+          <svg class="jumbo-svg" viewBox="0 0 560 300" aria-hidden="true">
+            <rect width="560" height="300" fill="#1b2030"></rect>
+            <g stroke="#ffffff" stroke-opacity=".05">
+              <line x1="0" y1="80" x2="560" y2="80"></line>
+              <line x1="0" y1="160" x2="560" y2="160"></line>
+              <line x1="140" y1="0" x2="140" y2="232"></line>
+              <line x1="420" y1="0" x2="420" y2="232"></line>
+            </g>
+            <!-- curb -->
+            <rect x="0" y="232" width="560" height="68" fill="#232a3d"></rect>
+            <line x1="0" y1="232" x2="560" y2="232" stroke="#ffce1f" stroke-opacity=".35" stroke-width="3"></line>
+            <!-- two parked cars flanking the gap -->
+            <PixelCar palette="slate" x={92} y={186} s={5} />
+            <PixelCar palette="teal" x={468} y={186} s={5} />
+            <!-- the contender easing into the gap, mid-reverse -->
+            <g transform="translate(280,182) rotate(-9)"><PixelCar palette="red" x={0} y={0} s={5.2} /></g>
+            <!-- cones marking the slot -->
+            <g transform="translate(178,232)"><polygon points="0,-20 8,0 -8,0" fill="#ff7a1a"></polygon><rect x="-5" y="-11" width="10" height="4" fill="#fff"></rect></g>
+            <g transform="translate(382,232)"><polygon points="0,-20 8,0 -8,0" fill="#ff7a1a"></polygon><rect x="-5" y="-11" width="10" height="4" fill="#fff"></rect></g>
+            <!-- dimension line over the gap -->
+            <g>
+              <line class="dimdraw" x1="178" y1="112" x2="382" y2="112" stroke="#ffce1f" stroke-width="3"></line>
+              <line x1="178" y1="100" x2="178" y2="124" stroke="#ffce1f" stroke-width="3"></line>
+              <line x1="382" y1="100" x2="382" y2="124" stroke="#ffce1f" stroke-width="3"></line>
+              <rect x="235" y="97" width="90" height="30" fill="#1b2030" stroke="#ffce1f" stroke-width="2"></rect>
+              <text x="280" y="118" text-anchor="middle" class="arcade" fill="#ffce1f" font-size="14">5.10M</text>
+            </g>
+          </svg>
+          <div class="jumbo-score">
+            <div class="jumbo-num-wrap">
+              <div class="lbl jumbo-dim">Cleared by</div>
+              <div class="jumbo-num dk">11<span>cm</span></div>
+            </div>
+            <div class="jumbo-note">
+              <div class="dk">Hernán “El&nbsp;Milímetro” Sosa</div>
+              <div class="lbl jumbo-dim">Renault Trafic · 4.99m into 5.10m · 2023</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE RULES -->
+  <section class="band" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="lbl eyebrow">How the sport works</div>
+      <h2 class="dk h2">Tighter gap. Fewer touches. Faster clock.</h2>
+      <p class="lede">
+        The car that clears by the smallest margin — clean, in one motion — wins the round. The margin is the
+        entire point, so we measure it to the centimeter.
+      </p>
+      <div class="rule-grid">
+        {
+          rules.map((r) => (
+            <div class="panel rule">
+              <div class="arcade" style="font-size:20px;color:var(--gold)">{r.n}</div>
+              <div class="lbl" style="font-size:11px;color:var(--cyan);margin:12px 0 8px">{r.title}</div>
+              <p style="margin:0;color:var(--ink-dim);font-size:18px;line-height:1.35">{r.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- NEXT MATCH / COUNTDOWN -->
+  <section class="band" style="background:var(--bg)">
+    <div class="wrap cd-grid">
+      <div>
+        <div class="lbl eyebrow" style="color:var(--gold)">Next match</div>
+        <h2 class="dk h2" style="font-size:clamp(26px,3.6vw,40px)">{next.title}</h2>
+        <p class="lede" style="margin-bottom:22px">{next.bracket}. {next.date}. The last tournament sold out in nine minutes.</p>
+        <CountdownTimer client:load targetIso={next.isoDate} />
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+        <div style="font-size:19px;color:var(--ink-dim);line-height:1.4">
+          <b style="color:var(--ink)">{next.seats} seats left.</b> {next.matchup}
+        </div>
+        <a href="/tickets" class="btn">▶ Get tickets</a>
+        <a href="/tournaments" class="lbl" style="font-size:12px;color:var(--cyan)">See the full schedule →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP SCORES -->
+  <section class="band" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="score-head">
+        <div>
+          <div class="lbl eyebrow">Top competitors</div>
+          <h2 class="dk h2">The sharpest reversers in the league</h2>
+        </div>
+        <a href="/rankings" class="btn btn-ghost">Full hi-scores →</a>
+      </div>
+      <div class="score-grid">
+        {
+          topThree.map((p) => (
+            <div class="panel panel-y score">
+              <div class="arcade" style="font-size:13px;color:var(--gold)">RANK {String(p.rank).padStart(2, '0')}</div>
+              <div class="dk" style="font-size:24px;margin:8px 0 2px">{p.name}</div>
+              <div style="font-size:16px;color:var(--ink-dim);margin-bottom:16px">{p.note}</div>
+              <div style="display:flex;gap:20px;border-top:1px solid var(--grid);padding-top:14px">
+                <div>
+                  <div class="dk" style="font-size:30px;color:var(--gold)">{p.margin}<span class="lbl" style="font-size:11px;color:var(--cyan)"> CM</span></div>
+                  <div class="lbl" style="font-size:10px;color:var(--ink-dim);margin-top:4px">Best margin</div>
+                </div>
+                <div>
+                  <div class="dk" style="font-size:30px">{p.clean}</div>
+                  <div class="lbl" style="font-size:10px;color:var(--ink-dim);margin-top:4px">Clean parks</div>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- THE 11CM REPLAY -->
+  <section id="replay" class="band" style="background:var(--bg);position:relative;overflow:hidden">
+    <div class="wrap">
+      <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+        <div class="lbl eyebrow" style="margin:0;color:var(--gold)">The 11cm park · Replay</div>
+        <div class="lbl" style="font-size:11px;color:var(--ink-dim)">Renault Trafic · 4.99m into 5.10m</div>
+      </div>
+      <h2 class="dk h2" style="margin-bottom:26px">A van. A space eleven centimeters longer than the van. One attempt.</h2>
+      <ReplayPlayer client:visible />
+    </div>
+  </section>
+
+  <!-- THE SLOT (mini-game) -->
+  <section class="band" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="lbl eyebrow" style="color:var(--cyan)">Playable · 1 player</div>
+      <h2 class="dk h2">Think you could clear it? Try the slot.</h2>
+      <p class="lede">
+        Reverse the car into the gap. Smallest clean clearance wins, touches are penalties, the clock breaks
+        ties. Park dead-centre and you clear by eleven — the legend's number.
+      </p>
+      <ParkingGame client:visible />
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="band" style="background:var(--bg)">
+    <div class="wrap">
+      <div class="lbl eyebrow">The roar</div>
+      <h2 class="dk h2">They came for the joke. They stayed because the parking got tense.</h2>
+      <div class="quote-grid">
+        {
+          testimonials.map((t) => (
+            <div class="panel quote">
+              <div class="arcade" style="font-size:22px;color:var(--magenta);line-height:1">“</div>
+              <p style="margin:8px 0 18px;font-size:20px;line-height:1.4;color:var(--ink);flex:1">{t.quote}</p>
+              <div style="border-top:1px solid var(--grid);padding-top:12px">
+                <div class="dk" style="font-size:17px">{t.name}</div>
+                <div style="font-size:15px;color:var(--ink-dim);margin-top:2px">{t.detail}</div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- INSERT COIN BAND -->
+  <section class="band coin">
+    <div class="wrap coin-inner">
+      <div>
+        <h2 class="dk" style="margin:0 0 8px;font-size:clamp(28px,5vw,52px);color:var(--ink)">Pick a night. Pick a tier.</h2>
+        <p class="arcade" style="margin:0;font-size:11px;color:#3a3300">The brackets fill before the cars do.</p>
+      </div>
+      <a href="/tickets" class="btn" style="background:var(--bg);color:var(--gold);font-size:14px">▶ Insert coin</a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="band" style="background:var(--bg-2)">
+    <div class="wrap" style="max-width:820px">
+      <div class="lbl eyebrow">Questions</div>
+      <h2 class="dk h2">Yes, it’s real.</h2>
+      <Faq faqs={faqs} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(90% 70% at 8% -20%, rgba(255, 247, 214, 0.7), rgba(255, 247, 214, 0) 60%),
+      var(--bg);
+  }
+  /* faint painted-deck grid behind everything */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(25, 27, 38, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(25, 27, 38, 0.045) 1px, transparent 1px);
+    background-size: 46px 46px;
+    pointer-events: none;
+  }
+  .hero-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(30px, 4vw, 56px);
+    align-items: center;
+    padding: clamp(40px, 6vw, 76px) 20px clamp(48px, 6vw, 84px);
+  }
+  @media (min-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1.05fr 0.95fr;
+    }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 2px solid var(--ink);
+    box-shadow: var(--shadow-sm);
+    padding: 8px 13px;
+  }
+  .hero-h1 {
+    margin: 20px 0 0;
+    font-size: clamp(44px, 6.6vw, 82px);
+    color: var(--ink);
+    line-height: 0.9;
+    text-shadow: 3px 3px 0 rgba(25, 27, 38, 0.14);
+  }
+  .hero-h1 .mag {
+    color: var(--magenta);
+  }
+  .hero-p {
+    margin: 24px 0 0;
+    max-width: 460px;
+    font-size: clamp(17px, 1.7vw, 21px);
+    line-height: 1.4;
+    color: var(--ink-dim);
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .hero-ticks {
+    display: flex;
+    gap: clamp(22px, 4vw, 44px);
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 2px solid var(--grid);
+  }
+  .hero-ticks > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .hero-ticks .dk {
+    font-size: clamp(24px, 3vw, 30px);
+    color: var(--gold);
+    line-height: 1;
+  }
+  .hero-ticks .lbl {
+    font-size: 10px;
+    color: var(--ink-dim);
+  }
+
+  /* the jumbotron — the one dark focal panel on the light deck */
+  .jumbo {
+    border: 2px solid var(--ink);
+    box-shadow: 8px 8px 0 0 var(--yellow);
+    background: #1b2030;
+    overflow: hidden;
+  }
+  .jumbo-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .jumbo-head .lbl {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .jumbo-dim {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+  .jumbo-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .jumbo-score {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .jumbo-num {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    font-size: clamp(52px, 7vw, 74px);
+    color: var(--yellow);
+    line-height: 0.8;
+  }
+  .jumbo-num span {
+    font-size: 18px;
+    color: #fff;
+  }
+  .jumbo-note {
+    text-align: right;
+  }
+  .jumbo-note .dk {
+    font-size: 15px;
+    color: #fff;
+    line-height: 1.15;
+  }
+  .jumbo-note .lbl {
+    display: block;
+    margin-top: 5px;
+    font-size: 10px;
+  }
+
+  .band {
+    padding: clamp(48px, 7vw, 88px) 20px;
+    border-top: 2px solid var(--grid);
+  }
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: 12px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+  .h2 {
+    margin: 0 0 10px;
+    font-size: clamp(28px, 4.4vw, 46px);
+    max-width: 820px;
+  }
+  .lede {
+    margin: 0 0 32px;
+    max-width: 580px;
+    font-size: 19px;
+    line-height: 1.4;
+    color: var(--ink-dim);
+  }
+
+  .rule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .rule {
+    padding: 24px;
+  }
+
+  .cd-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+  @media (min-width: 820px) {
+    .cd-grid {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  .score-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 30px;
+  }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 18px;
+  }
+  .score {
+    padding: 22px;
+  }
+
+  .quote-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .quote {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .coin {
+    background: var(--yellow);
+    border-top: 3px solid var(--ink);
+  }
+  .coin-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 22px;
+  }
+</style>

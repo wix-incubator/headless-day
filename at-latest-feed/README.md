@@ -37,7 +37,7 @@ Requires a logged-in Wix CLI session:
 npx @wix/cli login
 ```
 
-Then connect your own site (or copy `wix.config.example.json` to `wix.config.json` and fill in your IDs):
+Then connect your own site (or copy `wix.config.json` to `wix.config.json` and fill in your IDs):
 
 ```bash
 npm create @wix/new@latest init

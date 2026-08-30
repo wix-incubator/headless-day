@@ -1,0 +1,997 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { productsV3 } from '@wix/stores';
+import { resolveWixImageUrl } from '../utils/wix-image';
+
+// Card background colours — cycle through these for variety
+const CARD_BG = ['#FFF5E8','#EEF4FF','#EEFFF4','#F5EEFF','#FFFDE8','#FFF0F5'];
+
+// Fetch live products from the Wix store
+let storeProducts: any[] = [];
+try {
+  const result = await productsV3
+    .queryProducts({ fields: ['CURRENCY', 'PLAIN_DESCRIPTION', 'MEDIA_ITEMS_INFO'] })
+    .limit(12)
+    .find();
+  storeProducts = (result.items ?? []).filter((p: any) => p.ribbon?.name !== 'Gift Card');
+} catch (err) {
+  console.error('[index] store query failed:', err);
+}
+
+// Map Wix products → wish card shape
+// Products are used as-is; set the product name as the wish "name",
+// description as the wish text, and the formatted price as the amount.
+const wishes = storeProducts.length > 0
+  ? storeProducts.map((p: any, i: number) => ({
+      id:      p._id ?? i,
+      num:     String(i + 1).padStart(2, '0'),
+      name:    p.name ?? 'A child',
+      slug:    p.slug,
+      wish:    p.description ?? p.name ?? '',
+      amount:  p.actualPriceRange?.minValue?.formattedAmount ?? '',
+      image: (() => {
+        const raw = p.media?.main?.image ?? p.media?.items?.[0]?.image;
+        if (!raw) return null;
+        // Extract the URL string regardless of whether raw is a string or object
+        const url: string | undefined = typeof raw === 'string' ? raw : raw.url;
+        const id: string | undefined  = typeof raw === 'object' ? raw.id : undefined;
+        if (url?.startsWith('http')) return `${url}?w=280&h=220`;
+        if (url?.startsWith('wix:image://')) {
+          // wix:image://v1/{mediaId}/{filename}#originWidth=...
+          const m = url.match(/^wix:image:\/\/v1\/([^/?#]+)/);
+          if (m) return `https://static.wixstatic.com/media/${m[1]}?w=280&h=220`;
+        }
+        if (id) return `https://static.wixstatic.com/media/${id}?w=280&h=220`;
+        return null;
+      })(),
+      bg:      CARD_BG[i % CARD_BG.length],
+    }))
+  : [
+      // Fallback hardcoded wishes — slugs match real Wix store products
+      { id: 1,  num: '01', name: "Amara's Wish",  slug: 'amaras-wish-a-bicycle-to-ride-to-school',      wish: 'A bicycle to ride to school',      amount: '$45', image: 'https://static.wixstatic.com/media/5477bb_b88ac6a01f7347a68249cc5be41fd565~mv2.jpeg', bg: '#FFF5E8' },
+      { id: 2,  num: '02', name: "Luca's Wish",   slug: 'lucas-wish-art-supplies-to-paint-his-family',  wish: 'Art supplies to paint my family',  amount: '$38', image: 'https://static.wixstatic.com/media/5477bb_0a02a15d6da548c48cca79308c4619ae~mv2.jpeg', bg: '#EEF4FF' },
+      { id: 3,  num: '03', name: "Fatima's Wish", slug: 'fatimas-wish-a-box-of-storybooks',             wish: 'A box of storybooks',              amount: '$30', image: 'https://static.wixstatic.com/media/5477bb_1704f75e497f480cb26eb28bb26457e4~mv2.jpeg', bg: '#EEFFF4' },
+      { id: 4,  num: '04', name: "Kai's Wish",    slug: 'kais-wish-a-telescope-to-see-the-stars',       wish: 'A telescope to see the stars',     amount: '$65', image: 'https://static.wixstatic.com/media/5477bb_062bebc14ae9454ba392ff4689e767be~mv2.jpeg', bg: '#F5EEFF' },
+      { id: 5,  num: '05', name: "Sofia's Wish",  slug: 'sofias-wish-a-guitar-to-learn-music',          wish: 'A guitar to learn music',          amount: '$80', image: 'https://static.wixstatic.com/media/5477bb_df5114f512354112a4cd29bcf11457e8~mv2.jpeg', bg: '#FFFDE8' },
+      { id: 6,  num: '06', name: "Omar's Wish",   slug: null,                                            wish: 'A football kit for my team',       amount: '$55', image: null, bg: '#FFF0F5' },
+    ];
+
+const stats = [
+  { value: 847,   suffix: '',  label: 'Wishes granted'   },
+  { value: 42,    suffix: '',  label: 'Countries reached' },
+  { value: 1203,  suffix: '+', label: 'Kids helped'       },
+];
+---
+
+<Layout>
+
+<!-- ════════════════════════════════════════
+     SECTION 1 · HERO
+════════════════════════════════════════ -->
+<section class="hero">
+  <div class="container hero-inner">
+
+    <!-- Left: copy -->
+    <div class="hero-copy">
+      <p class="hero-eyebrow mono reveal">( A WISH IS A POWERFUL THING )</p>
+
+      <h1 class="hero-headline reveal reveal-delay-1">
+        Make a Child's<br/>
+        <em class="headline-em">Wish Come True</em>
+      </h1>
+
+      <p class="hero-sub reveal reveal-delay-2">
+        Real children. Real dreams. You choose a wish and donate exactly
+        what it costs — our team makes it happen and sends you proof.
+      </p>
+
+      <div class="hero-cta-row reveal reveal-delay-3">
+        <a href="#wishes" class="btn-yellow hero-btn-primary">Grant a Wish ✦</a>
+        <a href="#how-it-works" class="btn-ghost">How it works ↓</a>
+      </div>
+
+      <!-- Trust micro-copy -->
+      <p class="hero-trust reveal reveal-delay-4">
+        <span class="trust-dot"></span>
+        Every wish is verified &nbsp;·&nbsp; 100% goes to the child
+      </p>
+    </div>
+
+    <!-- Right: Sun mascot -->
+    <div class="hero-mascot reveal reveal-delay-2">
+      <div class="mascot-float-wrapper float-idle">
+        <svg
+          id="sun-mascot"
+          viewBox="0 0 240 240"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-label="Sun mascot"
+          role="img"
+        >
+          <g transform="translate(120,120)">
+            <!-- Rays -->
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(0)"   />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(45)"  />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(90)"  />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(135)" />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(180)" />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(225)" />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(270)" />
+            <ellipse cx="0" cy="-88" rx="11" ry="26" fill="#FFE08A" transform="rotate(315)" />
+            <!-- Body -->
+            <circle r="72" fill="#FFD166"/>
+            <!-- Cheeks -->
+            <circle cx="-34" cy="14" r="16" fill="#FFB5A7" opacity="0.4"/>
+            <circle cx=" 34" cy="14" r="16" fill="#FFB5A7" opacity="0.4"/>
+            <!-- Eye whites -->
+            <circle cx="-22" cy="-10" r="14" fill="white"/>
+            <circle cx=" 22" cy="-10" r="14" fill="white"/>
+            <!-- Pupils -->
+            <circle id="pupil-l" cx="-22" cy="-10" r="7" fill="#0F0E17"/>
+            <circle id="pupil-r" cx=" 22" cy="-10" r="7" fill="#0F0E17"/>
+            <!-- Smile -->
+            <path d="M -24 22 Q 0 38 24 22"
+                  stroke="#0F0E17" stroke-width="3.5"
+                  fill="none" stroke-linecap="round"/>
+            <!-- Decorative sparkle dots -->
+            <circle cx="78"  cy="-55" r="4" fill="#FF6B9D" opacity="0.7"/>
+            <circle cx="-82" cy="-30" r="3" fill="#FFCBA4" opacity="0.8"/>
+            <circle cx="60"  cy="70"  r="2.5" fill="#FFD166" opacity="0.6"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Decorative floating emoji around the mascot -->
+      <span class="mascot-spark s1" aria-hidden="true">✨</span>
+      <span class="mascot-spark s2" aria-hidden="true">⭐</span>
+      <span class="mascot-spark s3" aria-hidden="true">💛</span>
+      <span class="mascot-spark s4" aria-hidden="true">🌟</span>
+    </div>
+
+  </div><!-- /hero-inner -->
+</section>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 2 · MARQUEE
+════════════════════════════════════════ -->
+<div class="marquee-outer" aria-hidden="true">
+  <div class="marquee-track">
+    {Array.from({ length: 2 }).map(() => (
+      <span class="marquee-inner">
+        ✦ MAKE A WISH &nbsp;·&nbsp; SPREAD JOY &nbsp;·&nbsp; CHANGE A LIFE &nbsp;·&nbsp;
+        ONE GIFT AT A TIME &nbsp;·&nbsp; BE SOMEONE'S MAGIC &nbsp;·&nbsp;
+        GRANT A DREAM &nbsp;·&nbsp; EVERY CHILD DESERVES THIS &nbsp;·&nbsp;
+      </span>
+    ))}
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 3 · HOW IT WORKS
+════════════════════════════════════════ -->
+<section class="section how-section" id="how-it-works">
+  <div class="container">
+    <div class="how-header reveal">
+      <span class="section-label">( HOW IT WORKS )</span>
+      <h2 class="how-title">Three steps.<br/>One wish granted.</h2>
+    </div>
+
+    <div class="how-steps">
+      {[
+        {
+          num: '01', emoji: '💌',
+          title: 'A child shares a wish',
+          body: 'A child anywhere in the world tells us their dream. Every wish is real, personal, and full of hope. We verify each one before it goes live.',
+        },
+        {
+          num: '02', emoji: '💛',
+          title: 'You grant it with a donation',
+          body: 'Browse wishes and pick one that moves your heart. Your donation covers the exact cost — nothing more, nothing hidden.',
+        },
+        {
+          num: '03', emoji: '✨',
+          title: 'Our team makes it come true',
+          body: 'We source, deliver, and document every wish. You receive a thank-you photo and a personal note from the child.',
+        },
+      ].map((step, i) => (
+        <article class={`how-card lift reveal reveal-delay-${i+1}`}>
+          <span class="step-bg-num" aria-hidden="true">{step.num}</span>
+          <div class="step-icon">{step.emoji}</div>
+          <h3 class="step-title">{step.title}</h3>
+          <p class="step-body">{step.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 4 · WISHES CAROUSEL
+════════════════════════════════════════ -->
+<section class="section wishes-section" id="wishes">
+  <div class="container">
+    <div class="wishes-header reveal">
+      <div>
+        <span class="section-label">( ACTIVE WISHES )</span>
+        <h2 class="wishes-title">Choose a wish to grant</h2>
+      </div>
+      <div class="carousel-arrows">
+        <button class="arrow-btn" id="carousel-prev" aria-label="Previous wishes">←</button>
+        <button class="arrow-btn" id="carousel-next" aria-label="Next wishes">→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carousel viewport (full-bleed) -->
+  <div class="carousel-outer">
+    <div class="carousel-track" id="carousel-track">
+      {wishes.map((w) => (
+        <a
+          class="wish-card"
+          data-id={w.id}
+          href={w.slug ? `/products/${w.slug}` : '#wishes'}
+          draggable="false"
+        >
+          <!-- Card top (colored bg or product image) -->
+          <div class="card-top" style={w.image ? '' : `background: ${w.bg}`}>
+            {w.image
+              ? <img src={w.image} alt={w.name} class="card-img" loading="lazy" draggable="false" />
+              : <div class="card-emoji">✨</div>
+            }
+            <span class="card-num mono">( {w.num} )</span>
+          </div>
+          <!-- Card bottom (white) -->
+          <div class="card-bottom">
+            <p class="card-name">{w.name}</p>
+            <p class="card-wish">"{w.wish}"</p>
+            <div class="card-footer-row">
+              {w.amount && <span class="card-amount">{w.amount}</span>}
+              <span class="btn-dark card-cta">Grant this wish →</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 5 · STATS
+════════════════════════════════════════ -->
+<section class="stats-section" id="stats">
+  <div class="container stats-inner">
+    {stats.map((s, i) => (
+      <div class={`stat-item reveal reveal-delay-${i+1}`}>
+        <p
+          class="stat-number"
+          data-target={s.value}
+          data-suffix={s.suffix}
+        >0</p>
+        <p class="stat-label">{s.label}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 6 · MISSION
+════════════════════════════════════════ -->
+<section class="section mission-section">
+  <div class="container mission-inner">
+    <div class="mission-left reveal">
+      <span class="mission-deco" aria-hidden="true">✦</span>
+      <blockquote class="mission-quote">
+        "Every child deserves to have at least one wish come true."
+      </blockquote>
+    </div>
+    <div class="mission-right">
+      <p class="mission-body reveal reveal-delay-1">
+        We started Children's Wishes because we believe in the radical power of small
+        kindnesses. Behind every wish is a real child — hopeful, specific, and waiting.
+        A bicycle isn't just a bicycle. It's school, freedom, and possibility.
+      </p>
+      <p class="mission-body reveal reveal-delay-2">
+        100% of every donation goes directly to fulfilling the wish. Our small team of
+        volunteers handles logistics, verification, and delivery. When a wish is granted,
+        we document the moment and share it with you — because you deserve to see the
+        magic you made possible.
+      </p>
+      <a href="/about" class="btn-ghost reveal reveal-delay-3" style="margin-top: 12px; display: inline-flex;">
+        Read our story →
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     SECTION 7 · FINAL CTA BANNER
+════════════════════════════════════════ -->
+<section class="cta-banner">
+  <div class="cta-sparks" aria-hidden="true">
+    <span class="cta-spark cs1">✨</span>
+    <span class="cta-spark cs2">🌟</span>
+    <span class="cta-spark cs3">💛</span>
+    <span class="cta-spark cs4">⭐</span>
+    <span class="cta-spark cs5">✨</span>
+  </div>
+  <div class="container cta-inner">
+    <p class="section-label cta-label">( RIGHT NOW )</p>
+    <h2 class="cta-title">
+      There's a child waiting<br/>
+      <em class="cta-em">for you right now.</em>
+    </h2>
+    <a href="#wishes" class="btn-yellow cta-btn">See all wishes ✦</a>
+  </div>
+</section>
+
+</Layout>
+
+
+<!-- ════════════════════════════════════════
+     STYLES
+════════════════════════════════════════ -->
+<style>
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 120px 0 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 5% 10%,  rgba(255,209,102,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 95% 90%, rgba(255,107,157,0.10) 0%, transparent 55%);
+  pointer-events: none;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+  .hero-mascot { order: -1; display: flex; justify-content: center; }
+}
+
+.hero-eyebrow {
+  display: block;
+  margin-bottom: 28px;
+  color: var(--muted);
+}
+.hero-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3rem, 6vw, 5.8rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  margin-bottom: 28px;
+}
+.headline-em {
+  font-style: normal;
+  background: linear-gradient(135deg, #FF6B9D 0%, #FFD166 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 440px;
+  margin-bottom: 36px;
+}
+.hero-cta-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.hero-btn-primary { font-size: 15px; padding: 15px 32px; }
+.hero-trust {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+.trust-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4AD66D;
+  flex-shrink: 0;
+}
+
+/* Mascot */
+.hero-mascot {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.mascot-float-wrapper {
+  width: min(400px, 85vw);
+  filter: drop-shadow(0 32px 64px rgba(255,209,102,0.35));
+}
+#sun-mascot { width: 100%; height: auto; }
+.mascot-spark {
+  position: absolute;
+  font-size: 1.6rem;
+  pointer-events: none;
+  user-select: none;
+  animation: sparkFloat 3.5s ease-in-out infinite;
+}
+.s1 { top: 8%;  left: 10%; animation-delay: 0s;    animation-duration: 3.8s; }
+.s2 { top: 12%; right: 8%; animation-delay: 0.7s;  animation-duration: 4.2s; }
+.s3 { bottom: 20%; left: 5%;  animation-delay: 1.4s; font-size: 1.4rem; }
+.s4 { bottom: 15%; right: 12%; animation-delay: 2s;   font-size: 1.2rem; }
+@keyframes sparkFloat {
+  0%,100% { transform: translateY(0) rotate(0deg)   scale(1);   opacity: 0.6; }
+  50%      { transform: translateY(-12px) rotate(15deg) scale(1.15); opacity: 1; }
+}
+
+/* ── Marquee ── */
+.marquee-inner {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  padding-right: 60px;
+  white-space: nowrap;
+}
+
+/* ── How it works ── */
+.how-section { background: var(--cream); }
+.how-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 64px;
+}
+.how-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-top: 12px;
+}
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .how-steps { grid-template-columns: 1fr; }
+}
+.how-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 44px 36px;
+  overflow: hidden;
+}
+.step-bg-num {
+  position: absolute;
+  top: -20px; right: -8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 9rem;
+  color: var(--ink);
+  opacity: 0.05;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.05em;
+}
+.step-icon { font-size: 3rem; margin-bottom: 20px; }
+.step-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.25;
+}
+.step-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ── Wishes carousel ── */
+.wishes-section { background: var(--cream); padding-top: 100px; }
+.wishes-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 24px;
+}
+.wishes-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-top: 10px;
+}
+.carousel-arrows { display: flex; gap: 10px; flex-shrink: 0; }
+.arrow-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  font-size: 18px;
+  color: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s var(--ease-spring);
+}
+.arrow-btn:hover {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+  transform: scale(1.08);
+}
+
+.carousel-outer {
+  overflow: hidden;
+  padding: 12px 0 32px;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.carousel-outer:active { cursor: grabbing; }
+.carousel-track {
+  display: flex;
+  gap: 20px;
+  padding: 0 32px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+
+/* Wish card */
+.wish-card {
+  flex: 0 0 300px;
+  height: 460px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+}
+.wish-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+.card-top {
+  flex: 0 0 220px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 20px 16px;
+}
+.card-num {
+  position: absolute;
+  top: 14px; left: 16px;
+  font-size: 10px;
+  color: rgba(15,14,23,0.5);
+  z-index: 1;
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(4px);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.card-emoji {
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+}
+.card-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+.card-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.card-flag { font-size: 16px; }
+.card-country {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+.card-bottom {
+  flex: 1;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: white;
+}
+.card-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+}
+.card-age {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 14px;
+}
+.card-wish {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pink);
+  flex: 1;
+}
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+}
+.card-amount {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--ink);
+  background: var(--yellow-light);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+.card-cta {
+  font-size: 12px;
+  padding: 9px 16px;
+  white-space: nowrap;
+}
+
+/* ── Stats ── */
+.stats-section {
+  background: var(--ink);
+  padding: 80px 0;
+}
+.stats-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+@media (max-width: 640px) {
+  .stats-inner { grid-template-columns: 1fr; }
+}
+.stat-item { padding: 24px; }
+.stat-divider {
+  width: 1px;
+  background: rgba(255,251,245,0.1);
+  align-self: stretch;
+}
+
+/* ── Mission ── */
+.mission-section { background: var(--cream); }
+.mission-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .mission-inner { grid-template-columns: 1fr; gap: 48px; }
+}
+.mission-left { position: relative; }
+.mission-deco {
+  display: block;
+  font-size: 7rem;
+  line-height: 1;
+  color: var(--yellow);
+  opacity: 0.35;
+  margin-bottom: -20px;
+  font-family: serif;
+  user-select: none;
+}
+.mission-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.35;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  border: none;
+  padding: 0;
+  quotes: none;
+}
+.mission-body {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* ── CTA Banner ── */
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FFCBA4 0%, #FFB3C6 100%);
+  padding: 120px 0;
+  text-align: center;
+}
+.cta-sparks { position: absolute; inset: 0; pointer-events: none; }
+.cta-spark {
+  position: absolute;
+  font-size: 2rem;
+  animation: sparkFloat 4s ease-in-out infinite;
+}
+.cs1 { top: 15%;  left: 8%;  animation-delay: 0s;   font-size: 2.4rem; }
+.cs2 { top: 20%;  right: 12%; animation-delay: 0.8s; font-size: 1.8rem; }
+.cs3 { bottom: 25%; left: 15%; animation-delay: 1.6s; font-size: 1.6rem; }
+.cs4 { top: 40%;  left: 5%;  animation-delay: 0.4s; font-size: 1.4rem; }
+.cs5 { bottom: 20%; right: 8%; animation-delay: 2.2s; font-size: 2rem; }
+.cta-label { color: rgba(15,14,23,0.5); margin-bottom: 16px; display: block; }
+.cta-inner { position: relative; }
+.cta-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 44px;
+}
+.cta-em {
+  font-style: normal;
+  position: relative;
+}
+.cta-em::after {
+  content: '';
+  position: absolute;
+  bottom: 2px; left: 0; right: 0;
+  height: 4px;
+  background: var(--ink);
+  border-radius: 2px;
+  opacity: 0.3;
+}
+.cta-btn { font-size: 16px; padding: 18px 40px; }
+</style>
+
+
+<!-- ════════════════════════════════════════
+     ALL INTERACTIVE JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ─────────────────────────────────────────────
+  // 1. SUN MASCOT — eye tracking
+  // ─────────────────────────────────────────────
+  const svg     = document.getElementById('sun-mascot');
+  const pupilL  = document.getElementById('pupil-l');
+  const pupilR  = document.getElementById('pupil-r');
+
+  const BASE_L = { x: -22, y: -10 };
+  const BASE_R = { x:  22, y: -10 };
+  const MAX_OFFSET = 5; // SVG units
+
+  function updateEyes(cx, cy) {
+    if (!svg || !pupilL || !pupilR) return;
+    const rect    = svg.getBoundingClientRect();
+    const svgCX   = rect.left + rect.width  / 2;
+    const svgCY   = rect.top  + rect.height / 2;
+    const svgScale = rect.width / 240;
+
+    // Direction in SVG space
+    const dx = (cx - svgCX) / svgScale;
+    const dy = (cy - svgCY) / svgScale;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist === 0) return;
+
+    const factor = Math.min(dist / 200, 1) * MAX_OFFSET;
+    const ox = (dx / dist) * factor;
+    const oy = (dy / dist) * factor;
+
+    pupilL.setAttribute('cx', String(BASE_L.x + ox));
+    pupilL.setAttribute('cy', String(BASE_L.y + oy));
+    pupilR.setAttribute('cx', String(BASE_R.x + ox));
+    pupilR.setAttribute('cy', String(BASE_R.y + oy));
+  }
+
+  document.addEventListener('mousemove', (e) => {
+    updateEyes(e.clientX, e.clientY);
+  }, { passive: true });
+
+  // Touch support for mobile
+  document.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    if (t) updateEyes(t.clientX, t.clientY);
+  }, { passive: true });
+
+
+  // ─────────────────────────────────────────────
+  // 2. SCROLL REVEAL
+  // ─────────────────────────────────────────────
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  revealEls.forEach((el) => revealObserver.observe(el));
+
+
+  // ─────────────────────────────────────────────
+  // 3. STATS COUNTER ANIMATION
+  // ─────────────────────────────────────────────
+  const counterEls = document.querySelectorAll('[data-target]');
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function animateCounter(el) {
+    const target   = parseInt(el.dataset.target, 10);
+    const suffix   = el.dataset.suffix || '';
+    const duration = 2200; // ms
+    const startTs  = performance.now();
+
+    function tick(now) {
+      const elapsed  = now - startTs;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased    = easeOutCubic(progress);
+      const current  = Math.round(eased * target);
+
+      el.textContent = current.toLocaleString() + suffix;
+
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  const statsObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  counterEls.forEach((el) => statsObserver.observe(el));
+
+
+  // ─────────────────────────────────────────────
+  // 4. CAROUSEL — drag + touch + arrow buttons
+  // ─────────────────────────────────────────────
+  const track  = document.getElementById('carousel-track');
+  const btnPrev = document.getElementById('carousel-prev');
+  const btnNext = document.getElementById('carousel-next');
+
+  if (track) {
+    const CARD_STEP = 320; // card width + gap
+
+    // Arrow buttons
+    btnPrev?.addEventListener('click', () => {
+      track.scrollBy({ left: -CARD_STEP, behavior: 'smooth' });
+    });
+    btnNext?.addEventListener('click', () => {
+      track.scrollBy({ left: CARD_STEP, behavior: 'smooth' });
+    });
+
+    // Mouse drag — only treat as drag if mouse moved > 5px, so clicks still work
+    let isDragging  = false;
+    let hasMoved    = false;
+    let dragStartX  = 0;
+    let scrollStart = 0;
+
+    track.addEventListener('mousedown', (e) => {
+      isDragging  = true;
+      hasMoved    = false;
+      dragStartX  = e.pageX;
+      scrollStart = track.scrollLeft;
+      track.style.scrollBehavior = 'auto';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const delta = dragStartX - e.pageX;
+      if (Math.abs(delta) > 5) hasMoved = true;
+      if (hasMoved) track.scrollLeft = scrollStart + delta;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      track.style.scrollBehavior = 'smooth';
+    });
+
+    // Prevent link clicks from firing during a real drag
+    track.addEventListener('click', (e) => {
+      if (hasMoved) e.preventDefault();
+    }, true);
+
+    // Touch drag
+    let touchStartX  = 0;
+    let touchScrollStart = 0;
+
+    track.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchScrollStart = track.scrollLeft;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', (e) => {
+      const delta = touchStartX - e.touches[0].clientX;
+      track.scrollLeft = touchScrollStart + delta;
+    }, { passive: true });
+  }
+
+
+  // ─────────────────────────────────────────────
+  // 5. SMOOTH SCROLL for anchor buttons
+  // ─────────────────────────────────────────────
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      const href = anchor.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+}); // end DOMContentLoaded
+</script>

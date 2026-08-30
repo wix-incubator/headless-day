@@ -1,7 +1,6 @@
 # wix integration
 .wix/
 .wix.original-linked/
-wix.config.json
 
 # build output
 dist/

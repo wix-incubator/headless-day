@@ -1,0 +1,328 @@
+---
+---
+<div class="hero-anim" aria-hidden="true">
+
+  <svg class="iceland-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#06060f"/>
+        <stop offset="55%"  stop-color="#0d1828"/>
+        <stop offset="100%" stop-color="#150806"/>
+      </linearGradient>
+      <radialGradient id="gA1" cx="22%" cy="40%" r="48%">
+        <stop offset="0%"   stop-color="#00ff88" stop-opacity="0.18"/>
+        <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gA2" cx="72%" cy="28%" r="44%">
+        <stop offset="0%"   stop-color="#8833ee" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="#8833ee" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gCrater" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#ff5500" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#ff2200" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gLavaGlow" cx="1054" cy="295" r="180" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#ff4400" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#ff4400" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="gLava" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#ff7700"/>
+        <stop offset="45%"  stop-color="#cc2200"/>
+        <stop offset="100%" stop-color="#880e00"/>
+      </linearGradient>
+      <radialGradient id="gTable" cx="50%" cy="100%" r="55%">
+        <stop offset="0%"   stop-color="#7a2e08" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="#7a2e08" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="fGlow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="6" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="fAurora" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.009 0.055" numOctaves="2" result="n">
+          <animate attributeName="baseFrequency" values="0.009 0.055;0.012 0.070;0.009 0.055" dur="9s" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+
+    <!-- Sky -->
+    <rect width="1440" height="900" fill="url(#gSky)"/>
+
+    <!-- Stars -->
+    <g opacity="0.85">
+      <circle cx="55"   cy="32"  r="1.3" fill="white" opacity="0.85"/>
+      <circle cx="128"  cy="62"  r="1.0" fill="white" opacity="0.60"/>
+      <circle cx="210"  cy="20"  r="1.5" fill="white" opacity="0.90"/>
+      <circle cx="285"  cy="78"  r="0.9" fill="white" opacity="0.55"/>
+      <circle cx="365"  cy="38"  r="1.2" fill="white" opacity="0.75"/>
+      <circle cx="440"  cy="16"  r="1.0" fill="white" opacity="0.85"/>
+      <circle cx="510"  cy="52"  r="1.4" fill="white" opacity="0.65"/>
+      <circle cx="588"  cy="24"  r="1.1" fill="white" opacity="0.90"/>
+      <circle cx="650"  cy="68"  r="0.9" fill="white" opacity="0.50"/>
+      <circle cx="720"  cy="14"  r="1.3" fill="white" opacity="0.80"/>
+      <circle cx="795"  cy="48"  r="1.1" fill="white" opacity="0.70"/>
+      <circle cx="865"  cy="30"  r="1.5" fill="white" opacity="0.60"/>
+      <circle cx="940"  cy="75"  r="1.0" fill="white" opacity="0.80"/>
+      <circle cx="1010" cy="20"  r="1.2" fill="white" opacity="0.90"/>
+      <circle cx="1085" cy="55"  r="0.9" fill="white" opacity="0.65"/>
+      <circle cx="1155" cy="33"  r="1.4" fill="white" opacity="0.75"/>
+      <circle cx="1230" cy="70"  r="1.1" fill="white" opacity="0.55"/>
+      <circle cx="1300" cy="28"  r="1.0" fill="white" opacity="0.85"/>
+      <circle cx="1370" cy="58"  r="1.3" fill="white" opacity="0.60"/>
+      <circle cx="90"   cy="115" r="0.8" fill="white" opacity="0.45"/>
+      <circle cx="175"  cy="95"  r="1.1" fill="white" opacity="0.65"/>
+      <circle cx="320"  cy="125" r="0.9" fill="white" opacity="0.50"/>
+      <circle cx="480"  cy="105" r="1.2" fill="white" opacity="0.70"/>
+      <circle cx="620"  cy="88"  r="1.0" fill="white" opacity="0.60"/>
+      <circle cx="760"  cy="118" r="0.8" fill="white" opacity="0.45"/>
+      <circle cx="895"  cy="100" r="1.1" fill="white" opacity="0.70"/>
+      <circle cx="1050" cy="82"  r="1.0" fill="white" opacity="0.55"/>
+      <circle cx="1195" cy="108" r="1.3" fill="white" opacity="0.65"/>
+      <circle cx="1340" cy="92"  r="0.9" fill="white" opacity="0.50"/>
+    </g>
+
+    <!-- Aurora -->
+    <g filter="url(#fAurora)">
+      <ellipse cx="380"  cy="195" rx="520" ry="70"  fill="none" stroke="#00ff88" stroke-width="38" stroke-opacity="0.13"/>
+      <ellipse cx="960"  cy="155" rx="480" ry="58"  fill="none" stroke="#8833ee" stroke-width="30" stroke-opacity="0.16"/>
+      <ellipse cx="680"  cy="230" rx="640" ry="48"  fill="none" stroke="#00bbff" stroke-width="22" stroke-opacity="0.09"/>
+    </g>
+    <rect width="1440" height="900" fill="url(#gA1)"/>
+    <rect width="1440" height="900" fill="url(#gA2)"/>
+
+    <!-- Far ridge -->
+    <polygon points="0,560 100,475 200,505 320,440 440,475 540,508 640,555 760,515 880,548 1000,500 1100,535 1220,490 1340,515 1440,475 1440,560" fill="#0d0d20" opacity="0.65"/>
+
+    <!-- Left mountains -->
+    <polygon points="0,560 65,455 130,480 200,405 275,450 340,510 400,560" fill="#0e0e22"/>
+
+    <!-- Lava ambient glow (behind volcano) -->
+    <rect x="890" y="200" width="330" height="360" fill="url(#gLavaGlow)"/>
+
+    <!-- Volcano body -->
+    <path d="M 875,560 Q 920,505 958,450 Q 985,408 1005,370 Q 1016,348 1025,335 Q 1032,320 1038,308 Q 1042,299 1048,292 Q 1055,285 1060,290 Q 1068,296 1075,308 Q 1082,322 1092,342 Q 1108,368 1128,408 Q 1152,455 1180,505 Q 1205,535 1230,560 Z" fill="#0d0d1f"/>
+    <!-- Left flank shading -->
+    <path d="M 1048,292 Q 1025,330 1000,378 Q 972,425 940,472 Q 908,518 875,560 L 960,560 Q 990,535 1012,495 Q 1030,460 1042,418 Q 1050,378 1050,335 Z" fill="#181830" opacity="0.65"/>
+
+    <!-- Crater rim -->
+    <ellipse cx="1054" cy="295" rx="40" ry="11" fill="#1a1a35" stroke="#2e2858" stroke-width="3"/>
+    <!-- Molten interior -->
+    <ellipse cx="1054" cy="295" rx="30"  ry="8"   fill="#cc2200" opacity="0.75"/>
+    <ellipse cx="1054" cy="293" rx="20"  ry="5.5" fill="#ff5500" opacity="0.88"/>
+    <ellipse cx="1054" cy="291" rx="11"  ry="3.2" fill="#ffaa00" opacity="0.92"/>
+    <!-- Glow -->
+    <ellipse cx="1054" cy="295" rx="70" ry="24" fill="url(#gCrater)" opacity="0.45" filter="url(#fGlow)"/>
+    <!-- Pulse -->
+    <ellipse cx="1054" cy="291" rx="11" ry="3.2" fill="#ffdd00" opacity="0">
+      <animate attributeName="opacity" values="0;0.85;0" dur="1.9s" repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- LAVA FLOW PATHS — dasharray/offset set by JS -->
+    <path class="lava-flow" d="M 1040,302 Q 1024,345 1005,388 Q 982,432 955,472 Q 928,510 898,543 Q 882,557 875,560"
+      fill="none" stroke="url(#gLava)" stroke-width="7"   stroke-linecap="round"/>
+    <path class="lava-flow" d="M 1046,305 Q 1032,350 1015,395 Q 996,440 970,478 Q 942,514 912,548 Q 898,557 890,560"
+      fill="none" stroke="#ff4400"     stroke-width="4.5" stroke-linecap="round" opacity="0.75"/>
+    <path class="lava-flow" d="M 1068,302 Q 1088,342 1112,385 Q 1138,428 1162,468 Q 1188,508 1208,545 Q 1218,558 1228,560"
+      fill="none" stroke="url(#gLava)" stroke-width="7"   stroke-linecap="round"/>
+    <path class="lava-flow" d="M 1062,302 Q 1080,344 1102,388 Q 1126,432 1152,472 Q 1175,510 1198,548 Q 1210,558 1218,560"
+      fill="none" stroke="#ff3300"     stroke-width="4"   stroke-linecap="round" opacity="0.70"/>
+    <path class="lava-flow" d="M 1054,304 Q 1056,338 1053,372 Q 1050,408 1055,438 Q 1058,462 1053,488"
+      fill="none" stroke="#ff6600"     stroke-width="3.5" stroke-linecap="round" opacity="0.60"/>
+
+    <!-- Glacier cap -->
+    <path d="M 1038,310 Q 1044,300 1054,292 Q 1060,287 1066,293 Q 1074,303 1080,312 Q 1068,306 1060,304 Q 1054,302 1048,304 Q 1042,306 1038,310 Z" fill="#cce8f8" opacity="0.55"/>
+
+    <!-- Steam -->
+    <g opacity="0.20" fill="#b0c8d8">
+      <ellipse cx="1046" cy="265" rx="6" ry="15" transform="rotate(-18,1046,265)">
+        <animate attributeName="cy"      values="265;238;265" dur="3.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.20;0.04;0.20" dur="3.2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="1060" cy="252" rx="5" ry="13" transform="rotate(12,1060,252)">
+        <animate attributeName="cy"      values="252;225;252" dur="2.6s" repeatCount="indefinite" begin="0.9s"/>
+        <animate attributeName="opacity" values="0.16;0.03;0.16" dur="2.6s" repeatCount="indefinite" begin="0.9s"/>
+      </ellipse>
+      <ellipse cx="1072" cy="268" rx="4" ry="10" transform="rotate(25,1072,268)">
+        <animate attributeName="cy"      values="268;245;268" dur="3.8s" repeatCount="indefinite" begin="1.6s"/>
+        <animate attributeName="opacity" values="0.14;0.02;0.14" dur="3.8s" repeatCount="indefinite" begin="1.6s"/>
+      </ellipse>
+    </g>
+
+    <!-- Right mountains -->
+    <polygon points="1240,560 1310,460 1370,490 1420,445 1440,460 1440,560" fill="#0e0e22"/>
+
+    <!-- Ground -->
+    <rect x="0" y="555" width="1440" height="10" fill="#0c0c1c"/>
+
+    <!-- Table glow + surface -->
+    <rect width="1440" height="900" fill="url(#gTable)"/>
+    <rect x="0" y="558" width="1440" height="342" fill="#1c0d05"/>
+    <line x1="0" y1="580" x2="1440" y2="574" stroke="#2c1608" stroke-width="2.5" opacity="0.6"/>
+    <line x1="0" y1="608" x2="1440" y2="603" stroke="#2c1608" stroke-width="2"   opacity="0.45"/>
+    <line x1="0" y1="640" x2="1440" y2="636" stroke="#2c1608" stroke-width="2.5" opacity="0.5"/>
+    <line x1="0" y1="675" x2="1440" y2="671" stroke="#120804" stroke-width="4"   opacity="0.4"/>
+    <ellipse cx="720" cy="558" rx="680" ry="48" fill="#a04010" opacity="0.07"/>
+    <rect x="0" y="556" width="1440" height="6" fill="#3a2010" opacity="0.9"/>
+  </svg>
+
+  <!-- CSS 3D Dice -->
+  <div class="dice-stage">
+
+    <!-- Die 1 — 90px -->
+    <div class="die die-1">
+      <div class="df df-f" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="15" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bk"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-r" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-l" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-t" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="15" r="5.5" fill="#1a1208"/><circle cx="15" cy="45" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bo"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+    </div>
+
+    <!-- Die 2 — 70px -->
+    <div class="die die-2">
+      <div class="df df-f" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="15" r="5.5" fill="#1a1208"/><circle cx="15" cy="45" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bk"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-r" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-l" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="15" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-t" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bo"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+    </div>
+
+    <!-- Die 3 — 55px -->
+    <div class="die die-3">
+      <div class="df df-f" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bk"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-r" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="30" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-l" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="5.5" fill="#1a1208"/><circle cx="45" cy="15" r="5.5" fill="#1a1208"/><circle cx="15" cy="45" r="5.5" fill="#1a1208"/><circle cx="45" cy="45" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-t" ><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="5.5" fill="#1a1208"/></svg></div>
+      <div class="df df-bo"><svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="12" r="5.5" fill="#1a1208"/><circle cx="45" cy="12" r="5.5" fill="#1a1208"/><circle cx="15" cy="30" r="5.5" fill="#1a1208"/><circle cx="45" cy="30" r="5.5" fill="#1a1208"/><circle cx="15" cy="48" r="5.5" fill="#1a1208"/><circle cx="45" cy="48" r="5.5" fill="#1a1208"/></svg></div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .hero-anim {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .iceland-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Dice stage — bottom-right of hero, in front of volcano */
+  .dice-stage {
+    position: absolute;
+    bottom: 10%;
+    right: 4%;
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+    perspective: 900px;
+    z-index: 3;
+  }
+
+  /* Shared face */
+  .df {
+    position: absolute;
+    background: #f0e8d0;
+    border: 2px solid #b8a880;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.10);
+  }
+  .df svg { width: 68%; height: 68%; }
+
+  /* Die 1 — 90px */
+  .die-1 { width:90px; height:90px; position:relative; transform-style:preserve-3d; will-change:transform; }
+  .die-1 .df { width:90px; height:90px; border-radius:10px; }
+  .die-1 .df-f  { transform: translateZ(45px); }
+  .die-1 .df-bk { transform: rotateY(180deg) translateZ(45px); }
+  .die-1 .df-r  { transform: rotateY(90deg)  translateZ(45px); }
+  .die-1 .df-l  { transform: rotateY(-90deg) translateZ(45px); }
+  .die-1 .df-t  { transform: rotateX(90deg)  translateZ(45px); }
+  .die-1 .df-bo { transform: rotateX(-90deg) translateZ(45px); }
+
+  /* Die 2 — 70px, slightly elevated */
+  .die-2 { width:70px; height:70px; position:relative; transform-style:preserve-3d; will-change:transform; margin-bottom:18px; }
+  .die-2 .df { width:70px; height:70px; border-radius:8px; }
+  .die-2 .df-f  { transform: translateZ(35px); }
+  .die-2 .df-bk { transform: rotateY(180deg) translateZ(35px); }
+  .die-2 .df-r  { transform: rotateY(90deg)  translateZ(35px); }
+  .die-2 .df-l  { transform: rotateY(-90deg) translateZ(35px); }
+  .die-2 .df-t  { transform: rotateX(90deg)  translateZ(35px); }
+  .die-2 .df-bo { transform: rotateX(-90deg) translateZ(35px); }
+
+  /* Die 3 — 55px */
+  .die-3 { width:55px; height:55px; position:relative; transform-style:preserve-3d; will-change:transform; }
+  .die-3 .df { width:55px; height:55px; border-radius:6px; }
+  .die-3 .df-f  { transform: translateZ(27.5px); }
+  .die-3 .df-bk { transform: rotateY(180deg) translateZ(27.5px); }
+  .die-3 .df-r  { transform: rotateY(90deg)  translateZ(27.5px); }
+  .die-3 .df-l  { transform: rotateY(-90deg) translateZ(27.5px); }
+  .die-3 .df-t  { transform: rotateX(90deg)  translateZ(27.5px); }
+  .die-3 .df-bo { transform: rotateX(-90deg) translateZ(27.5px); }
+</style>
+
+<script>
+  (() => {
+    // Init lava stroke-dasharray
+    const flows = Array.from(document.querySelectorAll<SVGPathElement>('.lava-flow'));
+    const lens = flows.map(p => {
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = String(len);
+      p.style.strokeDashoffset = String(len);
+      return len;
+    });
+
+    const dice = [
+      document.querySelector<HTMLElement>('.die-1')!,
+      document.querySelector<HTMLElement>('.die-2')!,
+      document.querySelector<HTMLElement>('.die-3')!,
+    ];
+
+    const speeds  = [220, 165, 290];
+    const phX = [10, 55, 110];
+    const phY = [25, 95, 175];
+    const phZ = [0,  38, 72];
+    const stagger = [0, 0.06, 0.13, 0.20, 0.09];
+
+    let smooth = 0, raw = 0;
+    window.addEventListener('scroll', () => { raw = window.scrollY; }, { passive: true });
+
+    function frame() {
+      smooth += (raw - smooth) * 0.09;
+
+      const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+      const progress = smooth / maxScroll;
+
+      // Roll dice
+      dice.forEach((die, i) => {
+        if (!die) return;
+        const s = speeds[i];
+        die.style.transform = [
+          `rotateX(${(smooth / s * 360 + phX[i]) % 360}deg)`,
+          `rotateY(${(smooth / (s * 0.72) * 360 + phY[i]) % 360}deg)`,
+          `rotateZ(${(smooth / (s * 1.55) * 360 + phZ[i]) % 360}deg)`,
+        ].join(' ');
+      });
+
+      // Reveal lava (eased, staggered)
+      flows.forEach((path, i) => {
+        const t = Math.max(0, Math.min(1, (progress - 0.08 - stagger[i]) / 0.62));
+        const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        path.style.strokeDashoffset = String(lens[i] * (1 - e));
+      });
+
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+</script>

@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BookingStatus from '../components/BookingStatus';
+---
+
+<Layout>
+	<main class="container section" style="max-width: 640px;">
+		<span class="eyebrow">Bookings</span>
+		<h1>Thank you</h1>
+		<BookingStatus client:only="react" />
+		<a class="btn btn-primary" href="/" style="margin-top: 1.5rem;">Back to Warm Shelf</a>
+	</main>
+</Layout>

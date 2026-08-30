@@ -1,0 +1,41 @@
+---
+/**
+ * Kinetic ticker. Two variants:
+ *  - "display" (default): big wonky display words on dark, alternating filled
+ *    and outline ("ghost"), with star punctuation — the loud editorial strip.
+ *  - "band": a solid rust strip of repeated mono text — the @handle / tagline
+ *    ribbon, like the reference's terracotta marquee.
+ * Track is duplicated for a seamless -50% loop; pauses on hover; respects
+ * prefers-reduced-motion (CSS).
+ */
+import Star from './Star.astro';
+
+interface Props {
+  items: readonly string[];
+  variant?: 'display' | 'band';
+  speed?: number; // seconds per loop
+}
+const { items, variant = 'display', speed } = Astro.props;
+const doubled = [...items, ...items];
+const style = speed ? `--marquee-speed:${speed}s` : undefined;
+---
+
+<div class:list={['marquee', `marquee-${variant}`]} aria-hidden="true" style={style}>
+  <div class="marquee-track">
+    {
+      variant === 'band'
+        ? doubled.map((item) => (
+            <span class="marquee-band-item">
+              {item}
+              <Star class="marquee-star" />
+            </span>
+          ))
+        : doubled.map((item, i) => (
+            <span class="marquee-item" data-ghost={i % 2 === 1 ? '' : undefined}>
+              {item}
+              <Star class="marquee-star" />
+            </span>
+          ))
+    }
+  </div>
+</div>

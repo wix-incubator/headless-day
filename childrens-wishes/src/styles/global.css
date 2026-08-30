@@ -1,0 +1,240 @@
+/* ═══════════════════════════════════════════════════════════
+   Children's Wishes — Global Design System
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,400;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+img, svg { display: block; max-width: 100%; }
+button { font: inherit; cursor: pointer; border: none; background: none; }
+a { text-decoration: none; color: inherit; }
+
+/* ── Tokens ── */
+:root {
+  --cream:   #FFFBF5;
+  --yellow:  #FFD166;
+  --yellow-light: #FFF3C4;
+  --pink:    #FF6B9D;
+  --pink-light: #FFE0EC;
+  --peach:   #FFCBA4;
+  --peach-dark: #F5A673;
+  --ink:     #0F0E17;
+  --ink-90:  rgba(15,14,23,0.9);
+  --muted:   #6E6A74;
+  --surface: #FFFFFF;
+  --card-bg: #FFF8EE;
+  --border:  #F0E8D8;
+  --border-strong: #DDD0C0;
+
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+  --font-serif:   'Playfair Display', Georgia, serif;
+  --font-body:    'Plus Jakarta Sans', sans-serif;
+
+  --radius-sm:  8px;
+  --radius-md:  16px;
+  --radius-lg:  24px;
+  --radius-xl:  32px;
+
+  --shadow-sm:  0 2px 8px rgba(15,14,23,0.06);
+  --shadow-md:  0 8px 32px rgba(15,14,23,0.10);
+  --shadow-lg:  0 24px 64px rgba(15,14,23,0.14);
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── Base ── */
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── Typography ── */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.serif { font-family: var(--font-serif); }
+
+/* ── Buttons ── */
+.btn-yellow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+.btn-yellow:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255,209,102,0.5);
+}
+.btn-yellow:active { transform: scale(0.98); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1.5px solid var(--border-strong);
+  transition: border-color 0.2s, background 0.2s, transform 0.2s var(--ease-spring);
+}
+.btn-ghost:hover {
+  border-color: var(--ink);
+  background: rgba(15,14,23,0.04);
+  transform: translateY(-1px);
+}
+
+.btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+.btn-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15,14,23,0.25);
+}
+
+/* ── Card lift ── */
+.lift {
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+}
+.lift:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Scroll reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-smooth);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── Marquee ── */
+.marquee-outer {
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--yellow);
+  padding: 14px 0;
+}
+.marquee-track {
+  display: inline-flex;
+  gap: 0;
+  animation: marqueeScroll 22s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover { animation-play-state: paused; }
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Float animation ── */
+@keyframes gentleFloat {
+  0%   { transform: translateY(0px) rotate(-2deg); }
+  50%  { transform: translateY(-18px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(-2deg); }
+}
+.float-idle {
+  animation: gentleFloat 4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+/* ── Sparkle decorators ── */
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  animation: sparklePop 3s ease-in-out infinite;
+}
+@keyframes sparklePop {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50%       { transform: scale(1.2) rotate(15deg); opacity: 1; }
+}
+
+/* ── Container ── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+@media (max-width: 768px) {
+  .container { padding: 0 20px; }
+}
+
+/* ── Section spacing ── */
+.section { padding: 100px 0; }
+.section-sm { padding: 64px 0; }
+
+/* ── Section label ── */
+.section-label {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* ── Stat counter ── */
+.stat-number {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 800;
+  color: var(--yellow);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  tabular-nums: numbers;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-top: 8px;
+}
