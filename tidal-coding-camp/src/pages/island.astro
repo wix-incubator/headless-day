@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout
+  title="The Island — Tidal Coding Camp"
+  description="The causeway, crossing windows, lodging, meals, and safety on a Brittany tidal island that floods twice a day."
+  path="/island"
+>
+  <section class="pagehero" style="--hero-img:url(/assets/camp-crossing.webp)">
+    <div class="wrap">
+      <p class="kicker">The Island</p>
+      <h1 style="font-size:clamp(2.2rem,6vw,4.2rem)" class="wl">One island. One causeway.</h1>
+      <p class="muted" style="max-width:46ch;margin-top:1.2rem">Île de tidal sits 900 m off the Brittany coast, reached by a causeway the sea covers twice a day.</p>
+    </div>
+  </section>
+  <section class="band">
+    <div class="wrap split">
+      <div class="rv">
+        <h2>The causeway</h2>
+        <p class="muted">Walkable for a few hours around low tide, underwater the rest. Every crossing is staff-led — no “quick nip back” at half-tide.</p>
+        <div class="grid g2" style="margin-top:1.5rem">
+          <div class="fact"><b>Length</b><span>900 m</span></div>
+          <div class="fact"><b>Walkable</b><span>±1h 45m of low</span></div>
+          <div class="fact"><b>Depth over road</b><span>2.5 m</span></div>
+          <div class="fact"><b>Crossings</b><span>2, supervised</span></div>
+        </div>
+      </div>
+      <div class="card rv" style="padding:1.1rem">
+        <svg viewBox="0 0 520 260" width="100%" role="img" aria-label="Cross-section of the causeway: mainland on the left, island on the right, high and low water lines marked over the road between them">
+          <rect x="0" y="0" width="520" height="260" fill="#FFFDF8"/>
+          <g stroke="#EBDBBE" stroke-width="1"><line x1="0" y1="52" x2="520" y2="52"/><line x1="0" y1="104" x2="520" y2="104"/><line x1="0" y1="156" x2="520" y2="156"/><line x1="0" y1="208" x2="520" y2="208"/></g>
+          <path d="M0 120 Q 40 90 80 108 L 80 260 L 0 260 Z" fill="#116E7C"/>
+          <path d="M440 112 Q 480 84 520 116 L 520 260 L 440 260 Z" fill="#116E7C"/>
+          <path d="M80 160 L 440 160 L 440 176 L 80 176 Z" fill="#5B7A80"/>
+          <rect x="0" y="176" width="520" height="84" fill="rgba(17,110,124,.22)"/>
+          <line x1="0" y1="96" x2="520" y2="96" stroke="#FFC24B" stroke-width="2.5"/>
+          <text x="12" y="88" font-size="11" font-weight="600" letter-spacing="2" fill="#B4501F" font-family="Spline Sans,sans-serif">HIGH WATER · CLOSED</text>
+          <line x1="0" y1="176" x2="520" y2="176" stroke="#116E7C" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <text x="12" y="196" font-size="11" font-weight="600" letter-spacing="2" fill="#5B7A80" font-family="Spline Sans,sans-serif">LOW WATER · OPEN</text>
+          <text x="30" y="140" font-size="12" font-weight="600" fill="#FDF6E7" font-family="Spline Sans,sans-serif">MAINLAND</text>
+          <text x="452" y="140" font-size="12" font-weight="600" fill="#FDF6E7" font-family="Spline Sans,sans-serif">ISLAND</text>
+          <text x="222" y="152" font-size="11" font-weight="600" letter-spacing="2" fill="#5B7A80" font-family="Spline Sans,sans-serif">CAUSEWAY · 900 M</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+  <section class="band surface">
+    <div class="wrap">
+      <h2 class="wl rv">Life on the island</h2>
+      <div class="grid g3 rv" style="margin-top:2rem">
+        <div class="card"><h3>Lodging</h3><p class="muted" style="font-size:.92rem">Bunk rooms of four in the old lifeboat station — warm, dry, well above the tide.</p></div>
+        <div class="card"><h3>Meals</h3><p class="muted" style="font-size:.92rem">Three a day from the island kitchen. Dietary needs handled.</p></div>
+        <div class="card"><h3>The lab</h3><p class="muted" style="font-size:.92rem">Desks for twelve, solid power, and a link for git pushes.</p></div>
+        <div class="card"><h3>Supervision</h3><p class="muted" style="font-size:.92rem">1:4 staff ratio, on the island through every high tide. First-aid trained.</p></div>
+        <div class="card"><h3>Safety</h3><p class="muted" style="font-size:.92rem">Crossings only in posted windows. Stranded hours are planned, not emergencies.</p></div>
+        <div class="card"><h3>Getting there</h3><p class="muted" style="font-size:.92rem">Meet at the Saint-Broladre slipway at the low-tide window. Nearest station: Dol-de-Bretagne.</p></div>
+      </div>
+    </div>
+  </section>
+  <section class="cta"><div class="wrap"><p class="kicker">Convinced?</p><h2>Twelve campers per session.</h2><p style="margin:1.5rem 0 0"><a class="btn amber" href="/apply">Reserve your seat</a></p></div></section>
+</Layout>

@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Img from '../components/Img.astro';
+import JsonLd from '../components/JsonLd.astro';
+import ReservationForm from '../components/islands/ReservationForm.tsx';
+import { SITE } from '../lib/site';
+import { restaurantSchema } from '../lib/schema';
+---
+
+<BaseLayout
+  title="Book a Table"
+  path="/reservations"
+  description="Request a table at Salt Meridian — a 30-seat driftwood asador above the harbor in San Sebastián. No deposit, no account; just your number."
+>
+  <JsonLd slot="head" schema={restaurantSchema()} />
+
+  <section class="reservations-layout">
+    <div class="reservations-aside">
+      <Img
+        name="harbor"
+        width={1100}
+        ratio={1.3}
+        sizes="(min-width: 1024px) 42vw, 100vw"
+        class="reservations-img"
+      />
+      <div class="reservations-aside-text">
+        <p class="page-kicker">Book a Table</p>
+        <h1 class="font-display text-4xl font-extrabold uppercase tracking-[-0.03em] leading-[0.92] text-[var(--color-on-dark)] sm:text-5xl">
+          Thirty seats.<br />One fire.
+        </h1>
+        <p class="mt-4 max-w-sm text-[color-mix(in_oklab,var(--color-on-dark)_80%,transparent)]">
+          Send a request and we'll call to confirm the table and tell you what's looking good on
+          the board. Walk-ins only when the fire's quiet — which it rarely is.
+        </p>
+        <a href={`tel:${SITE.phoneHref}`} class="btn-ghost btn-ghost-dark mt-6 inline-block">
+          Call the harbor line
+        </a>
+      </div>
+    </div>
+
+    <div class="reservations-form-col">
+      <h2 class="font-display text-3xl font-extrabold uppercase tracking-[-0.02em] text-[var(--color-text)]">Request a table</h2>
+      <p class="mt-2 text-[var(--color-text-muted)]">
+        We confirm every request by phone, usually the same day.
+      </p>
+      <div class="mt-7">
+        <ReservationForm client:idle />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,16 @@
+---
+// Renders one or more JSON-LD blocks. Pass an array of schema.org objects.
+interface Props {
+  schema: Record<string, any> | Record<string, any>[];
+}
+const { schema } = Astro.props;
+const blocks = Array.isArray(schema) ? schema : [schema];
+---
+{
+  blocks.map((block) => (
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(block)}
+    />
+  ))
+}

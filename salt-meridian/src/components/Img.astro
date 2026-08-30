@@ -1,0 +1,46 @@
+---
+import { img, srcset, alt as defaultAlt, type ImageKey } from '../lib/images';
+
+interface Props {
+  name: ImageKey;
+  /** Intrinsic width used for width/height + the default `src`. */
+  width: number;
+  /** Aspect ratio as height/width, e.g. 0.66 for 3:2. */
+  ratio?: number;
+  alt?: string;
+  sizes?: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  widths?: number[];
+}
+
+const {
+  name,
+  width,
+  ratio = 0.66,
+  alt,
+  sizes = '100vw',
+  class: className,
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  widths = [480, 768, 1024, 1440, 1920],
+} = Astro.props;
+
+const height = Math.round(width * ratio);
+const src = img(name, { w: width, h: height });
+const set = srcset(name, widths, ratio);
+---
+
+<img
+  src={src}
+  srcset={set}
+  sizes={sizes}
+  width={width}
+  height={height}
+  alt={alt ?? defaultAlt(name)}
+  loading={loading}
+  fetchpriority={fetchpriority}
+  decoding={loading === 'eager' ? 'sync' : 'async'}
+  class={className}
+/>

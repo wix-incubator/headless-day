@@ -1,0 +1,55 @@
+---
+import Base from '../layouts/Base.astro';
+import TicketCheckout from '../components/TicketCheckout.tsx';
+import { getTournaments } from '../lib/content';
+import { onSale } from '../lib/format';
+import { tiers } from '../data/seed';
+import { sportsEvent } from '../lib/seo';
+
+export const prerender = false;
+
+const tournaments = await getTournaments();
+const bookable = onSale(tournaments).map((t) => ({
+  id: t.id,
+  title: t.title,
+  date: t.date,
+  time: t.time,
+  bracket: t.bracket,
+  status: t.status,
+  seats: t.seats,
+}));
+
+const initialDate = Astro.url.searchParams.get('t') ?? undefined;
+const jsonLd = onSale(tournaments).map(sportsEvent);
+---
+
+<Base
+  page="tickets"
+  title="Buy tickets"
+  description="Pick a tournament night and a seating tier, then check out. No account needed — your email gets you the tickets and a reminder the night before."
+  jsonLd={jsonLd}
+  hideStickyBar={true}
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,64px) 20px">
+    <div style="max-width:var(--maxw);margin:0 auto">
+      <div class="lbl" style="font-size:12px;color:var(--gold);margin-bottom:12px">Box office</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,60px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">Buy tickets</h1>
+      <p style="margin:0;max-width:520px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        No account needed. Your email gets you the tickets and a reminder the night before, nothing else.
+      </p>
+    </div>
+  </div>
+
+  <div style="background:var(--bg)">
+    <div style="max-width:var(--maxw);margin:0 auto;padding:clamp(28px,4vw,44px) 20px">
+      {bookable.length === 0 ? (
+        <div class="empty">
+          Every upcoming night is sold out. Released seats post to the <a href="/tournaments">schedule</a> the
+          moment they open — the last bracket cleared the list in nine minutes.
+        </div>
+      ) : (
+        <TicketCheckout client:load tournaments={bookable} tiers={tiers} initialDate={initialDate} />
+      )}
+    </div>
+  </div>
+</Base>

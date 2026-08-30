@@ -1,0 +1,29 @@
+---
+/**
+ * Meridian star — an 8-point compass/mariner star. The site's unifying motif:
+ * brand mark, marquee separator, ambient decoration, and the silhouette the
+ * signature image is masked into. Reads as both a navigator's star (Salt
+ * Meridian = a line of longitude) and a spark off the fire.
+ * Decorative by default (aria-hidden); pass a label to make it meaningful.
+ */
+interface Props {
+  class?: string;
+  label?: string;
+  [key: string]: unknown;
+}
+const { class: className = '', label, ...rest } = Astro.props;
+---
+
+<svg
+  class:list={['mstar', className]}
+  viewBox="0 0 100 100"
+  role={label ? 'img' : 'presentation'}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  fill="currentColor"
+  {...rest}
+>
+  <path
+    d="M50 0 L57.3 32.4 L85.4 14.6 L67.6 42.7 L100 50 L67.6 57.3 L85.4 85.4 L57.3 67.6 L50 100 L42.7 67.6 L14.6 85.4 L32.4 57.3 L0 50 L32.4 42.7 L14.6 14.6 L42.7 32.4 Z"
+  />
+</svg>

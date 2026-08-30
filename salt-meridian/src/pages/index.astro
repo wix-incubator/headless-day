@@ -1,0 +1,148 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import DishCard from '../components/DishCard.astro';
+import ReviewCard from '../components/ReviewCard.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Img from '../components/Img.astro';
+import Marquee from '../components/Marquee.astro';
+import Driftwood from '../components/Driftwood.astro';
+import Star from '../components/Star.astro';
+import JsonLd from '../components/JsonLd.astro';
+import TodaysCatchBanner from '../components/islands/TodaysCatchBanner.tsx';
+import { img, srcset } from '../lib/images';
+import { HOME } from '../data/content';
+import { getDishes, getReviews, getTodaysCatch } from '../lib/cms';
+import { restaurantSchema } from '../lib/schema';
+
+const [dishes, reviews, todaysCatch] = await Promise.all([
+  getDishes(),
+  getReviews(),
+  getTodaysCatch(),
+]);
+const featured = dishes.slice(0, 6);
+
+const heroPreloadSrcset = srcset('place', [768, 1024, 1440, 1920, 2400], 0.62);
+const heroPreload = img('place', { w: 1920, h: 1190 });
+---
+
+<BaseLayout
+  title="Home"
+  path="/"
+  description="A 30-seat driftwood asador above the harbor in San Sebastián, grilling whole turbot and aged txuleta over open flame. The chalkboard menu changes with the morning catch."
+>
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href={heroPreload}
+    imagesrcset={heroPreloadSrcset}
+    imagesizes="100vw"
+    fetchpriority="high"
+  />
+  <JsonLd slot="head" schema={restaurantSchema()} />
+
+  <div class="scroll-progress" aria-hidden="true"></div>
+
+  <Hero />
+
+  {/* Thesis — the headline that used to live in the hero */}
+  <section id="thesis" class="section statement-band">
+    <div class="mx-auto max-w-5xl px-5 text-center">
+      <p class="label mb-6">The promise</p>
+      <h2 class="statement-head">
+        Whatever the boats brought in, it goes over
+        <em class="hero-emphasis">driftwood</em> tonight.
+      </h2>
+      <a href="/reservations" class="btn-primary btn-lg mt-10">Request a table</a>
+    </div>
+  </section>
+
+  <TodaysCatchBanner
+    client:visible
+    heading={todaysCatch.heading}
+    body={todaysCatch.body}
+    updatedLabel={todaysCatch.updatedLabel}
+  />
+
+  <Marquee items={HOME.marquee} />
+
+  {/* How the fire works */}
+  <section class="section">
+    <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[1.05fr_0.95fr]">
+      <div class="order-2 lg:order-1">
+        <SectionHeading kicker="The fire">{HOME.fire.heading}</SectionHeading>
+        <p class="measure mt-6 text-lg text-[var(--color-text-muted)]">{HOME.fire.body}</p>
+        <a href="/about" class="btn-ghost mt-8 inline-block">How it works</a>
+      </div>
+      <div class="order-1 graded framed lg:order-2">
+        <Img
+          name="coals"
+          width={900}
+          ratio={0.8}
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          class="img-parallax h-full w-full object-cover"
+        />
+      </div>
+    </div>
+  </section>
+
+  {/* From the board — pins and pans sideways as you scroll (swipe on mobile) */}
+  <section class="board-scroll">
+    <div class="board-scroll-inner">
+      <div class="board-scroll-head">
+        <SectionHeading kicker="From the board">{HOME.board.heading}</SectionHeading>
+        <a href="/menu" class="btn-ghost shrink-0">The whole board →</a>
+      </div>
+      <div class="board-viewport">
+        <div class="board-track">
+          {featured.map((dish) => (
+            <div class="board-card"><DishCard dish={dish} withImage compact /></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* What regulars say */}
+  <section class="section section-dark">
+    <div class="mx-auto max-w-6xl px-5">
+      <SectionHeading kicker="The regulars" class="text-on-dark">{HOME.reviewsHeading}</SectionHeading>
+      <div class="mt-10 grid gap-8 md:grid-cols-3">
+        {reviews.map((review) => <ReviewCard review={review} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* The room above the harbor — the meridian star signature */}
+  <section class="section relative overflow-hidden">
+    <div class="star-field" aria-hidden="true">
+      <Star class="is-ember" style="top:8%;left:6%;width:34px;transform:rotate(8deg)" />
+      <Star style="top:22%;left:84%;width:22px;transform:rotate(-12deg)" />
+      <Star style="top:64%;left:12%;width:18px" />
+      <Star class="is-ember" style="top:78%;left:90%;width:28px;transform:rotate(14deg)" />
+      <Star style="top:46%;left:48%;width:14px" />
+      <Star style="top:90%;left:40%;width:20px;transform:rotate(-6deg)" />
+    </div>
+    <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-2">
+      <div class="mx-auto w-full max-w-md">
+        <div class="starmask fade-up">
+          <Img name="room" width={760} ratio={1} sizes="(min-width:1024px) 40vw, 80vw" class="h-full w-full object-cover" />
+        </div>
+      </div>
+      <div>
+        <p class="label mb-3.5">The room · 43°N</p>
+        <h2 class="ember-underline text-4xl uppercase leading-[0.92] sm:text-5xl md:text-6xl">{HOME.room.heading}</h2>
+        <p class="measure mt-6 text-lg text-[var(--color-text-muted)]">{HOME.room.body}</p>
+        <a href="/gallery" class="btn-ghost mt-8 inline-block">The grill &amp; room</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="mx-auto max-w-6xl px-5">
+    <Driftwood />
+  </div>
+
+  <CtaBand />
+</BaseLayout>

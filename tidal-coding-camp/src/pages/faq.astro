@@ -1,0 +1,40 @@
+---
+import Layout from '../layouts/Layout.astro';
+const faqs = [
+  { q: 'Is the causeway safe?', a: 'Yes — campers only cross at low tide, always supervised. When the water’s up, nobody crosses.' },
+  { q: 'How much coding experience is needed?', a: 'None to intermediate. Total beginners learn Python from day one.' },
+  { q: 'What does it cost?', a: '€2,450 for two weeks — lodging, meals, and supervision included.' },
+  { q: 'What should my teen bring?', a: 'A laptop that runs Python, weatherproof shoes, and a water bottle. We provide the rest.' },
+  { q: 'How are campers supervised at high tide?', a: 'Staff stay on the island through every high tide, at a 1:4 ratio.' },
+  { q: 'What if my teen needs to leave at high tide?', a: 'For real needs there’s a boat and a staff lead on call. Otherwise, departures are at low tide.' },
+];
+const faqLd = {
+  '@context': 'https://schema.org', '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+<Layout
+  title="FAQ — Tidal Coding Camp"
+  description="Safety, cost, gear, and tide questions parents ask first about the camp."
+  path="/faq"
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(faqLd)} />
+  <section class="surface">
+    <div class="wrap split">
+      <div>
+        <p class="kicker">FAQ</p>
+        <h1 style="font-size:clamp(2.2rem,6vw,4rem)" class="wl">Parent questions.</h1>
+        <p class="muted" style="margin-top:1.2rem">The tide, the safety, the cost — answered plainly.</p>
+        <p style="margin-top:1.4rem"><a class="btn" href="/apply">Reserve your seat</a></p>
+      </div>
+      <div class="faq">
+        {faqs.map((f, i) => (
+          <details open={i === 0}>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

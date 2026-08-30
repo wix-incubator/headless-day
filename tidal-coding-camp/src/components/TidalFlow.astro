@@ -1,0 +1,89 @@
+---
+// Signature hero background: code characters flowing down like a tidal current.
+// Self-contained vanilla-canvas flow field (no p5 dependency) — brand-recoloured,
+// desktop-only, gated on visibility + prefers-reduced-motion, DPR-capped, so it
+// never touches LCP/INP and adds only ~2KB to the page.
+---
+<div class="hero-fx" data-tidal-flow aria-hidden="true"></div>
+
+<script>
+  // @ts-nocheck
+  const el = document.querySelector('[data-tidal-flow]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const small = matchMedia('(max-width: 860px)').matches;
+  // Progressive enhancement: skip where it would cost more than it gives.
+  if (el && !reduce && !small) {
+    const P = {
+      chars: '{} <> // 01 const let function return => ; : tide flow'.split(/\s+/),
+      fontSize: 15, density: 130, flowSpeed: 0.55, turbulence: 2.4,
+      primary: [143, 201, 212],   // sea-glass
+      highlight: [255, 200, 87],  // amber (sitewide waterline)
+      trail: 0.12,
+    };
+    const cv = document.createElement('canvas');
+    const ctx = cv.getContext('2d');
+    el.appendChild(cv);
+    let W = 0, H = 0, dpr = 1, t = 0, running = false, raf = 0;
+    const parts = [];
+
+    function size() {
+      dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      W = el.clientWidth; H = el.clientHeight;
+      cv.width = Math.max(1, Math.round(W * dpr));
+      cv.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    }
+    function spawn(p, init) {
+      p.x = Math.random() * W;
+      p.y = init ? Math.random() * H : -30;
+      p.vx = 0; p.vy = 0;
+      p.sm = 0.4 + Math.random() * 1.2;   // speed mult
+      p.zm = 0.5 + Math.random() * 1.0;   // size mult
+      p.op = 0.28 + Math.random() * 0.64; // opacity
+      p.hi = Math.random() < 0.15;
+      p.c = P.chars[(Math.random() * P.chars.length) | 0];
+      return p;
+    }
+    // Smooth, mostly-downward flow with turbulence (layered trig — no Perlin needed).
+    function flow(x, y, time) {
+      const a = (Math.sin(x * 0.015 + time) + Math.cos(y * 0.017 - time * 1.1) + Math.sin((x + y) * 0.008 + time * 0.6)) * (P.turbulence * 0.35);
+      let fx = Math.cos(a) * 0.5, fy = 1 + Math.sin(a) * 0.5; // base direction = down
+      const m = Math.hypot(fx, fy) || 1;
+      return [(fx / m) * 0.15, (fy / m) * 0.15];
+    }
+    function frame() {
+      raf = requestAnimationFrame(frame);
+      if (!running || document.hidden) return;
+      // fade previous frame (keeps canvas transparent — trails)
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = `rgba(0,0,0,${P.trail})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+      t += P.flowSpeed * 0.01;
+      for (const p of parts) {
+        const [ax, ay] = flow(p.x, p.y, t);
+        p.vx += ax; p.vy += ay;
+        const max = P.flowSpeed * 3.4 * p.sm, sp = Math.hypot(p.vx, p.vy);
+        if (sp > max) { p.vx = (p.vx / sp) * max; p.vy = (p.vy / sp) * max; }
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < -40 || p.x > W + 40 || p.y < -40 || p.y > H + 40) spawn(p, false);
+        const col = p.hi ? P.highlight : P.primary;
+        ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${p.op})`;
+        ctx.font = `${(P.fontSize * p.zm) | 0}px monospace`;
+        ctx.fillText(p.c, p.x, p.y);
+      }
+    }
+    function boot() {
+      size();
+      for (let i = 0; i < P.density; i++) parts.push(spawn({}, true));
+      addEventListener('resize', size, { passive: true });
+      new IntersectionObserver((es) => es.forEach((e) => { running = e.isIntersecting; }))
+        .observe(el);
+      running = true;
+      raf = requestAnimationFrame(frame);
+    }
+    if ('requestIdleCallback' in window) requestIdleCallback(boot, { timeout: 2000 });
+    else addEventListener('load', () => setTimeout(boot, 400));
+  }
+</script>

@@ -1,0 +1,21 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# wix
+.wix/
+
+# os
+.DS_Store
+
+# logs
+npm-debug.log*
+*.log

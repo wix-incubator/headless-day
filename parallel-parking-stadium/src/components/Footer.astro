@@ -1,0 +1,51 @@
+---
+import { business } from '../data/seed';
+---
+
+<footer style="background:var(--bg-2);border-top:3px solid var(--grid);padding:clamp(40px,5vw,60px) 20px 32px">
+  <div style="max-width:var(--maxw);margin:0 auto">
+    <div class="flex-between" style="align-items:flex-start;gap:var(--sp-5);margin-bottom:36px">
+      <div style="max-width:340px">
+        <div class="arcade" style="font-size:13px;color:var(--gold);margin-bottom:14px;line-height:1.5">
+          Parallel Parking<br />Stadium
+        </div>
+        <p style="margin:0;font-size:var(--fs-body);line-height:1.4;color:var(--ink-dim)">
+          {business.city}, Argentina. Competitive parallel parking, measured to the centimeter.
+          {business.tournamentNights}. Est. {business.established}.
+        </p>
+        <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-3)">
+          {business.socials.map((s) => <span class="lbl" style="font-size:var(--fs-label);color:var(--cyan)">{s}</span>)}
+        </div>
+      </div>
+      <div style="display:flex;gap:50px;flex-wrap:wrap">
+        <div class="stack">
+          <div class="lbl" style="font-size:10px;color:var(--ink-dim);margin-bottom:5px">Visit</div>
+          <span style="font-size:var(--fs-body);color:var(--ink-dim)">Box office: {business.boxOffice}</span>
+          <span style="font-size:var(--fs-body);color:var(--ink-dim)">Doors: {business.doors}</span>
+          <a href="/visit" class="foot-link" style="font-size:var(--fs-body)">{business.neighborhood}</a>
+        </div>
+        <div class="stack">
+          <div class="lbl" style="font-size:10px;color:var(--ink-dim);margin-bottom:5px">The sport</div>
+          <a href="/tournaments" class="foot-link" style="font-size:var(--fs-body)">Tournaments</a>
+          <a href="/rankings" class="foot-link" style="font-size:var(--fs-body)">Hi-Scores</a>
+          <a href="/hall-of-fame" class="foot-link" style="font-size:var(--fs-body)">Hall of Fame</a>
+          <a href="/play" class="foot-link" style="font-size:var(--fs-body)">Play the slot</a>
+          <a href="/about" class="foot-link" style="font-size:var(--fs-body)">The Arena</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:2px solid var(--grid);padding-top:20px" class="lbl">
+      <span style="font-size:10px;color:var(--ink-dim)">© {business.established + 4} Parallel Parking Stadium · The margin is the entire point</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot-link {
+    color: var(--ink-dim);
+    text-decoration: none;
+  }
+  .foot-link:hover {
+    color: var(--cyan);
+  }
+</style>

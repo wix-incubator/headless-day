@@ -1,0 +1,464 @@
+@import 'tailwindcss';
+
+/* ---- Typeface system (self-hosted woff2 subsets, font-display: swap) ----
+   Cal Sans   → display / headlines, set ALL CAPS: a bold geometric display face,
+                confident and architectural, the way the reference sets its type.
+   Space Mono → everything else: body, labels, prices, data — a market-scale
+                ticket monospace. Mono-forward, the way the reference does it. */
+@import '@fontsource/slackey/400.css';
+@import '@fontsource/cal-sans/400.css';
+@import '@fontsource/space-mono/400.css';
+@import '@fontsource/space-mono/700.css';
+
+@import './components.css';
+
+@theme {
+  /* Dark, fire-lit, salt-stained. Warm blacks — never blue-black.
+     Token NAMES are kept stable so existing var() references hold;
+     only the values move to the nocturnal palette. */
+  --color-background: #15120e; /* warm smoke-black ground */
+  --color-surface: #1f1a14;    /* charred plank, raised panel */
+  --color-surface-2: #29221a;  /* second raised tone */
+  --color-text: #f0eade;       /* salt / bleached bone */
+  --color-text-muted: #b4ab9a; /* cleaner warm gray — better gray/white balance */
+  --color-border: #3b332a;     /* burnt-wood hairline */
+  --color-primary: #2a2016;    /* deep shadow (gradient base) */
+  --color-accent: #bd5234;     /* brick / terracotta (replaces the orange) */
+  --color-rust: #a23f28;       /* deeper brick — marquee bands */
+  --color-cider: #e7b066;      /* warm gold — reserved for highlights + the pour */
+  --color-dark: #0e0b08;       /* deepest char, true-black panels */
+  --color-on-dark: #f0eade;    /* bone (everything is dark now) */
+
+  --font-display: 'Slackey', 'Cal Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Space Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+:root {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  /* clip (not hidden) guards stray horizontal overflow without making body a
+     scroll container, so position:sticky / scroll-timelines still work. */
+  overflow-x: clip;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-optical-sizing: auto;
+  /* mono-forward body: a touch smaller, looser leading, gentle negative track
+     so monospace paragraphs read calm rather than typewritten. */
+  font-size: 0.97rem;
+  line-height: 1.72;
+  letter-spacing: -0.01em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 400; /* Cal Sans ships one weight */
+  font-optical-sizing: auto;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-transform: uppercase; /* all display set in caps */
+  text-wrap: balance;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-dark);
+}
+
+/* Visible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--color-cider);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Generous reading measure */
+.measure {
+  max-width: 60ch;
+}
+
+/* ---- Mono label / eyebrow (replaces the generic uppercase kicker) ---- */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--color-accent);
+}
+
+/* ============================================================
+   Film grain — fixed full-bleed noise, the tronaeast "mood".
+   Pure CSS/SVG, no network, sits above content but ignores pointers.
+   ============================================================ */
+/* NOTE: no mix-blend-mode here. A fixed, blended, full-viewport layer forces
+   the browser to re-blend the whole viewport against the scrolling/parallax
+   layers behind it every frame, which on GPU compositing shows up as dark
+   low-opacity rectangles tiling in from the edges during scroll. Rendered as
+   a plain low-opacity noise overlay instead, it composites once and stays put. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.13;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+/* a static warm glow so darks never read as flat digital black — kept subtle
+   and normal-blend so it never repaints against scrolling content */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 55% at 18% 0%, color-mix(in oklab, var(--color-accent) 7%, transparent), transparent 62%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .grain {
+    animation: grain-drift 7s steps(6) infinite;
+  }
+}
+/* Jitter only the noise tile via background-position; the colored haze in
+   ::after stays fixed so no shades drift in from the edges. */
+@keyframes grain-drift {
+  0% { background-position: 0 0; }
+  20% { background-position: -24px 16px; }
+  40% { background-position: 16px -24px; }
+  60% { background-position: -12px 20px; }
+  80% { background-position: 20px 12px; }
+  100% { background-position: 0 0; }
+}
+
+/* ============================================================
+   Image grading — push photography toward warm smoke + bone,
+   kill any cool/blue cast (brief: avoid teal grading).
+   ============================================================ */
+.graded {
+  position: relative;
+  isolation: isolate;
+}
+.graded > img,
+.graded > picture > img {
+  filter: saturate(0.82) contrast(1.06) brightness(0.82) sepia(0.16);
+}
+.graded::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 100%, color-mix(in oklab, var(--color-accent) 22%, transparent) 0%, transparent 55%),
+    linear-gradient(to top, color-mix(in oklab, var(--color-dark) 70%, transparent) 0%, transparent 48%);
+  mix-blend-mode: multiply;
+}
+
+/* legacy alias kept so existing markup still grades correctly */
+.smoke-vignette {
+  position: relative;
+  isolation: isolate;
+}
+.smoke-vignette > img {
+  filter: saturate(0.82) contrast(1.06) brightness(0.82) sepia(0.16);
+}
+.smoke-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 92%, color-mix(in oklab, var(--color-accent) 22%, transparent) 0%, transparent 55%),
+    linear-gradient(to top, color-mix(in oklab, var(--color-dark) 72%, transparent) 0%, transparent 46%);
+}
+
+/* ============================================================
+   Signature device 1 — the ember rule.
+   A charred bar beneath a heading that ignites slate→ember→cider as it
+   scrolls in, like a coal catching. CSS scroll-driven, no JS listener.
+   ============================================================ */
+.ember-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.3em;
+}
+.ember-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: clamp(2.75rem, 22%, 6rem);
+  border-radius: 999px;
+  /* default (no scroll-timeline / reduced motion): fully lit */
+  background: linear-gradient(90deg, var(--color-accent), var(--color-cider));
+  box-shadow: 0 0 16px -2px color-mix(in oklab, var(--color-accent) 75%, transparent);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ember-underline::after {
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent) 55%, var(--color-cider));
+      background-size: 260% 100%;
+      background-position: 100% 0; /* start cold */
+      box-shadow: 0 0 0 0 transparent;
+      animation: ember-catch linear forwards;
+      animation-timeline: view();
+      animation-range: entry 8% cover 32%;
+    }
+  }
+}
+@keyframes ember-catch {
+  from {
+    background-position: 100% 0;
+    box-shadow: 0 0 0 0 transparent;
+    width: clamp(2rem, 14%, 3.5rem);
+  }
+  to {
+    background-position: 0 0;
+    box-shadow: 0 0 18px -2px color-mix(in oklab, var(--color-accent) 78%, transparent);
+    width: clamp(2.75rem, 22%, 6rem);
+  }
+}
+
+/* ============================================================
+   Scroll reveals — type and media clip/rise in on entry.
+   Progressive enhancement: no support / reduced-motion = visible.
+   ============================================================ */
+.reveal {
+  opacity: 1;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-kf linear both;
+      animation-timeline: view();
+      animation-range: entry 2% entry 38%;
+    }
+    /* staggered children for line-by-line editorial reveals */
+    .reveal-stagger > * {
+      animation: reveal-kf linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+    }
+    .reveal-stagger > *:nth-child(2) { animation-range: entry 4% entry 46%; }
+    .reveal-stagger > *:nth-child(3) { animation-range: entry 8% entry 50%; }
+    .reveal-stagger > *:nth-child(4) { animation-range: entry 12% entry 54%; }
+  }
+}
+@keyframes reveal-kf {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* gentle image fade-up retained (used widely in existing markup) */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .fade-up {
+      animation: fade-up-kf linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 56%;
+    }
+  }
+}
+@keyframes fade-up-kf {
+  from { opacity: 0; transform: translateY(20px) scale(1.03); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================================
+   Hero load + scroll choreography
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-img {
+    animation: hero-fade 800ms var(--ease-settle) both;
+  }
+  /* slow scroll parallax on a dedicated wrapper so it never blocks the fade */
+  @supports (animation-timeline: scroll()) {
+    .hero-media {
+      animation: hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 90vh;
+    }
+  }
+  .hero-line {
+    opacity: 0;
+    transform: translateY(0.6em);
+    animation: hero-rise 700ms var(--ease-settle) forwards;
+  }
+  .hero-line-1 { animation-delay: 420ms; }
+  .hero-line-2 { animation-delay: 560ms; }
+  .hero-line-3 { animation-delay: 700ms; }
+  .hero-line-4 { animation-delay: 840ms; }
+  .hero-cta {
+    opacity: 0;
+    animation: hero-fade-in 600ms var(--ease-settle) 1120ms forwards;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-line,
+  .hero-cta,
+  .hero-img {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+@keyframes hero-fade {
+  from { opacity: 0; filter: brightness(0.25) contrast(1.2); }
+  to { opacity: 1; }
+}
+@keyframes hero-drift {
+  to { transform: scale(1.12) translateY(6%); }
+}
+@keyframes hero-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-fade-in {
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   Scroll dynamics — orchestrated, CSS scroll-driven (no JS listeners).
+   All guarded so unsupported browsers / reduced-motion get the static page.
+   ============================================================ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 95;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-cider));
+  pointer-events: none;
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: progress-grow linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes progress-grow {
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .hero-cover-content {
+      animation: hero-parallax linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 92vh;
+    }
+  }
+  @supports (animation-timeline: view()) {
+    .img-parallax {
+      animation: img-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+      will-change: transform;
+    }
+  }
+}
+@keyframes hero-parallax {
+  to { transform: translateY(-46px); opacity: 0.15; }
+}
+@keyframes img-parallax {
+  from { transform: translateY(-8%) scale(1.16); }
+  to { transform: translateY(8%) scale(1.16); }
+}
+
+/* ---- Horizontal pinned board: dishes pan sideways on vertical scroll ---- */
+.board-scroll {
+  background: var(--color-surface);
+  border-block: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+  view-timeline-name: --boardtl;
+  view-timeline-axis: block;
+}
+.board-scroll-inner { padding-block: clamp(3.5rem, 8vw, 6.5rem); }
+.board-scroll-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 auto clamp(2rem, 4vw, 3rem);
+  max-width: 72rem;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
+}
+.board-viewport {
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+.board-viewport::-webkit-scrollbar { display: none; }
+.board-track {
+  display: flex;
+  gap: 1.5rem;
+  width: max-content;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
+}
+.board-card {
+  flex: 0 0 clamp(258px, 80vw, 360px);
+  scroll-snap-align: start;
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .board-scroll { height: 260vh; }
+    .board-scroll-inner {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      padding-block: 0;
+    }
+    .board-viewport { overflow: visible; }
+    .board-track {
+      animation: board-pan linear both;
+      animation-timeline: --boardtl;
+      animation-range: contain 0% contain 100%;
+      will-change: transform;
+    }
+  }
+}
+@keyframes board-pan {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-100% + 92vw)); }
+}

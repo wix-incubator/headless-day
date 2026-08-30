@@ -1,0 +1,90 @@
+---
+import Base from '../layouts/Base.astro';
+import { sportsActivityLocation } from '../lib/seo';
+
+const scoring = [
+  { n: '01', title: 'The gap', body: 'The smallest clean clearance wins the round, measured to the centimeter on both bumpers. The margin is the entire point.' },
+  { n: '02', title: 'The touches', body: 'Every touch on a cone or a bumper is a penalty. A correction costs you. A second attempt is a forfeit.' },
+  { n: '03', title: 'The clock', body: 'Ties break on the clock. One continuous motion, fastest clean park advances. Eleven judges, no appeals.' },
+];
+
+const differentiators = [
+  { k: 'Centimeter-measured', v: 'Every clearance judged to the centimeter, three times when nobody believes it.' },
+  { k: 'Live brackets', v: 'Single- and double-elimination draws, seeded by qualifier margin.' },
+  { k: 'A hall of fame', v: 'Topped by an 11cm park that still opens every final on the big screen.' },
+];
+---
+
+<Base
+  page="about"
+  title="The Arena"
+  description="How competitive parallel parking works — the scoring, the brackets, and the story of the Buenos Aires stadium an 11cm park built."
+  jsonLd={sportsActivityLocation()}
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,72px) 20px">
+    <div class="wrap">
+      <div class="lbl" style="font-size:12px;color:var(--gold);margin-bottom:12px">The Arena</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,64px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">A sport measured<br />to the centimeter</h1>
+      <p style="margin:0;max-width:620px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        A car parks in a marked box under stadium light. Judges measure the clearance. The smallest clean
+        margin wins. That is the whole sport, and it is more brutal than it sounds.
+      </p>
+    </div>
+  </div>
+
+  <section class="band" style="background:var(--bg)">
+    <div class="wrap" style="max-width:820px">
+      <div class="lbl eyebrow" style="color:var(--gold)">The story</div>
+      <h2 class="dk h2">The stadium an 11cm park built</h2>
+      <p style="margin:0 0 16px;font-size:19px;line-height:1.5;color:var(--ink-dim)">
+        In 2023, in a parking garage in the Microcentro, Hernán “El Milímetro” Sosa slid a 4.99m van into a
+        space 5.10m long — eleven centimeters of room — in one continuous motion, no correction, both bumpers
+        untouched. The crowd went silent before it roared. We measured it three times because nobody believed
+        the first two.
+      </p>
+      <p style="margin:0;font-size:19px;line-height:1.5;color:var(--ink-dim)">
+        People kept coming back. So we painted permanent lines, hung the lights, brought in eleven judges, and
+        turned a garage into an arena. The replay still opens every final.
+      </p>
+    </div>
+  </section>
+
+  <section class="band" style="background:var(--bg-2)">
+    <div class="wrap">
+      <div class="lbl eyebrow">How a round is scored</div>
+      <h2 class="dk h2" style="margin-bottom:32px">Three things, in this order.</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+        {
+          scoring.map((r) => (
+            <div class="panel" style="padding:24px">
+              <div class="arcade" style="font-size:20px;color:var(--gold)">{r.n}</div>
+              <div class="lbl" style="font-size:11px;color:var(--cyan);margin:12px 0 8px">{r.title}</div>
+              <p style="margin:0;font-size:18px;line-height:1.35;color:var(--ink-dim)">{r.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="band" style="background:var(--bg)">
+    <div class="wrap">
+      <div class="lbl eyebrow" style="color:var(--gold)">What makes it a sport</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px">
+        {
+          differentiators.map((d) => (
+            <div class="panel panel-y" style="padding:24px">
+              <div class="dk" style="font-size:20px;color:var(--gold);margin-bottom:8px">{d.k}</div>
+              <p style="margin:0;font-size:18px;line-height:1.4;color:var(--ink-dim)">{d.v}</p>
+            </div>
+          ))
+        }
+      </div>
+      <div style="margin-top:36px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="/tournaments" class="btn btn-ghost">See the schedule →</a>
+        <a href="/play" class="btn btn-cyan">▶ Play the slot</a>
+        <a href="/tickets" class="btn">▶ Get tickets</a>
+      </div>
+    </div>
+  </section>
+</Base>

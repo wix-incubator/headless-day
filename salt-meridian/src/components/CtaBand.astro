@@ -1,0 +1,32 @@
+---
+import Img from './Img.astro';
+import { HOME } from '../data/content';
+
+interface Props {
+  heading?: string;
+  body?: string;
+}
+const { heading = HOME.bookBand.heading, body = HOME.bookBand.body } = Astro.props;
+---
+
+<section class="cta-band smoke-vignette" aria-label="Book a table">
+  <Img
+    name="coals"
+    width={1600}
+    ratio={0.5}
+    sizes="100vw"
+    class="cta-band-bg"
+    alt="Glowing coals burned down to working heat"
+  />
+  <div class="cta-band-inner">
+    <p class="label mb-5">Thirty seats · one fire</p>
+    <h2 class="cta-band-title">{heading}</h2>
+    <p class="mt-4 text-lg text-[color-mix(in_oklab,var(--color-on-dark)_80%,transparent)]">
+      {body}
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <a href="/reservations" class="btn-primary">Request a table</a>
+      <a href="tel:+34943000142" class="btn-ghost btn-ghost-dark">Call the harbor line</a>
+    </div>
+  </div>
+</section>

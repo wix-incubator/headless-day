@@ -1,0 +1,75 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import MobileStickyBar from '../components/MobileStickyBar.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { SITE_NAME, SITE_TAGLINE } from '../lib/seo';
+
+interface Props {
+  title?: string;
+  description?: string;
+  page?: 'home' | 'tournaments' | 'rankings' | 'hall' | 'tickets' | 'about' | 'visit' | 'play';
+  jsonLd?: Record<string, any> | Record<string, any>[];
+  hideStickyBar?: boolean;
+}
+
+const {
+  title,
+  description = 'Competitive parallel parking in Buenos Aires — centimeter-measured clearance scoring, live elimination brackets, weekly tournament tickets, and a hall of fame topped by an 11cm park.',
+  page = 'home',
+  jsonLd,
+  hideStickyBar = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME} — ${SITE_TAGLINE}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="competitive parking tournament tickets, parallel parking competition Buenos Aires, parking spectator sport, parking tournament schedule, watch parallel parking championship"
+    />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Arcade type stack: Pixelify Sans (display), Press Start 2P (logo/HUD/
+         numerals), VT323 (CRT body), Silkscreen (labels). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+
+    {jsonLd && <JsonLd schema={jsonLd} />}
+  </head>
+  <body>
+    <a
+      href="#main"
+      style="position:absolute;left:-9999px;top:0;background:#FFD60A;color:#16191c;padding:10px 14px;z-index:200;font-weight:800"
+      onfocus="this.style.left='8px'"
+      onblur="this.style.left='-9999px'">Skip to content</a
+    >
+    <div style="background:var(--bg);color:var(--ink);min-height:100vh">
+      <Nav page={page} />
+      <main id="main"><slot /></main>
+      <Footer />
+    </div>
+    {!hideStickyBar && <MobileStickyBar />}
+    <div class="crt-overlay" aria-hidden="true"></div>
+  </body>
+</html>

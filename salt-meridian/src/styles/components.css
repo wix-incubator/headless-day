@@ -1,0 +1,1262 @@
+/* ============================================================
+   Salt Meridian — component styles
+   Dark, fire-lit, salt-stained. Plain CSS over the @theme tokens.
+   Mobile-first throughout.
+   ============================================================ */
+
+/* ---- Buttons ---- */
+.btn-primary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  padding: 0.72rem 1.5rem;
+  border-radius: 1px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-settle),
+    background-color 200ms ease,
+    color 200ms ease,
+    box-shadow 240ms ease,
+    border-color 200ms ease;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-on-dark);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent);
+}
+.btn-primary:hover {
+  background: color-mix(in oklab, var(--color-accent) 86%, #fff);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -10px color-mix(in oklab, var(--color-accent) 90%, transparent);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid color-mix(in oklab, var(--color-border) 90%, var(--color-text));
+}
+.btn-ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.btn-ghost-dark {
+  color: var(--color-on-dark);
+  border-color: color-mix(in oklab, var(--color-on-dark) 36%, transparent);
+}
+.btn-ghost-dark:hover {
+  border-color: var(--color-cider);
+  color: var(--color-cider);
+}
+
+.btn-sm {
+  min-height: 40px;
+  padding: 0.55rem 1rem;
+  font-size: 0.7rem;
+}
+.btn-lg {
+  min-height: 54px;
+  padding: 1rem 2rem;
+  font-size: 0.82rem;
+}
+
+/* ---- Skip link ---- */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--color-accent);
+  color: var(--color-dark);
+  padding: 0.6rem 1rem;
+  border-radius: 1px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  transition: top 160ms ease;
+}
+.skip-link:focus {
+  top: 0.6rem;
+}
+
+/* ============================================================
+   Header / nav
+   ============================================================ */
+/* always-visible sticky bar across every page */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: color-mix(in oklab, var(--color-background) 78%, transparent);
+  backdrop-filter: blur(12px) saturate(1.1);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+.site-header > div {
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  grid-template-areas:
+    'brand actions'
+    'nav nav';
+  row-gap: 0.5rem;
+}
+.brand { min-width: 0; }
+.primary-nav { min-width: 0; }
+.nav-book-short { display: none; }
+
+@media (max-width: 879px) {
+  .site-header > div {
+    padding-inline: 1rem;
+    column-gap: 0.75rem;
+  }
+  .brand-name { font-size: 1.05rem; }
+  .nav-book-full { display: none; }
+  .nav-book-short { display: inline; }
+}
+
+.brand {
+  grid-area: brand;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  justify-self: start;
+}
+.nav-actions {
+  grid-area: actions;
+  justify-self: end;
+}
+.brand-mark {
+  color: var(--color-accent);
+  font-size: 1.1rem;
+  line-height: 1;
+  align-self: center;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+.brand-sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.primary-nav {
+  grid-area: nav;
+  display: flex;
+  gap: 0.1rem;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.primary-nav::-webkit-scrollbar { display: none; }
+.nav-link {
+  white-space: nowrap;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.nav-link:hover { color: var(--color-text); }
+.nav-link.is-active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+}
+.nav-phone {
+  display: none;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+@media (min-width: 880px) {
+  .site-header > div {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'brand nav actions';
+    column-gap: 1.5rem;
+    row-gap: 0;
+  }
+  .primary-nav { width: auto; justify-content: center; overflow: visible; }
+  .nav-phone { display: inline; }
+}
+
+/* ============================================================
+   Section rhythm
+   ============================================================ */
+.section {
+  padding-block: clamp(3.75rem, 9vw, 7.5rem);
+}
+.section-surface {
+  background: var(--color-surface);
+  border-block: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+}
+.section-dark {
+  background: var(--color-dark);
+}
+.text-on-dark h2,
+.text-on-dark h3 {
+  color: var(--color-on-dark);
+}
+.text-on-dark .ember-underline::after {
+  background: linear-gradient(90deg, var(--color-accent), var(--color-cider));
+}
+
+/* ---- Page headers (editorial, oversized) ---- */
+.page-head {
+  position: relative;
+  padding-block: clamp(4rem, 11vw, 8rem) clamp(1.75rem, 4vw, 3rem);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+  overflow: hidden;
+}
+.page-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--color-accent);
+  margin-bottom: 1.1rem;
+}
+.page-title {
+  font-size: clamp(2.6rem, 8.5vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  max-width: 15ch;
+}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: clamp(620px, 92svh, 960px);
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+  background: var(--color-dark);
+}
+.hero-media,
+.hero-media .hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.hero-img {
+  object-fit: cover;
+  object-position: center 42%;
+  will-change: transform;
+  filter: saturate(0.84) contrast(1.05) brightness(0.86) sepia(0.14);
+}
+/* grading overlay baked into the hero (not the .graded utility, which would
+   override the media's absolute positioning) */
+.hero-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 95% at 50% 100%, color-mix(in oklab, var(--color-accent) 20%, transparent) 0%, transparent 55%),
+    linear-gradient(to top, color-mix(in oklab, var(--color-dark) 80%, transparent) 0%, transparent 52%);
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  grid-area: 1 / 1;
+  justify-self: stretch;
+  width: min(80rem, 100%);
+  margin-inline: auto;
+  padding: 0 clamp(1.25rem, 4vw, 3rem) clamp(2.75rem, 8vw, 6rem);
+}
+.hero-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--color-cider);
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.hero-kicker::before {
+  content: '';
+  width: clamp(2rem, 6vw, 4rem);
+  height: 1px;
+  background: color-mix(in oklab, var(--color-cider) 70%, transparent);
+}
+.hero-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--color-on-dark);
+  font-size: clamp(2.6rem, 10.5vw, 8rem);
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 40px color-mix(in oklab, #000 70%, transparent);
+  max-width: 16ch;
+  overflow-wrap: break-word;
+}
+.hero-line { display: block; }
+.hero-emphasis {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--color-cider);
+}
+.hero-actions {
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+/* ---- Thesis / statement band ---- */
+.statement-band {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+}
+.statement-head {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(1.9rem, 5.2vw, 4.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  max-width: 20ch;
+  margin-inline: auto;
+}
+
+/* ---- Hero cover variant: full-bleed plate + centered wordmark ---- */
+.hero-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100svh;
+}
+.hero-cover-content {
+  position: relative;
+  z-index: 2;
+  width: min(90rem, 100%);
+  padding: 0 1.25rem;
+}
+.hero-cover-eyebrow {
+  font-family: var(--font-mono);
+  font-size: clamp(0.62rem, 1.4vw, 0.78rem);
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: color-mix(in oklab, var(--color-on-dark) 82%, transparent);
+  margin-bottom: clamp(1rem, 2.5vw, 1.75rem);
+}
+.hero-wordmark {
+  font-family: var(--font-display);
+  color: var(--color-on-dark);
+  text-transform: uppercase;
+  font-size: clamp(2rem, 7vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+.hero-wordmark .hero-line { display: block; }
+
+/* hero footer meta row: coordinates · scroll cue · live clock */
+.hero-meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem clamp(1.25rem, 4vw, 3rem);
+  border-top: 1px solid color-mix(in oklab, var(--color-on-dark) 16%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--color-on-dark) 64%, transparent);
+  background: linear-gradient(to top, color-mix(in oklab, var(--color-dark) 70%, transparent), transparent);
+}
+.hero-meta-scroll { color: var(--color-cider); }
+.hero-meta-clock { font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 640px) {
+  .hero-meta-scroll { display: none; }
+  .hero-meta { font-size: 0.6rem; letter-spacing: 0.12em; }
+}
+
+/* ============================================================
+   Kinetic marquee — driftwood / salt / smoke ticker
+   ============================================================ */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  border-block: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  background: var(--color-dark);
+  padding-block: clamp(0.9rem, 2vw, 1.4rem);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 2.5rem;
+  white-space: nowrap;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track {
+    animation: marquee-scroll var(--marquee-speed, 38s) linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-item {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.5rem, 3.6vw, 2.6rem);
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+.marquee-item[data-ghost] {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--color-text-muted) 65%, transparent);
+}
+.marquee-star {
+  color: var(--color-accent);
+  font-size: 0.62em;
+}
+
+/* solid rust band variant (the @handle / tagline ribbon) */
+.marquee-band {
+  background: var(--color-rust);
+  border-block: none;
+  padding-block: clamp(0.65rem, 1.6vw, 1rem);
+}
+.marquee-band .marquee-track { gap: 0; }
+.marquee-band-item {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(0.82rem, 1.6vw, 1.05rem);
+  letter-spacing: 0.18em;
+  color: var(--color-on-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 2.25rem;
+  padding-inline: 1.1rem;
+}
+.marquee-band .marquee-star { color: color-mix(in oklab, var(--color-dark) 70%, var(--color-rust)); }
+
+/* ============================================================
+   Driftwood rule — organic divider (used between sections)
+   ============================================================ */
+.driftwood {
+  display: block;
+  width: 100%;
+  height: clamp(28px, 5vw, 52px);
+  color: color-mix(in oklab, var(--color-border) 92%, var(--color-text-muted));
+}
+.driftwood svg { display: block; width: 100%; height: 100%; }
+
+/* ============================================================
+   Today's Catch banner — the live, ember-edged strip
+   ============================================================ */
+.todays-catch {
+  position: relative;
+  background: var(--color-surface);
+  border-top: 1px solid color-mix(in oklab, var(--color-accent) 55%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+.todays-catch .label,
+.todays-catch [class*='uppercase'] {
+  font-family: var(--font-mono);
+}
+/* the catch line — set in mono (a live board readout), not the display face */
+.catch-body {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.9vw, 1.35rem);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--color-on-dark);
+}
+.catch-dot {
+  margin-top: 0.45rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .catch-dot { animation: catch-pulse 2.4s ease-in-out infinite; }
+}
+@keyframes catch-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 60%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--color-accent) 0%, transparent); }
+}
+.catch-link {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-cider);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-cider) 50%, transparent);
+  padding-bottom: 2px;
+}
+.catch-link:hover { border-bottom-color: var(--color-cider); }
+
+/* ============================================================
+   Dishes
+   ============================================================ */
+.dish { display: flex; flex-direction: column; }
+.dish-media {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 80%, transparent);
+  margin-bottom: 1.2rem;
+  aspect-ratio: 25 / 18;
+}
+.dish-media img { height: 100%; width: 100%; object-fit: cover; }
+.dish-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  line-height: 1.02;
+}
+.dish-price {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-cider);
+}
+.dish-tag {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  padding: 0.28rem 0.6rem;
+  border-radius: 1px;
+}
+.tag-catch {
+  color: var(--color-dark);
+  background: var(--color-accent);
+}
+.tag-signature {
+  color: var(--color-cider);
+  border: 1px solid color-mix(in oklab, var(--color-cider) 45%, transparent);
+}
+.dish-desc {
+  margin-top: 0.85rem;
+  color: var(--color-text-muted);
+}
+.board-section + .board-section { margin-top: clamp(2.75rem, 5vw, 4rem); }
+.board-rows { display: grid; gap: 0; }
+.board-rows .dish {
+  padding-block: 1.6rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 65%, transparent);
+}
+.board-rows .dish:first-child { padding-top: 0; }
+.board-rows .dish:last-child { border-bottom: 0; }
+
+/* ============================================================
+   Reviews
+   ============================================================ */
+.review {
+  padding: 2rem;
+  border: 1px solid color-mix(in oklab, var(--color-on-dark) 14%, transparent);
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--color-on-dark) 4%, transparent);
+}
+.review-quote {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.12;
+  color: var(--color-on-dark);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.review-name {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+}
+.review-detail {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+  color: color-mix(in oklab, var(--color-on-dark) 64%, transparent);
+}
+
+/* ============================================================
+   The pour — runs the FULL height of the page beside the content.
+   Bottle caps the top, glass caps the bottom, and a thin cider stream
+   stretches the entire distance between — so mid-scroll you see only the
+   stream. Cap photos are shot on black; `mix-blend-mode: screen` drops the
+   black out so the pour floats with no visible background.
+   ============================================================ */
+.pour-mobile {
+  margin: 0 auto 2.5rem;
+  max-width: 15rem;
+}
+.pour-mobile img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* feather the rectangular edges into the page (robust to non-pure-black bg) */
+  -webkit-mask-image: radial-gradient(115% 115% at 50% 50%, #000 58%, transparent 90%);
+  mask-image: radial-gradient(115% 115% at 50% 50%, #000 58%, transparent 90%);
+}
+.pour-rail { display: none; }
+
+@media (min-width: 1024px) {
+  .pour-mobile { display: none; }
+  .pour-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: stretch; /* span the whole content height */
+    overflow: hidden;
+  }
+  .pour-cap-top,
+  .pour-cap-bottom { width: 100%; line-height: 0; overflow: hidden; }
+  .pour-cap-top img,
+  .pour-cap-bottom img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* feather edges so the dark cap melts into the page; the bright stream shows */
+    -webkit-mask-image: radial-gradient(130% 90% at 50% 50%, #000 55%, transparent 88%);
+    mask-image: radial-gradient(130% 90% at 50% 50%, #000 55%, transparent 88%);
+  }
+  /* nudge the bottle so its pouring stream lands on the rail's centre line */
+  .pour-cap-top img { transform: translateX(9px); }
+  /* the long connecting stream — fills all the space between the caps */
+  .pour-stream {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 140px;
+    margin-block: -2px; /* tuck under the caps so it reads continuous */
+  }
+  .pour-stream::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-cider) 40%, transparent),
+      color-mix(in oklab, #fff 70%, var(--color-cider)),
+      color-mix(in oklab, var(--color-cider) 40%, transparent)
+    );
+    box-shadow: 0 0 12px color-mix(in oklab, var(--color-cider) 65%, transparent);
+  }
+  /* a travelling glint so the stream reads as moving liquid */
+  @media (prefers-reduced-motion: no-preference) {
+    .pour-stream::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      width: 3px;
+      height: 18%;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: linear-gradient(to bottom, transparent, #fff, transparent);
+      opacity: 0.85;
+      animation: pour-glint 2.6s linear infinite;
+    }
+  }
+}
+@keyframes pour-glint {
+  from { top: -18%; }
+  to { top: 100%; }
+}
+
+/* ============================================================
+   Framed media — rounded corner + hairline, the reference's image style
+   ============================================================ */
+.framed {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 78%, transparent);
+}
+
+/* ============================================================
+   Meridian star motif
+   ============================================================ */
+.mstar {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  color: var(--color-accent);
+  vertical-align: -0.12em;
+}
+/* ambient scattered stars behind a section */
+.star-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.star-field .mstar {
+  position: absolute;
+  color: color-mix(in oklab, var(--color-text) 8%, transparent);
+}
+.star-field .mstar.is-ember { color: color-mix(in oklab, var(--color-accent) 22%, transparent); }
+
+/* image masked into the meridian star — the signature device */
+.starmask {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  -webkit-clip-path: polygon(
+    50% 0%, 57.3% 32.4%, 85.4% 14.6%, 67.6% 42.7%, 100% 50%, 67.6% 57.3%,
+    85.4% 85.4%, 57.3% 67.6%, 50% 100%, 42.7% 67.6%, 14.6% 85.4%, 32.4% 57.3%,
+    0% 50%, 32.4% 42.7%, 14.6% 14.6%, 42.7% 32.4%);
+  clip-path: polygon(
+    50% 0%, 57.3% 32.4%, 85.4% 14.6%, 67.6% 42.7%, 100% 50%, 67.6% 57.3%,
+    85.4% 85.4%, 57.3% 67.6%, 50% 100%, 42.7% 67.6%, 14.6% 85.4%, 32.4% 57.3%,
+    0% 50%, 32.4% 42.7%, 14.6% 14.6%, 42.7% 32.4%);
+}
+.starmask img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.85) brightness(0.9) sepia(0.12); }
+@media (prefers-reduced-motion: no-preference) {
+  .starmask { animation: star-turn 80s linear infinite; }
+}
+@keyframes star-turn { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Icon cards — rounded card + hand-drawn line-art icon (the reference's
+   MENU / HOURS / CONTACT trio), here for the three things that matter.
+   ============================================================ */
+.icard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.9rem;
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid color-mix(in oklab, var(--color-border) 85%, transparent);
+  border-radius: 22px;
+  background: color-mix(in oklab, var(--color-surface) 60%, transparent);
+}
+.icard-icon {
+  width: clamp(2.6rem, 6vw, 3.4rem);
+  height: clamp(2.6rem, 6vw, 3.4rem);
+  color: var(--color-accent);
+}
+.icard-icon svg { width: 100%; height: 100%; }
+.icard-num {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--color-text-muted);
+}
+.icard-head {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+.icard-body { color: var(--color-text-muted); max-width: 30ch; }
+
+/* ============================================================
+   Heading that overlaps an image, on a rounded "sticker" backing
+   ============================================================ */
+.sticker-head {
+  display: inline-block;
+  background: var(--color-dark);
+  border: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  border-radius: 16px;
+  padding: 0.5rem 1rem 0.65rem;
+  box-shadow: 0 20px 50px -28px #000;
+}
+
+/* ============================================================
+   Story / pillars
+   ============================================================ */
+
+/* ============================================================
+   Story / pillars
+   ============================================================ */
+.story-prose p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: color-mix(in oklab, var(--color-text) 92%, var(--color-background));
+  max-width: 54ch;
+}
+.story-prose p + p { margin-top: 1.4rem; }
+.story-prose p:first-child::first-letter {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3.4rem;
+  float: left;
+  line-height: 0.72;
+  padding: 0.1em 0.14em 0 0;
+  color: var(--color-accent);
+}
+.pillar-num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+}
+.pillar-head {
+  margin-top: 0.7rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+.pillar-body {
+  margin-top: 0.6rem;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-item {
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  list-style: none;
+  padding: 1.25rem 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+.faq-q::-webkit-details-marker { display: none; }
+.faq-icon { position: relative; flex: none; width: 1rem; height: 1rem; }
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  background: var(--color-accent);
+  transition: transform 220ms var(--ease-settle);
+}
+.faq-icon::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+.faq-icon::after { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+.faq-item[open] .faq-icon::after { transform: translateX(-50%) scaleY(0); }
+.faq-a {
+  padding-bottom: 1.3rem;
+  color: var(--color-text-muted);
+  max-width: 64ch;
+}
+
+/* ============================================================
+   CTA band
+   ============================================================ */
+.cta-band {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-dark);
+  isolation: isolate;
+}
+.cta-band-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.4;
+  filter: saturate(0.8) brightness(0.7) sepia(0.2);
+}
+.cta-band-inner {
+  position: relative;
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(4.5rem, 11vw, 8rem) 1.25rem;
+  text-align: center;
+}
+.cta-band-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  color: var(--color-on-dark);
+  font-size: clamp(2.2rem, 7vw, 4.5rem);
+}
+
+/* ============================================================
+   Reservations
+   ============================================================ */
+.reservations-layout { display: grid; gap: 0; }
+.reservations-aside {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 320px;
+  background: var(--color-dark);
+  overflow: hidden;
+}
+.reservations-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.62;
+  filter: saturate(0.82) brightness(0.78) sepia(0.16);
+}
+.reservations-aside-text { position: relative; z-index: 2; padding: clamp(2rem, 5vw, 3.5rem); }
+.reservations-form-col {
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem;
+  max-width: 42rem;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .reservations-layout {
+    grid-template-columns: 0.95fr 1.05fr;
+    min-height: calc(100svh - 70px);
+  }
+  .reservations-aside { min-height: auto; }
+  .reservations-form-col {
+    margin: 0;
+    padding-inline: clamp(2.5rem, 5vw, 5rem);
+    align-self: center;
+  }
+}
+
+/* ---- Form ---- */
+.field { display: block; }
+.field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+.field-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.45rem;
+  margin-top: -0.15rem;
+}
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 1px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.field textarea { resize: vertical; min-height: 90px; }
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 24%, transparent);
+}
+.field input::placeholder,
+.field textarea::placeholder { color: color-mix(in oklab, var(--color-text-muted) 70%, transparent); }
+.reservation-success {
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 2px;
+  background: var(--color-surface);
+}
+
+/* ============================================================
+   Gallery
+   ============================================================ */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (min-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: dense;
+    gap: 1rem;
+  }
+  .gallery-wide { grid-column: span 2; }
+  .gallery-tall { grid-row: span 2; }
+}
+.gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+  background: var(--color-dark);
+}
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.82) brightness(0.82) sepia(0.14);
+  transition: transform 700ms var(--ease-settle), filter 400ms ease;
+}
+.gallery-item:hover .gallery-img {
+  transform: scale(1.05);
+  filter: saturate(0.95) brightness(0.95) sepia(0.05);
+}
+.gallery-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 2rem 1rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--color-on-dark);
+  background: linear-gradient(to top, color-mix(in oklab, var(--color-dark) 92%, transparent), transparent);
+}
+
+/* ============================================================
+   Contact
+   ============================================================ */
+.contact-block + .contact-block { margin-top: 2.5rem; }
+.contact-head {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-accent);
+  margin-bottom: 0.85rem;
+}
+.contact-hours { display: grid; gap: 0.5rem; }
+.contact-hours li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 60%, transparent);
+}
+.contact-hours-day { font-weight: 600; color: var(--color-text); }
+.contact-hours-time { color: var(--color-text-muted); font-family: var(--font-mono); font-size: 0.85rem; }
+.contact-phone {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+  color: var(--color-cider);
+  font-variant-numeric: tabular-nums;
+}
+.contact-link {
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+.contact-link:hover { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+/* ---- Map facade ---- */
+.map-frame,
+.map-facade {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.map-facade {
+  cursor: pointer;
+  background:
+    radial-gradient(80% 60% at 30% 20%, color-mix(in oklab, var(--color-accent) 16%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--color-surface), var(--color-dark));
+}
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--color-text) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-text) 9%, transparent) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+.map-pin {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--color-accent) 28%, transparent);
+}
+.map-cta {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-text);
+}
+.map-cta-action {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-cider);
+}
+.map-directions {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.45rem 0.7rem;
+  border-radius: 1px;
+  background: var(--color-accent);
+  color: var(--color-dark);
+}
+.map-frame iframe { display: block; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+  background: var(--color-dark);
+  color: var(--color-on-dark);
+  border-top: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+.footer-head {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent);
+  margin-bottom: 0.95rem;
+}
+.footer-link {
+  color: color-mix(in oklab, var(--color-on-dark) 74%, transparent);
+  transition: color 160ms ease;
+}
+.footer-link:hover { color: var(--color-cider); }
+
+/* oversized footer wordmark — clipped at the baseline like a painted sign */
+.footer-wordmark-wrap {
+  overflow: hidden;
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  border-top: 1px solid color-mix(in oklab, var(--color-on-dark) 10%, transparent);
+}
+.footer-wordmark {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-size: clamp(3.5rem, 18vw, 16rem);
+  line-height: 0.86;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--color-on-dark) 26%, transparent);
+  margin-block: clamp(1rem, 3vw, 2.5rem) clamp(-0.5rem, -1vw, -1rem);
+}
+
+/* ============================================================
+   Mobile sticky book bar
+   ============================================================ */
+.mobile-sticky-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem calc(0.7rem + env(safe-area-inset-bottom));
+  background: color-mix(in oklab, var(--color-dark) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in oklab, var(--color-on-dark) 14%, transparent);
+  transform: translateY(110%);
+  transition: transform 280ms var(--ease-settle);
+}
+.mobile-sticky-bar.is-shown { transform: translateY(0); }
+.btn-bar { min-height: 48px; }
+@media (prefers-reduced-motion: reduce) {
+  .mobile-sticky-bar { transition: none; }
+}
+@media (min-width: 880px) {
+  .mobile-sticky-bar { display: none; }
+}

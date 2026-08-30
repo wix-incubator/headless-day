@@ -1,0 +1,40 @@
+---
+/**
+ * Driftwood rule — an organic, sea-worn branch used as a section divider in
+ * place of a straight hairline. Hand-tuned irregular path so no two feel
+ * machine-ruled; tapers to splinters at both ends, with two grain lines and a
+ * knot. Decorative only (aria-hidden); `flip` mirrors it for variety.
+ */
+interface Props {
+  flip?: boolean;
+  class?: string;
+}
+const { flip = false, class: className = '' } = Astro.props;
+---
+
+<div class:list={['driftwood', className]} aria-hidden="true" style={flip ? 'transform: scaleX(-1)' : undefined}>
+  <svg viewBox="0 0 1200 60" fill="none" preserveAspectRatio="none" role="presentation">
+    <path
+      d="M2 31 C 70 26, 120 24, 210 30 S 360 41, 470 30 C 560 21, 620 19, 720 27 S 880 40, 980 31 C 1050 25, 1110 27, 1198 30"
+      stroke="currentColor"
+      stroke-width="2.4"
+      stroke-linecap="round"
+    />
+    <path
+      d="M150 30 C 240 33, 330 33, 430 29 S 700 24, 820 31"
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linecap="round"
+      opacity="0.5"
+    />
+    <path
+      d="M520 31 C 620 28, 760 28, 900 32"
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linecap="round"
+      opacity="0.35"
+    />
+    <ellipse cx="470" cy="30" rx="7" ry="4.5" fill="currentColor" opacity="0.55" />
+    <path d="M980 31 l 26 -12 M980 31 l 22 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity="0.7" />
+  </svg>
+</div>

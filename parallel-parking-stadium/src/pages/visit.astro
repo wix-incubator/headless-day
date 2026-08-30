@@ -1,0 +1,129 @@
+---
+import Base from '../layouts/Base.astro';
+import { business } from '../data/seed';
+import { sportsActivityLocation } from '../lib/seo';
+
+const hours = [
+  { l: 'Box office', v: business.boxOffice },
+  { l: 'Doors', v: business.doors },
+  { l: 'Tournament nights', v: 'Fri–Sat from 20:00' },
+  { l: 'First park', v: 'On the hour. It waits for no one.' },
+];
+
+const getting = [
+  { k: 'Subte', v: 'Líneas B and D stop two blocks from the deck. Follow the roar.' },
+  { k: 'Colectivo', v: 'The 5, 6, 26 and 99 all stop on the avenue. Walk toward the lights.' },
+  { k: 'On foot', v: 'Five minutes from Obelisco, in the heart of the Microcentro.' },
+  { k: 'Parking', v: 'Yes, there is parking. No, you may not compete for the last space.' },
+];
+---
+
+<Base
+  page="visit"
+  title="Visit"
+  description="Doors, hours, the neighborhood, and how to get to the Parallel Parking Stadium in the Microcentro, Buenos Aires."
+  jsonLd={sportsActivityLocation()}
+>
+  <div style="background:var(--bg-2);border-bottom:2px solid var(--grid);padding:clamp(40px,6vw,72px) 20px">
+    <div class="wrap">
+      <div class="lbl" style="font-size:12px;color:var(--gold);margin-bottom:12px">Visit</div>
+      <h1 class="dk" style="margin:0 0 12px;font-size:clamp(34px,6vw,64px);text-shadow:4px 4px 0 rgba(25,27,38,.16)">Microcentro,<br />Buenos Aires</h1>
+      <p style="margin:0;max-width:580px;font-size:19px;line-height:1.4;color:var(--ink-dim)">
+        A painted deck under stadium light, two blocks from the Obelisco. Loud on tournament nights, quiet the
+        rest of the week. {business.tournamentNights}.
+      </p>
+    </div>
+  </div>
+
+  <div style="background:var(--bg)">
+    <div class="wrap" style="padding:clamp(28px,4vw,48px) 20px">
+      <div class="visit-grid">
+        <div class="panel" style="padding:28px">
+          <div class="lbl" style="font-size:12px;color:var(--cyan);margin-bottom:18px">Doors &amp; hours</div>
+          {
+            hours.map((h) => (
+              <div class="flex-between" style="align-items:baseline;flex-wrap:nowrap;padding:13px 0;border-bottom:1px solid var(--grid)">
+                <span class="lbl" style="font-size:11px;color:var(--ink-dim)">{h.l}</span>
+                <span class="dk" style="font-size:17px;text-align:right">{h.v}</span>
+              </div>
+            ))
+          }
+          <a href="/tickets" class="btn btn-sm" style="margin-top:22px">▶ Get tickets</a>
+        </div>
+
+        <div class="panel" style="position:relative;overflow:hidden;min-height:320px;padding:0;background:#dfe2db">
+          <div id="map-facade" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer">
+            <svg viewBox="0 0 520 360" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+              <rect width="520" height="360" fill="#dfe2db"></rect>
+              <!-- city blocks -->
+              <g fill="#eef0ea">
+                <rect x="14" y="14" width="96" height="62"></rect><rect x="150" y="14" width="120" height="62"></rect><rect x="310" y="14" width="120" height="62"></rect>
+                <rect x="14" y="110" width="96" height="78"></rect><rect x="310" y="110" width="120" height="78"></rect>
+                <rect x="14" y="220" width="96" height="120"></rect><rect x="150" y="220" width="120" height="120"></rect><rect x="310" y="220" width="120" height="120"></rect>
+              </g>
+              <!-- avenues -->
+              <g stroke="#c6cabf" stroke-width="10">
+                <line x1="0" y1="93" x2="520" y2="93"></line>
+                <line x1="0" y1="200" x2="520" y2="200"></line>
+                <line x1="130" y1="0" x2="130" y2="360"></line>
+                <line x1="290" y1="0" x2="290" y2="360"></line>
+              </g>
+              <g stroke="#fff" stroke-width="1" stroke-dasharray="6 6">
+                <line x1="0" y1="93" x2="520" y2="93"></line><line x1="290" y1="0" x2="290" y2="360"></line>
+              </g>
+              <!-- the stadium marker -->
+              <circle cx="290" cy="200" r="26" fill="#ffce1f" stroke="#191b26" stroke-width="3"></circle>
+              <text x="290" y="206" text-anchor="middle" class="arcade" fill="#191b26" font-size="13">P</text>
+            </svg>
+            <div style="position:relative;text-align:center">
+              <div class="lbl" style="font-size:11px;color:var(--ink-dim);margin-bottom:12px">{business.neighborhood}</div>
+              <button id="map-load" class="btn btn-cyan" style="font-size:11px">▶ Load map</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px">
+        <div class="lbl" style="font-size:12px;color:var(--cyan);margin-bottom:18px">Getting there</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+          {
+            getting.map((g) => (
+              <div class="panel" style="padding:var(--sp-4)">
+                <div class="dk" style="font-size:18px;margin-bottom:6px;color:var(--gold)">{g.k}</div>
+                <p style="margin:0;font-size:17px;line-height:1.4;color:var(--ink-dim)">{g.v}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<script is:inline>
+  document.getElementById('map-facade')?.addEventListener('click', () => {
+    const host = document.getElementById('map-facade');
+    if (!host) return;
+    const iframe = document.createElement('iframe');
+    iframe.src =
+      'https://www.openstreetmap.org/export/embed.html?bbox=-58.385%2C-34.609%2C-58.366%2C-34.598&layer=mapnik&marker=-34.6037%2C-58.3756';
+    iframe.title = 'Map of the Microcentro, Buenos Aires';
+    iframe.loading = 'lazy';
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+    host.replaceWith(iframe);
+  });
+</script>
+
+<style>
+  .visit-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+  @media (min-width: 860px) {
+    .visit-grid {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+</style>
