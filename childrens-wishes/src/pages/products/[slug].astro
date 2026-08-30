@@ -1,0 +1,264 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { productsV3 } from "@wix/stores";
+import { resolveWixImageUrl } from "../../utils/wix-image";
+import AddToCartButton from "../../components/AddToCartButton";
+
+const { slug } = Astro.params;
+
+let product: any = null;
+try {
+  const result = await productsV3.getProductBySlug(slug!, {
+    fields: ["CURRENCY", "PLAIN_DESCRIPTION"],
+  });
+  product = result.product;
+} catch (err) {
+  console.error("[product-detail] getProductBySlug failed:", err);
+}
+
+if (!product) return Astro.redirect("/404");
+
+const images: string[] = [];
+if (product.media?.main?.image) {
+  const url = resolveWixImageUrl(product.media.main.image, 900, 900);
+  if (url) images.push(url);
+}
+for (const item of product.media?.items ?? []) {
+  const url = resolveWixImageUrl(item.image, 900, 900);
+  if (url && url !== images[0]) images.push(url);
+}
+const mainImage = images[0] ?? null;
+
+const price = product.actualPriceRange?.minValue?.formattedAmount;
+const description = product.plainDescription?.replace(/<[^>]*>/g, "").trim();
+const inStock = product.stock?.inStock !== false;
+---
+
+<Layout title={`${product.name} — Children's Wishes`}>
+  <div class="page-wrap">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/products">Shop</a>
+        <span>/</span>
+        <span class="breadcrumb-current">{product.name}</span>
+      </nav>
+
+      <div class="product-layout">
+        <!-- Gallery -->
+        <div class="gallery">
+          <div class="gallery-main">
+            {mainImage ? (
+              <img src={mainImage} alt={product.name ?? "Product"} />
+            ) : (
+              <div class="gallery-placeholder">🎁</div>
+            )}
+            {product.ribbon?.name && (
+              <span class="product-ribbon">{product.ribbon.name}</span>
+            )}
+          </div>
+          {images.length > 1 && (
+            <div class="gallery-thumbs">
+              {images.slice(0, 5).map((url, i) => (
+                <div class={`thumb ${i === 0 ? "thumb-active" : ""}`}>
+                  <img src={url} alt="" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Info -->
+        <div class="product-info">
+          <p class="product-brand">Children's Wishes</p>
+          <h1 class="product-name">{product.name}</h1>
+          {price && <p class="product-price">{price}</p>}
+
+          <!-- Stock -->
+          <div class="stock-row">
+            <span class={`stock-dot ${inStock ? "in-stock" : "oos"}`}></span>
+            <span class="stock-label">{inStock ? "In stock" : "Out of stock"}</span>
+          </div>
+
+          {description && (
+            <p class="product-desc">{description}</p>
+          )}
+
+          {inStock ? (
+            <AddToCartButton client:load productId={product._id ?? product.id} />
+          ) : (
+            <button class="btn-oos" disabled>Out of Stock</button>
+          )}
+
+          <!-- Perks -->
+          <div class="perks-grid">
+            {[
+              { icon: "🚚", text: "Free shipping over $50" },
+              { icon: "🎁", text: "Gift wrapping available" },
+              { icon: "↩️", text: "30-day easy returns" },
+              { icon: "🌱", text: "Eco-friendly packaging" },
+            ].map(({ icon, text }) => (
+              <div class="perk">
+                <span>{icon}</span>
+                <span class="perk-text">{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+.page-wrap { padding: 32px 0 80px; }
+.container { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+.breadcrumb a { color: var(--muted); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb-current { color: var(--ink); }
+
+.product-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .product-layout { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* Gallery */
+.gallery { display: flex; flex-direction: column; gap: 16px; }
+.gallery-main {
+  position: relative;
+  aspect-ratio: 1/1;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #F5F0E8;
+}
+.gallery-main img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  opacity: 0.2;
+}
+.product-ribbon {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.gallery-thumbs { display: flex; gap: 12px; overflow-x: auto; }
+.thumb {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+}
+.thumb-active { border-color: var(--peach); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Info */
+.product-brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--peach);
+  margin-bottom: 12px;
+}
+.product-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.product-price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 20px;
+}
+.stock-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.stock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.stock-dot.in-stock { background: var(--mint); }
+.stock-dot.oos { background: #F7C0CF; }
+.stock-label { font-size: 13px; color: var(--muted); }
+
+.product-desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.btn-add-to-cart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  margin-bottom: 28px;
+}
+.btn-add-to-cart:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-oos {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--border);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: not-allowed;
+  margin-bottom: 28px;
+}
+
+.perks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 24px;
+  background: #F5F0E8;
+  border-radius: 16px;
+}
+.perk { display: flex; align-items: center; gap: 10px; }
+.perk-text { font-size: 12px; color: var(--muted); }
+</style>
