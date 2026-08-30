@@ -1,0 +1,17 @@
+# Tidal Coding Camp
+
+A teen summer coding camp (ages 13–17) on a Brittany tidal island where the causeway floods twice a day. Campers build real marine-data projects on a schedule timed to the tide tables — stranded hours are debugging hours.
+
+## Pages
+- [Home](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/): The tide-timed coding hook and how it works.
+- [The Program](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/program): Two-week marine-data curriculum, cohorts, dates, and fees.
+- [Tide Schedule](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/schedule): Daily rhythm mapped to real tide tables, live tide clock, and a 7-day almanac.
+- [The Island](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/island): The causeway, crossing windows, lodging, meals, supervision, and safety.
+- [Projects](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/projects): Twelve past camper marine-data projects.
+- [Apply](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/apply): Application form with parent-consent note.
+- [FAQ](https://tidal-codi-8d0dc8a1-shaykovach.wix-site-host.com/faq): Safety, cost, gear, and tide questions.
+
+## Key facts
+- Location: Île de tidal, Brittany, France (48°38′N, 2°02′W)
+- Sessions: four two-week sessions, July–August 2026, 12 campers each
+- Experience required: none to intermediate; Python from the first commit

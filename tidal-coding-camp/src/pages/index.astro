@@ -1,0 +1,303 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TidalFlow from '../components/TidalFlow.astro';
+import { PROJECTS } from '../data/projects';
+const home = PROJECTS.slice(0, 3);
+const courseLd = {
+  '@context': 'https://schema.org', '@type': 'Course', name: 'Tidal Coding Camp',
+  description: 'Two-week marine-data coding program for teens 13–17 on a Brittany tidal island, scheduled around real tide tables.',
+  provider: { '@type': 'EducationalOrganization', name: 'Tidal Coding Camp', address: { '@type': 'PostalAddress', addressLocality: 'Île de tidal', addressRegion: 'Brittany', addressCountry: 'FR' }, foundingDate: '2019', sameAs: ['https://instagram.com/tidalcodingcamp', 'https://twitter.com/strandedhours'] },
+  courseMode: 'onsite', educationalLevel: 'Beginner to intermediate', timeRequired: 'P2W',
+  hasCourseInstance: [
+    { '@type': 'CourseInstance', name: 'Session I · Spring Tide', courseMode: 'onsite', startDate: '2026-07-06', endDate: '2026-07-19', location: { '@type': 'Place', name: 'Île de tidal, Brittany, France' } },
+    { '@type': 'CourseInstance', name: 'Session II · Neap Tide', courseMode: 'onsite', startDate: '2026-07-20', endDate: '2026-08-02' },
+    { '@type': 'CourseInstance', name: 'Session III · Spring Tide', courseMode: 'onsite', startDate: '2026-08-03', endDate: '2026-08-16' },
+    { '@type': 'CourseInstance', name: 'Session IV · Neap Tide', courseMode: 'onsite', startDate: '2026-08-17', endDate: '2026-08-30' },
+  ],
+  offers: { '@type': 'Offer', price: '2450', priceCurrency: 'EUR', category: 'Two-week residential session' },
+};
+---
+<Layout
+  title="Tidal Coding Camp — Summer Coding Camp on a Brittany Island"
+  description="A teen summer coding camp on a Brittany tidal island where the causeway floods twice a day. Teens build real marine-data projects timed to the tide tables."
+  path="/"
+  heroPreload={true}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(courseLd)} />
+
+  <header class="hero">
+    <picture>
+      <source type="image/webp" media="(max-width:720px)" srcset="/assets/hero-kids-mobile.webp" sizes="100vw" />
+      <source type="image/webp" media="(min-width:721px)" srcset="/assets/hero-kids-1024.webp 1024w, /assets/hero-kids-1440.webp 1440w, /assets/hero-kids-1920.webp 1920w" sizes="100vw" />
+      <img class="hero-img" src="/assets/hero-kids-1440.jpg" width="1920" height="1107" fetchpriority="high" decoding="async" alt="Three teenagers laughing while coding on laptops on a sunny deck by the sea, a small tidal island behind them." />
+    </picture>
+    <div class="hero-coords">48°38′N · 2°02′W<br/>Île de tidal · Bretagne<br/>Semidiurnal · 2 floods / day
+      <span class="hero-live" id="hero-live" role="status" aria-live="off"><span class="dot"></span><span id="hl-text">Causeway open · next turn soon</span></span>
+    </div>
+    <div class="hero-waterline" aria-hidden="true"><span>High water line</span></div>
+    <canvas id="glints" class="hero-glints" aria-hidden="true"></canvas>
+    <div class="wrap hero-inner">
+      <p class="kicker">Teen summer coding camp · ages 13–17</p>
+      <h1 aria-label="Learn to code between low tide and high tide">
+        <span class="w" style="animation-delay:.3s">Learn</span> <span class="w" style="animation-delay:.42s">to</span> <span class="w" style="animation-delay:.54s">code</span> <span class="w" style="animation-delay:.66s">between</span> <span class="w tide" style="animation-delay:.82s">low&nbsp;tide</span> <span class="w" style="animation-delay:.98s">and</span> <span class="w tide" style="animation-delay:1.12s">high&nbsp;tide</span>
+      </h1>
+      <p class="lede">The causeway floods twice a day. We schedule the bugs for when you can’t leave.</p>
+      <div class="hero-cta">
+        <a class="btn amber" href="/apply">Reserve your seat</a>
+        <a class="btn ghost" href="/projects">See past projects</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="soundings rv">Sounding 03 · How it works</p>
+      <h2 class="wl rv">Cross. Code. Cross back when the sea lets you.</h2>
+      <div class="grid g3 rv" style="margin-top:2.4rem">
+        <div class="step"><div class="no">01</div><h3>Cross at low tide</h3><p class="muted">Walk the causeway while the water’s out — always supervised.</p></div>
+        <div class="step"><div class="no">02</div><h3>Code through the high</h3><p class="muted">The road floods, the coding starts. No way out, no way to quit early.</p></div>
+        <div class="step"><div class="no">03</div><h3>Ship before it drops</h3><p class="muted">Every high tide ends with something shipped.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band surface">
+    <div class="wrap">
+      <p class="kicker rv">Life at camp</p>
+      <h2 class="wl rv">Sun, sea, and a lot of code.</h2>
+      <div class="gallery rv">
+        <figure class="shot"><img src="/assets/camp-crossing.webp" width="900" height="519" loading="lazy" decoding="async" alt="Campers walking the causeway toward the island at low tide" /><figcaption>Crossing at low tide</figcaption></figure>
+        <figure class="shot"><img src="/assets/camp-lab.webp" width="900" height="519" loading="lazy" decoding="async" alt="Teens coding on laptops at a table overlooking the sea" /><figcaption>The lab</figcaption></figure>
+        <figure class="shot"><img src="/assets/camp-demo.webp" width="900" height="519" loading="lazy" decoding="async" alt="A camper presenting her data chart to the group on demo day" /><figcaption>Demo day</figcaption></figure>
+        <figure class="shot"><img src="/assets/camp-rocks.webp" width="900" height="519" loading="lazy" decoding="async" alt="Two teens coding together on the rocks by the water" /><figcaption>Field coding</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="tbanner" aria-hidden="true">
+    <div class="tbanner-wrap"><canvas id="typecanvas"></canvas></div>
+    <p class="tbanner-cap">The disappearing is the whole curriculum</p>
+  </section>
+
+  <section class="band">
+    <div class="wrap split">
+      <div class="rv">
+        <p class="kicker">The curriculum</p>
+        <h2 class="wl">Two weeks, one real dataset.</h2>
+        <p class="muted" style="margin-top:1rem">No tutorial grind — one real project, built and shipped between the tides.</p>
+        <p style="margin-top:1.4rem"><a class="btn ghost" href="/program">See the full program →</a></p>
+      </div>
+      <div class="grid g2 rv">
+        <div class="card"><span class="kicker" style="display:block">Week 1</span><h3>Sea legs</h3><p class="muted" style="font-size:.9rem">Python basics and your first charts.</p></div>
+        <div class="card"><span class="kicker" style="display:block">Week 2</span><h3>The project</h3><p class="muted" style="font-size:.9rem">One real dataset. Build it, ship it.</p></div>
+        <div class="card"><span class="kicker" style="display:block">Cohorts</span><h3>12 campers</h3><p class="muted" style="font-size:.9rem">Small groups, 1:4 staff ratio.</p></div>
+        <div class="card"><span class="kicker" style="display:block">Output</span><h3>Real code</h3><p class="muted" style="font-size:.9rem">A public repo and a five-minute demo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band dark" style="position:relative;overflow:hidden">
+    <TidalFlow />
+    <div class="wrap" style="position:relative;z-index:1">
+      <p class="kicker rv">Projects gallery</p>
+      <h2 class="wl rv">What teens shipped while the tide had them surrounded.</h2>
+      <div class="grid g3 rv" style="margin-top:2.2rem">
+        {home.map((p, i) => (
+          <article class="project">
+            <div class="thumb"><span class="id">Specimen {String(i + 1).padStart(2, '0')} · {p.year}</span></div>
+            <div class="body">
+              <h3>{p.title}</h3>
+              <div class="metaline">{p.who} · Cohort {p.cohort}</div>
+              <div class="muted" style="font-size:.78rem">Dataset: {p.dataset}</div>
+              <p class="sum">{p.summary}</p>
+              <div class="stack">{p.stack.map((s) => <span>{s}</span>)}</div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p class="rv" style="margin-top:1.8rem"><a class="btn ghost" href="/projects">All twelve projects →</a></p>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap split">
+      <div class="rv">
+        <p class="kicker">The island &amp; safety</p>
+        <h2 class="wl">A tide table is a schedule, not a hazard.</h2>
+        <p class="muted" style="margin-top:1rem">Campers cross only at low tide, always supervised. When the water’s up, nobody crosses — that’s the point.</p>
+        <p style="margin-top:1.4rem"><a class="btn ghost" href="/island">Island logistics &amp; the causeway →</a></p>
+      </div>
+      <div class="grid g2 rv">
+        <div class="fact"><b>Crossing windows</b><span>2 per day</span><p class="muted" style="font-size:.85rem">Posted every morning from official Brittany tide tables.</p></div>
+        <div class="fact"><b>Staff ratio</b><span>1 : 4</span><p class="muted" style="font-size:.85rem">Instructors stay on the island through every high-water window.</p></div>
+        <div class="fact"><b>Emergency exit</b><span>On call</span><p class="muted" style="font-size:.85rem">A small boat and staff lead, for genuine needs.</p></div>
+        <div class="fact"><b>Running since</b><span>2019</span><p class="muted" style="font-size:.85rem">Seven summers, zero unplanned swims.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band surface">
+    <div class="wrap">
+      <p class="kicker rv">Voices</p>
+      <h2 class="wl rv">Stranded on purpose.</h2>
+      <div class="grid g2 rv" style="margin-top:2rem">
+        <blockquote class="card voice" style="margin:0"><q>Getting stranded over high tide is the only reason my drift map ever worked.</q><span class="who"><b>Noah R. · Camper, 15</b></span></blockquote>
+        <blockquote class="card voice" style="margin:0"><q>She came home with a repo, a sunburn, and a very strong opinion about limpets.</q><span class="who"><b>Marc D. · Parent</b></span></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="kicker rv">Dates &amp; cohorts · Summer 2026</p>
+      <h2 class="wl rv">Four sessions. Tide tables that don’t negotiate.</h2>
+      <table class="sessions rv" style="margin-top:2rem">
+        <thead><tr><th>Session</th><th>Dates</th><th>Cohort</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Session I</td><td>Jul 6 – Jul 19</td><td>Spring Tide</td><td><span class="chip open" data-seat="I">Open</span></td></tr>
+          <tr><td>Session II</td><td>Jul 20 – Aug 2</td><td>Neap Tide</td><td><span class="chip open" data-seat="II">Open</span></td></tr>
+          <tr><td>Session III</td><td>Aug 3 – Aug 16</td><td>Spring Tide</td><td><span class="chip open" data-seat="III">3 spots</span></td></tr>
+          <tr><td>Session IV</td><td>Aug 17 – Aug 30</td><td>Neap Tide</td><td><span class="chip" data-seat="IV">Waitlist</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap"><p class="kicker">Apply</p><h2>Pick a tide window. Send the form. We’ll hold your spot above the waterline.</h2><p style="margin:1.5rem 0 0"><a class="btn amber" href="/apply">Reserve your seat</a></p></div>
+  </section>
+</Layout>
+
+<script>
+  // Signature waterline-typography canvas (adapted from the Claude Design generator)
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cv = document.getElementById('typecanvas') as HTMLCanvasElement | null;
+  if (cv) {
+    const ctx = cv.getContext('2d')!;
+    let W = 0, H = 0, dpr = 1, time = 0, fs = 48, visible = true;
+    const line1 = 'Learn to code between', line2 = 'low tide and high tide';
+    const PAD = 0.1;
+    function fit() {
+      let s = Math.min(72, W * 0.06);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (; s >= 18; s -= 1) {
+        ctx.font = `${s}px "Gloock",Georgia,serif`;
+        const w = Math.max(ctx.measureText(line1).width, ctx.measureText(line2).width);
+        if (w <= W * (1 - PAD * 2) && s * 2.5 <= H * 0.9) break;
+      }
+      fs = s;
+    }
+    function size() {
+      dpr = Math.min(1.6, window.devicePixelRatio || 1);
+      const r = cv!.getBoundingClientRect(); W = r.width; H = r.height;
+      cv!.width = Math.max(1, Math.round(W * dpr)); cv!.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); fit();
+    }
+    const waveY = (x: number, t: number, base: number) => base + Math.sin(x * 0.012 + t) * 10 + Math.sin(x * 0.028 - t * 1.4) * 3.5;
+    function grid() {
+      ctx.save(); ctx.strokeStyle = 'rgba(255,200,87,0.08)'; ctx.fillStyle = 'rgba(255,200,87,0.22)'; ctx.lineWidth = 1; ctx.font = '9px monospace'; ctx.textAlign = 'left';
+      for (let i = 1; i < 12; i++) { const x = W / 12 * i; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); if (i % 3 === 0) ctx.fillText((i * 2).toString().padStart(2, '0') + '°W', x + 4, 14); }
+      for (let i = 1; i < 6; i++) { const y = H / 6 * i; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); ctx.fillText('-' + (6 - i) * 2 + 'm', 8, y - 4); }
+      ctx.restore();
+    }
+    function headline(color: string) {
+      ctx.font = `${fs}px "Gloock",Georgia,serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = color;
+      const gap = fs * 0.62; ctx.fillText(line1, W / 2, H / 2 - gap); ctx.fillText(line2, W / 2, H / 2 + gap);
+    }
+    function render() {
+      ctx.clearRect(0, 0, W, H); grid(); headline('#FFC857');
+      const base = H * 0.52;
+      ctx.save(); ctx.beginPath(); ctx.moveTo(0, H);
+      for (let x = 0; x <= W; x += 6) ctx.lineTo(x, waveY(x, time, base));
+      ctx.lineTo(W, H); ctx.closePath(); ctx.clip();
+      ctx.fillStyle = '#13505B'; ctx.fillRect(0, 0, W, H); headline('#F2F0E6'); ctx.restore();
+      ctx.beginPath(); for (let x = 0; x <= W; x += 6) { const y = waveY(x, time, base); x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
+      ctx.strokeStyle = '#FFC857'; ctx.lineWidth = 3; ctx.stroke();
+    }
+    function loop() { if (visible && !document.hidden) { time += 0.008; render(); } requestAnimationFrame(loop); }
+    size(); addEventListener('resize', () => { size(); render(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { size(); render(); });
+    new IntersectionObserver((es) => es.forEach((e) => { visible = e.isIntersecting; })).observe(cv);
+    render();
+    if (!RM) requestAnimationFrame(loop);
+  }
+
+  // Live tide ticker in the hero corner — same semidiurnal model as the schedule page.
+  (function heroTide() {
+    const el = document.getElementById('hl-text');
+    const wrap = document.getElementById('hero-live');
+    if (!el || !wrap) return;
+    const PERIOD = 12.4206012 * 3600 * 1000, ANCHOR = Date.UTC(2026, 0, 1, 3, 37), THRESH = 0.42;
+    const fmt = (ms: number) => { const m = Math.round(ms / 60000); return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`; };
+    function tick() {
+      const now = Date.now();
+      const ph = ((((now - ANCHOR) % PERIOD) + PERIOD) % PERIOD) / PERIOD;
+      const level = (Math.cos(ph * 2 * Math.PI) + 1) / 2;
+      const nextIsLow = ph < 0.5;
+      const msToTurn = (nextIsLow ? 0.5 - ph : 1 - ph) * PERIOD;
+      const closed = level > THRESH;
+      wrap.classList.toggle('closed', closed);
+      el.textContent = `${closed ? 'Stranded · causeway under' : 'Causeway open'} · ${nextIsLow ? 'low' : 'high'} in ${fmt(msToTurn)}`;
+    }
+    tick(); setInterval(tick, 30000);
+  })();
+</script>
+
+<script>
+  // @ts-nocheck
+  // Subtle golden light-glints drifting over the hero water. Slow, low-opacity, tasteful.
+  (function () {
+    const cv = document.getElementById('glints');
+    if (!cv) return;
+    const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ctx = cv.getContext('2d');
+    let W = 0, H = 0, parts = [], running = true, t = 0;
+    function size() {
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+      cv.width = Math.max(1, (W * dpr) | 0); cv.height = Math.max(1, (H * dpr) | 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    const mk = () => ({ x: Math.random() * W, y: Math.random() * H, r: 7 + Math.random() * 18, a: 0.05 + Math.random() * 0.16, ph: Math.random() * 6.28, vy: -(0.04 + Math.random() * 0.10), sp: 0.3 + Math.random() * 0.7 });
+    function loop() {
+      requestAnimationFrame(loop);
+      if (!running || document.hidden) return;
+      t += 0.016; ctx.clearRect(0, 0, W, H);
+      for (const p of parts) {
+        p.y += p.vy; if (p.y < -20) { p.y = H + 20; p.x = Math.random() * W; }
+        const tw = p.a * (0.55 + 0.45 * Math.sin(t * p.sp + p.ph));
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, `rgba(255,222,150,${tw})`); g.addColorStop(1, 'rgba(255,222,150,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+    }
+    function boot() {
+      size(); parts = Array.from({ length: 24 }, mk);
+      addEventListener('resize', size, { passive: true });
+      new IntersectionObserver((es) => es.forEach((e) => (running = e.isIntersecting))).observe(cv);
+      requestAnimationFrame(loop);
+    }
+    if (RM) return; // reduced motion: no glints
+    if ('requestIdleCallback' in window) requestIdleCallback(boot, { timeout: 2000 });
+    else addEventListener('load', () => setTimeout(boot, 400));
+  })();
+</script>
+
+<script>
+  // Live seat availability — updates the sessions-table badges from /api/seats.
+  (async function () {
+    const badges = document.querySelectorAll('[data-seat]');
+    if (!badges.length) return;
+    try {
+      const r = await fetch('/api/seats');
+      if (!r.ok) return;
+      const { seats } = await r.json();
+      badges.forEach((el) => {
+        const s = seats?.[el.getAttribute('data-seat')];
+        if (!s) return;
+        el.textContent = s.status;
+        el.classList.toggle('open', s.left > 0);
+      });
+    } catch { /* keep static labels on failure */ }
+  })();
+</script>
