@@ -1,8 +1,0 @@
-{
-  "projectType": "Site",
-  "appId": "YOUR_APP_ID_HERE",
-  "siteId": "YOUR_SITE_ID_HERE",
-  "site": {
-    "outputDirectory": "./dist"
-  }
-}

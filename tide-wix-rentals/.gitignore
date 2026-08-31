@@ -1,6 +1,5 @@
 # wix integration
 .wix/
-wix.config.json
 
 # build output
 dist/
@@ -16,6 +15,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# leftover local scaffold (contains .env.local — never commit)
+/tidesurfrentals/
 
 # environment variables
 .env

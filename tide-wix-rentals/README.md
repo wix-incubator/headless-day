@@ -25,7 +25,8 @@ tide-wix-rentals/
 │   └── utils/              # Wix Rentals mapping and helpers
 ├── astro.config.mjs
 ├── package.json
-└── wix.config.example.json # Placeholder config — real wix.config.json is gitignored
+├── wix.config.json         # Placeholders only — replace with your own site
+└── .env.example            # Env var names; copy to .env.local
 ```
 
 ## How to Create This Yourself
@@ -43,13 +44,9 @@ tide-wix-rentals/
 
 ### Option A: Download & Run This Project
 
-> **Important:** All commands below must be run from inside the `tide-wix-rentals/` folder, **not** the monorepo root. The monorepo is a collection of projects — the Wix CLI only works inside an individual project directory.
-
-1. **Sparse-clone just this folder** from the monorepo:
+1. **Clone this repo:**
    ```bash
-   git clone --filter=blob:none --sparse https://github.com/wix-incubator/headless-day.git
-   cd headless-day
-   git sparse-checkout set tide-wix-rentals
+   git clone https://github.com/hanag-wix/tide-wix-rentals.git
    cd tide-wix-rentals
    ```
 
@@ -63,21 +60,26 @@ tide-wix-rentals/
    wix login
    npm create @wix/new@latest init
    ```
-   This provisions a **new** Wix site for your account and writes a local `wix.config.json` (site-specific, gitignored — not committed to this repo). The business name is derived from the folder name.
+   This provisions a **new** Wix site for your account and writes a local `wix.config.json`. The committed file in this repo uses placeholders (`<appId>`, `<siteId>`) only — do not commit your real IDs.
 
    > **Do not run `wix init`** — that command does not exist. Project linking is done via `npm create @wix/new@latest init` (from the `@wix/create-new` package, not `@wix/cli`).
 
    If provisioning fails with an `INTERNAL` error, retry shortly or escalate with the Request ID from the error output.
 
-4. **Install required Wix Business Solutions** on your new site (**Wix Rentals** from the App Market in [manage.wix.com](https://manage.wix.com)). Add rental products and availability in the dashboard as needed.
+4. **Install Wix Rentals** on your new site from the App Market in [manage.wix.com](https://manage.wix.com). Add rental products (boards, SUPs, wetsuits, kits) and availability in the dashboard. Optionally add a contact form and CMS testimonials collection.
 
-5. **Run locally:**
+5. **Generate local env** (creates `.env.local` — gitignored, do not commit):
+   ```bash
+   npm run env
+   ```
+
+6. **Run locally:**
    ```bash
    npm run dev
    ```
    Open the local URL shown in the terminal (typically [http://localhost:3000](http://localhost:3000)).
 
-6. **Build and deploy:**
+7. **Build and deploy:**
    ```bash
    npm run build
    npm run release
@@ -94,11 +96,14 @@ tide-wix-rentals/
    ```
    Follow the prompts for business name, folder name, and site template.
 
-2. **Install additional Wix packages** as needed (e.g., `@wix/bookings`, `@wix/ecom`, `@wix/forms`).
+2. **Install additional Wix packages** used by this project:
+   ```bash
+   npm install @wix/bookings @wix/ecom @wix/redirects @wix/forms @wix/data @wix/wix-data-items-sdk
+   ```
 
 3. **Configure Astro** with `@wix/astro` and `@wix/astro-pages` integrations, `output: "server"`. See [Wix CLI project structure](https://dev.wix.com/docs/wix-cli/guides/project-structure/project-structure).
 
-4. **Wire up Business Solutions** using the Wix SDK in server-side code.
+4. **Install Wix Rentals** in the dashboard and wire listing, availability, and checkout with the Wix SDK in server-side code (and a React island for the rental form).
 
 5. **Deploy:**
    ```bash
