@@ -1,0 +1,33 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const orderId = Astro.url.searchParams.get("orderId");
+---
+
+<Layout
+  title="You're booked"
+  description="Your TIDE. rental is locked. See you on the sand."
+>
+  <section class="page-shell">
+    <div class="flex flex-col gap-lg max-w-prose">
+    <span class="tide-chip w-fit">Locked in</span>
+    <h1 class="tide-display" style="font-size:clamp(42px,7vw,84px)">You're booked.</h1>
+    <p class="text-mute text-lg">
+      Session locked. Bring it back sandy — we'll rinse, you chase the next set.
+    </p>
+    {orderId && <p class="text-sm text-mute">Order {orderId}</p>}
+    <div class="flex flex-wrap gap-md">
+      <a href="/rentals" class="btn-primary">Rent another</a>
+      <a href="/" class="btn-secondary">Back home</a>
+    </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import { trackEvent } from "../utils/analytics";
+  const orderId = new URLSearchParams(window.location.search).get("orderId");
+  if (orderId) {
+    trackEvent("Purchase", { id: orderId, origin: "Thank You Page" });
+  }
+</script>

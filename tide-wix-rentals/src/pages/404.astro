@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Lost the swell"
+  description="That page isn't on the racks. Head back to rentals or the boardwalk home."
+>
+  <section class="page-shell">
+    <div class="flex flex-col gap-lg max-w-prose">
+    <span class="tide-chip w-fit">404</span>
+    <h1 class="tide-display" style="font-size:clamp(42px,7vw,84px)">Lost the swell.</h1>
+    <p class="text-mute text-lg">
+      That page isn't on the racks. The tide moved it — or the link never existed.
+    </p>
+    <div class="flex flex-wrap gap-md">
+      <a href="/rentals" class="btn-primary">See rentals</a>
+      <a href="/" class="btn-secondary">Back home</a>
+    </div>
+    </div>
+  </section>
+</Layout>

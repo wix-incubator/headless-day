@@ -1,0 +1,90 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import BookRental from "../../components/BookRental.tsx";
+import { resolveWixImageUrl } from "../../utils/wix-image";
+import { formatMoney, getRentalBySlug, type RentalView } from "../../utils/rentals";
+
+const { slug } = Astro.params;
+let rental: RentalView | null = null;
+try {
+  rental = slug ? await getRentalBySlug(slug) : null;
+} catch (err) {
+  console.error("[rentals] detail query failed:", err);
+}
+
+if (!rental) return Astro.redirect("/404");
+
+const imageUrl = resolveWixImageUrl(rental.image, 900, 1125);
+const price = formatMoney(rental.pricePerDay, rental.currency);
+const initial = rental.name.slice(0, 1).toUpperCase();
+const viewContentPayload = {
+  id: rental.id,
+  name: rental.name,
+  price: rental.pricePerDay,
+  currency: rental.currency,
+  origin: "Rental Detail",
+};
+---
+
+<Layout
+  title={rental.name}
+  description={rental.tagLine || rental.description.slice(0, 160) || `Rent ${rental.name} by the ${rental.unitType === "DAY" ? "day" : "hour"}.`}
+>
+  <section class="page-shell">
+    <p class="breadcrumbs">
+      <a href="/rentals">Gear</a>
+      <span> / </span>
+      <span>{rental.name}</span>
+    </p>
+
+    <div class="rental-detail">
+      <div class="rental-detail-media">
+        {imageUrl ? (
+          <img src={imageUrl} alt={rental.name} />
+        ) : (
+          <div class="rental-card-placeholder" aria-hidden="true">{initial}</div>
+        )}
+      </div>
+
+      <div class="rental-detail-info">
+        <p class="rental-card-category">{rental.category}</p>
+        <h1 class="tide-display" style="font-size:clamp(42px,6vw,84px)">{rental.name}</h1>
+        <p class="rental-price">{price} <span class="rental-price-unit">{rental.unitType === "DAY" ? "/ day" : "/ hour"}</span></p>
+        {rental.tagLine && <p class="text-lg">{rental.tagLine}</p>}
+        {rental.description && <p class="leading-relaxed" style="color:rgba(13,17,23,0.7)">{rental.description}</p>}
+        <p class="rental-duration-note">
+          {rental.unitType === "DAY"
+            ? `Rentals run ${rental.minDays}–${rental.maxDays} days. Preview the total, then jump to Wix checkout.`
+            : `Sessions run ${rental.minDays}–${rental.maxDays} hours. Preview the total, then jump to Wix checkout.`}
+        </p>
+        <BookRental
+          client:load
+          clientId={import.meta.env.WIX_CLIENT_ID}
+          serviceId={rental.id}
+          serviceName={rental.name}
+          scheduleId={rental.scheduleId}
+          pricePerDay={rental.pricePerDay}
+          currency={rental.currency}
+          minDays={rental.minDays}
+          maxDays={rental.maxDays}
+          primaryResourceType={rental.primaryResourceType}
+          unitType={rental.unitType}
+        />
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script
+  type="application/json"
+  id="analytics-view-content"
+  is:inline
+  set:html={JSON.stringify(viewContentPayload)}
+/>
+<script>
+  import { trackEvent } from "../../utils/analytics";
+  const el = document.getElementById("analytics-view-content");
+  if (el?.textContent) {
+    trackEvent("ViewContent", JSON.parse(el.textContent));
+  }
+</script>

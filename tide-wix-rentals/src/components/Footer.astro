@@ -1,0 +1,43 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="tide-footer" transition:persist="site-footer">
+  <div class="tide-blob tide-bob" style="bottom:-360px;left:50%;width:900px;height:900px;margin-left:-450px;background:radial-gradient(circle,#FFC93C 0 38%,transparent 70%);opacity:0.5"></div>
+  <div class="tide-wrap" style="position:relative">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3xl items-start">
+      <div>
+        <h2 class="tide-display text-4xl md:text-5xl mb-md">Come get salty<br />with us.</h2>
+        <p class="mb-lg" style="color:rgba(255,244,227,0.85);max-width:400px">
+          Swell reports, secret dawn sessions, and the shack door is always open. Send a note — or just walk up.
+        </p>
+        <a href="/contact" class="btn-secondary">Talk to the shack</a>
+      </div>
+      <div class="flex flex-col gap-sm">
+        <div class="font-display tracking-widest text-sm" style="color:var(--color-sun)">Rent</div>
+        <a href="/rentals">Surfboards</a>
+        <a href="/rentals">SUPs</a>
+        <a href="/rentals">Wetsuits</a>
+        <a href="/rentals">Bodyboards</a>
+        <a href="/rentals">Surf kits</a>
+      </div>
+      <div class="flex flex-col gap-sm">
+        <div class="font-display tracking-widest text-sm" style="color:var(--color-sun)">Find us</div>
+        <span style="color:rgba(255,244,227,0.85)">Pier 4, Playa Verde<br />Yellow flag, end of the boardwalk</span>
+        <span style="color:rgba(255,244,227,0.85)">7am — sunset, daily</span>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+
+    <div class="mt-3xl">
+      <div class="tide-giant">TIDE<span>.</span></div>
+    </div>
+    <div class="flex flex-wrap gap-md justify-between items-center pt-lg" style="border-top:2px solid rgba(13,17,23,0.35);font-size:14px;color:rgba(255,244,227,0.8)">
+      <span>© {year} TIDE Surf Rentals — made of salt water and sunscreen.</span>
+      <div class="flex gap-lg">
+        <a href="/about">About</a>
+        <a href="/faq">Small print</a>
+      </div>
+    </div>
+  </div>
+</footer>

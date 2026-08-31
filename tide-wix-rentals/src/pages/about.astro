@@ -1,0 +1,152 @@
+---
+import Layout from "../layouts/Layout.astro";
+import * as items from "@wix/wix-data-items-sdk";
+import { auth } from "@wix/essentials";
+import { renderRicos } from "../utils/ricos";
+
+type CmsRecord = Record<string, unknown>;
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function toHtml(value: unknown): string {
+  if (!value) return "";
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed.startsWith("<")) return value;
+    const fromRicos = renderRicos(value);
+    if (fromRicos) return fromRicos;
+    return `<p>${value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")}</p>`;
+  }
+  if (typeof value === "object") {
+    const rec = value as CmsRecord;
+    if (typeof rec.html === "string" && rec.html.trim()) return rec.html;
+    const fromRicos = renderRicos(value as Parameters<typeof renderRicos>[0]);
+    if (fromRicos) return fromRicos;
+  }
+  return "";
+}
+
+const fallback = {
+  title: "TIDE. — Surf Rentals",
+  storyHtml:
+    "<p>TIDE. started as a beat-up shack on the Venice Beach boardwalk with a rack of boards, a cooler of wax, and zero interest in long-term commitments. We rent surf gear so you can catch waves, not sign leases.</p><p>Our crew grew up on these breaks — we know which board works on a mushy morning and which wetsuit you'll want when the fog rolls in. Whether you're a first-timer or a weekend warrior, we keep it simple: grab your gear, hit the water, bring it back when you're done.</p><p>Young, energetic, and always stoked. That's TIDE.</p>",
+  location:
+    "1401 Ocean Front Walk, Venice Beach, CA 90291 — right on the boardwalk between Windward Ave and Navy St. Look for the turquoise shack with the wave flag.",
+  hours:
+    "Open daily 7:00 AM – 7:00 PM (summer) · 8:00 AM – 6:00 PM (winter). Last rental pickup one hour before close.",
+  pickupReturn:
+    "Pick up your board and wetsuit at the shack — we'll size you up and hand you everything on the spot. Return gear to the same counter before close on your rental day. Late returns are charged hourly. Rinse station out back for boards and suits.",
+};
+
+let about = { ...fallback };
+
+try {
+  const elevatedQuery = auth.elevate(items.query);
+  const { items: results } = await elevatedQuery("about-content").limit(1).find();
+  const row = results[0] as CmsRecord | undefined;
+  if (row) {
+    const title = asString(row.title) || asString(row.heading) || fallback.title;
+    const storyHtml =
+      toHtml(row.story) || toHtml(row.body) || fallback.storyHtml;
+    about = {
+      title,
+      storyHtml,
+      location: asString(row.location) || fallback.location,
+      hours: asString(row.hours) || fallback.hours,
+      pickupReturn: asString(row.pickupReturn) || fallback.pickupReturn,
+    };
+  }
+} catch (err) {
+  console.error("[cms:About] query failed:", err);
+}
+---
+
+<Layout
+  title="About"
+  description="The Venice Beach shack behind TIDE. — hours, pickup, and the story."
+>
+  <section class="about-hero relative">
+    <div
+      class="w-full min-h-[16rem] md:min-h-[22rem]"
+      data-decorative-slot="cmsHeader"
+      style="aspect-ratio: 16 / 6; background-color: var(--color-paper-warm);"
+    >
+      <img
+        src="https://static.wixstatic.com/media/88c6fa_e3900fdb824942b58789696667842f95~mv2.jpg"
+        alt=""
+        loading="eager"
+        decoding="async"
+        class="decorative-slot-img"
+      />
+    </div>
+    <div class="about-hero-veil" aria-hidden="true"></div>
+    <div class="absolute inset-0 z-10 flex items-end">
+      <div class="max-w-6xl mx-auto px-lg pb-xl w-full">
+        <p class="font-display text-sm uppercase tracking-[0.22em] text-accent mb-sm">
+          Venice Beach
+        </p>
+        <h1 class="font-display text-4xl md:text-5xl text-paper leading-tight">
+          {about.title}
+        </h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-lg py-4xl grid grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)] gap-3xl items-start">
+    <article class="about-body flex flex-col gap-lg">
+      <hr class="editorial-rule w-16 ml-0" />
+      <p class="font-display text-sm uppercase tracking-[0.18em] text-accent">
+        The shack
+      </p>
+      <h2 class="font-display text-3xl leading-tight">Born on the boardwalk.</h2>
+      <div class="about-story text-ink leading-relaxed text-lg" set:html={about.storyHtml} />
+      <a href="/rentals" class="btn-primary w-fit mt-md">See the gear</a>
+    </article>
+
+    <aside class="flex flex-col gap-md">
+      <div class="bg-cream border border-rule rounded-lg p-lg flex flex-col gap-sm">
+        <p class="font-display text-xs uppercase tracking-[0.18em] text-accent">Location</p>
+        <p class="text-ink-soft leading-relaxed">{about.location}</p>
+      </div>
+      <div class="bg-cream border border-rule rounded-lg p-lg flex flex-col gap-sm">
+        <p class="font-display text-xs uppercase tracking-[0.18em] text-accent">Hours</p>
+        <p class="text-ink-soft leading-relaxed">{about.hours}</p>
+      </div>
+      <div class="bg-cream border border-rule rounded-lg p-lg flex flex-col gap-sm">
+        <p class="font-display text-xs uppercase tracking-[0.18em] text-accent">Pickup &amp; return</p>
+        <p class="text-ink-soft leading-relaxed">{about.pickupReturn}</p>
+      </div>
+    </aside>
+  </section>
+</Layout>
+
+<style>
+  .about-hero-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 18%, transparent) 55%,
+      transparent 100%
+    );
+  }
+
+  .about-story :global(p + p) {
+    margin-top: var(--spacing-md);
+  }
+
+  .about-story :global(ul),
+  .about-story :global(ol) {
+    margin-top: var(--spacing-md);
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+</style>

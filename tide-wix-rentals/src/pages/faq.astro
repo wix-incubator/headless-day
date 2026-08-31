@@ -1,0 +1,314 @@
+---
+import Layout from "../layouts/Layout.astro";
+import * as items from "@wix/wix-data-items-sdk";
+import { auth } from "@wix/essentials";
+import { renderRicos } from "../utils/ricos";
+
+type CmsRecord = Record<string, unknown>;
+
+interface FaqItem {
+  _id: string;
+  question: string;
+  slug: string;
+  answerHtml: string;
+  sortOrder: number;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function asNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : Number(value) || 0;
+}
+
+function toSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function toHtml(value: unknown): string {
+  if (!value) return "";
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed.startsWith("<")) return value;
+    const fromRicos = renderRicos(value);
+    if (fromRicos) return fromRicos;
+    return `<p>${value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")}</p>`;
+  }
+  if (typeof value === "object") {
+    const rec = value as CmsRecord;
+    if (typeof rec.html === "string" && rec.html.trim()) return rec.html;
+    const fromRicos = renderRicos(value as Parameters<typeof renderRicos>[0]);
+    if (fromRicos) return fromRicos;
+  }
+  return "";
+}
+
+const fallbackItems: FaqItem[] = [
+  {
+    _id: "fallback-1",
+    question: "How do I know what board size to rent?",
+    slug: "how-do-i-know-what-board-size-to-rent",
+    answerHtml:
+      "<p>Tell us your height, weight, and skill level — we'll match you to the right board. Beginners usually ride 8–9 ft foamies; intermediate surfers often go 7–8 ft funboards. When in doubt, go bigger — more volume means easier paddling and catching waves.</p>",
+    sortOrder: 1,
+  },
+  {
+    _id: "fallback-2",
+    question: "Do you require a deposit?",
+    slug: "do-you-require-a-deposit",
+    answerHtml:
+      "<p>Yes — we hold a refundable $50 deposit per rental (card authorization). It's released when you return gear in good condition by close on your rental day. Damaged or missing gear may be charged against the deposit.</p>",
+    sortOrder: 2,
+  },
+  {
+    _id: "fallback-3",
+    question: "What if the waves are flat?",
+    slug: "what-if-the-waves-are-flat",
+    answerHtml:
+      "<p>No stress. If conditions are unsurfable when you pick up, you can reschedule for free within 48 hours or swap to a stand-up paddleboard at no extra charge. We check the forecast every morning — we'll give you a heads-up if it's a lake day.</p>",
+    sortOrder: 3,
+  },
+  {
+    _id: "fallback-4",
+    question: "Can I rent boards for a group or surf lesson?",
+    slug: "can-i-rent-boards-for-a-group-or-surf-lesson",
+    answerHtml:
+      "<p>Absolutely. We stock enough gear for groups of up to 12. Book ahead for parties of 4+ so we can reserve matching foamies and wetsuits. We partner with local instructors — ask at the counter for lesson packages and group rates.</p>",
+    sortOrder: 4,
+  },
+  {
+    _id: "fallback-5",
+    question: "What wetsuit thickness do I need?",
+    slug: "what-wetsuit-thickness-do-i-need",
+    answerHtml:
+      "<p>In Venice, water temps range from low 50s°F (winter) to mid-60s°F (late summer). We stock 3/2mm full suits year-round, 4/3mm for cold snaps (Dec–Mar), and spring suits for warm days. We'll fit you based on today's water temp — no guesswork.</p>",
+    sortOrder: 5,
+  },
+  {
+    _id: "fallback-6",
+    question: "What's your cancellation policy?",
+    slug: "whats-your-cancellation-policy",
+    answerHtml:
+      "<p>Cancel or reschedule free up to 24 hours before your rental start time. Within 24 hours, we charge a 50% fee. No-shows forfeit the full rental. Weather-related cancellations (unsurfable conditions) are always free — just call or text us before pickup.</p>",
+    sortOrder: 6,
+  },
+];
+
+let faqItems: FaqItem[] = fallbackItems;
+
+try {
+  const elevatedQuery = auth.elevate(items.query);
+  const { items: results } = await elevatedQuery("faq")
+    .ascending("sortOrder")
+    .limit(200)
+    .find();
+  const mapped = results
+    .map((raw) => {
+      const row = raw as CmsRecord;
+      const question = asString(row.question);
+      const answerHtml = toHtml(row.answer);
+      if (!question || !answerHtml) return null;
+      const slug = asString(row.slug) || toSlug(question);
+      return {
+        _id: asString(row._id) || slug,
+        question,
+        slug,
+        answerHtml,
+        sortOrder: asNumber(row.sortOrder ?? row.orderIndex),
+      } satisfies FaqItem;
+    })
+    .filter((item): item is FaqItem => item !== null)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  if (mapped.length > 0) faqItems = mapped;
+} catch (err) {
+  console.error("[cms:FAQ] query failed:", err);
+}
+---
+
+<Layout
+  title="FAQ"
+  description="Sizing, deposits, wetsuits, groups, and cancellations at TIDE."
+>
+  <section class="relative">
+    <div
+      class="w-full min-h-[12rem] md:min-h-[16rem]"
+      data-decorative-slot="cmsHeader"
+      style="aspect-ratio: 16 / 6; background-color: var(--color-paper-warm);"
+    >
+      <img
+        src="https://static.wixstatic.com/media/88c6fa_e3900fdb824942b58789696667842f95~mv2.jpg"
+        alt=""
+        loading="eager"
+        decoding="async"
+        class="decorative-slot-img"
+      />
+    </div>
+    <div class="faq-hero-veil" aria-hidden="true"></div>
+    <div class="absolute inset-0 z-10 flex items-end">
+      <div class="max-w-6xl mx-auto px-lg pb-xl w-full">
+        <p class="font-display text-sm uppercase tracking-[0.22em] text-accent mb-sm">
+          Questions
+        </p>
+        <h1 class="font-display text-4xl md:text-5xl text-paper leading-tight">
+          Frequently asked
+        </h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section max-w-6xl mx-auto px-lg py-4xl">
+    <div class="container-reading">
+      <p class="text-mute text-lg mb-xl">
+        Board size, deposits, flat days, groups, wetsuits, and cancellations — search or open a question.
+      </p>
+
+      <label class="sr-only" for="faq-search">Search questions</label>
+      <input
+        id="faq-search"
+        class="faq-search"
+        data-faq-search
+        type="search"
+        placeholder="Search questions..."
+        autocomplete="off"
+      />
+
+      <p class="faq-empty text-mute mt-xl" data-faq-empty hidden>
+        No matching questions found.
+      </p>
+
+      <div class="flex flex-col mt-xl">
+        {faqItems.map((item) => (
+          <details class="faq-item" id={item.slug}>
+            <summary class="faq-question">
+              <span>{item.question}</span>
+              <svg
+                class="faq-toggle"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </summary>
+            <div class="faq-answer" set:html={item.answerHtml} />
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .faq-hero-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 18%, transparent) 55%,
+      transparent 100%
+    );
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .faq-search {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border: 2px solid var(--color-ink);
+    border-radius: 100px;
+    background: var(--color-cream);
+    color: var(--color-ink);
+  }
+  .faq-search:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    padding-block: var(--spacing-lg);
+    color: var(--color-ink);
+  }
+  .faq-question::-webkit-details-marker,
+  .faq-question::marker {
+    display: none;
+    content: "";
+  }
+
+  .faq-toggle {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    color: var(--color-accent);
+    transition: transform 200ms ease;
+  }
+  .faq-item[open] .faq-toggle {
+    transform: rotate(180deg);
+  }
+
+  .faq-answer {
+    padding-bottom: var(--spacing-lg);
+    color: var(--color-ink-soft);
+    line-height: 1.6;
+  }
+  .faq-answer :global(p + p) {
+    margin-top: var(--spacing-sm);
+  }
+</style>
+
+<script>
+  document.addEventListener("input", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || !target.matches("[data-faq-search]")) return;
+
+    const root = target.closest("section.faq-section") ?? document;
+    const query = target.value.toLowerCase().trim();
+    const rows = root.querySelectorAll<HTMLElement>(".faq-item");
+    let visible = 0;
+    rows.forEach((row) => {
+      const text = row.textContent?.toLowerCase() ?? "";
+      const match = !query || text.includes(query);
+      row.hidden = !match;
+      if (match) visible += 1;
+    });
+    const empty = root.querySelector<HTMLElement>("[data-faq-empty]");
+    if (empty) empty.hidden = visible > 0;
+  });
+</script>
