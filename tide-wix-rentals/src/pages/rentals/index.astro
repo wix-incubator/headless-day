@@ -1,0 +1,67 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import RentalCard from "../../components/RentalCard.astro";
+import { queryRentalServices, uniqueCategories, type RentalView } from "../../utils/rentals";
+
+const requestedCategory = Astro.url.searchParams.get("category")?.trim() ?? "";
+
+let rentals: RentalView[] = [];
+try {
+  rentals = await queryRentalServices();
+} catch (err) {
+  console.error("[rentals] catalog query failed:", err);
+}
+const categories = uniqueCategories(rentals);
+const activeCategory = categories.includes(requestedCategory) ? requestedCategory : "";
+const visible = activeCategory
+  ? rentals.filter((rental) => rental.category === activeCategory)
+  : rentals;
+---
+
+<Layout
+  title="Rentals"
+  description="Session rentals for surfboards, SUPs, wetsuits, bodyboards, and kits. Pick it. Ride it. Return it."
+>
+  <section class="page-shell flex flex-col gap-lg">
+    <span class="tide-chip w-fit">The racks</span>
+    <h1 class="tide-display" style="font-size:clamp(44px,7vw,96px)">Pick your<br /><span style="color:var(--color-accent)">weapon</span></h1>
+    <p class="text-lg max-w-prose" style="color:rgba(13,17,23,0.7)">
+      Boards, SUPs, suits, and kits — by the hour or the day, no memberships. Filter the wall, grab what fits the swell.
+    </p>
+  </section>
+
+  <section class="category-rail">
+    <div class="category-rail-inner max-w-6xl mx-auto px-lg" data-rental-filters>
+      <a
+        href="/rentals"
+        class="category-pill"
+        aria-current={activeCategory ? undefined : "page"}
+      >
+        All
+      </a>
+      {categories.map((category) => (
+        <a
+          href={`/rentals?category=${encodeURIComponent(category)}`}
+          class="category-pill"
+          aria-current={activeCategory === category ? "page" : undefined}
+        >
+          {category}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="page-shell pt-0">
+    {visible.length === 0 ? (
+      <p class="rental-empty">
+        Nothing in {activeCategory || "that lane"} right now — try another vibe or check back after the next set.
+      </p>
+    ) : (
+      <div class="kit-grid">
+        {visible.map((rental, index) => (
+          <RentalCard rental={rental} origin="Rental Listing" index={index + 1} />
+        ))}
+      </div>
+    )}
+  </section>
+</Layout>

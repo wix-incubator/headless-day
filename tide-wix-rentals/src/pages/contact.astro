@@ -1,0 +1,211 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { forms } from "@wix/forms";
+import { auth } from "@wix/essentials";
+import ContactForm from "../components/ContactForm.tsx";
+
+interface FormField {
+  label: string;
+  target: string;
+  required: boolean;
+  componentType: string;
+  identifier?: string;
+  options?: { value: string; label: string }[];
+}
+
+let formId = "";
+let formFields: FormField[] = [];
+
+try {
+  const elevatedListForms = auth.elevate(forms.listForms);
+  const listResult = await elevatedListForms("wix.form_app.form");
+  const wixForm = listResult.forms?.[0];
+  formId = wixForm?._id ?? "";
+
+  formFields =
+    wixForm?.formFields
+      ?.filter((field) => field.fieldType === "INPUT" && !field.hidden)
+      .map((field) => {
+        const opts = field.inputOptions;
+        const str = opts?.stringOptions;
+        const label =
+          str?.textInputOptions?.label ??
+          str?.dropdownOptions?.label ??
+          str?.phoneInputOptions?.label ??
+          "";
+        return {
+          label,
+          target: opts?.target ?? "",
+          required: opts?.required ?? false,
+          componentType: str?.componentType ?? "TEXT_INPUT",
+          identifier: field.identifier ?? "",
+          options: str?.dropdownOptions?.options?.map((o) => ({
+            value: o.value ?? o.label ?? "",
+            label: o.label ?? o.value ?? "",
+          })),
+        };
+      }) ?? [];
+} catch (err) {
+  console.error("[forms] listForms failed:", err);
+}
+---
+
+<Layout
+  title="Contact"
+  description="Find the TIDE. shack on the Venice Beach boardwalk — or send a note before you paddle out."
+>
+  <section class="max-w-6xl mx-auto px-lg py-4xl">
+    <p class="text-sm uppercase tracking-wide text-mute">Venice Beach</p>
+    <h1 class="font-display text-4xl md:text-5xl leading-tight mt-sm">The shack is open.</h1>
+    <p class="text-lg text-mute mt-md max-w-prose">
+      Walk-ups welcome. Questions about boards, tides, or a group session? Hit us here or roll up
+      to the turquoise shack on the boardwalk.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3xl mt-3xl items-start">
+      <aside class="contact-cta flex flex-col gap-lg">
+        <hr class="editorial-rule w-16 ml-0" />
+        <div class="flex flex-col gap-sm">
+          <h2 class="font-display text-2xl">Find the shack</h2>
+          <p class="text-ink leading-relaxed">
+            1401 Ocean Front Walk, Venice Beach, CA 90291
+          </p>
+          <p class="text-mute leading-relaxed">
+            Right on the boardwalk between Windward Ave and Navy St. Look for the turquoise
+            shack with the wave flag — if you can smell wax and hear skate trucks, you’re close.
+          </p>
+        </div>
+        <div class="flex flex-col gap-sm">
+          <h2 class="font-display text-2xl">Hours</h2>
+          <p class="text-ink leading-relaxed">
+            Open daily 7:00 AM – 7:00 PM (summer)
+          </p>
+          <p class="text-mute leading-relaxed">
+            8:00 AM – 6:00 PM (winter). Last rental pickup one hour before close.
+          </p>
+        </div>
+        <div class="flex flex-col gap-sm">
+          <h2 class="font-display text-2xl">Pickup &amp; return</h2>
+          <p class="text-mute leading-relaxed">
+            Size up at the counter, grab your board, hit the water. Bring it back to the same
+            shack before close. Rinse station out back.
+          </p>
+        </div>
+      </aside>
+
+      <div class="flex flex-col gap-lg">
+        <h2 class="font-display text-2xl">Send a note</h2>
+        {formId ? (
+          <ContactForm client:load formId={formId} fields={formFields} />
+        ) : (
+          <p class="text-mute">No form found. Create one in the Wix dashboard.</p>
+        )}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .contact-cta {
+    background: var(--color-paper-warm);
+    border: 2px solid var(--color-ink);
+    border-radius: 24px;
+    padding: var(--spacing-xl);
+  }
+</style>
+
+<style is:global>
+  /* Form island styles — must be global so they reach React-rendered DOM. */
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: var(--container-md);
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+  }
+
+  .form-label {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .required {
+    color: var(--color-accent);
+    margin-inline-start: 0.125rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-ink);
+    background: var(--color-cream, var(--color-paper));
+    border: 2px solid var(--color-ink);
+    border-radius: 18px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    width: 100%;
+  }
+
+  .form-textarea {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .form-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-family: var(--font-body);
+    font-weight: 700;
+    background: var(--color-accent);
+    color: var(--color-paper);
+    border: 2px solid var(--color-ink);
+    border-radius: 100px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .form-button:hover:not(:disabled) {
+    background: var(--color-sun);
+    color: var(--color-ink);
+  }
+
+  .form-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .form-success {
+    color: var(--color-ink);
+    background: var(--color-paper-warm, var(--color-paper));
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+  }
+
+  .form-error,
+  .form-field-error {
+    color: var(--color-error);
+    font-size: 0.875rem;
+  }
+
+  .form-input-error {
+    border-color: var(--color-error);
+  }
+</style>

@@ -1,0 +1,253 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RentalCard from '../components/RentalCard.astro';
+import { formatMoney, queryRentalServices, type RentalView } from '../utils/rentals';
+import * as items from "@wix/wix-data-items-sdk";
+import { auth } from "@wix/essentials";
+
+let rentals: RentalView[] = [];
+try {
+  rentals = await queryRentalServices();
+} catch (err) {
+  console.error("[rentals] home featured query failed:", err);
+}
+
+type Testimonial = { quote: string; name: string };
+const fallbackTalk: Testimonial[] = [
+  { quote: "Dawn patrol, no strings. Grabbed a shortboard, surfed two hours, handed it back sandy. That is the whole deal.", name: "Kai" },
+  { quote: "The SUP was waxed, the leash was not a pretzel, and they had my size in a steamer. Shack on the sand, zero fuss.", name: "Maya" },
+  { quote: "Rented a kit for the weekend with friends. Boards back by Sunday, wallets intact, shoulders wrecked in the best way.", name: "Jules" },
+];
+let talk: Testimonial[] = fallbackTalk;
+try {
+  const elevatedQuery = auth.elevate(items.query);
+  const { items: rows } = await elevatedQuery("testimonials").ascending("sortOrder").limit(6).find();
+  const mapped = rows
+    .map((row) => {
+      const rec = row as Record<string, unknown>;
+      const quote = typeof rec.quote === "string" ? rec.quote : "";
+      const name = typeof rec.name === "string" ? rec.name : "";
+      return quote && name ? { quote, name } : null;
+    })
+    .filter((item): item is Testimonial => item !== null);
+  if (mapped.length > 0) talk = mapped;
+} catch (err) {
+  console.error("[cms:testimonials] query failed:", err);
+}
+
+const kitWall = rentals;
+const fromRental = kitWall.slice().sort((a, b) => a.pricePerDay - b.pricePerDay)[0];
+const fromPrice = fromRental ? formatMoney(fromRental.pricePerDay, fromRental.currency) : "€20";
+const fromUnit = fromRental?.unitType === "DAY" ? "/ DAY" : "/ HOUR";
+const heroImage = "https://static.wixstatic.com/media/88c6fa_43195ee4c08844f8b9f9c4813cc8d646~mv2.jpg";
+const lifeImage = "https://static.wixstatic.com/media/88c6fa_8a3b05489ca6454c8baf7a49586097b9~mv2.jpg";
+const lifeAlt = "https://static.wixstatic.com/media/88c6fa_e3900fdb824942b58789696667842f95~mv2.jpg";
+---
+<Layout flush>
+  <section id="top" class="tide-hero">
+    <div class="tide-hero-bg">
+      <img src={heroImage} alt="" />
+    </div>
+    <div class="tide-hero-veil"></div>
+    <div class="tide-blob tide-bob" style="bottom:12%;right:7%;width:240px;height:240px;background:#FFC93C;opacity:0.5;filter:blur(2px)"></div>
+    <div class="tide-blob tide-bob" style="top:6%;right:14%;width:220px;height:220px;border:3px solid rgba(0,207,193,0.75)"></div>
+    <div class="tide-blob tide-bob" style="bottom:-40px;left:-30px;width:190px;height:190px;background:#00CFC1;opacity:0.55;filter:blur(2px)"></div>
+
+    <div class="tide-hero-inner">
+      <div class="tide-kicker">
+        <span class="tide-chip">Open 7am — sunset</span>
+        <span class="tide-serif text-xl">Pier 4, Playa Verde</span>
+      </div>
+
+      <h1>
+        <span class="block">Catch waves.</span>
+        <span class="block tide-outline">Not</span>
+        <span class="block" style="color:var(--color-accent)">commitments.</span>
+      </h1>
+
+      <div class="flex flex-wrap items-end justify-between gap-3xl mt-3xl">
+        <div style="max-width:560px">
+          <div class="flex items-center gap-sm font-display uppercase" style="font-size:clamp(24px,3.2vw,42px);line-height:1">
+            <span>Rent</span>
+            <span class="tide-wordroll-frame">
+              <span class="tide-wordroll">
+                <span>boards</span>
+                <span>wetsuits</span>
+                <span>SUPs</span>
+                <span>good days</span>
+              </span>
+            </span>
+          </div>
+          <p class="mt-lg text-lg" style="max-width:460px;color:rgba(13,17,23,0.78)">
+            By the hour, the day, or the whole salty weekend. Walk up, grab your kit, hit the water. No memberships, no paperwork, no vibe-killers.
+          </p>
+          <div class="flex flex-wrap gap-md mt-xl">
+            <a href="#gear" class="btn-primary">Grab your board →</a>
+            <a href="#how" class="btn-secondary">How it works</a>
+          </div>
+        </div>
+
+        <div class="flex items-end gap-lg">
+          <div class="tide-wobble" style="padding:11px 18px;border-radius:100px;background:#FFF4E3;border:2px solid #0D1117;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em">Swell: 4ft 🌊</div>
+          <div class="tide-price-orb">
+            <strong>{fromPrice}</strong>
+            <small>{fromUnit}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tide-marquee">
+      <div class="tide-marquee-track">
+        <div class="tide-marquee-copy">
+          <span>Longboards</span><span style="color:#FF4F2E">✺</span><span>Wetsuits</span><span style="color:#FF2E88">✺</span><span>SUPs</span><span style="color:#00CFC1">✺</span><span>Bodyboards</span><span style="color:#FF4F2E">✺</span><span>Surf kits</span><span style="color:#FF2E88">✺</span><span>Lessons</span><span style="color:#00CFC1">✺</span>
+        </div>
+        <div class="tide-marquee-copy" aria-hidden="true">
+          <span>Longboards</span><span style="color:#FF4F2E">✺</span><span>Wetsuits</span><span style="color:#FF2E88">✺</span><span>SUPs</span><span style="color:#00CFC1">✺</span><span>Bodyboards</span><span style="color:#FF4F2E">✺</span><span>Surf kits</span><span style="color:#FF2E88">✺</span><span>Lessons</span><span style="color:#00CFC1">✺</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gear" class="tide-section" style="background:var(--color-paper)">
+    <div class="tide-wrap">
+      <div class="flex flex-wrap items-end justify-between gap-lg mb-3xl">
+        <div>
+          <span class="tide-chip">The kit wall</span>
+          <h2 class="tide-display mt-lg" style="font-size:clamp(44px,7vw,110px)">
+            Pick your<br /><span style="color:var(--color-accent)">weapon</span>
+            <span class="tide-serif" style="color:var(--color-tide)"> of choice</span>
+          </h2>
+        </div>
+        <p style="max-width:340px;color:rgba(13,17,23,0.7)">
+          Everything waxed, rinsed and checked between rides. Tap a card, jump to checkout.
+        </p>
+      </div>
+
+      {kitWall.length === 0 ? (
+        <p class="rental-empty">The racks are being waxed — check back after the next tide.</p>
+      ) : (
+        <div class="kit-grid">
+          {kitWall.map((rental, index) => (
+            <RentalCard rental={rental} origin="Home Featured" index={index + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section id="how" class="tide-section overflow-hidden" style="background:var(--color-tide)">
+    <div class="tide-blob" style="top:-160px;right:-120px;width:520px;height:520px;border:2px dashed #0D1117;opacity:0.35"></div>
+    <div class="tide-wrap" style="position:relative">
+      <h2 class="tide-display mb-lg" style="font-size:clamp(46px,9vw,150px);letter-spacing:-0.03em">
+        <span>Pick it.</span>
+        <span style="color:var(--color-accent)"> Ride it.</span>
+        <span class="tide-outline"> Return it.</span>
+      </h2>
+      <p class="mb-3xl" style="max-width:520px;font-size:19px;color:rgba(13,17,23,0.75)">
+        Three steps, roughly four minutes, mostly spent choosing a color. That's the whole rental process.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-xl">
+        <div class="how-card" style="background:var(--color-paper)">
+          <span class="how-num">01</span>
+          <h3 class="tide-display text-3xl mt-lg mb-sm">Pick it</h3>
+          <p>Walk the kit wall or book from your phone on the sand. Our crew reads the swell and tells you straight what'll be fun today.</p>
+        </div>
+        <div class="how-card" style="background:var(--color-ink);color:var(--color-paper)">
+          <span class="how-num" style="color:var(--color-sun)">02</span>
+          <h3 class="tide-display text-3xl mt-lg mb-sm">Ride it</h3>
+          <p style="color:rgba(255,244,227,0.75)">Clock starts when you book the hours. Swap boards mid-session if the wind turns. Checkout holds the time.</p>
+        </div>
+        <div class="how-card" style="background:var(--color-blush);color:var(--color-paper)">
+          <span class="how-num" style="color:var(--color-sun)">03</span>
+          <h3 class="tide-display text-3xl mt-lg mb-sm">Return it</h3>
+          <p style="color:rgba(255,244,227,0.85)">Drop it in the rack, rinse off, take a free lemonade. Sandy gear is expected. Late by ten minutes? Don't worry about it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="life" style="background:var(--color-ink);color:var(--color-paper);padding-bottom:130px">
+    <div style="position:relative;height:82vh;min-height:520px;overflow:hidden;border-bottom:2px solid #FFF4E3">
+      <img src={lifeImage} alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" />
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,17,23,0.55),rgba(13,17,23,0.05) 45%,rgba(13,17,23,0.7))"></div>
+      <div style="position:absolute;left:0;right:0;bottom:8%;display:flex;justify-content:center">
+        <p class="tide-serif text-center px-lg" style="max-width:900px;font-size:clamp(30px,4.6vw,66px);line-height:1.06;color:#FFF4E3">
+          “The sea doesn't care about your calendar. <span style="color:#FFC93C">Neither do we.</span>”
+        </p>
+      </div>
+    </div>
+    <div class="tide-wrap grid grid-cols-1 md:grid-cols-2 gap-3xl items-center" style="padding:110px 30px 0">
+      <div>
+        <span class="tide-chip" style="background:var(--color-accent)">Beach life</span>
+        <h2 class="tide-display mt-lg mb-lg" style="font-size:clamp(40px,5.6vw,88px)">
+          Salt in your hair<br />by <span style="color:var(--color-tide)">9:04am</span>
+        </h2>
+        <p class="mb-xl" style="max-width:520px;color:rgba(255,244,227,0.75)">
+          We're the shack with the yellow flag at the end of the pier. Boards on the rack, speaker on low, someone always shouting about the set on the horizon.
+        </p>
+        <div class="grid grid-cols-3 gap-md" style="max-width:520px">
+          <div class="stat-card" style="padding:20px 16px;border-radius:18px;background:rgba(255,244,227,0.07);border-color:rgba(255,244,227,0.16)">
+            <div class="font-display text-4xl" style="color:var(--color-sun)">240</div>
+            <div class="text-xs uppercase tracking-widest mt-xs" style="color:rgba(255,244,227,0.6)">Boards on site</div>
+          </div>
+          <div class="stat-card" style="padding:20px 16px;border-radius:18px;background:rgba(255,244,227,0.07);border-color:rgba(255,244,227,0.16)">
+            <div class="font-display text-4xl" style="color:var(--color-tide)">4min</div>
+            <div class="text-xs uppercase tracking-widest mt-xs" style="color:rgba(255,244,227,0.6)">Rack to water</div>
+          </div>
+          <div class="stat-card" style="padding:20px 16px;border-radius:18px;background:rgba(255,244,227,0.07);border-color:rgba(255,244,227,0.16)">
+            <div class="font-display text-4xl" style="color:var(--color-blush)">0</div>
+            <div class="text-xs uppercase tracking-widest mt-xs" style="color:rgba(255,244,227,0.6)">Contracts signed</div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-lg">
+        <div style="height:330px;border-radius:20px;overflow:hidden;border:2px solid #FFF4E3">
+          <img src={lifeAlt} alt="" style="width:100%;height:100%;object-fit:cover" />
+        </div>
+        <div style="height:330px;margin-top:44px;border-radius:20px;overflow:hidden;border:2px solid #FFC93C">
+          <img src={heroImage} alt="" style="width:100%;height:100%;object-fit:cover" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="tide-marquee is-coral">
+    <div class="tide-marquee-track">
+      <div class="tide-marquee-copy">
+        <span>No deposits</span><span style="color:#FFC93C">◆</span><span>No memberships</span><span style="color:#00CFC1">◆</span><span>No small print</span><span style="color:#FFC93C">◆</span><span>Free lemonade</span><span style="color:#00CFC1">◆</span>
+      </div>
+      <div class="tide-marquee-copy" aria-hidden="true">
+        <span>No deposits</span><span style="color:#FFC93C">◆</span><span>No memberships</span><span style="color:#00CFC1">◆</span><span>No small print</span><span style="color:#FFC93C">◆</span><span>Free lemonade</span><span style="color:#00CFC1">◆</span>
+      </div>
+    </div>
+  </div>
+
+  <section id="talk" class="tide-section" style="background:var(--color-sun)">
+    <div class="tide-wrap">
+      <h2 class="tide-display mb-3xl" style="font-size:clamp(42px,7.4vw,124px)">
+        Sandy people,<br /><span style="color:var(--color-accent)">happy people</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-xl">
+        {talk.slice(0, 3).map((item, i) => (
+          <blockquote
+            class="talk-card"
+            style={
+              i === 0
+                ? "background:var(--color-paper);transform:rotate(-1.5deg)"
+                : i === 1
+                  ? "background:var(--color-ink);color:var(--color-paper);transform:rotate(1.5deg)"
+                  : "background:var(--color-blush);color:var(--color-paper);transform:rotate(-1deg)"
+            }
+          >
+            <div class="font-display text-5xl" style={`color:var(${i === 0 ? "--color-tide" : "--color-sun"});line-height:0.6`}>“</div>
+            <p class="mt-md mb-lg text-lg">{item.quote}</p>
+            <footer>
+              <strong>{item.name}</strong>
+            </footer>
+          </blockquote>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>

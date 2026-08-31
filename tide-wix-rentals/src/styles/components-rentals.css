@@ -1,0 +1,272 @@
+/* src/styles/components-rentals.css */
+
+.rental-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+@media (min-width: 768px) {
+  .rental-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .rental-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.steps-grid {
+  display: grid;
+  gap: var(--spacing-xl);
+}
+@media (min-width: 768px) {
+  .steps-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+.rental-price {
+  font-family: var(--font-display);
+  color: var(--color-accent);
+  font-size: 2.4rem;
+  line-height: 0.9;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.book-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 28px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  background: var(--color-accent);
+  color: var(--color-paper);
+  border: 2px solid var(--color-ink);
+  border-radius: 100px;
+  cursor: pointer;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.book-btn:hover:not(:disabled) {
+  background: var(--color-sun);
+  color: var(--color-ink);
+  transform: translateY(-3px) rotate(-2deg);
+}
+.book-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rental-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--color-paper);
+  background:
+    linear-gradient(160deg, var(--color-ink) 0%, var(--color-ink-soft) 55%, var(--color-accent) 120%);
+}
+
+.rental-card-category {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+.rental-card-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.rental-price-unit {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-mute);
+}
+
+.rental-empty {
+  text-align: center;
+  color: var(--color-mute);
+  padding-block: var(--spacing-3xl);
+}
+
+.rental-detail {
+  display: grid;
+  gap: var(--spacing-2xl);
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .rental-detail {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.rental-detail-media {
+  aspect-ratio: 4 / 5;
+  background: var(--color-ink);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 2px solid var(--color-ink);
+}
+.rental-detail-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rental-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+@media (min-width: 768px) {
+  .rental-detail-info {
+    position: sticky;
+    top: 7.5rem;
+  }
+}
+
+.rental-duration-note {
+  color: var(--color-mute);
+  font-size: 0.9375rem;
+}
+
+.book-rental {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
+}
+
+.book-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.book-label {
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft, var(--color-ink));
+}
+
+.book-input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  border: 2px solid var(--color-ink);
+  border-radius: 100px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  width: 100%;
+}
+.book-input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.duration-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.duration-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 2px solid var(--color-ink);
+  border-radius: 100px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.duration-pill:hover,
+.duration-pill.selected {
+  background: var(--color-sun);
+  color: var(--color-ink);
+}
+.duration-pill.selected {
+  background: var(--color-accent);
+  color: var(--color-paper);
+}
+
+.price-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-paper-warm);
+  border: 2px solid var(--color-ink);
+  border-radius: 18px;
+}
+.price-preview-label,
+.price-preview-note {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+}
+
+.book-error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.testimonial-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+@media (min-width: 768px) {
+  .testimonial-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.testimonial-card {
+  background: var(--color-cream, var(--color-paper));
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.testimonial-quote {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.35;
+}
+.testimonial-name {
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}

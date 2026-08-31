@@ -1,0 +1,63 @@
+---
+import { resolveWixImageUrl } from "../utils/wix-image";
+import { formatMoney, kitPalette, type RentalView } from "../utils/rentals";
+
+interface Props {
+  rental: RentalView;
+  origin?: string;
+  index?: number;
+}
+
+const { rental, origin = "Rental Listing", index } = Astro.props;
+const imageUrl = resolveWixImageUrl(rental.image, 600, 750);
+const price = formatMoney(rental.pricePerDay, rental.currency);
+const unit = rental.unitType === "DAY" ? "/ day" : "/ hour";
+const initial = (rental.name ?? "?").slice(0, 1).toUpperCase();
+const palette = kitPalette(rental.slug);
+const blurb = rental.tagLine || rental.description.slice(0, 110);
+const label = String(index ?? 1).padStart(2, "0");
+---
+
+<a
+  href={`/rentals/${rental.slug}`}
+  class={`kit-card ${palette}`}
+  data-astro-reload
+  data-analytics-rental
+  data-id={rental.id}
+  data-name={rental.name}
+  data-price={rental.pricePerDay}
+  data-currency={rental.currency}
+  data-origin={origin}
+>
+  <div class="kit-meta">
+    <span>{label} / {rental.category}</span>
+    <span>{price}{unit.replace(" ", "")}</span>
+  </div>
+  <div class="kit-media">
+    {imageUrl ? (
+      <img src={imageUrl} alt={rental.name} loading="lazy" decoding="async" />
+    ) : (
+      <div class="rental-card-placeholder" aria-hidden="true">{initial}</div>
+    )}
+  </div>
+  <h3>{rental.name}</h3>
+  {blurb && <p>{blurb}</p>}
+  <span class="kit-cta">Grab it →</span>
+</a>
+
+<script>
+  import { trackEvent } from "../utils/analytics";
+  document.addEventListener("click", (event) => {
+    const anchor = (event.target as HTMLElement)?.closest(
+      "a[data-analytics-rental]",
+    ) as HTMLAnchorElement | null;
+    if (!anchor) return;
+    trackEvent("ClickProduct", {
+      id: anchor.dataset.id,
+      name: anchor.dataset.name,
+      price: anchor.dataset.price ? Number(anchor.dataset.price) : undefined,
+      currency: anchor.dataset.currency,
+      origin: anchor.dataset.origin ?? "Rental Listing",
+    });
+  });
+</script>
